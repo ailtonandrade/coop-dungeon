@@ -42,13 +42,27 @@ porque a referência é da própria Microsoft, que também aprova o jogo na loja
 - Herói: 100 de vida. Poção cura 40% (recarga de 15 s). Caído, um companheiro
   perto por 2 s revive com 50%. Todos caídos: em 3 s a arena reinicia na onda 1.
 
+## Pulo e escalada (acréscimo em relação à referência)
+
+A referência não tem pulo; aqui o herói pula (~1,2 m) e **escala bordas automaticamente**:
+no ar, empurrando contra algo cujo topo esteja até 1,6 m acima do pé, ele agarra e sobe.
+Na prática, dá pra subir em coisas de até ~2,7 m. Mais alto que isso, ou sem espaço em cima, não sobe.
+- Tolerâncias de controle: dá pra pular até 0,1 s depois de sair da borda, e o aperto
+  feito até 0,12 s antes de pousar vale.
+- As bordas da arena têm colisão invisível alta, pra ninguém escalar pra fora.
+- Inimigos não escalam: subir é uma rota de fuga, mas o atirador ainda acerta lá em cima.
+  Avaliar se isso deixa o jogo fácil demais.
+- O pacote de modelos atual não tem animação de pulo nem de escalada: na escalada
+  ele usa "Interact" no lugar. Modelos com "Jump"/"Climb" são usados automaticamente.
+
 ## Controles (padrão)
 
 | Ação | Controle | Teclado |
 |---|---|---|
 | Mover | Analógico esquerdo | WASD |
 | Corpo a corpo | X | J |
-| Rolar | A | Espaço |
+| Pular / escalar | A | Espaço |
+| Rolar | B | Shift |
 | À distância | RT | K |
 | Poção | Y | E |
 | Artefato | RB | Q |

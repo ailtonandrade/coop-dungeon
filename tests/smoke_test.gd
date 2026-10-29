@@ -1,6 +1,6 @@
 extends SceneTree
 ## Teste de fumaça sem tela: carrega a fase, faz 2 jogadores entrarem e confere o loop
-## principal (nascer, malha de navegação, ondas, golpe, inimigos atacando, save).
+## principal (nascer, escalada, malha de navegação, ondas, golpe, inimigos atacando, save).
 ## Rodar: godot --headless --fixed-fps 60 --path coop-dungeon -s tests/smoke_test.gd
 ## Sem tipos Player/Enemy aqui: o script de teste compila antes dos autoloads existirem.
 
@@ -31,6 +31,25 @@ func _process(_delta: float) -> bool:
 			var nav: NavigationRegion3D = current_scene.find_children("*", "NavigationRegion3D", true, false)[0]
 			var polygons := nav.navigation_mesh.get_polygon_count()
 			_check(polygons > 0, "malha de navegação gerada (%d polígonos)" % polygons)
+		SECOND + 10:
+			# Escalada: pulando ao lado do pilar de 2 m, sobe; do chão no contêiner (2,6 m)
+			# e na borda da arena, não.
+			var p1 := _player(0)
+			p1.teleport_to(Vector3(-5.4, 0.8, -7.0))
+			p1._facing = Vector3.LEFT
+			_check(p1._try_mantle(), "escalada aceita no pilar de 2 m em pleno pulo")
+			var p2 := _player(1)
+			p2.teleport_to(Vector3(5.2, 0.0, -9.0))
+			p2._facing = Vector3.RIGHT
+			_check(not p2._try_mantle(), "contêiner alto demais para escalar do chão")
+			p2.teleport_to(Vector3(15.4, 0.4, 0.0))
+			_check(not p2._try_mantle(), "borda da arena não deixa escalar para fora")
+			p2.teleport_to(Vector3(2.0, 0.0, 0.0))
+		SECOND + 50:
+			var p1 := _player(0)
+			_check(absf(p1.global_position.y - 2.0) < 0.1 and p1.state == 0,
+					"P1 terminou em cima do pilar (y=%.2f)" % p1.global_position.y)
+			p1.teleport_to(Vector3.ZERO)
 		3 * SECOND:
 			var enemies := get_nodes_in_group("enemies")
 			_check(enemies.size() == 3, "onda 1 com 3 inimigos (achou %d)" % enemies.size())

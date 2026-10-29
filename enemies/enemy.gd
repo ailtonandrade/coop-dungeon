@@ -184,7 +184,7 @@ func _strike() -> void:
 			body.take_hit(_stats.damage, _facing * _stats.knockback)
 	elif _target:
 		var from := global_position + Vector3.UP * 1.1 + _facing * 0.5
-		var dir := Combat.flat(_target.global_position - global_position).normalized()
+		var dir := (_target.global_position + Vector3.UP * 1.0 - from).normalized()
 		Projectile.spawn(get_parent(), from, dir, PROJECTILE_SPEED, _stats.damage,
 				GameConfig.LAYER_PLAYERS, Color(0.8, 0.3, 1.0), Vector3(0.35, 0.35, 0.35))
 

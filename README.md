@@ -5,11 +5,12 @@ Design completo em [`docs/GDD.md`](docs/GDD.md).
 
 ## Rodar
 
-1. Instale o **Godot 4.4** (versão padrão, não a .NET): https://godotengine.org/download
+1. Instale o **Godot 4.7** (versão padrão, não a .NET): https://godotengine.org/download
 2. No Godot: **Importar** e escolha `coop-dungeon/project.godot`.
 3. **F5** para jogar.
-   - Teclado: **Enter** entra, WASD anda, J ataca, K atira flecha, Espaço rola, E bebe poção.
-   - Cada controle: **Start** (ou A) entra, analógico anda, X ataca, RT atira, A rola, Y poção.
+   - Teclado: **Enter** entra, WASD anda, Espaço pula, J ataca, K atira flecha, Shift rola, E bebe poção.
+   - Cada controle: **Start** (ou A) entra, analógico anda, A pula, X ataca, RT atira, B rola, Y poção.
+   - Pule contra uma borda (até ~2,7 m: pilares, plataformas, carro, contêiner) e o herói escala sozinho.
    - Ondas de inimigos chegam sozinhas. Quem cai é revivido quando um companheiro fica perto.
 
 ## Trocar os modelos

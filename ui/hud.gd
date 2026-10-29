@@ -45,7 +45,7 @@ func _ready() -> void:
 	add_child(_wave_label)
 
 	var help := _make_label(18, Color(1, 1, 1, 0.8))
-	help.text = "Controle: X ataca · RT flecha · A rola · Y poção     Teclado: J ataca · K flecha · Espaço rola · E poção"
+	help.text = "Controle: A pula · X ataca · RT flecha · B rola · Y poção     Teclado: Espaço pula · J ataca · K flecha · Shift rola · E poção"
 	help.position = Vector2(24, 16)
 	add_child(help)
 

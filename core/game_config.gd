@@ -13,6 +13,15 @@ const PLAYER_ACCEL := 40.0
 const PLAYER_TURN_SPEED := 18.0
 const GRAVITY := 30.0
 
+# Pulo e escalada
+## Altura máxima do pulo ~1,2 m. A escalada agarra bordas até MANTLE_REACH acima do pé,
+## então pulando dá para subir em coisas de até ~2,7 m (pilares, carro, contêiner).
+const JUMP_VELOCITY := 8.5
+const COYOTE_TIME := 0.1
+const JUMP_BUFFER := 0.12
+const MANTLE_REACH := 1.6
+const MANTLE_TIME := 0.4
+
 # Rolada (esquiva)
 const DODGE_SPEED := 8.0
 const DODGE_TIME := 0.4

@@ -8,7 +8,7 @@ const FIRST_WAVE_DELAY := 2.0
 const BETWEEN_WAVES := 3.0
 ## Pontos de entrada nas bordas da arena (x, z).
 const SPAWN_POINTS: Array[Vector2] = [
-	Vector2(-13, -13), Vector2(13, -13), Vector2(-13, 13), Vector2(13, 13),
+	Vector2(-13, -13), Vector2(13, -13), Vector2(-13, 13), Vector2(6, 13),
 	Vector2(0, -14), Vector2(0, 14), Vector2(-14, 0), Vector2(14, 0),
 ]
 

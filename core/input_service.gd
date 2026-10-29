@@ -8,11 +8,12 @@ signal player_left(slot: int)
 const KEYBOARD := -1
 const NO_DEVICE := -2
 
-enum Action { MELEE, DODGE, RANGED, POTION, ARTIFACT, PAUSE }
+enum Action { MELEE, DODGE, RANGED, POTION, ARTIFACT, PAUSE, JUMP }
 
 const JOY_BUTTONS := {
 	Action.MELEE: JOY_BUTTON_X,
-	Action.DODGE: JOY_BUTTON_A,
+	Action.JUMP: JOY_BUTTON_A,
+	Action.DODGE: JOY_BUTTON_B,
 	Action.POTION: JOY_BUTTON_Y,
 	Action.ARTIFACT: JOY_BUTTON_RIGHT_SHOULDER,
 	Action.PAUSE: JOY_BUTTON_START,
@@ -22,7 +23,8 @@ const JOY_TRIGGERS := {
 }
 const KEYS := {
 	Action.MELEE: KEY_J,
-	Action.DODGE: KEY_SPACE,
+	Action.JUMP: KEY_SPACE,
+	Action.DODGE: KEY_SHIFT,
 	Action.RANGED: KEY_K,
 	Action.POTION: KEY_E,
 	Action.ARTIFACT: KEY_Q,

@@ -4,27 +4,35 @@ extends Node3D
 
 const ARENA_SIZE := 32
 const WALL_HEIGHT := 1.0
+## As bordas têm colisão invisível alta, para ninguém escalar para fora da arena.
+const BORDER_HEIGHT := 5.0
 const PILLARS: Array[Rect2i] = [
 	Rect2i(-8, -8, 2, 2), Rect2i(-10, 4, 3, 1), Rect2i(10, 0, 1, 1),
 ]
-## Ambientação provisória (Quaternius, CC0): [cena, posição no grid (x, z), rotação Y em graus].
+## Plataformas para escalar: [retângulo no grid, altura].
+const PLATFORMS := [
+	[Rect2i(-13, -7, 4, 4), 1.5],
+	[Rect2i(9, 8, 3, 3), 1.0],
+	[Rect2i(9, 11, 3, 3), 2.2],
+]
+## Ambientação provisória (Quaternius, CC0): [cena, posição (x, y, z), rotação Y em graus].
 ## Trocar o visual é só trocar o .glb; a colisão sai da caixa do modelo.
 const PROPS := [
-	["res://assets/props/Container_Red.glb", Vector2(7, -9), 90.0],
-	["res://assets/props/Vehicle_Pickup.glb", Vector2(-3, 9), 70.0],
-	["res://assets/props/Barrel.glb", Vector2(4, 5), 0.0],
-	["res://assets/props/Barrel.glb", Vector2(5, 5.8), 0.0],
-	["res://assets/props/Wheels_Stack.glb", Vector2(-6, -3), 0.0],
-	["res://assets/props/Pallet.glb", Vector2(2, -4), 20.0],
-	["res://assets/props/PlasticBarrier.glb", Vector2(-1, -12), 0.0],
-	["res://assets/props/PlasticBarrier.glb", Vector2(1, -12), 0.0],
-	["res://assets/props/TrafficCone_1.glb", Vector2(-4, 4), 0.0],
-	["res://assets/props/TrafficCone_1.glb", Vector2(-5, 5), 0.0],
-	["res://assets/props/TrashBag_1.glb", Vector2(11, 6), 0.0],
-	["res://assets/props/CinderBlock.glb", Vector2(-12, -10), 30.0],
-	["res://assets/props/Chest.glb", Vector2(0, 2), 180.0],
-	["res://assets/props/StreetLights.glb", Vector2(-14, -14), 45.0],
-	["res://assets/props/StreetLights.glb", Vector2(14, 14), 225.0],
+	["res://assets/props/Container_Red.glb", Vector3(7, 0, -9), 90.0],
+	["res://assets/props/Vehicle_Pickup.glb", Vector3(-3, 0, 9), 70.0],
+	["res://assets/props/Barrel.glb", Vector3(4, 0, 5), 0.0],
+	["res://assets/props/Barrel.glb", Vector3(5, 0, 5.8), 0.0],
+	["res://assets/props/Wheels_Stack.glb", Vector3(-6, 0, -3), 0.0],
+	["res://assets/props/Pallet.glb", Vector3(2, 0, -4), 20.0],
+	["res://assets/props/PlasticBarrier.glb", Vector3(-1, 0, -12), 0.0],
+	["res://assets/props/PlasticBarrier.glb", Vector3(1, 0, -12), 0.0],
+	["res://assets/props/TrafficCone_1.glb", Vector3(-4, 0, 4), 0.0],
+	["res://assets/props/TrafficCone_1.glb", Vector3(-5, 0, 5), 0.0],
+	["res://assets/props/TrashBag_1.glb", Vector3(11, 0, 6), 0.0],
+	["res://assets/props/CinderBlock.glb", Vector3(-12, 0, -10), 30.0],
+	["res://assets/props/Chest.glb", Vector3(-11, 1.5, -5), 135.0],
+	["res://assets/props/StreetLights.glb", Vector3(-14, 0, -14), 45.0],
+	["res://assets/props/StreetLights.glb", Vector3(14, 0, 14), 225.0],
 ]
 
 var _materials: Dictionary = {}  # Color -> StandardMaterial3D
@@ -39,8 +47,11 @@ func _ready() -> void:
 	_build_walls()
 	for rect in PILLARS:
 		_add_block(Vector3(rect.position.x, 0.0, rect.position.y), Vector3(rect.size.x, 2.0, rect.size.y), Color(0.45, 0.42, 0.4))
+	for platform: Array in PLATFORMS:
+		var rect: Rect2i = platform[0]
+		_add_block(Vector3(rect.position.x, 0.0, rect.position.y), Vector3(rect.size.x, platform[1], rect.size.y), Color(0.5, 0.38, 0.28))
 	for prop: Array in PROPS:
-		_add_prop(load(prop[0]), Vector3(prop[1].x, 0.0, prop[1].y), prop[2])
+		_add_prop(load(prop[0]), prop[1], prop[2])
 	_bake_navigation()
 
 
@@ -103,6 +114,10 @@ func _build_walls() -> void:
 	_add_block(Vector3(-half - 1, 0, half), Vector3(ARENA_SIZE + 2, WALL_HEIGHT, 1), color)
 	_add_block(Vector3(-half - 1, 0, -half), Vector3(1, WALL_HEIGHT, ARENA_SIZE), color)
 	_add_block(Vector3(half, 0, -half), Vector3(1, WALL_HEIGHT, ARENA_SIZE), color)
+	_add_block(Vector3(-half - 1, 0, -half - 1), Vector3(ARENA_SIZE + 2, BORDER_HEIGHT, 1), color, false)
+	_add_block(Vector3(-half - 1, 0, half), Vector3(ARENA_SIZE + 2, BORDER_HEIGHT, 1), color, false)
+	_add_block(Vector3(-half - 1, 0, -half), Vector3(1, BORDER_HEIGHT, ARENA_SIZE), color, false)
+	_add_block(Vector3(half, 0, -half), Vector3(1, BORDER_HEIGHT, ARENA_SIZE), color, false)
 
 
 ## Cria um bloco estático alinhado ao grid. `corner` é o canto mínimo (x, y, z).
