@@ -74,6 +74,35 @@ func _process(_delta: float) -> bool:
 			_check(p1.armor() > _armor_before, "armadura subiu (%.1f -> %.1f)" % [_armor_before, p1.armor()])
 			_check(p1._visual.any(func(v: Dictionary) -> bool: return v.id == "plate_armor"), "peitoral aparece no boneco")
 			_check(not root.get_node("SaveService").load_player(0).is_empty(), "inventário salvo na conta do P1")
+		SECOND + 75:
+			# Daqui em diante, tudo pelos botões de verdade (teclado = P1, controle 0 = P2).
+			_key(KEY_SPACE, true)
+		SECOND + 78:
+			_key(KEY_SPACE, false)
+			var p1 := _player(0)
+			_check(p1._animator.current == "jump" and not p1.is_on_floor(), "Espaço: P1 pulou com a animação de pulo (%s)" % p1._animator.current)
+		SECOND + 80:
+			# P2 mira para a direita da tela e anda para a esquerda: de costas, olhando para a mira.
+			_axis(JOY_AXIS_RIGHT_X, 1.0)
+			_axis(JOY_AXIS_LEFT_X, -1.0)
+		SECOND + 105:
+			var p2 := _player(1)
+			var aim := Vector3.RIGHT.rotated(Vector3.UP, deg_to_rad(45.0))
+			_check(p2._facing.dot(aim) > 0.95, "analógico direito: P2 olha para a mira")
+			_check(p2._animator.current == "move_back", "andando contra a mira: animação de costas (%s)" % p2._animator.current)
+			_axis(JOY_AXIS_RIGHT_X, 0.0)
+			_axis(JOY_AXIS_LEFT_X, 0.0)
+		SECOND + 110:
+			# Limite do sofá: P2 longe do P1 tentando se afastar mais.
+			var p1 := _player(0)
+			p1.teleport_to(Vector3(0, 0, 0))
+			_player(1).teleport_to(Vector3(-12.5, 0, 0).rotated(Vector3.UP, deg_to_rad(45.0)))
+			_axis(JOY_AXIS_LEFT_X, -1.0)
+		SECOND + 160:
+			_axis(JOY_AXIS_LEFT_X, 0.0)
+			var gap := _player(0).global_position.distance_to(_player(1).global_position)
+			_check(gap < 13.6, "sofá: P2 não passa do limite de distância (%.1f m)" % gap)
+			_player(1).teleport_to(Vector3(3, 0, 0))
 		3 * SECOND:
 			var enemies := get_nodes_in_group("enemies")
 			_check(enemies.size() == 3, "onda 1 com 3 inimigos (achou %d)" % enemies.size())
@@ -82,9 +111,12 @@ func _process(_delta: float) -> bool:
 			_enemy = enemies[0]
 			_enemy.global_position = p1.global_position + p1.global_basis.z * -1.2
 			_enemy_hp = _enemy.health.hp
-			p1._start_attack(0, Vector3.ZERO)
+			_key(KEY_J, true)
+		3 * SECOND + 2:
+			_key(KEY_J, false)
+			_check(_player(0)._animator.current == "slash", "J: P1 ataca com a espadada")
 		3 * SECOND + 30:
-			_check(_enemy.health.hp < _enemy_hp, "golpe do P1 tirou vida do inimigo (%.0f -> %.0f)" % [_enemy_hp, _enemy.health.hp])
+			_check(_enemy.health.hp < _enemy_hp, "golpe (pelo botão) tirou vida do inimigo (%.0f -> %.0f)" % [_enemy_hp, _enemy.health.hp])
 		12 * SECOND:
 			var hurt := get_nodes_in_group("players").filter(func(p: Node) -> bool: return p.health.hp < p.health.max_hp)
 			_check(not hurt.is_empty(), "inimigos chegaram e bateram nos jogadores parados")
@@ -94,6 +126,22 @@ func _process(_delta: float) -> bool:
 			print("SMOKE TEST: ", "FALHOU" if _failed else "OK")
 			quit(1 if _failed else 0)
 	return false
+
+
+func _key(code: Key, down: bool) -> void:
+	var event := InputEventKey.new()
+	event.physical_keycode = code
+	event.keycode = code
+	event.pressed = down
+	Input.parse_input_event(event)
+
+
+func _axis(axis: JoyAxis, value: float) -> void:
+	var event := InputEventJoypadMotion.new()
+	event.device = 0
+	event.axis = axis
+	event.axis_value = value
+	Input.parse_input_event(event)
 
 
 func _player(slot: int) -> Node3D:

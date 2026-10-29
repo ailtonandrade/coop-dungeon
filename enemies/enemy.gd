@@ -14,19 +14,18 @@ const STATS := {
 	Kind.MELEE: {
 		"model": "res://assets/characters/Punk.glb", "tint": Color(0.3, 0.9, 0.2, 0.3), "scale": 1.1,
 		"hp": 30.0, "speed": 3.4, "attack_range": 1.6, "windup": 0.5, "recover": 0.8,
-		"damage": 12.0, "knockback": 6.0, "anim": "Punch_Right",
+		"damage": 12.0, "knockback": 6.0, "attack": "punch", "anims": AnimSets.HUMANOID,
 	},
 	Kind.RANGED: {
 		"model": "res://assets/characters/Casual_Hoodie.glb", "tint": Color(0.7, 0.3, 1.0, 0.3), "scale": 1.0,
 		"hp": 20.0, "speed": 3.0, "attack_range": 10.0, "windup": 0.7, "recover": 1.6,
-		"damage": 10.0, "knockback": 3.0, "anim": "Gun_Shoot",
+		"damage": 10.0, "knockback": 3.0, "attack": "shoot", "anims": AnimSets.HUMANOID,
 	},
 }
 const RANGED_MIN_DIST := 5.0
 const PROJECTILE_SPEED := 9.0
 const STAGGER_TIME := 0.25
 const TURN_SPEED := 12.0
-const ANIM_BLEND := 0.12
 const WINDUP_TINT := Color(1.0, 0.15, 0.1, 0.55)
 const NET_SMOOTHING := 18.0
 const NET_SNAP_DISTANCE := 3.0
@@ -42,12 +41,9 @@ var _timer := 0.0
 var _facing := Vector3.FORWARD
 var _knockback := Vector3.ZERO
 var _model: Node3D
-var _anim: AnimationPlayer
+var _animator: CharacterAnimator
 var _tint: StandardMaterial3D
 var _agent: NavigationAgent3D
-var _anim_name := ""
-var _anim_speed := 1.0
-var _anim_serial := 0
 var _net_pos := Vector3.ZERO
 var _net_yaw := 0.0
 var _net_synced := false
@@ -88,11 +84,7 @@ func _ready() -> void:
 	pivot.add_child(_model)
 	_tint = Combat.overlay_material(_stats.tint)
 	Combat.set_overlay(_model, _tint)
-	_anim = _model.find_child("AnimationPlayer", true, false)
-	if _anim:
-		for anim_name in ["Idle", "Run"]:
-			if _anim.has_animation(anim_name):
-				_anim.get_animation(anim_name).loop_mode = Animation.LOOP_LINEAR
+	_animator = CharacterAnimator.new(_model, _stats.anims)
 
 	health.max_hp = _stats.hp
 	add_child(health)
@@ -117,7 +109,7 @@ func take_hit(amount: float, knockback := Vector3.ZERO) -> void:
 	# Apanhar interrompe o ataque em preparo.
 	state = State.STAGGER
 	_timer = STAGGER_TIME
-	_play("HitRecieve", STAGGER_TIME, true)
+	_animator.play("hit", STAGGER_TIME, true)
 
 
 func fx_flash() -> void:
@@ -165,7 +157,7 @@ func _physics_process(delta: float) -> void:
 		return
 	basis = basis.slerp(Basis.looking_at(_facing), minf(TURN_SPEED * delta, 1.0)).orthonormalized()
 	if state == State.CHASE:
-		_play("Run" if desired.length() > 0.3 else "Idle")
+		_animator.play("move" if desired.length() > 0.3 else "idle")
 
 
 func _chase() -> Vector3:
@@ -201,7 +193,7 @@ func _begin_windup() -> void:
 	state = State.WINDUP
 	_timer = _stats.windup
 	Combat.set_overlay(_model, Combat.overlay_material(WINDUP_TINT))
-	_play(_stats.anim, _stats.windup + 0.2, true)
+	_animator.play(_stats.attack, _stats.windup + 0.2, true)
 
 
 func _strike() -> void:
@@ -237,7 +229,7 @@ func _find_target() -> Player:
 
 func _on_died() -> void:
 	_become_dead()
-	_play("Death", 0.0, true)
+	_animator.play("death", 0.0, true)
 	var spawner := get_tree().get_first_node_in_group("wave_spawner")
 	Loot.roll_drops(self, (spawner.wave if spawner else 1) + randi_range(0, 1))
 	died.emit(self)
@@ -252,26 +244,10 @@ func _become_dead() -> void:
 	Combat.set_overlay(_model, _tint)
 
 
-func _play(anim_name: String, duration := 0.0, restart := false) -> void:
-	if _anim == null or not _anim.has_animation(anim_name):
-		return
-	if _anim.current_animation == anim_name and not restart:
-		return
-	var speed := 1.0
-	if duration > 0.0:
-		speed = _anim.get_animation(anim_name).length / duration
-	_anim.play(anim_name, ANIM_BLEND, speed)
-	if restart:
-		_anim.seek(0.0, true)
-		_anim_serial += 1
-	_anim_name = anim_name
-	_anim_speed = speed
-
-
 ## Rede
 
 func get_net_state() -> Array:
-	return [global_position, rotation.y, _anim_name, _anim_speed, _anim_serial, state, health.hp]
+	return [global_position, rotation.y, _animator.net_state(), state, health.hp]
 
 
 func apply_net_state(s: Array) -> void:
@@ -281,14 +257,9 @@ func apply_net_state(s: Array) -> void:
 		_net_synced = true
 		global_position = _net_pos
 		rotation.y = _net_yaw
-	var serial: int = s[4]
-	if _anim and _anim.has_animation(s[2]) and (serial != _anim_serial or s[2] != _anim.current_animation):
-		_anim.play(s[2], ANIM_BLEND, s[3])
-		if serial != _anim_serial:
-			_anim.seek(0.0, true)
-	_anim_serial = serial
-	health.hp = s[6]
-	var new_state: State = s[5]
+	_animator.apply_net_state(s[2])
+	health.hp = s[4]
+	var new_state: State = s[3]
 	if new_state == state:
 		return
 	state = new_state

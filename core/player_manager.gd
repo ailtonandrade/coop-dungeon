@@ -1,7 +1,9 @@
 extends Node3D
 ## Vagas da sala (P1 a P4) e regras do grupo. Roda no host: cria os jogadores pelo
-## NetReplicator quando alguém pede para entrar (no sofá ou pela rede) e aplica a "corda"
-## do co-op: quem se afastar demais é teleportado para perto do companheiro mais próximo.
+## NetReplicator quando alguém pede para entrar (no sofá ou pela rede).
+## A "corda" vale só entre quem divide a mesma tela (mesma máquina): o limite de distância
+## fica no movimento do herói (COUCH_LEASH) e, de reserva, quem passar de TETHER_DISTANCE
+## (queda, empurrão) é teleportado. Jogadores online podem ir para regiões diferentes.
 ## Se todos caírem, todo mundo volta de pé no início depois de alguns segundos.
 
 signal party_wiped
@@ -65,7 +67,7 @@ func _physics_process(delta: float) -> void:
 	for player: Player in _players.values():
 		if not player.is_targetable():
 			continue
-		var nearest := _nearest_teammate(player)
+		var nearest := _nearest_screen_mate(player)
 		if player.global_position.y < GameConfig.KILL_Y:
 			player.teleport_to(nearest.global_position + Vector3.BACK if nearest else spawn_position)
 		elif nearest and player.global_position.distance_to(nearest.global_position) > GameConfig.TETHER_DISTANCE:
@@ -87,11 +89,12 @@ func _check_wipe(delta: float) -> void:
 	party_wiped.emit()
 
 
-func _nearest_teammate(player: Player) -> Player:
+## Companheiro de pé mais perto que joga na mesma tela (mesma máquina).
+func _nearest_screen_mate(player: Player) -> Player:
 	var nearest: Player = null
 	var best := INF
 	for other: Player in _players.values():
-		if other == player or not other.is_targetable():
+		if other == player or other.owner_peer != player.owner_peer or not other.is_targetable():
 			continue
 		var d := player.global_position.distance_squared_to(other.global_position)
 		if d < best:

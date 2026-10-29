@@ -62,18 +62,40 @@ Na prática, dá pra subir em coisas de até ~2,7 m. Mais alto que isso, ou sem 
 - O pacote de modelos atual não tem animação de pulo nem de escalada: na escalada
   ele usa "Interact" no lugar. Modelos com "Jump"/"Climb" são usados automaticamente.
 
-## Mundo aberto e interiores
+## Mundo aberto (estilo Tibia)
 
-- **Mundo dividido em blocos** (chunks) de 64 x 64 m, cada um uma cena própria.
-  Carregamos os blocos em volta do grupo em segundo plano e descarregamos os longe.
-  O Godot não faz isso sozinho: vai ser um `WorldStreamer` nosso.
-- **Interiores** (masmorra, casa, prédio) são cenas separadas, ligadas por uma **porta**.
-  Como a tela é uma só, **o grupo inteiro entra junto**: quem chega na porta abre
-  uma contagem curta e todos são levados. No online vale a mesma regra para a sala toda.
-- **Telhados e paredes que tapam o herói** somem quando alguém passa por trás
-  (recorte por câmera), como é comum no gênero isométrico.
-- Inimigos por região (acampamentos, patrulhas) em vez de ondas; as ondas atuais são só para testar combate.
-- A navegação dos inimigos é gerada por bloco, junto com o carregamento.
+**Um mapa só, persistente e desenhado à mão**, não fases. Com o tempo o jogador decora
+o mapa: sabe onde fica o comerciante de armas, onde refina equipamento, onde encanta,
+qual masmorra dá qual loot, qual região é perigosa para o nível dele.
+
+**Peças do mundo:**
+- **Regiões** (floresta, pântano, deserto, montanhas...): cada uma com nível de perigo,
+  criaturas típicas, clima/ambiente e o poder do loot que cai lá.
+- **Cidades:** lugares seguros (sem combate) com os **serviços**: comerciante (comprar/vender),
+  ferreiro (refinar: +1, +2... no poder do item), encantador (encantamentos), banco/baú,
+  ponto de retorno (renascer/viagem rápida).
+- **Masmorras e interiores** (cavernas, casas, prédios, torres): cenas separadas, ligadas
+  ao mapa por **entradas** (porta, escada, buraco). Podem ter andares.
+- **Pontos de interesse:** acampamentos de criaturas, chefes, baús, recursos, NPCs de missão.
+- **Mapa e minimapa** revelam o que o jogador já explorou (névoa), e marcam serviços já descobertos.
+
+**Como o mapa é feito e carregado:**
+- O mapa é montado no editor do Godot em **blocos (chunks) de 64 x 64 m** com peças modulares
+  de 1 m (o grid do jogo). Cada bloco é uma cena; um arquivo de região diz quais blocos
+  são dela e o que ela tem (perigo, criaturas, música).
+- Um `WorldStreamer` carrega em segundo plano os blocos em volta de **cada grupo** e
+  descarrega os que ficaram longe (com a navegação dos inimigos de cada bloco).
+- **Sofá:** quem divide a tela fica perto (limite de distância), então cada máquina precisa de
+  um conjunto pequeno de blocos em volta do grupo dela.
+- **Online:** grupos em máquinas diferentes podem estar em regiões diferentes. O host simula
+  e mantém carregados os blocos em volta de cada grupo; cada cliente carrega só os blocos
+  em volta dos seus jogadores.
+- **Entrar numa masmorra/casa:** como a tela é uma só, quem divide a tela entra junto
+  (contagem curta na porta). Jogadores online de outras máquinas podem ficar do lado de fora.
+- **Telhados e paredes que tapam o herói** somem quando alguém passa por trás (recorte por câmera).
+- **Criaturas por região** (acampamentos, patrulhas, chefes) com reaparecimento por tempo,
+  em vez de ondas. As ondas atuais são só a arena de teste do combate.
+- **Estado do mundo** (baús abertos, chefes mortos, serviços descobertos) fica no save do mundo do host.
 
 ## Multiplayer online
 
@@ -115,9 +137,12 @@ sem precisar de servidor dedicado.
 
 ## Mundos
 
-- Cada mundo tem nome, semente, visibilidade (aberto / privado / offline) e progresso
-  (hoje: melhor onda). Fica salvo no perfil do host; no online o mundo é sempre o do host.
-- A semente já é guardada para a geração do mundo aberto (M7).
+- Cada mundo salvo é uma partida no **mesmo mapa** (o mapa é um só, desenhado à mão), com o
+  próprio progresso: o que foi explorado, chefes mortos, baús abertos, serviços descobertos.
+- Tem nome, visibilidade (aberto / privado / offline) e fica no perfil do host; no online o
+  mundo é sempre o do host. Os personagens (inventário, nível) são de cada jogador.
+- A semente fica guardada para o que for aleatório dentro do mapa fixo (ex.: variações de
+  masmorra, posição de baús), não para gerar o mapa.
 
 ## Inventário e loot
 
@@ -158,13 +183,24 @@ Segue o centro dos jogadores da máquina, como a câmera principal.
 | Ação | Controle | Teclado |
 |---|---|---|
 | Mover | Analógico esquerdo | WASD |
-| Corpo a corpo | X | J |
+| Mirar (anda de costas/lado olhando a mira) | Analógico direito | Mouse (segurando um botão) |
+| Corpo a corpo | X | J ou botão esquerdo do mouse |
+| À distância (dá pra atirar andando) | RT | K ou botão direito do mouse |
 | Pular / escalar | A | Espaço |
 | Rolar | B | Shift |
-| À distância | RT | K |
 | Poção | Y | E |
+| Pegar item do chão | LB | F |
+| Inventário | Back | I |
 | Artefato | RB | Q |
+| Menu | Start | Esc |
 | Entrar no jogo | Start / A | Enter |
+
+**Mira (twin-stick):** com o analógico direito (ou mouse), o herói olha para a mira e anda
+para qualquer lado: de frente, de lado e de costas (mais devagar de costas). Atirando andando,
+as pernas continuam correndo. Sem mirar, o golpe e a flecha corrigem sozinhos para o inimigo mais perto.
+
+**Limite do sofá:** quem divide a tela não se afasta mais que 13 m dos outros da mesma tela
+(parede invisível); de reserva, quem passar de 16 m (queda, empurrão) é teleportado.
 
 ## Funcionalidades (escopo completo, em ordem de construção)
 
@@ -179,29 +215,15 @@ Segue o centro dos jogadores da máquina, como a câmera principal.
 6. **Progressão**: nível do herói gera pontos de encantamento; 3 encantamentos por item.
 7. **Artefatos**: 3 slots com recarga.
 8. **Online**: host com autoridade, até 4 por sala, sofá + online misturados.
-9. **Mundo aberto**: blocos carregados sob demanda, portas para interiores, recorte de telhado.
-10. **Interiores**: masmorras em salas modulares (grid de 1 m), casas e prédios.
-11. **Progressão de mundo**: regiões, dificuldades e modificadores.
-12. **Plataforma**: perfis por controle, save na nuvem, conquistas, certificação.
+9. **Mundo aberto estilo Tibia**: mapa único desenhado à mão, regiões, blocos carregados em volta de cada grupo.
+10. **Cidades e serviços**: comerciante, refino, encantamento, banco, ponto de retorno.
+11. **Masmorras e interiores**: entradas no mapa, andares, chefes.
+12. **Criaturas variadas**: cada uma com o próprio modelo, esqueleto e mapa de animações (AnimSets).
+13. **Plataforma**: perfis por controle, save na nuvem, conquistas, certificação.
 
 ## Arquitetura
 
-```
-core/       InputService (controle -> slot), SaveService (fachada), PlayerManager, GameConfig
-player/     Player (CharacterBody3D) + cena
-camera/     SharedCamera
-levels/     fases
-ui/         HUD
-platform/   tudo que muda por plataforma: PlatformService, SaveBackend e implementações
-assets/     modelos provisórios (Quaternius, CC0)
-tests/      teste de fumaça headless
-```
-
-Regras:
-- O jogo **nunca** lê `Input` direto. Sempre `InputService.get_move(slot)` / `just_pressed(slot, ação)`.
-- O jogo **nunca** grava arquivo direto. Sempre `SaveService`.
-- Código específico de Xbox/Steam fica só em `platform/`.
-- GDScript (não C#), por ser o caminho mais seguro para o port de console.
+Estrutura de pastas, regras e como estender cada parte: ver [`ARCHITECTURE.md`](ARCHITECTURE.md).
 
 ## Save e cross save
 
@@ -241,8 +263,9 @@ Regras:
 | M4 | Vida, cair/reviver, baú com loot, fim de fase | vida, poção, cair/reviver ✅ |
 | M5 | Save local `world` / `player` ligado ao jogo | serviço ✅ |
 | M6 | **Base do online**: host/entrar por IP, 2 máquinas + sofá, inimigos e dano pelo host | ✅ + menu de mundos e busca na rede local |
-| M7 | **Mundo aberto**: 3x3 blocos com carregamento, 1 porta para interior, recorte de telhado | |
-| M8 | Loot e progressão sincronizados no online | ✅ inventário estilo Tibia, loot estilo MU, equipamento no boneco |
+| M7 | **Mundo aberto (base)**: região de teste em blocos com carregamento por grupo, 1 entrada de masmorra, recorte de telhado | |
+| M8 | Loot e progressão sincronizados no online | ✅ inventário estilo Tibia, loot estilo MU, equipamento no boneco, mira twin-stick |
+| M9 | **Cidade e serviços**: comerciante, refino e encantamento | |
 
 O online (M6) vem **antes** do mundo aberto e do loot: todo sistema novo
 já nasce sincronizado. Adaptar depois custaria reescrever cada sistema.

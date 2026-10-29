@@ -1,6 +1,7 @@
 class_name Player
 extends CharacterBody3D
-## Herói. Movimento relativo à câmera isométrica.
+## Herói. Movimento relativo à câmera isométrica, com mira separada do movimento (twin-stick):
+## analógico direito ou mouse miram, e o herói anda de costas e de lado olhando para a mira.
 ## No host (ou offline) ele simula tudo a partir do PlayerInput, seja o controle local
 ## ou os comandos que chegam pela rede. Nos clientes ele só mostra o estado replicado.
 
@@ -11,25 +12,30 @@ signal inventory_updated
 
 ## Modelo provisório por jogador da sala (P1 a P4) (Quaternius, CC0). Para trocar, basta outro .glb na mesma
 ## escala (1 unidade = 1 m, pé na origem) com animações Idle, Run, Roll, Sword_Slash e Death.
-## Se o modelo tiver "Jump" e "Climb", elas são usadas no pulo e na escalada.
+## As animações são pedidas por ação (AnimSets.HUMANOID); pulo, queda e escalada vêm do
+## modelo se ele tiver, senão de ProceduralAnims.
 const MODELS: Array[PackedScene] = [
 	preload("res://assets/characters/Adventurer.glb"),
 	preload("res://assets/characters/Swat.glb"),
 	preload("res://assets/characters/Farmer.glb"),
 	preload("res://assets/characters/Worker.glb"),
 ]
-const ANIM_BLEND := 0.15
 ## Suavização da posição replicada nos clientes (maior = segue mais rápido).
 const NET_SMOOTHING := 18.0
 const NET_SNAP_DISTANCE := 3.0
 ## Dano sem arma corpo a corpo.
 const UNARMED_DAMAGE := 5.0
 ## Golpes do combo corpo a corpo, em ordem. Apertar ataque durante um golpe encadeia o próximo.
+## "damage" é o multiplicador sobre o dano da arma (x10). "windup" é o tempo até o golpe acertar.
 const COMBO: Array[Dictionary] = [
-	{"damage": 10.0, "knockback": 3.0, "windup": 0.12, "recovery": 0.22, "lunge": 2.5},
-	{"damage": 10.0, "knockback": 3.0, "windup": 0.12, "recovery": 0.22, "lunge": 2.5},
-	{"damage": 22.0, "knockback": 8.0, "windup": 0.2, "recovery": 0.4, "lunge": 4.0},
+	{"damage": 10.0, "knockback": 3.0, "windup": 0.18, "recovery": 0.3, "lunge": 2.5},
+	{"damage": 10.0, "knockback": 3.0, "windup": 0.18, "recovery": 0.3, "lunge": 2.5},
+	{"damage": 22.0, "knockback": 8.0, "windup": 0.26, "recovery": 0.42, "lunge": 4.0},
 ]
+## Em que fração da animação de golpe ("slash") a lâmina passa pela frente (para casar com o acerto).
+const SLASH_IMPACT := 0.4
+## Depois de atirar, por quanto tempo as pernas correm com a animação de "correr atirando".
+const SHOOT_POSE_TIME := 0.35
 
 enum State { NORMAL, DODGING, ATTACKING, CLIMBING, DOWNED }
 
@@ -60,16 +66,15 @@ var _combo_queued := false
 var _hit_done := false
 var _hitstop := 0.0
 var _anim_lock := 0.0
+var _shoot_pose := 0.0
+var _aim_dir := Vector3.ZERO
 var _coyote := 0.0
 var _jump_buffer := 0.0
 var _climb_from := Vector3.ZERO
 var _climb_to := Vector3.ZERO
-var _anim: AnimationPlayer
+var _animator: CharacterAnimator
 var _model: Node3D
 var _input: PlayerInput
-var _anim_name := ""
-var _anim_speed := 1.0
-var _anim_serial := 0
 var _net_pos := Vector3.ZERO
 var _net_yaw := 0.0
 var _net_synced := false
@@ -112,11 +117,7 @@ func _ready() -> void:
 
 	_model = MODELS[index % MODELS.size()].instantiate()
 	$Model.add_child(_model)
-	_anim = _model.find_child("AnimationPlayer", true, false)
-	if _anim:
-		for anim_name in ["Idle", "Run"]:
-			if _anim.has_animation(anim_name):
-				_anim.get_animation(anim_name).loop_mode = Animation.LOOP_LINEAR
+	_animator = CharacterAnimator.new(_model, AnimSets.HUMANOID)
 	ItemVisuals.dress(_model, _visual)
 	if multiplayer.is_server():
 		inventory.changed.connect(_on_inventory_changed)
@@ -156,7 +157,7 @@ func revive(fraction: float) -> void:
 	health.reset(fraction)
 	revive_progress = 0.0
 	state = State.NORMAL
-	_play("Idle")
+	_animator.play("idle")
 	revived.emit()
 
 
@@ -166,6 +167,8 @@ func is_local() -> bool:
 
 
 func _process(delta: float) -> void:
+	if is_local():
+		InputService.set_aim_anchor(slot, global_position)
 	_tag.text = "P%d" % (index + 1)
 	if state == State.DOWNED:
 		_tag.text += "  ✚ %d%%" % int(revive_progress * 100.0)
@@ -185,6 +188,7 @@ func _physics_process(delta: float) -> void:
 	_arrow_cooldown = maxf(_arrow_cooldown - delta, 0.0)
 	potion_cooldown = maxf(potion_cooldown - delta, 0.0)
 	_anim_lock = maxf(_anim_lock - delta, 0.0)
+	_shoot_pose = maxf(_shoot_pose - delta, 0.0)
 	_coyote = GameConfig.COYOTE_TIME if is_on_floor() else maxf(_coyote - delta, 0.0)
 	_jump_buffer = maxf(_jump_buffer - delta, 0.0)
 	if _input.just_pressed(InputService.Action.JUMP):
@@ -194,13 +198,12 @@ func _physics_process(delta: float) -> void:
 	if _hitstop > 0.0:
 		_hitstop -= delta
 		_input.defer()
-		if _anim:
-			_anim.speed_scale = 0.0
+		_animator.set_frozen(true)
 		return
-	if _anim:
-		_anim.speed_scale = 1.0
+	_animator.set_frozen(false)
 
 	var dir := _input_dir()
+	_aim_dir = Vector3(_input.aim.x, 0.0, _input.aim.y).normalized() if _input.aim.length_squared() > 0.01 else Vector3.ZERO
 	var desired := Vector3.ZERO
 	match state:
 		State.NORMAL:
@@ -215,6 +218,7 @@ func _physics_process(delta: float) -> void:
 		State.DOWNED:
 			_update_downed(delta)
 
+	desired = _apply_leash(desired)
 	_knockback = _knockback.move_toward(Vector3.ZERO, 30.0 * delta)
 	velocity.x = desired.x + _knockback.x
 	velocity.z = desired.z + _knockback.z
@@ -236,14 +240,19 @@ func _input_dir() -> Vector3:
 
 func _update_normal(delta: float, dir: Vector3) -> Vector3:
 	var moving := dir.length_squared() > 0.0001
-	if moving:
+	var aiming := _aim_dir != Vector3.ZERO
+	# Mirando, o herói olha para a mira; senão, para onde anda.
+	if aiming:
+		_facing = _aim_dir
+	elif moving:
 		_facing = dir.normalized()
 	if _jump_buffer > 0.0 and _coyote > 0.0:
 		velocity.y = GameConfig.JUMP_VELOCITY
 		_jump_buffer = 0.0
 		_coyote = 0.0
-		_play("Jump")
-	var grounded := is_on_floor()
+		_animator.play("jump", 0.0, true, 0.08)
+	# No quadro do pulo o herói ainda conta como "no chão"; a subida já vale como ar.
+	var grounded := is_on_floor() and velocity.y <= 0.0
 	# No ar, empurrando contra uma borda alcançável: escala.
 	if not grounded and moving and _try_mantle():
 		return Vector3.ZERO
@@ -259,11 +268,56 @@ func _update_normal(delta: float, dir: Vector3) -> Vector3:
 	if _input.just_pressed(InputService.Action.PICKUP):
 		_pick_up()
 
-	var target := dir * GameConfig.PLAYER_SPEED
+	var target := dir * GameConfig.PLAYER_SPEED * _strafe_factor(dir)
 	_move = _move.move_toward(target, GameConfig.PLAYER_ACCEL * delta)
-	if _anim_lock == 0.0 and grounded:
-		_play("Run" if _move.length() > 0.5 else "Idle")
+	if not grounded:
+		if not _animator.is_playing("jump"):
+			_animator.play("fall", 0.0, false, 0.12)
+	elif _anim_lock == 0.0:
+		_animator.play(_locomotion_anim(aiming))
 	return _move
+
+
+## Andando de costas ou de lado (mirando) é mais devagar que de frente.
+func _strafe_factor(dir: Vector3) -> float:
+	if _aim_dir == Vector3.ZERO or dir.length_squared() < 0.0001:
+		return 1.0
+	var forward := dir.normalized().dot(_facing)
+	return lerpf(GameConfig.BACKPEDAL_SPEED_FACTOR, 1.0, (forward + 1.0) / 2.0)
+
+
+## Ação das pernas: parado, correndo, ou (mirando/atirando) de costas e de lado.
+func _locomotion_anim(aiming: bool) -> String:
+	var horizontal := Combat.flat(_move)
+	if horizontal.length() < 0.5:
+		return "idle_aim" if aiming else "idle"
+	if not aiming and _shoot_pose == 0.0:
+		return "move"
+	var dir := horizontal.normalized()
+	var forward := dir.dot(_facing)
+	var right := dir.dot(_facing.cross(Vector3.UP))
+	if forward > 0.5:
+		return "move_shoot" if _shoot_pose > 0.0 else "move"
+	if forward < -0.5:
+		return "move_back"
+	return "move_right" if right > 0.0 else "move_left"
+
+
+## Sofá: quem divide a tela não se afasta mais que COUCH_LEASH dos outros da mesma tela
+## (como uma parede invisível). Assim a região em volta do grupo cabe na tela e fica carregada.
+## Jogadores online, em outras máquinas, não têm esse limite.
+func _apply_leash(desired: Vector3) -> Vector3:
+	for other: Player in get_tree().get_nodes_in_group("players"):
+		if other == self or other.owner_peer != owner_peer or not other.is_targetable():
+			continue
+		var offset := Combat.flat(global_position - other.global_position)
+		var distance := offset.length()
+		if distance > GameConfig.COUCH_LEASH:
+			var away := offset / distance
+			var outward := desired.dot(away)
+			if outward > 0.0:
+				desired -= away * outward
+	return desired
 
 
 func _try_dodge() -> bool:
@@ -273,7 +327,7 @@ func _try_dodge() -> bool:
 	_dodge_dir = _facing
 	_state_timer = GameConfig.DODGE_TIME
 	_dodge_cooldown = GameConfig.DODGE_COOLDOWN
-	_play("Roll", GameConfig.DODGE_TIME, true)
+	_animator.play("roll", GameConfig.DODGE_TIME, true)
 	return true
 
 
@@ -326,8 +380,7 @@ func _try_mantle() -> bool:
 	_climb_to = ledge + Vector3.UP * 0.02
 	velocity = Vector3.ZERO
 	_move = Vector3.ZERO
-	if not _play("Climb", GameConfig.MANTLE_TIME, true):
-		_play("Interact", GameConfig.MANTLE_TIME, true)
+	_animator.play("climb", GameConfig.MANTLE_TIME, true, 0.06)
 	return true
 
 
@@ -357,13 +410,17 @@ func _start_attack(step: int, dir: Vector3) -> void:
 	_state_timer = 0.0
 	_move = Vector3.ZERO
 	var enemies := get_tree().get_nodes_in_group("enemies")
-	var aim := Combat.nearest_in_cone(global_position, _facing, enemies, GameConfig.SOFT_AIM_RADIUS, 360.0)
-	if aim:
-		_facing = Combat.flat(aim.global_position - global_position).normalized()
-	elif dir.length_squared() > 0.0001:
-		_facing = dir.normalized()
+	if _aim_dir != Vector3.ZERO:
+		_facing = _aim_dir
+	else:
+		var aim := Combat.nearest_in_cone(global_position, _facing, enemies, GameConfig.SOFT_AIM_RADIUS, 360.0)
+		if aim:
+			_facing = Combat.flat(aim.global_position - global_position).normalized()
+		elif dir.length_squared() > 0.0001:
+			_facing = dir.normalized()
 	var hit: Dictionary = COMBO[step]
-	_play("Sword_Slash", hit.windup + hit.recovery, true)
+	# Duração escolhida para a lâmina passar na frente bem na hora do acerto (fim do windup).
+	_animator.play("slash", hit.windup / SLASH_IMPACT, true, 0.04)
 
 
 func _update_attack(delta: float, dir: Vector3) -> Vector3:
@@ -419,17 +476,17 @@ func fx_shake(strength: float) -> void:
 
 
 func fx_slash(finisher: bool, facing: Vector3) -> void:
-	var material := Combat.overlay_material(Color(1.0, 1.0, 1.0, 0.7 if finisher else 0.45))
+	var material := Combat.overlay_material(Color(1.0, 0.97, 0.85, 0.85 if finisher else 0.6))
 	material.cull_mode = BaseMaterial3D.CULL_DISABLED
 	var fx := MeshInstance3D.new()
 	fx.mesh = _get_arc_mesh()
 	fx.material_override = material
 	get_parent().add_child(fx)
 	fx.global_transform = Transform3D(Basis.looking_at(facing), global_position + Vector3.UP * 0.9)
-	if finisher:
-		fx.scale = Vector3.ONE * 1.25
+	fx.scale = Vector3.ONE * (1.3 if finisher else 1.0)
 	var tween := fx.create_tween()
-	tween.tween_property(material, "albedo_color:a", 0.0, 0.15)
+	tween.tween_property(fx, "rotation:y", fx.rotation.y + 0.35, 0.22)
+	tween.parallel().tween_property(material, "albedo_color:a", 0.0, 0.22)
 	tween.tween_callback(fx.queue_free)
 
 
@@ -459,9 +516,12 @@ func _shoot_arrow() -> void:
 	if ranged_damage() <= 0.0:
 		return
 	_arrow_cooldown = GameConfig.ARROW_COOLDOWN
+	# Mirando de verdade (analógico/mouse) a correção é pequena; atirando "para a frente", maior.
+	var aimed := _aim_dir != Vector3.ZERO
+	var cone := GameConfig.ARROW_AIM_ASSIST_DEG if aimed else GameConfig.ARROW_AIM_CONE_DEG
 	var enemies := get_tree().get_nodes_in_group("enemies")
-	var aim := Combat.nearest_in_cone(global_position, _facing, enemies, GameConfig.ARROW_RANGE, GameConfig.ARROW_AIM_CONE_DEG)
-	if aim:
+	var aim := Combat.nearest_in_cone(global_position, _facing, enemies, GameConfig.ARROW_RANGE, cone)
+	if aim and not aimed:
 		_facing = Combat.flat(aim.global_position - global_position).normalized()
 	var from := global_position + Vector3.UP * 1.1 + _facing * 0.6
 	var dir := _facing
@@ -469,8 +529,11 @@ func _shoot_arrow() -> void:
 		dir = (aim.global_position + Vector3.UP * 1.0 - from).normalized()
 	Projectile.fire(self, from, dir, GameConfig.ARROW_SPEED, ranged_damage(),
 			GameConfig.LAYER_ENEMIES, Color(1.0, 0.95, 0.7))
-	_play("Gun_Shoot", 0.3, true)
-	_anim_lock = 0.3
+	# Parado, o corpo todo atira; andando, as pernas continuam correndo (Run_Shoot e direções).
+	_shoot_pose = SHOOT_POSE_TIME
+	if Combat.flat(_move).length() < 0.5 and is_on_floor():
+		_animator.play("shoot", 0.3, true, 0.05)
+		_anim_lock = 0.3
 
 
 func _drink_potion() -> void:
@@ -485,7 +548,7 @@ func _on_died() -> void:
 	state = State.DOWNED
 	revive_progress = 0.0
 	_move = Vector3.ZERO
-	_play("Death")
+	_animator.play("death")
 	downed.emit()
 
 
@@ -500,29 +563,10 @@ func _update_downed(delta: float) -> void:
 		revive(GameConfig.REVIVE_HP)
 
 
-## Toca uma animação do modelo. Com `duration`, ajusta a velocidade para durar esse tempo.
-## Retorna false se o modelo não tem essa animação.
-func _play(anim_name: String, duration := 0.0, restart := false) -> bool:
-	if _anim == null or not _anim.has_animation(anim_name):
-		return false
-	if _anim.current_animation == anim_name and not restart:
-		return true
-	var speed := 1.0
-	if duration > 0.0:
-		speed = _anim.get_animation(anim_name).length / duration
-	_anim.play(anim_name, ANIM_BLEND, speed)
-	if restart:
-		_anim.seek(0.0, true)
-		_anim_serial += 1
-	_anim_name = anim_name
-	_anim_speed = speed
-	return true
-
-
 ## Rede
 
 func get_net_state() -> Array:
-	return [global_position, rotation.y, _anim_name, _anim_speed, _anim_serial,
+	return [global_position, rotation.y, _animator.net_state(),
 			health.hp, state, revive_progress, potion_cooldown, health.max_hp]
 
 
@@ -533,17 +577,12 @@ func apply_net_state(s: Array) -> void:
 		_net_synced = true
 		global_position = _net_pos
 		rotation.y = _net_yaw
-	var serial: int = s[4]
-	if _anim and _anim.has_animation(s[2]) and (serial != _anim_serial or s[2] != _anim.current_animation):
-		_anim.play(s[2], ANIM_BLEND, s[3])
-		if serial != _anim_serial:
-			_anim.seek(0.0, true)
-	_anim_serial = serial
-	health.hp = s[5]
-	state = s[6]
-	revive_progress = s[7]
-	potion_cooldown = s[8]
-	health.max_hp = s[9]
+	_animator.apply_net_state(s[2])
+	health.hp = s[3]
+	state = s[4]
+	revive_progress = s[5]
+	potion_cooldown = s[6]
+	health.max_hp = s[7]
 
 
 ## Inventário e atributos

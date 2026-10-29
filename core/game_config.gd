@@ -39,10 +39,17 @@ const CAMERA_ZOOM_SPEED := 3.0
 const CAMERA_SPREAD_FOR_MAX := 14.0
 
 # Co-op
-## Quem passar dessa distância do companheiro mais próximo é teleportado pra perto dele.
+## Sofá: distância máxima entre jogadores da mesma tela (parede invisível).
+## Mantém o grupo na tela e a região em volta dele carregada.
+const COUCH_LEASH := 13.0
+## Reserva: quem passar disso do companheiro da mesma tela (queda, empurrão) é teleportado.
 const TETHER_DISTANCE := 16.0
 const KILL_Y := -10.0
 const STICK_DEADZONE := 0.2
+## Analógico direito abaixo disso não mira.
+const AIM_DEADZONE := 0.35
+## Andando de costas mirando, a velocidade cai para esta fração (de lado fica no meio).
+const BACKPEDAL_SPEED_FACTOR := 0.65
 
 # Camadas de física (valor do bit)
 const LAYER_WORLD := 1
@@ -60,6 +67,8 @@ const ARROW_DAMAGE := 8.0
 const ARROW_COOLDOWN := 0.45
 const ARROW_RANGE := 20.0
 const ARROW_AIM_CONE_DEG := 30.0
+## Correção de mira quando o jogador está mirando de verdade (analógico direito / mouse).
+const ARROW_AIM_ASSIST_DEG := 12.0
 const HITSTOP_TIME := 0.06
 const POTION_HEAL := 0.4
 const POTION_COOLDOWN := 15.0

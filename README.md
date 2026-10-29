@@ -1,17 +1,18 @@
 # Coop Dungeon (protótipo Godot)
 
 Dungeon crawler isométrico, co-op de sofá até 4 jogadores. Alvo: Xbox e Windows com cross save.
-Design completo em [`docs/GDD.md`](docs/GDD.md).
+Design completo em [`docs/GDD.md`](docs/GDD.md); estrutura e como estender em [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 
 ## Rodar
 
 1. Instale o **Godot 4.7** (versão padrão, não a .NET): https://godotengine.org/download
 2. No Godot: **Importar** e escolha `coop-dungeon/project.godot`.
 3. **F5** para jogar.
-   - Teclado: **Enter** entra, WASD anda, Espaço pula, J ataca, K atira flecha, Shift rola, E bebe poção,
-     F pega item do chão, I abre o inventário.
-   - Cada controle: **Start** (ou A) entra, analógico anda, A pula, X ataca, RT atira, B rola, Y poção,
-     LB pega item do chão, Back abre o inventário.
+   - Teclado + mouse: **Enter** entra, WASD anda, mouse mira (segurando um botão), botão esquerdo
+     (ou J) ataca, botão direito (ou K) atira, Espaço pula, Shift rola, E poção, F pega item, I inventário.
+   - Cada controle: **Start** (ou A) entra, analógico esquerdo anda, **analógico direito mira**,
+     X ataca, RT atira, A pula, B rola, Y poção, LB pega item, Back inventário.
+   - Mirando, o herói anda de costas e de lado olhando para a mira, e dá pra atirar andando.
    - Pule contra uma borda (até ~2,7 m: pilares, plataformas, carro, contêiner) e o herói escala sozinho.
    - Ondas de inimigos chegam sozinhas. Quem cai é revivido quando um companheiro fica perto.
 

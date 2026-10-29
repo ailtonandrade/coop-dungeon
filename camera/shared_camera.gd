@@ -19,6 +19,7 @@ func shake(strength: float) -> void:
 
 func _ready() -> void:
 	add_to_group("shared_camera")
+	InputService.aim_projector = project_to_ground
 	fov = GameConfig.CAMERA_FOV
 	rotation_degrees = Vector3(GameConfig.CAMERA_PITCH_DEG, GameConfig.CAMERA_YAW_DEG, 0.0)
 	_apply()
@@ -50,6 +51,19 @@ func _physics_process(delta: float) -> void:
 	_focus = _focus.lerp(center, 1.0 - exp(-GameConfig.CAMERA_FOLLOW_SPEED * delta))
 	_distance = lerpf(_distance, target_distance, 1.0 - exp(-GameConfig.CAMERA_ZOOM_SPEED * delta))
 	_apply()
+
+
+func _exit_tree() -> void:
+	if InputService.aim_projector == Callable(self, "project_to_ground"):
+		InputService.aim_projector = Callable()
+
+
+## Ponto do chão (na altura `height`) embaixo de um ponto da tela. Usado pela mira do mouse.
+func project_to_ground(screen_point: Vector2, height: float) -> Vector3:
+	var origin := project_ray_origin(screen_point)
+	var normal := project_ray_normal(screen_point)
+	var hit: Variant = Plane(Vector3.UP, height).intersects_ray(origin, normal)
+	return hit if hit != null else origin
 
 
 func _apply() -> void:

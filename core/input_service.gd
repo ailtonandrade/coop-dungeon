@@ -20,6 +20,11 @@ const JOY_BUTTONS := {
 	Action.INVENTORY: JOY_BUTTON_BACK,
 	Action.PICKUP: JOY_BUTTON_LEFT_SHOULDER,
 }
+## Teclado + mouse: botão esquerdo ataca, direito mira e atira.
+const MOUSE_BUTTONS := {
+	Action.MELEE: MOUSE_BUTTON_LEFT,
+	Action.RANGED: MOUSE_BUTTON_RIGHT,
+}
 const JOY_TRIGGERS := {
 	Action.RANGED: JOY_AXIS_TRIGGER_RIGHT,
 }
@@ -40,7 +45,13 @@ var joining_enabled := false
 ## Último controle (ou teclado) usado, para entrar sozinho ao começar a fase.
 var last_device := KEYBOARD
 
+## Converte um ponto da tela num ponto do chão na altura dada (a câmera registra).
+## Usado para mirar com o mouse.
+var aim_projector := Callable()
+
 var _devices: Array[int] = []
+## Onde está o herói de cada slot (a mira do mouse sai dele).
+var _aim_anchor: Array[Vector3] = []
 ## Slot com menu aberto (inventário): o jogo não vê os comandos dele, só a interface (raw_*).
 var _blocked: Array[bool] = []
 ## Bitmask das ações pressionadas por slot, neste frame e no anterior.
@@ -52,6 +63,7 @@ func _ready() -> void:
 	for i in GameConfig.MAX_PLAYERS:
 		_devices.append(NO_DEVICE)
 		_blocked.append(false)
+		_aim_anchor.append(Vector3.ZERO)
 		_down.append(0)
 		_prev.append(0)
 	Input.joy_connection_changed.connect(_on_joy_connection_changed)
@@ -148,6 +160,33 @@ func get_move(slot: int) -> Vector2:
 	return Vector2.ZERO if _blocked[slot] else raw_move(slot)
 
 
+## Mira (twin-stick) já no chão do mundo: Vector2(x, z) de comprimento 1, ou zero se não mira.
+## Controle: analógico direito. Teclado: mouse, enquanto segura um botão do mouse.
+func get_aim(slot: int) -> Vector2:
+	if _blocked[slot]:
+		return Vector2.ZERO
+	var device := _devices[slot]
+	if device == KEYBOARD:
+		var mouse_down := Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT) or Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT)
+		if not mouse_down or not aim_projector.is_valid() or not is_inside_tree():
+			return Vector2.ZERO
+		var anchor := _aim_anchor[slot]
+		var point: Vector3 = aim_projector.call(get_viewport().get_mouse_position(), anchor.y + 1.0)
+		var flat := Vector2(point.x - anchor.x, point.z - anchor.z)
+		return flat.normalized() if flat.length() > 0.3 else Vector2.ZERO
+	if device >= 0:
+		var stick := Vector2(Input.get_joy_axis(device, JOY_AXIS_RIGHT_X), Input.get_joy_axis(device, JOY_AXIS_RIGHT_Y))
+		if stick.length() < GameConfig.AIM_DEADZONE:
+			return Vector2.ZERO
+		var world := Vector3(stick.x, 0.0, stick.y).rotated(Vector3.UP, deg_to_rad(GameConfig.CAMERA_YAW_DEG))
+		return Vector2(world.x, world.z).normalized()
+	return Vector2.ZERO
+
+
+func set_aim_anchor(slot: int, world_position: Vector3) -> void:
+	_aim_anchor[slot] = world_position
+
+
 ## Direção para menus: analógico, direcional ou WASD/setas, ignorando o bloqueio.
 func raw_move(slot: int) -> Vector2:
 	var device := _devices[slot]
@@ -211,7 +250,8 @@ func _poll(device: int) -> int:
 
 func _read(device: int, action: int) -> bool:
 	if device == KEYBOARD:
-		return KEYS.has(action) and Input.is_physical_key_pressed(KEYS[action])
+		return (KEYS.has(action) and Input.is_physical_key_pressed(KEYS[action])) \
+				or (MOUSE_BUTTONS.has(action) and Input.is_mouse_button_pressed(MOUSE_BUTTONS[action]))
 	if JOY_BUTTONS.has(action):
 		return Input.is_joy_button_pressed(device, JOY_BUTTONS[action])
 	if JOY_TRIGGERS.has(action):

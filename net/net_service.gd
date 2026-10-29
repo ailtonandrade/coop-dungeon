@@ -11,7 +11,7 @@ extends Node
 signal status_changed(text: String)
 signal peer_ready(peer_id: int)
 
-const GAME_VERSION := "0.8"
+const GAME_VERSION := "0.9"
 const DEFAULT_PORT := 7777
 const LEVEL_SCENE := "res://levels/level_01.tscn"
 const MENU_SCENE := "res://ui/main_menu.tscn"
@@ -195,7 +195,8 @@ func _physics_process(_delta: float) -> void:
 			if InputService.just_pressed(slot, action):
 				counts[action] = (counts[action] + 1) % 256
 		_press_counts[slot] = counts
-		_rpc_input.rpc_id(1, slot, InputService.get_move(slot), InputService.get_down_mask(slot), counts)
+		_rpc_input.rpc_id(1, slot, InputService.get_move(slot), InputService.get_aim(slot),
+				InputService.get_down_mask(slot), counts)
 
 
 ## Conversa cliente <-> host
@@ -285,10 +286,10 @@ func _rpc_request_leave(slot: int) -> void:
 
 
 @rpc("any_peer", "call_remote", "unreliable_ordered")
-func _rpc_input(slot: int, move: Vector2, down: int, counts: PackedByteArray) -> void:
+func _rpc_input(slot: int, move: Vector2, aim: Vector2, down: int, counts: PackedByteArray) -> void:
 	var peer := multiplayer.get_remote_sender_id()
 	if _ready_peers.has(peer):
-		remote_input(peer, slot).apply_remote(move, down, counts)
+		remote_input(peer, slot).apply_remote(move, aim, down, counts)
 
 
 func _advert() -> Dictionary:

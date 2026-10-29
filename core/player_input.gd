@@ -7,6 +7,8 @@ extends RefCounted
 ## se um pacote se perde, o próximo ainda mostra o contador diferente e o aperto não some.
 
 var move := Vector2.ZERO
+## Mira no chão do mundo (x, z), comprimento 1, ou zero se não está mirando.
+var aim := Vector2.ZERO
 
 var _local_slot := -1
 var _down := 0
@@ -25,6 +27,7 @@ static func local(slot: int) -> PlayerInput:
 func begin_tick() -> void:
 	if _local_slot >= 0:
 		move = InputService.get_move(_local_slot)
+		aim = InputService.get_aim(_local_slot)
 		_down = InputService.get_down_mask(_local_slot)
 		_edges |= InputService.get_pressed_mask(_local_slot)
 	_tick_edges = _edges
@@ -37,8 +40,9 @@ func defer() -> void:
 	_tick_edges = 0
 
 
-func apply_remote(p_move: Vector2, down: int, counts: PackedByteArray) -> void:
+func apply_remote(p_move: Vector2, p_aim: Vector2, down: int, counts: PackedByteArray) -> void:
 	move = p_move.limit_length(1.0)
+	aim = p_aim.normalized() if p_aim.length_squared() > 0.01 else Vector2.ZERO
 	_down = down
 	if _counts.size() == counts.size():
 		for i in counts.size():
