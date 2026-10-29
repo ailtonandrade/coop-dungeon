@@ -15,7 +15,7 @@ compatibility/default_parent_skeleton_in_mesh_instance_3d=true
 [application]
 
 config/name="Coop Dungeon"
-run/main_scene="res://levels/level_01.tscn"
+run/main_scene="res://ui/main_menu.tscn"
 config/features=PackedStringArray("4.7", "Forward Plus")
 
 [autoload]
@@ -23,6 +23,7 @@ config/features=PackedStringArray("4.7", "Forward Plus")
 InputService="*res://core/input_service.gd"
 PlatformService="*res://platform/platform_service.gd"
 SaveService="*res://core/save_service.gd"
+NetService="*res://net/net_service.gd"
 
 [display]
 

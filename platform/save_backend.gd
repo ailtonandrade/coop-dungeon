@@ -12,3 +12,12 @@ func write(_key: String, _data: Dictionary) -> bool:
 
 func read(_key: String) -> Dictionary:
 	return {}
+
+
+## Chaves salvas que começam com `prefix`.
+func list(_prefix: String) -> PackedStringArray:
+	return PackedStringArray()
+
+
+func delete(_key: String) -> bool:
+	return false

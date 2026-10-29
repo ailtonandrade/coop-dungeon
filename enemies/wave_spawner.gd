@@ -1,6 +1,7 @@
 extends Node3D
 ## Ondas de inimigos na arena. Quando uma onda acaba, vem a próxima, maior.
-## Se o grupo inteiro cair, volta para a onda 1.
+## Se o grupo inteiro cair, volta para a onda 1. Roda só no host; os clientes recebem
+## o número da onda e quantos inimigos faltam pelo NetReplicator (grupo "net_static").
 
 signal wave_started(number: int)
 
@@ -22,12 +23,22 @@ var _timer := FIRST_WAVE_DELAY
 
 func _ready() -> void:
 	add_to_group("wave_spawner")
+	add_to_group("net_static")
 	if player_manager:
 		player_manager.party_wiped.connect(reset)
 
 
 func alive_count() -> int:
 	return _alive
+
+
+func get_net_state() -> Array:
+	return [wave, _alive]
+
+
+func apply_net_state(s: Array) -> void:
+	wave = s[0]
+	_alive = s[1]
 
 
 func reset() -> void:
@@ -39,7 +50,7 @@ func reset() -> void:
 
 
 func _physics_process(delta: float) -> void:
-	if _alive > 0 or get_tree().get_nodes_in_group("players").is_empty():
+	if not multiplayer.is_server() or _alive > 0 or get_tree().get_nodes_in_group("players").is_empty():
 		return
 	_timer -= delta
 	if _timer <= 0.0:
@@ -59,10 +70,12 @@ func _spawn_wave() -> void:
 	for i in kinds.size():
 		var point: Vector2 = points[i % points.size()]
 		var jitter := Vector3(randf_range(-1.0, 1.0), 0.0, randf_range(-1.0, 1.0))
-		var enemy := Enemy.create(kinds[i])
-		add_child(enemy)
-		enemy.global_position = Vector3(point.x, 0.0, point.y) + jitter
-		enemy.reset_physics_interpolation()
+		var enemy: Enemy = NetReplicator.of(self).spawn("enemy", {
+			"kind": kinds[i], "pos": Vector3(point.x, 0.0, point.y) + jitter,
+		})
 		enemy.died.connect(func(_enemy: Enemy) -> void: _alive -= 1)
 		_alive += 1
 	wave_started.emit(wave)
+	if wave > int(NetService.world.get("best_wave", 0)):
+		NetService.world["best_wave"] = wave
+		SaveService.save_world(NetService.world)

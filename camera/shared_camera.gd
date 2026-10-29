@@ -56,10 +56,15 @@ func _apply() -> void:
 	global_position = _focus + global_basis.z * _distance
 
 
+## No online, cada máquina enquadra só os seus jogadores (a corda mantém o grupo junto).
+## Se ainda não tem nenhum local, enquadra quem estiver na sala.
 func _players() -> Array[Player]:
-	var players: Array[Player] = []
+	var all: Array[Player] = []
+	var local: Array[Player] = []
 	if player_root:
 		for child in player_root.get_children():
 			if child is Player:
-				players.append(child)
-	return players
+				all.append(child)
+				if child.is_local():
+					local.append(child)
+	return local if not local.is_empty() else all

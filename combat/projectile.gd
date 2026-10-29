@@ -1,6 +1,8 @@
 class_name Projectile
 extends Area3D
 ## Projétil reto. Some ao bater em parede ou ao acertar alguém da camada alvo.
+## Nasce pelo NetReplicator; como anda em linha reta, os clientes só precisam do disparo
+## e simulam o voo sozinhos. O dano é aplicado só no host.
 
 const LIFETIME := 3.0
 
@@ -9,15 +11,26 @@ var damage := 0.0
 var knockback := 2.0
 
 var _life := LIFETIME
+var _from := Vector3.ZERO
 
 
-static func spawn(parent: Node, from: Vector3, direction: Vector3, speed: float, p_damage: float,
-		target_layer: int, color: Color, size := Vector3(0.1, 0.1, 0.7)) -> Projectile:
+## Dispara (só o host chama). `shooter` é qualquer nó dentro da fase.
+static func fire(shooter: Node, from: Vector3, direction: Vector3, speed: float, p_damage: float,
+		target_layer: int, color: Color, size := Vector3(0.1, 0.1, 0.7)) -> void:
+	NetReplicator.of(shooter).spawn("projectile", {
+		"from": from, "velocity": direction.normalized() * speed, "damage": p_damage,
+		"target_layer": target_layer, "color": color, "size": size,
+	})
+
+
+static func build(data: Dictionary) -> Projectile:
 	var projectile := Projectile.new()
-	projectile.velocity = direction.normalized() * speed
-	projectile.damage = p_damage
+	projectile._from = data.from
+	projectile.velocity = data.velocity
+	projectile.damage = data.damage
 	projectile.collision_layer = 0
-	projectile.collision_mask = GameConfig.LAYER_WORLD | target_layer
+	projectile.collision_mask = GameConfig.LAYER_WORLD | int(data.target_layer)
+	var color: Color = data.color
 
 	var sphere := SphereShape3D.new()
 	sphere.radius = 0.2
@@ -26,7 +39,7 @@ static func spawn(parent: Node, from: Vector3, direction: Vector3, speed: float,
 	projectile.add_child(collision)
 
 	var box := BoxMesh.new()
-	box.size = size
+	box.size = data.size
 	var material := StandardMaterial3D.new()
 	material.albedo_color = color
 	material.emission_enabled = true
@@ -36,25 +49,26 @@ static func spawn(parent: Node, from: Vector3, direction: Vector3, speed: float,
 	mesh.mesh = box
 	mesh.material_override = material
 	projectile.add_child(mesh)
-
-	parent.add_child(projectile)
-	projectile.global_transform = Transform3D(Basis.looking_at(direction), from)
-	projectile.reset_physics_interpolation()
 	return projectile
 
 
 func _ready() -> void:
+	global_transform = Transform3D(Basis.looking_at(velocity.normalized()), _from)
+	reset_physics_interpolation()
 	body_entered.connect(_on_body_entered)
 
 
 func _physics_process(delta: float) -> void:
 	global_position += velocity * delta
 	_life -= delta
-	if _life <= 0.0:
+	if _life <= 0.0 and multiplayer.is_server():
 		queue_free()
 
 
 func _on_body_entered(body: Node3D) -> void:
+	if not multiplayer.is_server():
+		visible = false
+		return
 	if body.has_method("take_hit"):
 		body.take_hit(damage, velocity.normalized() * knockback)
 	queue_free()

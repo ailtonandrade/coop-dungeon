@@ -3,6 +3,7 @@ extends CharacterBody3D
 ## Inimigo básico com navegação. MELEE corre até o herói e bate; RANGED mantém
 ## distância e atira. Todo ataque tem um tempo de preparo visível (fica vermelho)
 ## para dar chance de rolar.
+## A IA roda só no host; nos clientes o inimigo mostra o estado replicado.
 
 signal died(enemy: Enemy)
 
@@ -27,6 +28,8 @@ const STAGGER_TIME := 0.25
 const TURN_SPEED := 12.0
 const ANIM_BLEND := 0.12
 const WINDUP_TINT := Color(1.0, 0.15, 0.1, 0.55)
+const NET_SMOOTHING := 18.0
+const NET_SNAP_DISTANCE := 3.0
 
 var kind := Kind.MELEE
 var state := State.CHASE
@@ -42,6 +45,12 @@ var _model: Node3D
 var _anim: AnimationPlayer
 var _tint: StandardMaterial3D
 var _agent: NavigationAgent3D
+var _anim_name := ""
+var _anim_speed := 1.0
+var _anim_serial := 0
+var _net_pos := Vector3.ZERO
+var _net_yaw := 0.0
+var _net_synced := false
 
 
 static func create(p_kind: Kind) -> Enemy:
@@ -100,14 +109,34 @@ func take_hit(amount: float, knockback := Vector3.ZERO) -> void:
 	_knockback = Combat.flat(knockback)
 	if state == State.DEAD:
 		return
-	Combat.flash(_model, Color(1.0, 1.0, 1.0, 0.8), _tint, 0.08)
+	var replicator := NetReplicator.of(self)
+	if replicator:
+		replicator.broadcast_fx(self, "fx_flash", [])
+	else:
+		fx_flash()
 	# Apanhar interrompe o ataque em preparo.
 	state = State.STAGGER
 	_timer = STAGGER_TIME
 	_play("HitRecieve", STAGGER_TIME, true)
 
 
+func fx_flash() -> void:
+	Combat.flash(_model, Color(1.0, 1.0, 1.0, 0.8), _tint, 0.08)
+
+
+func _process(delta: float) -> void:
+	if multiplayer.is_server() or not _net_synced:
+		return
+	if global_position.distance_to(_net_pos) > NET_SNAP_DISTANCE:
+		global_position = _net_pos
+	else:
+		global_position = global_position.lerp(_net_pos, 1.0 - exp(-NET_SMOOTHING * delta))
+	rotation.y = lerp_angle(rotation.y, _net_yaw, 1.0 - exp(-NET_SMOOTHING * delta))
+
+
 func _physics_process(delta: float) -> void:
+	if not multiplayer.is_server():
+		return
 	_knockback = _knockback.move_toward(Vector3.ZERO, 25.0 * delta)
 	var desired := Vector3.ZERO
 
@@ -185,7 +214,7 @@ func _strike() -> void:
 	elif _target:
 		var from := global_position + Vector3.UP * 1.1 + _facing * 0.5
 		var dir := (_target.global_position + Vector3.UP * 1.0 - from).normalized()
-		Projectile.spawn(get_parent(), from, dir, PROJECTILE_SPEED, _stats.damage,
+		Projectile.fire(self, from, dir, PROJECTILE_SPEED, _stats.damage,
 				GameConfig.LAYER_PLAYERS, Color(0.8, 0.3, 1.0), Vector3(0.35, 0.35, 0.35))
 
 
@@ -207,14 +236,18 @@ func _find_target() -> Player:
 
 
 func _on_died() -> void:
+	_become_dead()
+	_play("Death", 0.0, true)
+	died.emit(self)
+	get_tree().create_timer(1.5).timeout.connect(queue_free)
+
+
+func _become_dead() -> void:
 	state = State.DEAD
 	collision_layer = 0
 	collision_mask = GameConfig.LAYER_WORLD
 	remove_from_group("enemies")
 	Combat.set_overlay(_model, _tint)
-	_play("Death", 0.0, true)
-	died.emit(self)
-	get_tree().create_timer(1.5).timeout.connect(queue_free)
 
 
 func _play(anim_name: String, duration := 0.0, restart := false) -> void:
@@ -228,3 +261,38 @@ func _play(anim_name: String, duration := 0.0, restart := false) -> void:
 	_anim.play(anim_name, ANIM_BLEND, speed)
 	if restart:
 		_anim.seek(0.0, true)
+		_anim_serial += 1
+	_anim_name = anim_name
+	_anim_speed = speed
+
+
+## Rede
+
+func get_net_state() -> Array:
+	return [global_position, rotation.y, _anim_name, _anim_speed, _anim_serial, state, health.hp]
+
+
+func apply_net_state(s: Array) -> void:
+	_net_pos = s[0]
+	_net_yaw = s[1]
+	if not _net_synced:
+		_net_synced = true
+		global_position = _net_pos
+		rotation.y = _net_yaw
+	var serial: int = s[4]
+	if _anim and _anim.has_animation(s[2]) and (serial != _anim_serial or s[2] != _anim.current_animation):
+		_anim.play(s[2], ANIM_BLEND, s[3])
+		if serial != _anim_serial:
+			_anim.seek(0.0, true)
+	_anim_serial = serial
+	health.hp = s[6]
+	var new_state: State = s[5]
+	if new_state == state:
+		return
+	state = new_state
+	if state == State.DEAD:
+		_become_dead()
+	elif state == State.WINDUP:
+		Combat.set_overlay(_model, Combat.overlay_material(WINDUP_TINT))
+	else:
+		Combat.set_overlay(_model, _tint)

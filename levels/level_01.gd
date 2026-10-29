@@ -53,6 +53,10 @@ func _ready() -> void:
 	for prop: Array in PROPS:
 		_add_prop(load(prop[0]), prop[1], prop[2])
 	_bake_navigation()
+	# Fase pronta: libera entrar no jogo e avisa o host (se for cliente).
+	InputService.joining_enabled = true
+	NetService.notify_level_ready()
+	InputService.join_last_device()
 
 
 func _bake_navigation() -> void:

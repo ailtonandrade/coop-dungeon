@@ -1,19 +1,53 @@
 extends Node
 ## Fachada de save. O jogo só fala com esta classe; o backend muda por plataforma.
-## - world: progresso da campanha, pertence ao host (jogador 1).
+## - world: cada mundo criado (nome, semente, progresso), pertence ao host (jogador 1).
+##   No online, o mundo é sempre o do host.
 ## - player: personagem (equipamento, nível), pertence à conta de cada jogador.
+##   No online, cada convidado leva e salva o próprio.
 
 const SAVE_VERSION := 1
 
 var _backend: SaveBackend = LocalSaveBackend.new()
 
 
-func save_world(data: Dictionary) -> bool:
-	return _write("world_" + PlatformService.get_host_profile_id(), data)
+## Cria a ficha de um mundo novo (ainda não salva).
+func new_world(world_name: String, world_seed: int, visibility: String) -> Dictionary:
+	return {
+		"id": "%d%04d" % [Time.get_unix_time_from_system(), randi() % 10000],
+		"name": world_name,
+		"seed": world_seed,
+		"visibility": visibility,
+		"owner": PlatformService.get_host_profile_id(),
+		"created_at": Time.get_unix_time_from_system(),
+		"best_wave": 0,
+	}
 
 
-func load_world() -> Dictionary:
-	return _read("world_" + PlatformService.get_host_profile_id())
+func save_world(world: Dictionary) -> bool:
+	if not world.has("id"):
+		return false
+	return _write(_world_prefix() + str(world.id), world)
+
+
+func delete_world(world_id: String) -> bool:
+	return _backend.delete(_world_prefix() + world_id)
+
+
+## Mundos deste perfil, do jogado por último para o mais antigo.
+func list_worlds() -> Array[Dictionary]:
+	var worlds: Array[Dictionary] = []
+	for key in _backend.list(_world_prefix()):
+		var envelope := _backend.read(key)
+		if envelope.has("data"):
+			var world: Dictionary = envelope.data
+			world["updated_at"] = envelope.get("updated_at", 0.0)
+			worlds.append(world)
+	worlds.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return a.updated_at > b.updated_at)
+	return worlds
+
+
+func _world_prefix() -> String:
+	return "world_%s_" % PlatformService.get_host_profile_id()
 
 
 func save_player(slot: int, data: Dictionary) -> bool:

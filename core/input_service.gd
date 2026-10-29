@@ -31,6 +31,11 @@ const KEYS := {
 	Action.PAUSE: KEY_ESCAPE,
 }
 
+## Só aceita entrar no jogo dentro de uma fase (no menu, o controle navega a interface).
+var joining_enabled := false
+## Último controle (ou teclado) usado, para entrar sozinho ao começar a fase.
+var last_device := KEYBOARD
+
 var _devices: Array[int] = []
 ## Bitmask das ações pressionadas por slot, neste frame e no anterior.
 var _down: Array[int] = []
@@ -45,7 +50,16 @@ func _ready() -> void:
 	Input.joy_connection_changed.connect(_on_joy_connection_changed)
 
 
+func _input(event: InputEvent) -> void:
+	if event is InputEventJoypadButton and event.pressed:
+		last_device = event.device
+	elif event is InputEventKey and event.pressed:
+		last_device = KEYBOARD
+
+
 func _unhandled_input(event: InputEvent) -> void:
+	if not joining_enabled:
+		return
 	if event is InputEventJoypadButton and event.pressed:
 		if event.button_index == JOY_BUTTON_START or event.button_index == JOY_BUTTON_A:
 			_try_join(event.device)
@@ -78,6 +92,30 @@ func is_pressed(slot: int, action: Action) -> bool:
 
 func just_pressed(slot: int, action: Action) -> bool:
 	return is_pressed(slot, action) and _prev[slot] & (1 << action) == 0
+
+
+## Bitmask das ações seguradas neste quadro.
+func get_down_mask(slot: int) -> int:
+	return _down[slot]
+
+
+## Bitmask das ações que começaram a ser apertadas neste quadro.
+func get_pressed_mask(slot: int) -> int:
+	return _down[slot] & ~_prev[slot]
+
+
+func join_last_device() -> void:
+	if not joining_enabled:
+		return
+	if last_device == KEYBOARD or Input.get_connected_joypads().has(last_device):
+		_try_join(last_device)
+
+
+## Volta ao estado do menu: ninguém no jogo e sem aceitar entradas novas.
+func reset() -> void:
+	joining_enabled = false
+	for slot in _devices.size():
+		leave(slot)
 
 
 ## Direção do analógico esquerdo (ou WASD) em coordenadas de tela, comprimento 0..1.
@@ -118,7 +156,8 @@ func _try_join(device: int) -> void:
 	# Começa com o estado atual para o botão que fez entrar não virar ação no primeiro frame.
 	_down[slot] = _poll(device)
 	_prev[slot] = _down[slot]
-	get_viewport().set_input_as_handled()
+	if is_inside_tree():
+		get_viewport().set_input_as_handled()
 	player_joined.emit(slot, device)
 
 

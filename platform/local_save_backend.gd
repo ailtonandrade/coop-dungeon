@@ -27,5 +27,17 @@ func read(key: String) -> Dictionary:
 	return parsed if parsed is Dictionary else {}
 
 
+func list(prefix: String) -> PackedStringArray:
+	var keys := PackedStringArray()
+	for file in DirAccess.get_files_at(dir):
+		if file.ends_with(".json") and file.begins_with(prefix):
+			keys.append(file.trim_suffix(".json"))
+	return keys
+
+
+func delete(key: String) -> bool:
+	return DirAccess.remove_absolute(_path(key)) == OK
+
+
 func _path(key: String) -> String:
 	return "%s/%s.json" % [dir, key.validate_filename()]

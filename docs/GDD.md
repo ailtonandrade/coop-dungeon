@@ -97,6 +97,28 @@ sem precisar de servidor dedicado.
 - **Save no online:** o mundo é o do host; cada convidado leva o próprio personagem
   (equipamento e nível) e salva na própria conta.
 
+### Como está implementado (M6)
+
+- `NetService` (autoload): sessão offline/host/cliente, aperto de mão (versão, sala cheia),
+  vagas por (máquina, slot) e envio dos comandos do cliente.
+- `NetReplicator` (na fase): o host cria as entidades e manda "nasceu"/"sumiu" e um retrato
+  do estado 30 vezes por segundo; os clientes suavizam a posição entre retratos.
+  Efeitos visuais (piscar, tremer, rastro do golpe) vão por `broadcast_fx`.
+- `PlayerInput`: o herói lê comandos daqui, venham do controle ou da rede. Apertos vão como
+  contadores, para não sumirem se um pacote se perder.
+- `LanDiscovery`: anúncio e busca de mundos por broadcast UDP (porta 7779). O jogo usa a porta 7777.
+- Projéteis: o cliente recebe só o disparo e simula o voo; o dano é sempre do host.
+- **Ainda não tem previsão no cliente:** quem joga pela rede vê o próprio herói com o atraso
+  da conexão. Em rede local isso não se nota; pela internet vai precisar de previsão (próximo passo do online).
+- Teste: `tests/run_net_test.sh` sobe host e cliente e confere busca, entrada, comandos,
+  inimigos e saída.
+
+## Mundos
+
+- Cada mundo tem nome, semente, visibilidade (aberto / privado / offline) e progresso
+  (hoje: melhor onda). Fica salvo no perfil do host; no online o mundo é sempre o do host.
+- A semente já é guardada para a geração do mundo aberto (M7).
+
 ## Controles (padrão)
 
 | Ação | Controle | Teclado |
@@ -184,7 +206,7 @@ Regras:
 | M3 | 2 inimigos com IA e spawner | ✅ brutamontes e atirador, ondas |
 | M4 | Vida, cair/reviver, baú com loot, fim de fase | vida, poção, cair/reviver ✅ |
 | M5 | Save local `world` / `player` ligado ao jogo | serviço ✅ |
-| M6 | **Base do online**: host/entrar por IP, 2 máquinas + sofá, inimigos e dano pelo host | |
+| M6 | **Base do online**: host/entrar por IP, 2 máquinas + sofá, inimigos e dano pelo host | ✅ + menu de mundos e busca na rede local |
 | M7 | **Mundo aberto**: 3x3 blocos com carregamento, 1 porta para interior, recorte de telhado | |
 | M8 | Loot e progressão sincronizados no online | |
 

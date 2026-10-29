@@ -1,26 +1,65 @@
 extends Node3D
-## Cria e remove jogadores conforme entram e saem pelo InputService e aplica a "corda"
-## do co-op: quem se afastar demais do grupo é teleportado para perto do companheiro mais próximo.
+## Vagas da sala (P1 a P4) e regras do grupo. Roda no host: cria os jogadores pelo
+## NetReplicator quando alguém pede para entrar (no sofá ou pela rede) e aplica a "corda"
+## do co-op: quem se afastar demais é teleportado para perto do companheiro mais próximo.
 ## Se todos caírem, todo mundo volta de pé no início depois de alguns segundos.
 
 signal party_wiped
 
-const PLAYER_SCENE := preload("res://player/player.tscn")
-
 @export var spawn_position := Vector3.ZERO
 
-var _players: Dictionary = {}  # slot -> Player
+var _players: Dictionary = {}  # índice na sala -> Player
 var _wipe_timer := 0.0
 
 
 func _ready() -> void:
-	InputService.player_joined.connect(_on_player_joined)
-	InputService.player_left.connect(_on_player_left)
-	for slot in InputService.active_slots():
-		_spawn(slot)
+	add_to_group("player_manager")
+	InputService.player_joined.connect(func(slot: int, _device: int) -> void: NetService.request_player(slot))
+	InputService.player_left.connect(func(slot: int) -> void: NetService.request_leave(slot))
+
+
+func add_player(peer: int, slot: int, display_name: String) -> void:
+	if _find(peer, slot) or _players.size() >= GameConfig.MAX_PLAYERS:
+		return
+	var index := 0
+	while _players.has(index):
+		index += 1
+	var base := spawn_position
+	if not _players.is_empty():
+		base = (_players.values()[0] as Player).global_position
+	_players[index] = NetReplicator.of(self).spawn("player", {
+		"peer": peer, "slot": slot, "index": index, "name": display_name,
+		"pos": base + _ring_offset(index),
+	})
+
+
+func remove_player(peer: int, slot: int) -> void:
+	var player := _find(peer, slot)
+	if player:
+		_players.erase(player.index)
+		player.queue_free()
+
+
+func remove_peer(peer: int) -> void:
+	for player: Player in _players.values():
+		if player.owner_peer == peer:
+			remove_player(peer, player.slot)
+
+
+func _find(peer: int, slot: int) -> Player:
+	for player: Player in _players.values():
+		if player.owner_peer == peer and player.slot == slot:
+			return player
+	return null
+
+
+func _ring_offset(index: int) -> Vector3:
+	return Vector3.RIGHT.rotated(Vector3.UP, TAU * index / GameConfig.MAX_PLAYERS) * 1.5
 
 
 func _physics_process(delta: float) -> void:
+	if not multiplayer.is_server():
+		return
 	_check_wipe(delta)
 	for player: Player in _players.values():
 		if not player.is_targetable():
@@ -40,32 +79,11 @@ func _check_wipe(delta: float) -> void:
 	if _wipe_timer < GameConfig.WIPE_RESTART_TIME:
 		return
 	_wipe_timer = 0.0
-	for slot: int in _players:
-		var player: Player = _players[slot]
+	for index: int in _players:
+		var player: Player = _players[index]
 		player.revive(1.0)
-		player.teleport_to(spawn_position + Vector3.RIGHT.rotated(Vector3.UP, TAU * slot / GameConfig.MAX_PLAYERS) * 1.5)
+		player.teleport_to(spawn_position + _ring_offset(index))
 	party_wiped.emit()
-
-
-func _on_player_joined(slot: int, _device: int) -> void:
-	_spawn(slot)
-
-
-func _on_player_left(slot: int) -> void:
-	if _players.has(slot):
-		_players[slot].queue_free()
-		_players.erase(slot)
-
-
-func _spawn(slot: int) -> void:
-	var player := PLAYER_SCENE.instantiate() as Player
-	player.slot = slot
-	add_child(player)
-	var base := spawn_position
-	if not _players.is_empty():
-		base = (_players.values()[0] as Player).global_position
-	player.teleport_to(base + Vector3.RIGHT.rotated(Vector3.UP, TAU * slot / GameConfig.MAX_PLAYERS) * 1.5)
-	_players[slot] = player
 
 
 func _nearest_teammate(player: Player) -> Player:

@@ -1,11 +1,13 @@
 class_name Player
 extends CharacterBody3D
-## Herói controlado por um slot do InputService. Movimento relativo à câmera isométrica.
+## Herói. Movimento relativo à câmera isométrica.
+## No host (ou offline) ele simula tudo a partir do PlayerInput, seja o controle local
+## ou os comandos que chegam pela rede. Nos clientes ele só mostra o estado replicado.
 
 signal downed
 signal revived
 
-## Modelo provisório por slot (Quaternius, CC0). Para trocar, basta outro .glb na mesma
+## Modelo provisório por jogador da sala (P1 a P4) (Quaternius, CC0). Para trocar, basta outro .glb na mesma
 ## escala (1 unidade = 1 m, pé na origem) com animações Idle, Run, Roll, Sword_Slash e Death.
 ## Se o modelo tiver "Jump" e "Climb", elas são usadas no pulo e na escalada.
 const MODELS: Array[PackedScene] = [
@@ -15,6 +17,9 @@ const MODELS: Array[PackedScene] = [
 	preload("res://assets/characters/Worker.glb"),
 ]
 const ANIM_BLEND := 0.15
+## Suavização da posição replicada nos clientes (maior = segue mais rápido).
+const NET_SMOOTHING := 18.0
+const NET_SNAP_DISTANCE := 3.0
 ## Golpes do combo corpo a corpo, em ordem. Apertar ataque durante um golpe encadeia o próximo.
 const COMBO: Array[Dictionary] = [
 	{"damage": 10.0, "knockback": 3.0, "windup": 0.12, "recovery": 0.22, "lunge": 2.5},
@@ -26,7 +31,12 @@ enum State { NORMAL, DODGING, ATTACKING, CLIMBING, DOWNED }
 
 static var _arc_mesh: ArrayMesh
 
+## Máquina dona do jogador (id de rede) e o slot do controle nela.
+var owner_peer := 1
 var slot := 0
+## Posição na sala (P1 a P4): define cor e modelo.
+var index := 0
+var display_name := ""
 var state := State.NORMAL
 var health := Health.new()
 var revive_progress := 0.0
@@ -50,27 +60,46 @@ var _climb_from := Vector3.ZERO
 var _climb_to := Vector3.ZERO
 var _anim: AnimationPlayer
 var _model: Node3D
+var _input: PlayerInput
+var _anim_name := ""
+var _anim_speed := 1.0
+var _anim_serial := 0
+var _net_pos := Vector3.ZERO
+var _net_yaw := 0.0
+var _net_synced := false
 
 @onready var _ring: MeshInstance3D = $Ring
 @onready var _tag: Label3D = $Tag
 
 
+func setup(data: Dictionary) -> void:
+	owner_peer = data.peer
+	slot = data.slot
+	index = data.index
+	display_name = data.get("name", "")
+
+
 func _ready() -> void:
 	add_to_group("players")
+	if multiplayer.is_server():
+		if owner_peer == multiplayer.get_unique_id():
+			_input = PlayerInput.local(slot)
+		else:
+			_input = NetService.remote_input(owner_peer, slot)
 	collision_layer = GameConfig.LAYER_PLAYERS
 	collision_mask = GameConfig.LAYER_WORLD | GameConfig.LAYER_ENEMIES
 	health.max_hp = GameConfig.PLAYER_MAX_HP
 	add_child(health)
 	health.died.connect(_on_died)
 
-	var color := GameConfig.PLAYER_COLORS[slot]
+	var color := GameConfig.PLAYER_COLORS[index]
 	var material := StandardMaterial3D.new()
 	material.albedo_color = color
 	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	_ring.material_override = material
 	_tag.modulate = color
 
-	_model = MODELS[slot % MODELS.size()].instantiate()
+	_model = MODELS[index % MODELS.size()].instantiate()
 	$Model.add_child(_model)
 	_anim = _model.find_child("AnimationPlayer", true, false)
 	if _anim:
@@ -100,8 +129,8 @@ func take_hit(amount: float, knockback := Vector3.ZERO) -> void:
 		return
 	if health.take_hit(amount):
 		_knockback = Combat.flat(knockback)
-		Combat.flash(_model, Color(1.0, 0.2, 0.2, 0.6), null)
-		Combat.shake_camera(self, 0.25)
+		_fx("fx_flash", [Color(1.0, 0.2, 0.2, 0.6), 0.1])
+		_fx("fx_shake", [0.25])
 
 
 func revive(fraction: float) -> void:
@@ -112,25 +141,40 @@ func revive(fraction: float) -> void:
 	revived.emit()
 
 
-func _process(_delta: float) -> void:
-	_tag.text = "P%d" % (slot + 1)
+## Jogador desta máquina (a câmera e a HUD daqui cuidam dele).
+func is_local() -> bool:
+	return owner_peer == multiplayer.get_unique_id()
+
+
+func _process(delta: float) -> void:
+	_tag.text = "P%d" % (index + 1)
 	if state == State.DOWNED:
 		_tag.text += "  ✚ %d%%" % int(revive_progress * 100.0)
+	if not multiplayer.is_server() and _net_synced:
+		if global_position.distance_to(_net_pos) > NET_SNAP_DISTANCE:
+			global_position = _net_pos
+		else:
+			global_position = global_position.lerp(_net_pos, 1.0 - exp(-NET_SMOOTHING * delta))
+		rotation.y = lerp_angle(rotation.y, _net_yaw, 1.0 - exp(-NET_SMOOTHING * delta))
 
 
 func _physics_process(delta: float) -> void:
+	if not multiplayer.is_server():
+		return
+	_input.begin_tick()
 	_dodge_cooldown = maxf(_dodge_cooldown - delta, 0.0)
 	_arrow_cooldown = maxf(_arrow_cooldown - delta, 0.0)
 	potion_cooldown = maxf(potion_cooldown - delta, 0.0)
 	_anim_lock = maxf(_anim_lock - delta, 0.0)
 	_coyote = GameConfig.COYOTE_TIME if is_on_floor() else maxf(_coyote - delta, 0.0)
 	_jump_buffer = maxf(_jump_buffer - delta, 0.0)
-	if InputService.just_pressed(slot, InputService.Action.JUMP):
+	if _input.just_pressed(InputService.Action.JUMP):
 		_jump_buffer = GameConfig.JUMP_BUFFER
 
 	# Hit-stop: congela o atacante um instante quando o golpe conecta, pra dar peso.
 	if _hitstop > 0.0:
 		_hitstop -= delta
+		_input.defer()
 		if _anim:
 			_anim.speed_scale = 0.0
 		return
@@ -167,7 +211,7 @@ func _physics_process(delta: float) -> void:
 
 
 func _input_dir() -> Vector3:
-	var move := InputService.get_move(slot)
+	var move := _input.move
 	return Vector3(move.x, 0.0, move.y).rotated(Vector3.UP, deg_to_rad(GameConfig.CAMERA_YAW_DEG))
 
 
@@ -186,12 +230,12 @@ func _update_normal(delta: float, dir: Vector3) -> Vector3:
 		return Vector3.ZERO
 	if grounded and _try_dodge():
 		return _update_dodge(0.0)
-	if grounded and InputService.just_pressed(slot, InputService.Action.MELEE):
+	if grounded and _input.just_pressed(InputService.Action.MELEE):
 		_start_attack(0, dir)
 		return Vector3.ZERO
-	if InputService.is_pressed(slot, InputService.Action.RANGED) and _arrow_cooldown == 0.0:
+	if _input.is_pressed(InputService.Action.RANGED) and _arrow_cooldown == 0.0:
 		_shoot_arrow()
-	if InputService.just_pressed(slot, InputService.Action.POTION):
+	if _input.just_pressed(InputService.Action.POTION):
 		_drink_potion()
 
 	var target := dir * GameConfig.PLAYER_SPEED
@@ -202,7 +246,7 @@ func _update_normal(delta: float, dir: Vector3) -> Vector3:
 
 
 func _try_dodge() -> bool:
-	if not InputService.just_pressed(slot, InputService.Action.DODGE) or _dodge_cooldown > 0.0:
+	if not _input.just_pressed(InputService.Action.DODGE) or _dodge_cooldown > 0.0:
 		return false
 	state = State.DODGING
 	_dodge_dir = _facing
@@ -306,7 +350,7 @@ func _update_attack(delta: float, dir: Vector3) -> Vector3:
 		return _update_dodge(0.0)
 	var hit: Dictionary = COMBO[_combo_step]
 	_state_timer += delta
-	if InputService.just_pressed(slot, InputService.Action.MELEE):
+	if _input.just_pressed(InputService.Action.MELEE):
 		_combo_queued = true
 
 	var desired := Vector3.ZERO
@@ -329,20 +373,38 @@ func _melee_hit(hit: Dictionary) -> void:
 	var targets := Combat.query_arc(self, _facing, GameConfig.MELEE_RADIUS, GameConfig.MELEE_ARC_DEG, GameConfig.LAYER_ENEMIES)
 	for target in targets:
 		target.take_hit(hit.damage, _facing * hit.knockback)
-	_spawn_slash_fx(finisher)
+	_fx("fx_slash", [finisher, _facing])
 	if not targets.is_empty():
 		_hitstop = GameConfig.HITSTOP_TIME
-		Combat.shake_camera(self, 0.35 if finisher else 0.12)
+		_fx("fx_shake", [0.35 if finisher else 0.12])
 
 
-func _spawn_slash_fx(finisher: bool) -> void:
+## Efeitos visuais: rodam aqui e nas outras máquinas da sala.
+
+func _fx(method: String, args: Array) -> void:
+	var replicator := NetReplicator.of(self)
+	if replicator:
+		replicator.broadcast_fx(self, method, args)
+	else:
+		callv(method, args)
+
+
+func fx_flash(color: Color, time: float) -> void:
+	Combat.flash(_model, color, null, time)
+
+
+func fx_shake(strength: float) -> void:
+	Combat.shake_camera(self, strength)
+
+
+func fx_slash(finisher: bool, facing: Vector3) -> void:
 	var material := Combat.overlay_material(Color(1.0, 1.0, 1.0, 0.7 if finisher else 0.45))
 	material.cull_mode = BaseMaterial3D.CULL_DISABLED
 	var fx := MeshInstance3D.new()
 	fx.mesh = _get_arc_mesh()
 	fx.material_override = material
 	get_parent().add_child(fx)
-	fx.global_transform = Transform3D(Basis.looking_at(_facing), global_position + Vector3.UP * 0.9)
+	fx.global_transform = Transform3D(Basis.looking_at(facing), global_position + Vector3.UP * 0.9)
 	if finisher:
 		fx.scale = Vector3.ONE * 1.25
 	var tween := fx.create_tween()
@@ -382,7 +444,7 @@ func _shoot_arrow() -> void:
 	var dir := _facing
 	if aim:
 		dir = (aim.global_position + Vector3.UP * 1.0 - from).normalized()
-	Projectile.spawn(get_parent(), from, dir, GameConfig.ARROW_SPEED, GameConfig.ARROW_DAMAGE,
+	Projectile.fire(self, from, dir, GameConfig.ARROW_SPEED, GameConfig.ARROW_DAMAGE,
 			GameConfig.LAYER_ENEMIES, Color(1.0, 0.95, 0.7))
 	_play("Gun_Shoot", 0.3, true)
 	_anim_lock = 0.3
@@ -393,7 +455,7 @@ func _drink_potion() -> void:
 		return
 	health.heal(health.max_hp * GameConfig.POTION_HEAL)
 	potion_cooldown = GameConfig.POTION_COOLDOWN
-	Combat.flash(_model, Color(0.3, 1.0, 0.4, 0.5), null, 0.25)
+	_fx("fx_flash", [Color(0.3, 1.0, 0.4, 0.5), 0.25])
 
 
 func _on_died() -> void:
@@ -428,4 +490,33 @@ func _play(anim_name: String, duration := 0.0, restart := false) -> bool:
 	_anim.play(anim_name, ANIM_BLEND, speed)
 	if restart:
 		_anim.seek(0.0, true)
+		_anim_serial += 1
+	_anim_name = anim_name
+	_anim_speed = speed
 	return true
+
+
+## Rede
+
+func get_net_state() -> Array:
+	return [global_position, rotation.y, _anim_name, _anim_speed, _anim_serial,
+			health.hp, state, revive_progress, potion_cooldown]
+
+
+func apply_net_state(s: Array) -> void:
+	_net_pos = s[0]
+	_net_yaw = s[1]
+	if not _net_synced:
+		_net_synced = true
+		global_position = _net_pos
+		rotation.y = _net_yaw
+	var serial: int = s[4]
+	if _anim and _anim.has_animation(s[2]) and (serial != _anim_serial or s[2] != _anim.current_animation):
+		_anim.play(s[2], ANIM_BLEND, s[3])
+		if serial != _anim_serial:
+			_anim.seek(0.0, true)
+	_anim_serial = serial
+	health.hp = s[5]
+	state = s[6]
+	revive_progress = s[7]
+	potion_cooldown = s[8]
