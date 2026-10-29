@@ -1,6 +1,7 @@
 extends CanvasLayer
 ## HUD: um cartão por vaga da sala (P1 a P4) com vida e poção, a onda no topo,
-## a situação da conexão e o menu de pausa (Esc, Start ou Back).
+## o minimapa no canto superior direito, a situação da conexão e o menu de pausa
+## (Esc, Start ou Back).
 ## No online o jogo não pausa de verdade: o menu só cobre a tela.
 
 var _names: Array[Label] = []
@@ -10,6 +11,7 @@ var _net_label: Label
 var _pause: PanelContainer
 var _pause_info: Label
 var _resume_button: Button
+var _minimap_button: Button
 
 
 func _ready() -> void:
@@ -55,11 +57,19 @@ func _ready() -> void:
 	help.position = Vector2(24, 16)
 	add_child(help)
 
+	var minimap := Minimap.new()
+	minimap.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
+	minimap.offset_left = -24 - Minimap.SIZE
+	minimap.offset_right = -24
+	minimap.offset_top = 52
+	minimap.offset_bottom = 52 + Minimap.SIZE
+	add_child(minimap)
+
 	_net_label = _make_label(18, Color(0.8, 0.9, 1.0))
 	_net_label.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
 	_net_label.grow_horizontal = Control.GROW_DIRECTION_BEGIN
 	_net_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	_net_label.offset_top = 44
+	_net_label.offset_top = 52 + Minimap.SIZE + 8
 	_net_label.offset_right = -24
 	add_child(_net_label)
 
@@ -144,7 +154,14 @@ func _build_pause_menu() -> void:
 	_pause_info.autowrap_mode = TextServer.AUTOWRAP_WORD
 	box.add_child(_pause_info)
 	_resume_button = _make_button(box, "Continuar", _toggle_pause)
+	_minimap_button = _make_button(box, "", Settings.toggle_minimap_mode)
+	Settings.changed.connect(_update_minimap_button)
+	_update_minimap_button()
 	_make_button(box, "Sair para o menu", func() -> void: NetService.leave_session())
+
+
+func _update_minimap_button() -> void:
+	_minimap_button.text = "Minimapa: %s" % ("rotativo (gira com o herói)" if Settings.minimap_mode == "rotating" else "fixo (norte pra cima)")
 
 
 func _toggle_pause() -> void:

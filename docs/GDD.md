@@ -119,6 +119,15 @@ sem precisar de servidor dedicado.
   (hoje: melhor onda). Fica salvo no perfil do host; no online o mundo é sempre o do host.
 - A semente já é guardada para a geração do mundo aberto (M7).
 
+## Minimapa
+
+Canto superior direito. Câmera de cima desenha o terreno; por cima vão os heróis
+(seta na cor de cada um, apontando pra onde ele olha) e os inimigos (pontos vermelhos).
+Segue o centro dos jogadores da máquina, como a câmera principal.
+- **Fixo:** norte sempre pra cima.
+- **Rotativo:** gira para a frente do herói (o primeiro jogador local) ficar pra cima.
+- Troca no menu de pausa; a escolha fica salva nas preferências desta máquina (`Settings`).
+
 ## Controles (padrão)
 
 | Ação | Controle | Teclado |

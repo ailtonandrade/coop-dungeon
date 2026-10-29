@@ -28,6 +28,7 @@ mesh = SubResource("TorusMesh_ring")
 
 [node name="Tag" type="Label3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.4, 0)
+layers = 2
 billboard = 1
 no_depth_test = true
 font_size = 48
