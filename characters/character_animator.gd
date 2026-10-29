@@ -88,6 +88,22 @@ func apply_net_state(s: Array) -> void:
 	serial = s[3]
 
 
+## Ação das pernas pela direção do movimento em relação a para onde o corpo olha:
+## parado, para a frente, de costas ou de lado. Serve para quem anda olhando para outro
+## lugar (herói mirando, atirador recuando de frente para o alvo).
+static func locomotion_action(velocity: Vector3, facing: Vector3, min_speed := 0.5) -> String:
+	var horizontal := Vector3(velocity.x, 0.0, velocity.z)
+	if horizontal.length() < min_speed:
+		return "idle"
+	var dir := horizontal.normalized()
+	var forward := dir.dot(facing)
+	if forward > 0.5:
+		return "move"
+	if forward < -0.5:
+		return "move_back"
+	return "move_right" if dir.dot(facing.cross(Vector3.UP)) > 0.0 else "move_left"
+
+
 func _clip_for(action: String) -> String:
 	if _anim == null:
 		return ""

@@ -61,6 +61,7 @@ var _state_timer := 0.0
 var _dodge_dir := Vector3.ZERO
 var _dodge_cooldown := 0.0
 var _arrow_cooldown := 0.0
+var _melee_cooldown := 0.0
 var _combo_step := 0
 var _combo_queued := false
 var _hit_done := false
@@ -190,6 +191,7 @@ func _physics_process(delta: float) -> void:
 	_input.begin_tick()
 	_dodge_cooldown = maxf(_dodge_cooldown - delta, 0.0)
 	_arrow_cooldown = maxf(_arrow_cooldown - delta, 0.0)
+	_melee_cooldown = maxf(_melee_cooldown - delta, 0.0)
 	potion_cooldown = maxf(potion_cooldown - delta, 0.0)
 	_anim_lock = maxf(_anim_lock - delta, 0.0)
 	_shoot_pose = maxf(_shoot_pose - delta, 0.0)
@@ -262,7 +264,10 @@ func _update_normal(delta: float, dir: Vector3) -> Vector3:
 		return Vector3.ZERO
 	if grounded and _try_dodge():
 		return _update_dodge(0.0)
-	if grounded and _input.just_pressed(InputService.Action.MELEE):
+	# Apertar ataca; segurar continua atacando (depois da pausa curta entre combos).
+	var melee := _input.just_pressed(InputService.Action.MELEE) \
+			or (_input.is_pressed(InputService.Action.MELEE) and _melee_cooldown == 0.0)
+	if grounded and melee:
 		_start_attack(0, dir)
 		return Vector3.ZERO
 	if _input.is_pressed(InputService.Action.RANGED) and _arrow_cooldown == 0.0:
@@ -292,19 +297,12 @@ func _strafe_factor(dir: Vector3) -> float:
 
 ## Ação das pernas: parado, correndo, ou (mirando/atirando) de costas e de lado.
 func _locomotion_anim(aiming: bool) -> String:
-	var horizontal := Combat.flat(_move)
-	if horizontal.length() < 0.5:
+	var action := CharacterAnimator.locomotion_action(_move, _facing)
+	if action == "idle":
 		return "idle_aim" if aiming else "idle"
-	if not aiming and _shoot_pose == 0.0:
-		return "move"
-	var dir := horizontal.normalized()
-	var forward := dir.dot(_facing)
-	var right := dir.dot(_facing.cross(Vector3.UP))
-	if forward > 0.5:
-		return "move_shoot" if _shoot_pose > 0.0 else "move"
-	if forward < -0.5:
-		return "move_back"
-	return "move_right" if right > 0.0 else "move_left"
+	if action == "move" and _shoot_pose > 0.0:
+		return "move_shoot"
+	return action
 
 
 ## Sofá: quem divide a tela não se afasta mais que COUCH_LEASH dos outros da mesma tela
@@ -432,7 +430,8 @@ func _update_attack(delta: float, dir: Vector3) -> Vector3:
 		return _update_dodge(0.0)
 	var hit: Dictionary = COMBO[_combo_step]
 	_state_timer += delta
-	if _input.just_pressed(InputService.Action.MELEE):
+	# Apertar de novo ou continuar segurando encadeia o próximo golpe.
+	if _input.just_pressed(InputService.Action.MELEE) or _input.is_pressed(InputService.Action.MELEE):
 		_combo_queued = true
 
 	var desired := Vector3.ZERO
@@ -447,6 +446,7 @@ func _update_attack(delta: float, dir: Vector3) -> Vector3:
 			_start_attack(_combo_step + 1, dir)
 		else:
 			state = State.NORMAL
+			_melee_cooldown = GameConfig.MELEE_REPEAT_COOLDOWN
 	return desired
 
 

@@ -1,8 +1,9 @@
 class_name FadeOccluder
 extends Node3D
 ## Algo que pode tapar o herói na visão isométrica (telhado, paredes da frente, copa de árvore).
-## - Com `zone` (casas): enquanto um jogador desta tela está dentro da zona, some de vez
-##   (dá pra ver o herói dentro da casa).
+## - Com `zone` (casas): enquanto um jogador desta tela está dentro da zona, some até
+##   `inside_fade` (telhado some de vez; paredes da frente ficam translúcidas para a porta
+##   continuar à vista).
 ## - Sempre: se fica entre a câmera e um jogador desta tela, fica transparente.
 ## Quem decide é o CameraOcclusion (da câmera); aqui só fica a transição suave.
 ## Para a câmera "ver" o que tapa, as peças precisam de colisão (ou na camada LAYER_OCCLUDER).
@@ -14,6 +15,8 @@ extends Node3D
 @export var zone := AABB()
 ## Transparência quando está entre a câmera e o herói (0 = normal, 1 = invisível).
 @export_range(0.0, 1.0) var see_through := 0.7
+## Transparência com alguém dentro da zona (1 = some de vez).
+@export_range(0.0, 1.0) var inside_fade := 1.0
 
 ## Quanto deve sumir agora (o CameraOcclusion ajusta a cada quadro).
 var target := 0.0

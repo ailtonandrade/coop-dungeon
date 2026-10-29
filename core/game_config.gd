@@ -46,6 +46,9 @@ const COUCH_LEASH := 13.0
 const TETHER_DISTANCE := 16.0
 const KILL_Y := -10.0
 const STICK_DEADZONE := 0.2
+## Mouse: o herói olha para o cursor enquanto o mouse foi mexido há menos que isso
+## (ou com um botão do mouse apertado). Só no teclado, ele olha para onde anda.
+const MOUSE_AIM_TIMEOUT := 3.0
 ## Analógico direito abaixo disso não mira.
 const AIM_DEADZONE := 0.35
 ## Andando de costas mirando, a velocidade cai para esta fração (de lado fica no meio).
@@ -72,6 +75,8 @@ const ARROW_AIM_CONE_DEG := 30.0
 ## Correção de mira quando o jogador está mirando de verdade (analógico direito / mouse).
 const ARROW_AIM_ASSIST_DEG := 12.0
 const HITSTOP_TIME := 0.06
+## Segurando o ataque, o combo se repete sozinho; entre um combo completo e o próximo há esta pausa.
+const MELEE_REPEAT_COOLDOWN := 0.25
 const POTION_HEAL := 0.4
 const POTION_COOLDOWN := 15.0
 

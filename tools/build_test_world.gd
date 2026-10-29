@@ -120,8 +120,9 @@ func _build_town() -> Node3D:
 	return root
 
 
-## Casa com porta na frente (lado da câmera). Ao entrar, somem o telhado e as paredes da
-## frente e da direita (as que ficam entre a câmera e o herói); fundo e esquerda continuam.
+## Casa com porta na frente (lado da câmera). Ao entrar, o telhado some e as paredes da
+## frente e da direita (as que ficam entre a câmera e o herói) ficam translúcidas, para a
+## porta continuar à vista; fundo e esquerda continuam normais.
 func _house(nav: Node3D, root: Node3D, center: Vector3, size: Vector2, npc_service: String) -> void:
 	var house := Node3D.new()
 	house.name = "House_%d_%d" % [int(center.x), int(center.z)]
@@ -134,7 +135,7 @@ func _house(nav: Node3D, root: Node3D, center: Vector3, size: Vector2, npc_servi
 	var t := 0.3
 	_static(house, root, "WallBack", Vector3(0, h / 2, -size.y / 2), Vector3(size.x, h, t), wall)
 	_static(house, root, "WallLeft", Vector3(-size.x / 2, h / 2, 0), Vector3(t, h, size.y), wall)
-	var front := _occluder(house, root, "FrontWalls", inside, 0.75)
+	var front := _occluder(house, root, "FrontWalls", inside, 0.65, 0.65)
 	_static(front, root, "WallRight", Vector3(size.x / 2, h / 2, 0), Vector3(t, h, size.y), wall)
 	# Frente com vão de porta de 2 m no meio.
 	var side := (size.x - 2.0) / 2.0
@@ -142,7 +143,7 @@ func _house(nav: Node3D, root: Node3D, center: Vector3, size: Vector2, npc_servi
 	_static(front, root, "WallFrontR", Vector3(size.x / 2 - side / 2, h / 2, size.y / 2), Vector3(side, h, t), wall)
 	_static(front, root, "Lintel", Vector3(0, h - 0.4, size.y / 2), Vector3(2.0, 0.8, t), wall)
 	# Telhado: só a câmera "vê" (camada de oclusão), ninguém colide nele.
-	var roof_node := _occluder(house, root, "Roof", inside, 0.75)
+	var roof_node := _occluder(house, root, "Roof", inside, 0.75, 1.0)
 	var roof := _static(roof_node, root, "RoofSlab", Vector3(0, h + 0.25, 0), Vector3(size.x + 1.0, 0.5, size.y + 1.0), Color(0.6, 0.25, 0.18))
 	roof.collision_layer = GameConfig.LAYER_OCCLUDER
 	roof.collision_mask = 0
@@ -164,11 +165,13 @@ func _house(nav: Node3D, root: Node3D, center: Vector3, size: Vector2, npc_servi
 			_npc(root, WorldNpc.Service.BLACKSMITH, "Brando", "res://assets/characters/Worker.glb", center + Vector3(0, 0, -1.5))
 
 
-func _occluder(parent: Node3D, root: Node3D, node_name: String, zone: AABB, see_through: float) -> FadeOccluder:
+func _occluder(parent: Node3D, root: Node3D, node_name: String, zone: AABB, see_through: float,
+		inside_fade := 1.0) -> FadeOccluder:
 	var occluder := FadeOccluder.new()
 	occluder.name = node_name
 	occluder.zone = zone
 	occluder.see_through = see_through
+	occluder.inside_fade = inside_fade
 	parent.add_child(occluder)
 	_own(occluder, root)
 	return occluder

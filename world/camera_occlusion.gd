@@ -1,8 +1,8 @@
 class_name CameraOcclusion
 extends Node
 ## Decide a cada quadro o que deve sumir para os jogadores desta tela não ficarem escondidos:
-## telhado da casa onde alguém está dentro some de vez; o que estiver entre a câmera e um
-## jogador fica transparente. Fica como filho da câmera.
+## com alguém dentro da casa, o telhado some e as paredes da frente ficam translúcidas; o que
+## estiver entre a câmera e um jogador fica transparente. Fica como filho da câmera.
 
 ## Quantas coisas o raio atravessa procurando o que tapa (paredes em sequência, árvore + telhado).
 const MAX_HITS := 4
@@ -28,7 +28,7 @@ func _process(_delta: float) -> void:
 				if occluder.zone_contains(player.global_position):
 					inside = true
 					break
-		occluder.target = 1.0 if inside else (occluder.see_through if blocking.has(occluder) else 0.0)
+		occluder.target = occluder.inside_fade if inside else (occluder.see_through if blocking.has(occluder) else 0.0)
 
 
 func _occluders_between(from: Vector3, to: Vector3) -> Array[FadeOccluder]:

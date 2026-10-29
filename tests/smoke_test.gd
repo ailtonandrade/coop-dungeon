@@ -2,6 +2,7 @@ extends SceneTree
 ## Teste de fumaça sem tela: carrega a fase, faz 2 jogadores entrarem e confere o loop
 ## principal (nascer, escalada, malha de navegação, ondas, golpe, inimigos atacando, save).
 ## Rodar: godot --headless --fixed-fps 60 --path coop-dungeon -s tests/smoke_test.gd
+## Atenção: cada passo é um quadro; dois passos no mesmo quadro fazem só o primeiro rodar.
 ## Sem tipos Player/Enemy aqui: o script de teste compila antes dos autoloads existirem.
 
 const SECOND := 60
@@ -11,10 +12,16 @@ var _failed := false
 var _enemy: Node3D
 var _enemy_hp := 0.0
 var _armor_before := 0.0
+var _steps_seen := {}
+var _combo_starts := 0
+var _was_attacking := false
+var _shooter: Node3D
 
 
 func _process(_delta: float) -> bool:
 	_frames += 1
+	if _frames > 5 * SECOND and _frames < 8 * SECOND:
+		_record_combo()
 	var input := root.get_node("InputService")
 	match _frames:
 		1:
@@ -117,6 +124,28 @@ func _process(_delta: float) -> bool:
 			_check(_player(0)._animator.current == "slash", "J: P1 ataca com a espadada")
 		3 * SECOND + 30:
 			_check(_enemy.health.hp < _enemy_hp, "golpe (pelo botão) tirou vida do inimigo (%.0f -> %.0f)" % [_enemy_hp, _enemy.health.hp])
+		5 * SECOND:
+			# Segurando J: o combo roda inteiro e recomeça sozinho depois da pausa curta.
+			_key(KEY_J, true)
+		8 * SECOND:
+			_key(KEY_J, false)
+			_check(_steps_seen.has(2), "segurando J: combo chegou no 3º golpe")
+			_check(_combo_starts >= 2, "segurando J: combo recomeçou sozinho (%d combos)" % _combo_starts)
+		9 * SECOND:
+			# Atirador colado no P1: recua olhando para ele, com a animação de andar de costas.
+			var p1 := _player(0)
+			_shooter = get_first_node_in_group("net_replicator").spawn("enemy", {"kind": 1, "pos": p1.global_position + Vector3(2.5, 0, 0)})
+		9 * SECOND + 20:
+			_check(_shooter._animator.current == "move_back", "atirador recua de costas, olhando para o alvo (%s)" % _shooter._animator.current)
+			# Mouse mexido para a direita do P1 na tela: ele olha para o cursor.
+			var p1 := _player(0)
+			var camera: Camera3D = current_scene.get_viewport().get_camera_3d()
+			var motion := InputEventMouseMotion.new()
+			motion.position = camera.unproject_position(p1.global_position + Vector3(5, 0, 0))
+			Input.parse_input_event(motion)
+		9 * SECOND + 40:
+			var p1 := _player(0)
+			_check(p1._facing.dot(Vector3.RIGHT) > 0.9, "mouse: P1 olha para o cursor (%.2f)" % p1._facing.dot(Vector3.RIGHT))
 		12 * SECOND:
 			var hurt := get_nodes_in_group("players").filter(func(p: Node) -> bool: return p.health.hp < p.health.max_hp)
 			_check(not hurt.is_empty(), "inimigos chegaram e bateram nos jogadores parados")
@@ -126,6 +155,16 @@ func _process(_delta: float) -> bool:
 			print("SMOKE TEST: ", "FALHOU" if _failed else "OK")
 			quit(1 if _failed else 0)
 	return false
+
+
+func _record_combo() -> void:
+	var p1 := _player(0)
+	var attacking: bool = p1.state == 2
+	if attacking:
+		_steps_seen[p1._combo_step] = true
+		if not _was_attacking and p1._combo_step == 0:
+			_combo_starts += 1
+	_was_attacking = attacking
 
 
 func _key(code: Key, down: bool) -> void:

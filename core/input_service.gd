@@ -55,6 +55,9 @@ var aim_projector := Callable()
 var _devices: Array[int] = []
 ## Onde está o herói de cada slot (a mira do mouse sai dele).
 var _aim_anchor: Array[Vector3] = []
+var _mouse_moved_at := -INF
+## Posição do mouse na tela, do último movimento (coordenadas da viewport do jogo).
+var _mouse_position := Vector2.ZERO
 ## Slot com menu aberto (inventário): o jogo não vê os comandos dele, só a interface (raw_*).
 var _blocked: Array[bool] = []
 ## Bitmask das ações pressionadas por slot, neste frame e no anterior.
@@ -73,6 +76,9 @@ func _ready() -> void:
 
 
 func _input(event: InputEvent) -> void:
+	if event is InputEventMouseMotion:
+		_mouse_moved_at = Time.get_ticks_msec() / 1000.0
+		_mouse_position = event.position
 	if event is InputEventJoypadButton and event.pressed:
 		last_device = event.device
 	elif event is InputEventKey and event.pressed:
@@ -166,17 +172,19 @@ func get_move(slot: int) -> Vector2:
 
 
 ## Mira (twin-stick) já no chão do mundo: Vector2(x, z) de comprimento 1, ou zero se não mira.
-## Controle: analógico direito. Teclado: mouse, enquanto segura um botão do mouse.
+## Controle: analógico direito. Teclado: o mouse, enquanto está em uso (mexido há pouco ou
+## com um botão apertado); parado por um tempo, o herói volta a olhar para onde anda.
 func get_aim(slot: int) -> Vector2:
 	if is_blocked(slot):
 		return Vector2.ZERO
 	var device := _devices[slot]
 	if device == KEYBOARD:
 		var mouse_down := Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT) or Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT)
-		if not mouse_down or not aim_projector.is_valid() or not is_inside_tree():
+		var mouse_recent := Time.get_ticks_msec() / 1000.0 - _mouse_moved_at < GameConfig.MOUSE_AIM_TIMEOUT
+		if not (mouse_down or mouse_recent) or not aim_projector.is_valid() or not is_inside_tree():
 			return Vector2.ZERO
 		var anchor := _aim_anchor[slot]
-		var point: Vector3 = aim_projector.call(get_viewport().get_mouse_position(), anchor.y + 1.0)
+		var point: Vector3 = aim_projector.call(_mouse_position, anchor.y + 1.0)
 		var flat := Vector2(point.x - anchor.x, point.z - anchor.z)
 		return flat.normalized() if flat.length() > 0.3 else Vector2.ZERO
 	if device >= 0:

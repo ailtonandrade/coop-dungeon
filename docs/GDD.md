@@ -46,6 +46,8 @@ porque a referência é da própria Microsoft, que também aprova o jogo na loja
   a flecha corrige para o inimigo dentro de um cone de 30°.
 - Inimigos sempre "avisam" o ataque ficando vermelhos (0,5 s no brutamontes, 0,7 s no atirador).
   Apanhar interrompe o ataque deles.
+- Atirador mantém distância: recua de frente para o alvo (andando de costas) e, entre um tiro e
+  outro, anda de lado para desviar.
 - Herói: 100 de vida. Poção cura 40% (recarga de 15 s). Caído, um companheiro
   perto por 2 s revive com 50%. Todos caídos: em 3 s a arena reinicia na onda 1.
 
@@ -228,6 +230,12 @@ Segue o centro dos jogadores da máquina, como a câmera principal.
 **Mira (twin-stick):** com o analógico direito (ou mouse), o herói olha para a mira e anda
 para qualquer lado: de frente, de lado e de costas (mais devagar de costas). Atirando andando,
 as pernas continuam correndo. Sem mirar, o golpe e a flecha corrigem sozinhos para o inimigo mais perto.
+No teclado, o herói olha para o cursor enquanto o mouse está em uso (mexido nos últimos 3 s ou
+com botão apertado); parado, volta a olhar para onde anda.
+
+**Segurar para atacar:** segurando o ataque corpo a corpo, o combo continua sozinho, com uma
+pausa de 0,25 s entre um combo completo e o próximo. Segurando o tiro, atira sem parar
+(recarga da arma).
 
 **Limite do sofá:** quem divide a tela não se afasta mais que 13 m dos outros da mesma tela
 (parede invisível); de reserva, quem passar de 16 m (queda, empurrão) é teleportado.

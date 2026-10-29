@@ -367,7 +367,8 @@ mesh = SubResource("BoxMesh_cax8w")
 [node name="FrontWalls" type="Node3D" parent="Navigation/House_14_14" unique_id=272302524]
 script = ExtResource("2_y326l")
 zone = AABB(-4.8, 0, -3.8, 9.6, 3, 7.6)
-see_through = 0.75
+see_through = 0.65
+inside_fade = 0.65
 
 [node name="WallRight" type="StaticBody3D" parent="Navigation/House_14_14/FrontWalls" unique_id=75528694]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 1.6, 0)
@@ -469,7 +470,8 @@ mesh = SubResource("BoxMesh_6mv5i")
 [node name="FrontWalls" type="Node3D" parent="Navigation/House_50_14" unique_id=1707915093]
 script = ExtResource("2_y326l")
 zone = AABB(-4.3, 0, -3.3, 8.6, 3, 6.6)
-see_through = 0.75
+see_through = 0.65
+inside_fade = 0.65
 
 [node name="WallRight" type="StaticBody3D" parent="Navigation/House_50_14/FrontWalls" unique_id=516305548]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.5, 1.6, 0)
@@ -571,7 +573,8 @@ mesh = SubResource("BoxMesh_xx4ee")
 [node name="FrontWalls" type="Node3D" parent="Navigation/House_14_50" unique_id=1939832144]
 script = ExtResource("2_y326l")
 zone = AABB(-4.3, 0, -3.3, 8.6, 3, 6.6)
-see_through = 0.75
+see_through = 0.65
+inside_fade = 0.65
 
 [node name="WallRight" type="StaticBody3D" parent="Navigation/House_14_50/FrontWalls" unique_id=1518429815]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.5, 1.6, 0)
@@ -673,7 +676,8 @@ mesh = SubResource("BoxMesh_p3ygk")
 [node name="FrontWalls" type="Node3D" parent="Navigation/House_50_50" unique_id=2095178401]
 script = ExtResource("2_y326l")
 zone = AABB(-4.8, 0, -3.8, 9.6, 3, 7.6)
-see_through = 0.75
+see_through = 0.65
+inside_fade = 0.65
 
 [node name="WallRight" type="StaticBody3D" parent="Navigation/House_50_50/FrontWalls" unique_id=1498847629]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 1.6, 0)

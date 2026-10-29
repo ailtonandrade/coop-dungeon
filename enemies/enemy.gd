@@ -27,6 +27,8 @@ const STATS := {
 	},
 }
 const RANGED_MIN_DIST := 5.0
+## Atirador: entre um tiro e outro anda de lado (desvia), olhando para o alvo.
+const STRAFE_SPEED_FACTOR := 0.6
 const PROJECTILE_SPEED := 9.0
 const STAGGER_TIME := 0.25
 const TURN_SPEED := 12.0
@@ -56,6 +58,7 @@ var _agent: NavigationAgent3D
 var _net_pos := Vector3.ZERO
 var _net_yaw := 0.0
 var _net_synced := false
+var _strafe_side := 1.0
 
 
 ## `data` (do NetReplicator): kind, pos e, no mundo aberto, home, aggro, leash, power.
@@ -158,7 +161,11 @@ func _physics_process(delta: float) -> void:
 			State.WINDUP:
 				if _timer <= 0.0:
 					_strike()
-			State.RECOVER, State.STAGGER:
+			State.RECOVER:
+				desired = _recover_move()
+				if _timer <= 0.0:
+					state = State.CHASE
+			State.STAGGER:
 				if _timer <= 0.0:
 					state = State.CHASE
 
@@ -170,8 +177,11 @@ func _physics_process(delta: float) -> void:
 	if state == State.DEAD:
 		return
 	basis = basis.slerp(Basis.looking_at(_facing), minf(TURN_SPEED * delta, 1.0)).orthonormalized()
-	if state == State.CHASE:
-		_animator.play("move" if desired.length() > 0.3 else "idle")
+	if state == State.CHASE or (state == State.RECOVER and desired != Vector3.ZERO):
+		# Recuando ou desviando de frente para o alvo, as pernas andam de costas ou de lado.
+		_animator.play(CharacterAnimator.locomotion_action(desired, _facing, 0.3))
+	elif state == State.RECOVER:
+		_animator.play("idle")
 
 
 func _chase() -> Vector3:
@@ -212,6 +222,17 @@ func _nav_velocity(target: Vector3) -> Vector3:
 	return next.normalized() * _stats.speed
 
 
+## Atirador entre tiros: anda de lado em volta do alvo, sempre olhando para ele.
+func _recover_move() -> Vector3:
+	if kind != Kind.RANGED or _target == null or _timer < 0.2:
+		return Vector3.ZERO
+	var to := Combat.flat(_target.global_position - global_position)
+	if to.length() < 0.01:
+		return Vector3.ZERO
+	_facing = to.normalized()
+	return _facing.cross(Vector3.UP) * _strafe_side * _stats.speed * STRAFE_SPEED_FACTOR
+
+
 func _begin_windup() -> void:
 	state = State.WINDUP
 	_timer = _stats.windup
@@ -222,6 +243,7 @@ func _begin_windup() -> void:
 func _strike() -> void:
 	state = State.RECOVER
 	_timer = _stats.recover
+	_strafe_side = -1.0 if randf() < 0.5 else 1.0
 	Combat.set_overlay(_model, _tint)
 	if kind == Kind.MELEE:
 		for body in Combat.query_arc(self, _facing, _stats.attack_range + 0.4, 100.0, GameConfig.LAYER_PLAYERS):

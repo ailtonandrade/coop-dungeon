@@ -48,7 +48,8 @@ func _process(_delta: float) -> bool:
 		SECOND + 30:
 			_check(_house("House_14_14").target == 1.0, "dentro da casa: telhado some")
 			var house := current_scene.find_child("House_14_14", true, false)
-			_check(house.get_node("FrontWalls").target == 1.0, "dentro da casa: paredes da frente somem")
+			var front: Node = house.get_node("FrontWalls")
+			_check(front.target > 0.3 and front.target < 1.0, "dentro da casa: paredes da frente ficam translúcidas (%.2f), porta à vista" % front.target)
 			_check(house.get_node("WallBack").is_visible_in_tree(), "dentro da casa: parede do fundo continua")
 			_check(_house("House_50_50").target == 0.0, "telhado das outras casas continua")
 			_teleport_group(Vector3(32, 0, 38))
