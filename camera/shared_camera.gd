@@ -4,14 +4,31 @@ extends Camera3D
 
 @export var player_root: Node3D
 
+const SHAKE_DECAY := 2.5
+const SHAKE_MAX_OFFSET := 0.6
+
 var _focus := Vector3.ZERO
 var _distance := GameConfig.CAMERA_DIST_MIN
+var _trauma := 0.0
+
+
+## Tremida de câmera (0..1). Golpes fortes e dano recebido chamam pelo grupo "shared_camera".
+func shake(strength: float) -> void:
+	_trauma = minf(_trauma + strength, 1.0)
 
 
 func _ready() -> void:
+	add_to_group("shared_camera")
 	fov = GameConfig.CAMERA_FOV
 	rotation_degrees = Vector3(GameConfig.CAMERA_PITCH_DEG, GameConfig.CAMERA_YAW_DEG, 0.0)
 	_apply()
+
+
+func _process(delta: float) -> void:
+	_trauma = maxf(_trauma - SHAKE_DECAY * delta, 0.0)
+	var amount := _trauma * _trauma * SHAKE_MAX_OFFSET
+	h_offset = randf_range(-amount, amount)
+	v_offset = randf_range(-amount, amount)
 
 
 func _physics_process(delta: float) -> void:

@@ -1,9 +1,10 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene load_steps=6 format=3]
 
 [ext_resource type="Script" path="res://levels/level_01.gd" id="1_level"]
 [ext_resource type="Script" path="res://core/player_manager.gd" id="2_players"]
 [ext_resource type="Script" path="res://camera/shared_camera.gd" id="3_camera"]
 [ext_resource type="Script" path="res://ui/hud.gd" id="4_hud"]
+[ext_resource type="Script" path="res://enemies/wave_spawner.gd" id="5_waves"]
 
 [node name="Level01" type="Node3D"]
 script = ExtResource("1_level")
@@ -15,6 +16,10 @@ script = ExtResource("2_players")
 current = true
 script = ExtResource("3_camera")
 player_root = NodePath("../PlayerManager")
+
+[node name="WaveSpawner" type="Node3D" parent="." node_paths=PackedStringArray("player_manager")]
+script = ExtResource("5_waves")
+player_manager = NodePath("../PlayerManager")
 
 [node name="HUD" type="CanvasLayer" parent="."]
 script = ExtResource("4_hud")

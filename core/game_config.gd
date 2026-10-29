@@ -35,6 +35,32 @@ const TETHER_DISTANCE := 16.0
 const KILL_Y := -10.0
 const STICK_DEADZONE := 0.2
 
+# Camadas de física (valor do bit)
+const LAYER_WORLD := 1
+const LAYER_PLAYERS := 2
+const LAYER_ENEMIES := 4
+
+# Combate do herói
+const PLAYER_MAX_HP := 100.0
+const MELEE_RADIUS := 2.0
+const MELEE_ARC_DEG := 120.0
+## Raio em que o golpe vira sozinho para o inimigo mais próximo (mira assistida).
+const SOFT_AIM_RADIUS := 4.0
+const ARROW_SPEED := 22.0
+const ARROW_DAMAGE := 8.0
+const ARROW_COOLDOWN := 0.45
+const ARROW_RANGE := 20.0
+const ARROW_AIM_CONE_DEG := 30.0
+const HITSTOP_TIME := 0.06
+const POTION_HEAL := 0.4
+const POTION_COOLDOWN := 15.0
+
+# Cair e reviver
+const REVIVE_RADIUS := 1.8
+const REVIVE_TIME := 2.0
+const REVIVE_HP := 0.5
+const WIPE_RESTART_TIME := 3.0
+
 const PLAYER_COLORS: Array[Color] = [
 	Color(0.25, 0.55, 1.0),
 	Color(1.0, 0.35, 0.3),

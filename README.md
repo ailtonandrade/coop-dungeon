@@ -8,8 +8,9 @@ Design completo em [`docs/GDD.md`](docs/GDD.md).
 1. Instale o **Godot 4.4** (versão padrão, não a .NET): https://godotengine.org/download
 2. No Godot: **Importar** e escolha `coop-dungeon/project.godot`.
 3. **F5** para jogar.
-   - Jogador no teclado: **Enter** para entrar, WASD anda, Espaço rola.
-   - Cada controle: **Start** (ou A) para entrar, analógico anda, A rola.
+   - Teclado: **Enter** entra, WASD anda, J ataca, K atira flecha, Espaço rola, E bebe poção.
+   - Cada controle: **Start** (ou A) entra, analógico anda, X ataca, RT atira, A rola, Y poção.
+   - Ondas de inimigos chegam sozinhas. Quem cai é revivido quando um companheiro fica perto.
 
 ## Trocar os modelos
 
@@ -24,5 +25,5 @@ Os modelos atuais são provisórios (Quaternius, CC0, liberados para uso comerci
 ## Teste automático
 
 ```bash
-godot --headless --path coop-dungeon -s tests/smoke_test.gd
+godot --headless --fixed-fps 60 --path coop-dungeon -s tests/smoke_test.gd
 ```

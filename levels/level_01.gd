@@ -28,9 +28,12 @@ const PROPS := [
 ]
 
 var _materials: Dictionary = {}  # Color -> StandardMaterial3D
+## Toda a geometria sólida fica aqui dentro, para a malha de navegação dos inimigos.
+var _nav := NavigationRegion3D.new()
 
 
 func _ready() -> void:
+	add_child(_nav)
 	_build_environment()
 	_build_floor()
 	_build_walls()
@@ -38,6 +41,19 @@ func _ready() -> void:
 		_add_block(Vector3(rect.position.x, 0.0, rect.position.y), Vector3(rect.size.x, 2.0, rect.size.y), Color(0.45, 0.42, 0.4))
 	for prop: Array in PROPS:
 		_add_prop(load(prop[0]), Vector3(prop[1].x, 0.0, prop[1].y), prop[2])
+	_bake_navigation()
+
+
+func _bake_navigation() -> void:
+	var nav_mesh := NavigationMesh.new()
+	nav_mesh.geometry_parsed_geometry_type = NavigationMesh.PARSED_GEOMETRY_STATIC_COLLIDERS
+	nav_mesh.agent_radius = 0.5
+	nav_mesh.agent_height = 2.0
+	nav_mesh.agent_max_climb = 0.25
+	nav_mesh.cell_size = 0.25
+	nav_mesh.cell_height = 0.25
+	_nav.navigation_mesh = nav_mesh
+	_nav.bake_navigation_mesh(false)
 
 
 func _build_environment() -> void:
@@ -105,7 +121,7 @@ func _add_block(corner: Vector3, size: Vector3, color: Color, visible_mesh := tr
 		mesh.mesh = box
 		mesh.material_override = _material(color)
 		body.add_child(mesh)
-	add_child(body)
+	_nav.add_child(body)
 
 
 ## Coloca um modelo .glb com colisão em caixa calculada a partir das malhas dele.
@@ -123,7 +139,7 @@ func _add_prop(scene: PackedScene, pos: Vector3, rotation_y_deg: float) -> void:
 		collision.shape = shape
 		collision.position = bounds.get_center()
 		body.add_child(collision)
-	add_child(body)
+	_nav.add_child(body)
 
 
 func _mesh_bounds(node: Node, parent_xform: Transform3D) -> AABB:

@@ -32,6 +32,16 @@ porque a referência é da própria Microsoft, que também aprova o jogo na loja
 > Esses números foram calibrados a olho a partir do primeiro Dungeons. Vale ajustar
 > jogando lado a lado com o Dungeons 2 e só mexer em `game_config.gd`.
 
+## Combate (valores atuais)
+
+- Combo: 10 / 10 / 22 de dano; o 3º golpe empurra longe e treme a câmera.
+- Mira assistida: o golpe vira para o inimigo mais próximo num raio de 4 m;
+  a flecha corrige para o inimigo dentro de um cone de 30°.
+- Inimigos sempre "avisam" o ataque ficando vermelhos (0,5 s no brutamontes, 0,7 s no atirador).
+  Apanhar interrompe o ataque deles.
+- Herói: 100 de vida. Poção cura 40% (recarga de 15 s). Caído, um companheiro
+  perto por 2 s revive com 50%. Todos caídos: em 3 s a arena reinicia na onda 1.
+
 ## Controles (padrão)
 
 | Ação | Controle | Teclado |
@@ -48,8 +58,11 @@ porque a referência é da própria Microsoft, que também aprova o jogo na loja
 
 1. **Movimento e co-op**: entrar/sair a qualquer momento, câmera compartilhada, corda de teleporte. ✅ protótipo
 2. **Combate**: combo de 3 golpes, arma à distância com munição, rolada com invulnerabilidade, hit-stop, knockback.
+   ✅ protótipo (flecha ainda sem munição)
 3. **Inimigos**: corpo a corpo, à distância, explosivo, elite; spawner por sala; IA com NavigationAgent3D.
+   ✅ protótipo: corpo a corpo e à distância, ondas na arena
 4. **Sobrevivência**: vida, poção com recarga, cair/reviver pelo parceiro, vidas por fase.
+   ✅ protótipo (sem vidas por fase; se todos caem, reinicia a arena)
 5. **Loot**: baús e drops **por jogador** (cada um vê o seu); raridade; poder do equipamento.
 6. **Progressão**: nível do herói gera pontos de encantamento; 3 encantamentos por item.
 7. **Artefatos**: 3 slots com recarga.
@@ -109,7 +122,7 @@ Regras:
 |---|---|---|
 | M0 | Projeto, câmera isométrica, personagem andando | ✅ |
 | M1 | Co-op até 4 (entrar com Start), câmera compartilhada, corda | ✅ |
-| M2 | Combate corpo a corpo + rolada com invulnerabilidade | rolada ✅ |
-| M3 | 2 inimigos com IA e spawner | |
-| M4 | Vida, cair/reviver, baú com loot, fim de fase | |
+| M2 | Combate corpo a corpo + rolada com invulnerabilidade | ✅ combo, flecha, hit-stop, tremida |
+| M3 | 2 inimigos com IA e spawner | ✅ brutamontes e atirador, ondas |
+| M4 | Vida, cair/reviver, baú com loot, fim de fase | vida, poção, cair/reviver ✅ |
 | M5 | Save local `world` / `player` ligado ao jogo | serviço ✅ |
