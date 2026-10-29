@@ -2,10 +2,17 @@
 
 ## Visão
 
-Dungeon crawler de ação isométrico, **co-op de sofá** (1 a 4 jogadores numa tela só),
-com escala, proporções, ritmo e conjunto de funcionalidades **1:1 com a referência
-Minecraft Dungeons / Dungeons 2**. Plataformas: **Xbox Series X|S** e **Windows**
+RPG de ação isométrico em **mundo aberto**, com entradas para **interiores** (masmorras,
+casas, prédios), com escala, proporções, ritmo e funcionalidades **1:1 com a referência
+Minecraft Dungeons 2**. Plataformas: **Xbox Series X|S** e **Windows**
 (Microsoft Store/Game Pass **e** Steam), com **cross save** entre todas.
+
+Pilares:
+- **Movimento:** andar, pular, escalar e rolar.
+- **Combate:** corpo a corpo e à distância.
+- **Co-op de sofá:** até 4 jogadores na **mesma tela**, sem tela dividida.
+- **Online:** até 4 jogadores na mesma sala, misturável com sofá (ex.: 2 num Xbox + 2 num PC).
+- **Cross save:** o personagem e o progresso seguem a conta em qualquer plataforma.
 
 ### O que "1:1" significa aqui (e o que não significa)
 
@@ -42,9 +49,9 @@ porque a referência é da própria Microsoft, que também aprova o jogo na loja
 - Herói: 100 de vida. Poção cura 40% (recarga de 15 s). Caído, um companheiro
   perto por 2 s revive com 50%. Todos caídos: em 3 s a arena reinicia na onda 1.
 
-## Pulo e escalada (acréscimo em relação à referência)
+## Pulo e escalada
 
-A referência não tem pulo; aqui o herói pula (~1,2 m) e **escala bordas automaticamente**:
+O herói pula (~1,2 m) e **escala bordas automaticamente**:
 no ar, empurrando contra algo cujo topo esteja até 1,6 m acima do pé, ele agarra e sobe.
 Na prática, dá pra subir em coisas de até ~2,7 m. Mais alto que isso, ou sem espaço em cima, não sobe.
 - Tolerâncias de controle: dá pra pular até 0,1 s depois de sair da borda, e o aperto
@@ -54,6 +61,41 @@ Na prática, dá pra subir em coisas de até ~2,7 m. Mais alto que isso, ou sem 
   Avaliar se isso deixa o jogo fácil demais.
 - O pacote de modelos atual não tem animação de pulo nem de escalada: na escalada
   ele usa "Interact" no lugar. Modelos com "Jump"/"Climb" são usados automaticamente.
+
+## Mundo aberto e interiores
+
+- **Mundo dividido em blocos** (chunks) de 64 x 64 m, cada um uma cena própria.
+  Carregamos os blocos em volta do grupo em segundo plano e descarregamos os longe.
+  O Godot não faz isso sozinho: vai ser um `WorldStreamer` nosso.
+- **Interiores** (masmorra, casa, prédio) são cenas separadas, ligadas por uma **porta**.
+  Como a tela é uma só, **o grupo inteiro entra junto**: quem chega na porta abre
+  uma contagem curta e todos são levados. No online vale a mesma regra para a sala toda.
+- **Telhados e paredes que tapam o herói** somem quando alguém passa por trás
+  (recorte por câmera), como é comum no gênero isométrico.
+- Inimigos por região (acampamentos, patrulhas) em vez de ondas; as ondas atuais são só para testar combate.
+- A navegação dos inimigos é gerada por bloco, junto com o carregamento.
+
+## Multiplayer online
+
+**Modelo: host com autoridade.** Uma máquina (o host) roda a simulação de verdade
+(inimigos, dano, loot); as outras mandam os comandos dos seus jogadores e recebem o estado.
+É o modelo mais simples que funciona bem para co-op de até 4, e evita trapaça entre amigos
+sem precisar de servidor dedicado.
+
+- **Sofá + online juntos:** cada máquina tem de 1 a 4 jogadores locais; a sala soma até 4.
+  Cada jogador é identificado por (máquina, slot local). O `InputService` já separa por slot;
+  falta trocar "ler o controle" por "ler o comando que veio da rede" nos jogadores remotos.
+- **Câmera:** cada máquina enquadra só os **seus** jogadores locais. A corda de teleporte
+  continua mantendo o grupo inteiro junto.
+- **Transporte em camadas** (o jogo não muda, só o "cano"):
+  1. Protótipo: ENet do próprio Godot (conectar por IP / rede local).
+  2. Lançamento: **PlayFab Party + Lobby** (Microsoft). Funciona entre Xbox, Microsoft Store
+     e Steam, e já é o mesmo serviço do cross save. Alternativa: Epic Online Services.
+  3. Convites e "entrar no jogo do amigo" pelo Xbox (MPSD) e pela Steam.
+- **Requisitos do Xbox para online:** convites, privacidade e bloqueio de usuários,
+  e checagem de assinatura quando aplicável. Confirmar a lista com o ID@Xbox.
+- **Save no online:** o mundo é o do host; cada convidado leva o próprio personagem
+  (equipamento e nível) e salva na própria conta.
 
 ## Controles (padrão)
 
@@ -80,9 +122,11 @@ Na prática, dá pra subir em coisas de até ~2,7 m. Mais alto que isso, ou sem 
 5. **Loot**: baús e drops **por jogador** (cada um vê o seu); raridade; poder do equipamento.
 6. **Progressão**: nível do herói gera pontos de encantamento; 3 encantamentos por item.
 7. **Artefatos**: 3 slots com recarga.
-8. **Fases**: salas modulares em grid de 1 m, montadas por geração procedural com trechos fixos.
-9. **Hub e mapa de missões**, dificuldades e modificadores.
-10. **Plataforma**: perfis por controle, save na nuvem, conquistas, certificação.
+8. **Online**: host com autoridade, até 4 por sala, sofá + online misturados.
+9. **Mundo aberto**: blocos carregados sob demanda, portas para interiores, recorte de telhado.
+10. **Interiores**: masmorras em salas modulares (grid de 1 m), casas e prédios.
+11. **Progressão de mundo**: regiões, dificuldades e modificadores.
+12. **Plataforma**: perfis por controle, save na nuvem, conquistas, certificação.
 
 ## Arquitetura
 
@@ -140,3 +184,9 @@ Regras:
 | M3 | 2 inimigos com IA e spawner | ✅ brutamontes e atirador, ondas |
 | M4 | Vida, cair/reviver, baú com loot, fim de fase | vida, poção, cair/reviver ✅ |
 | M5 | Save local `world` / `player` ligado ao jogo | serviço ✅ |
+| M6 | **Base do online**: host/entrar por IP, 2 máquinas + sofá, inimigos e dano pelo host | |
+| M7 | **Mundo aberto**: 3x3 blocos com carregamento, 1 porta para interior, recorte de telhado | |
+| M8 | Loot e progressão sincronizados no online | |
+
+O online (M6) vem **antes** do mundo aberto e do loot: todo sistema novo
+já nasce sincronizado. Adaptar depois custaria reescrever cada sistema.
