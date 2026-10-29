@@ -3,6 +3,7 @@ extends SceneTree
 ## Sem tipos Player/Enemy aqui: o script de teste compila antes dos autoloads existirem.
 
 const TIMEOUT := 40.0
+const FAR_POINT := Vector3(160, 0, 160)
 
 var _failed := false
 var _step := 0
@@ -43,6 +44,16 @@ func _process(_delta: float) -> bool:
 			if head and head.id == "iron_helmet":
 				_check(true, "cliente pegou o elmo do chão e equipou (visto no host)")
 				_check(_remote.armor() > 5.0, "armadura do cliente subiu no host (%.1f)" % _remote.armor())
+				# O jogador do cliente vai para a outra ponta do mapa; o do host fica na vila.
+				var streamer := get_first_node_in_group("world_streamer")
+				streamer.load_now(FAR_POINT)
+				_remote.teleport_to(FAR_POINT)
+				_t0 = _now()
+				_step = 5
+		5:
+			if _now() - _t0 > 2.0:
+				var keys: Array = get_first_node_in_group("world_streamer").loaded_keys()
+				_check(keys.has("0,0") and keys.has("2,2"), "host mantém carregadas a vila (dele) e a área longe (do cliente)")
 				_step = 3
 		3:
 			if _remote_player() == null:

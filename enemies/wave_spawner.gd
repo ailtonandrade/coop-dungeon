@@ -71,7 +71,7 @@ func _spawn_wave() -> void:
 		var point: Vector2 = points[i % points.size()]
 		var jitter := Vector3(randf_range(-1.0, 1.0), 0.0, randf_range(-1.0, 1.0))
 		var enemy: Enemy = NetReplicator.of(self).spawn("enemy", {
-			"kind": kinds[i], "pos": Vector3(point.x, 0.0, point.y) + jitter,
+			"kind": kinds[i], "pos": Vector3(point.x, 0.0, point.y) + jitter, "power": wave,
 		})
 		enemy.died.connect(func(_enemy: Enemy) -> void: _alive -= 1)
 		_alive += 1

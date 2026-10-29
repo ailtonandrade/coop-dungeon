@@ -97,6 +97,36 @@ qual masmorra dá qual loot, qual região é perigosa para o nível dele.
   em vez de ondas. As ondas atuais são só a arena de teste do combate.
 - **Estado do mundo** (baús abertos, chefes mortos, serviços descobertos) fica no save do mundo do host.
 
+### Região de teste (M7)
+
+4 x 4 blocos de 64 m (256 x 256 m) e uma masmorra:
+- **Vila de Pedra** (centro, segura): 4 casas (telhado e paredes da frente somem ao entrar),
+  comerciante e encantador na praça, banco e ferreiro dentro de casas.
+- **Planície Verde** (perigo 1), **Bosque Norte** (perigo 2, mata fechada), **Colinas do Leste**
+  (perigo 3, com a boca da **Caverna Velha**, perigo 4).
+- Criaturas por acampamento, com casa, perseguição, limite e reaparecimento.
+- Gerada por `tools/build_test_world.gd` só como ponto de partida: os blocos são cenas normais,
+  editadas à mão no Godot daqui em diante.
+
+### Ferramentas para criar o mapa (estilo Remere's Map Editor)
+
+O mapa é único, fixo e cresce a cada atualização. A criação é à mão, dentro do editor do Godot,
+com estas ferramentas (a construir, M7.5):
+- **Pintar em grade:** chão, paredes, cercas e peças em células de 1 m com `GridMap` e uma
+  biblioteca de peças (MeshLibrary): escolhe a peça na paleta e pinta com o mouse, como no RME.
+  Andares (para cavernas, torres) são camadas de altura.
+- **Paleta de prontos:** casa, árvore, rocha, boca de caverna, barraca de comerciante, cada um
+  uma cena pronta para arrastar para o bloco.
+- **Painel "Mapa do mundo"** (plugin do editor): a grade de blocos do mapa inteiro, com a região
+  de cada um; clicar abre o bloco; criar bloco novo ao lado; criar interior novo.
+- **Ligar entradas:** cria a porta de fora e a de dentro de uma vez, já apontando uma para a outra.
+- **Gerador de criaturas e NPCs** com o raio de perseguição e o limite desenhados no editor.
+- **Validar o mapa:** entradas sem par, blocos sem navegação assada, criaturas fora da
+  navegação, NPC de serviço faltando numa cidade.
+- **Assar tudo:** navegação de todos os blocos de uma vez; e uma imagem do mapa inteiro para o
+  mapa do jogo.
+- **Testar daqui:** abrir o jogo já no bloco que está sendo editado.
+
 ## Multiplayer online
 
 **Modelo: host com autoridade.** Uma máquina (o host) roda a simulação de verdade
@@ -263,7 +293,8 @@ Estrutura de pastas, regras e como estender cada parte: ver [`ARCHITECTURE.md`](
 | M4 | Vida, cair/reviver, baú com loot, fim de fase | vida, poção, cair/reviver ✅ |
 | M5 | Save local `world` / `player` ligado ao jogo | serviço ✅ |
 | M6 | **Base do online**: host/entrar por IP, 2 máquinas + sofá, inimigos e dano pelo host | ✅ + menu de mundos e busca na rede local |
-| M7 | **Mundo aberto (base)**: região de teste em blocos com carregamento por grupo, 1 entrada de masmorra, recorte de telhado | |
+| M7 | **Mundo aberto (base)**: região de teste em blocos com carregamento por grupo, 1 entrada de masmorra, recorte de telhado | ✅ 4x4 blocos, vila, 3 regiões, caverna |
+| M7.5 | **Editor de mapa** (estilo Remere's): pintar chão e paredes em grade, paleta de peças, mapa geral, ligar entradas, validar | |
 | M8 | Loot e progressão sincronizados no online | ✅ inventário estilo Tibia, loot estilo MU, equipamento no boneco, mira twin-stick |
 | M9 | **Cidade e serviços**: comerciante, refino e encantamento | |
 

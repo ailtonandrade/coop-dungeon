@@ -14,8 +14,9 @@ var _backend: SaveBackend = LocalSaveBackend.new()
 func use_test_storage(folder: String) -> void:
 	var local := LocalSaveBackend.new()
 	local.dir = "user://" + folder
-	for file in DirAccess.get_files_at(local.dir):
-		DirAccess.remove_absolute(local.dir.path_join(file))
+	if DirAccess.dir_exists_absolute(local.dir):
+		for file in DirAccess.get_files_at(local.dir):
+			DirAccess.remove_absolute(local.dir.path_join(file))
 	_backend = local
 
 

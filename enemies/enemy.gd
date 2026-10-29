@@ -4,6 +4,10 @@ extends CharacterBody3D
 ## distância e atira. Todo ataque tem um tempo de preparo visível (fica vermelho)
 ## para dar chance de rolar.
 ## A IA roda só no host; nos clientes o inimigo mostra o estado replicado.
+##
+## No mundo aberto a criatura tem "casa" (o ponto do gerador dela): só persegue quem chega
+## a `aggro_radius`, e desiste se o alvo a arrastar para mais de `leash_radius` da casa;
+## aí volta e se cura. Na arena de teste os dois raios são infinitos.
 
 signal died(enemy: Enemy)
 
@@ -33,6 +37,11 @@ const NET_SNAP_DISTANCE := 3.0
 var kind := Kind.MELEE
 var state := State.CHASE
 var health := Health.new()
+var home := Vector3.ZERO
+var aggro_radius := INF
+var leash_radius := INF
+## Poder do loot que essa criatura deixa (vem do perigo da região).
+var power := 1
 
 var _stats: Dictionary
 var _target: Player
@@ -49,9 +58,14 @@ var _net_yaw := 0.0
 var _net_synced := false
 
 
-static func create(p_kind: Kind) -> Enemy:
+## `data` (do NetReplicator): kind, pos e, no mundo aberto, home, aggro, leash, power.
+static func create(data: Dictionary) -> Enemy:
 	var enemy := Enemy.new()
-	enemy.kind = p_kind
+	enemy.kind = data.kind
+	enemy.home = data.get("home", data.get("pos", Vector3.ZERO))
+	enemy.aggro_radius = data.get("aggro", INF)
+	enemy.leash_radius = data.get("leash", INF)
+	enemy.power = data.get("power", 1)
 	return enemy
 
 
@@ -162,7 +176,7 @@ func _physics_process(delta: float) -> void:
 
 func _chase() -> Vector3:
 	if _target == null:
-		return Vector3.ZERO
+		return _return_home()
 	var to := Combat.flat(_target.global_position - global_position)
 	var dist := to.length()
 	if dist > 0.01:
@@ -178,6 +192,15 @@ func _chase() -> Vector3:
 		_begin_windup()
 		return Vector3.ZERO
 	return _nav_velocity(_target.global_position)
+
+
+## Sem alvo: volta para casa e, chegando, recupera a vida.
+func _return_home() -> Vector3:
+	if Combat.flat(home - global_position).length() < 1.5:
+		health.reset()
+		return Vector3.ZERO
+	_facing = Combat.flat(home - global_position).normalized()
+	return _nav_velocity(home)
 
 
 func _nav_velocity(target: Vector3) -> Vector3:
@@ -216,12 +239,19 @@ func _has_line_of_sight() -> bool:
 	return get_world_3d().direct_space_state.intersect_ray(query).is_empty()
 
 
+## Jogador de pé mais perto dentro do alcance de perseguição e sem sair do limite da casa.
+## O alvo atual tem uma folga, para a criatura não desistir na borda do alcance.
 func _find_target() -> Player:
 	var best: Player = null
 	var best_dist := INF
 	for player: Player in get_tree().get_nodes_in_group("players"):
 		var dist := player.global_position.distance_squared_to(global_position)
-		if player.is_targetable() and dist < best_dist:
+		var reach := aggro_radius * (1.5 if player == _target else 1.0)
+		if not player.is_targetable() or dist > reach * reach:
+			continue
+		if Combat.flat(player.global_position - home).length() > leash_radius:
+			continue
+		if dist < best_dist:
 			best = player
 			best_dist = dist
 	return best
@@ -230,8 +260,7 @@ func _find_target() -> Player:
 func _on_died() -> void:
 	_become_dead()
 	_animator.play("death", 0.0, true)
-	var spawner := get_tree().get_first_node_in_group("wave_spawner")
-	Loot.roll_drops(self, (spawner.wave if spawner else 1) + randi_range(0, 1))
+	Loot.roll_drops(self, power + randi_range(0, 1))
 	died.emit(self)
 	get_tree().create_timer(1.5).timeout.connect(queue_free)
 

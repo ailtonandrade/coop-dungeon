@@ -21,7 +21,11 @@ enemies/     criaturas (IA, ataques) e o gerador de ondas da arena de teste
 combat/      Health, Combat (golpes em leque, mira assistida, efeitos), Projectile
 items/       ItemDB (catálogo), Inventory (regras estilo Tibia), ItemVisuals (peças no boneco), Loot
 camera/      câmera compartilhada (enquadra os jogadores da máquina, projeta a mira do mouse)
-levels/      mapas (hoje a arena de teste; depois os blocos do mundo aberto)
+world/       mundo aberto: WorldMap e RegionDef (dados), WorldStreamer (carrega blocos),
+             CreatureSpawner, Entrance, WorldNpc, FadeOccluder + CameraOcclusion (o que tapa o herói),
+             world.tscn (cena principal do jogo), chunks/ e interiors/ (cenas dos blocos), textures/
+levels/      arena de combate (usada nos testes de combate)
+tools/       ferramentas de criação (gerador da região de teste)
 ui/          menu principal, HUD, inventário, minimapa
 platform/    tudo que muda por plataforma: identidade (PlatformService), save (SaveBackend)
 assets/      modelos (provisórios: Quaternius, CC0)
@@ -29,8 +33,8 @@ tests/       testes automáticos (sem tela) e o teste de rede com host + cliente
 docs/        GDD.md (design) e este arquivo
 ```
 
-Planejadas para o mundo aberto (M7+): `world/` (WorldStreamer, regiões, blocos, entradas de
-masmorra), `npcs/` (comerciante, ferreiro, encantador) e `quests/`.
+Planejadas: `addons/map_editor/` (editor de mapa dentro do Godot, ver abaixo), `services/`
+(telas de comerciante, ferreiro, encantador) e `quests/`.
 
 ## Regras
 
@@ -75,23 +79,48 @@ masmorra), `npcs/` (comerciante, ferreiro, encantador) e `quests/`.
 4. Comportamento diferente (voar, cuspir fogo, fugir) entra como um tipo de IA novo,
    reaproveitando navegação, aviso de ataque (fica vermelho) e replicação.
 
-### Uma região, cidade ou masmorra (M7+)
-1. Blocos de 64 x 64 m montados no editor com peças de 1 m (`levels/` -> `world/`).
-2. Um arquivo de região: blocos, nível de perigo, criaturas, poder do loot, música.
-3. Entradas (porta/escada) ligam o mapa a interiores; o grupo da mesma tela entra junto.
+### Uma área nova do mapa (bloco)
+1. Crie a cena do bloco em `world/chunks/` (copie um bloco parecido). Conteúdo em coordenadas
+   locais de 0 a 64 m; o chão e tudo que é sólido ficam dentro do nó `Navigation`.
+2. Coisas que tapam o herói (árvore, parede da frente, telhado) vão dentro de um `FadeOccluder`;
+   telhado de casa leva `zone` (o interior) para sumir quando alguém entra.
+3. Criaturas: um `CreatureSpawner` (tipos, quantidade, perseguição, limite, poder, reaparecimento).
+4. NPCs de serviço: um `WorldNpc` no lugar fixo dele.
+5. No `world/test_world.tres` (inspetor): `chunks[Vector2i(x, z)]` = caminho da cena e
+   `chunk_regions[Vector2i(x, z)]` = id da região.
+6. Asse a navegação do bloco (selecione `Navigation` > Bake NavigationMesh).
+
+### Uma masmorra / interior
+1. Cena em `world/interiors/`, com origem própria longe do mapa (ex.: x = 4000).
+2. Registre em `interiors` do WorldMap: caminho, origem, tamanho, região.
+3. Uma `Entrance` no mapa apontando para dentro e uma `Entrance` de saída apontando para fora.
+   Quem joga na mesma tela entra junto; jogadores de outras máquinas ficam onde estão.
 4. Estado que precisa lembrar (baú aberto, chefe morto) vai no save do mundo do host.
 
+### Uma região
+1. Um `RegionDef` em `regions` do WorldMap: id, nome, perigo (= poder base do loot), segura ou não, cor.
+2. Os blocos apontam para ela em `chunk_regions`.
+
 ### Um NPC de serviço (M9)
-1. NPC fixo no mapa (posição desenhada à mão), com o tipo de serviço: comerciante, ferreiro,
-   encantador, banco.
+1. `WorldNpc` fixo no mapa, com o tipo de serviço: comerciante, ferreiro, encantador, banco.
 2. A tela do serviço usa o mesmo padrão do inventário: painel por jogador local, cursor próprio,
    comandos executados pelo host.
+
+## Mundo: carregamento e rede
+
+- `WorldStreamer` carrega os blocos a até 1 bloco de cada jogador (3x3) e descarrega a mais de 2.
+  Host: em volta de todos; cliente: só dos jogadores dele. O bloco onde alguém está é carregado
+  na hora; os vizinhos em segundo plano. Sem chão carregado, o herói espera parado.
+- Criaturas são do bloco: nascem quando ele carrega e somem quando descarrega.
+- O NetReplicator manda a cada máquina só o que está a 48 m dos jogadores dela, só o que
+  mudou, em lotes que cabem num pacote (retrato completo a cada 1 s).
 
 ## Testes
 
 ```bash
 godot --headless --fixed-fps 60 --path coop-dungeon -s tests/smoke_test.gd    # jogo local
 godot --headless --path coop-dungeon -s tests/inventory_test.gd                # regras do inventário
+godot --headless --fixed-fps 60 --path coop-dungeon -s tests/world_test.gd     # mundo aberto
 GODOT=godot coop-dungeon/tests/run_net_test.sh                                 # online: host + cliente
 ```
 

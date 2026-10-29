@@ -5,6 +5,7 @@ extends Camera3D
 @export var player_root: Node3D
 
 const SHAKE_DECAY := 2.5
+const SNAP_DISTANCE := 25.0
 const SHAKE_MAX_OFFSET := 0.6
 
 var _focus := Vector3.ZERO
@@ -48,6 +49,10 @@ func _physics_process(delta: float) -> void:
 	var t := clampf(spread * 2.0 / GameConfig.CAMERA_SPREAD_FOR_MAX, 0.0, 1.0)
 	var target_distance := lerpf(GameConfig.CAMERA_DIST_MIN, GameConfig.CAMERA_DIST_MAX, t)
 
+	# Grupo foi teleportado (entrada de masmorra): corta direto, sem atravessar o mapa.
+	if _focus.distance_to(center) > SNAP_DISTANCE:
+		_focus = center
+		reset_physics_interpolation()
 	_focus = _focus.lerp(center, 1.0 - exp(-GameConfig.CAMERA_FOLLOW_SPEED * delta))
 	_distance = lerpf(_distance, target_distance, 1.0 - exp(-GameConfig.CAMERA_ZOOM_SPEED * delta))
 	_apply()

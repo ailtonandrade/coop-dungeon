@@ -8,8 +8,18 @@ extends Node
 ## - get_net_state() -> Array  (host)
 ## - apply_net_state(state: Array)  (cliente)
 ## Efeitos visuais (piscar, tremer câmera, rastro do golpe) passam por broadcast_fx().
+##
+## O retrato é enxuto para aguentar um mundo grande:
+## - relevância: cada máquina só recebe o estado do que está a RELEVANCE_RADIUS dos jogadores
+##   dela (jogadores da sala sempre vão);
+## - só o que mudou desde o último envio para aquela máquina (um retrato completo a cada
+##   FULL_SNAPSHOT_EVERY segundos cobre pacotes perdidos);
+## - em lotes de SNAPSHOT_BATCH entidades, para cada pacote caber no tamanho máximo da rede.
 
 const SNAPSHOT_RATE := 30.0
+const RELEVANCE_RADIUS := 48.0
+const FULL_SNAPSHOT_EVERY := 1.0
+const SNAPSHOT_BATCH := 10
 const PLAYER_SCENE := preload("res://player/player.tscn")
 
 @export var player_root: Node3D
@@ -19,6 +29,8 @@ const PLAYER_SCENE := preload("res://player/player.tscn")
 var _entities := {}  # net_id -> Node
 var _next_id := 1
 var _snapshot_timer := 0.0
+var _last_sent := {}  # máquina -> {id: estado enviado por último}
+var _full_timer := 0.0
 
 
 static func of(node: Node) -> NetReplicator:
@@ -71,7 +83,7 @@ func _create(id: int, type: String, data: Dictionary) -> Node:
 			node.setup(data)
 			parent = player_root
 		"enemy":
-			node = Enemy.create(data.kind)
+			node = Enemy.create(data)
 			parent = enemy_root
 		"projectile":
 			node = Projectile.build(data)
@@ -123,17 +135,53 @@ func _physics_process(delta: float) -> void:
 	if _snapshot_timer > 0.0:
 		return
 	_snapshot_timer = 1.0 / SNAPSHOT_RATE
-	var states := []
+	_full_timer -= delta
+	var full := _full_timer <= 0.0
+	if full:
+		_full_timer = FULL_SNAPSHOT_EVERY
+	var current := {}
 	for id: int in _entities:
 		var node: Node = _entities[id]
 		if node.has_method("get_net_state"):
-			states.append(id)
-			states.append(node.get_net_state())
+			current[id] = node.get_net_state()
 	var shared := {}
 	for node in get_tree().get_nodes_in_group("net_static"):
 		shared[String(node.name)] = node.get_net_state()
 	for peer in NetService.ready_peers():
-		_rpc_snapshot.rpc_id(peer, states, shared)
+		_send_snapshot(peer, current, shared, full)
+
+
+func _send_snapshot(peer: int, current: Dictionary, shared: Dictionary, full: bool) -> void:
+	var anchors: Array[Vector3] = []
+	for player: Player in get_tree().get_nodes_in_group("players"):
+		if player.owner_peer == peer:
+			anchors.append(player.global_position)
+	var sent: Dictionary = _last_sent.get(peer, {})
+	var states := []
+	for id: int in current:
+		var node: Node3D = _entities[id]
+		if not (node is Player or _near_any(node.global_position, anchors)):
+			continue
+		if full or sent.get(id) != current[id]:
+			states.append(id)
+			states.append(current[id])
+			sent[id] = current[id]
+	for id: int in sent.keys():
+		if not current.has(id):
+			sent.erase(id)
+	_last_sent[peer] = sent
+	var batch_size := SNAPSHOT_BATCH * 2
+	if states.is_empty():
+		_rpc_snapshot.rpc_id(peer, [], shared)
+	for start in range(0, states.size(), batch_size):
+		_rpc_snapshot.rpc_id(peer, states.slice(start, start + batch_size), shared if start == 0 else {})
+
+
+func _near_any(position: Vector3, anchors: Array[Vector3]) -> bool:
+	for anchor in anchors:
+		if position.distance_squared_to(anchor) <= RELEVANCE_RADIUS * RELEVANCE_RADIUS:
+			return true
+	return false
 
 
 @rpc("authority", "call_remote", "reliable")

@@ -50,9 +50,9 @@ func _process(_delta: float) -> bool:
 		4:
 			var enemies := get_nodes_in_group("enemies")
 			if not enemies.is_empty():
-				_check(true, "inimigos do host apareceram aqui (%d)" % enemies.size())
-				var spawner := get_first_node_in_group("wave_spawner")
-				_check(spawner.wave >= 1, "número da onda chegou (onda %d)" % spawner.wave)
+				_check(true, "criaturas do host apareceram aqui (%d)" % enemies.size())
+				var keys: Array = get_first_node_in_group("world_streamer").loaded_keys()
+				_check(keys.size() == 9, "carreguei os 9 blocos em volta do meu jogador (%d)" % keys.size())
 				_t0 = _now()
 				_step = 5
 		5:
@@ -72,6 +72,20 @@ func _process(_delta: float) -> bool:
 			if head and head.id == "iron_helmet":
 				_check(true, "equipei pelo inventário e o host confirmou")
 				_check(not root.get_node("SaveService").load_player(0).is_empty(), "meu inventário ficou salvo aqui no cliente")
+				_t0 = _now()
+				_step = 8
+		8:
+			# O host leva meu jogador para longe: carrego só em volta dele e solto a vila.
+			if _me.global_position.x > 140.0:
+				_t0 = _now()
+				_step = 9
+		9:
+			if _now() - _t0 > 1.5:
+				var keys: Array = get_first_node_in_group("world_streamer").loaded_keys()
+				_check(keys.has("2,2") and not keys.has("-1,-1"), "carreguei a área nova e soltei a vila (%d blocos)" % keys.size())
+				var near := get_nodes_in_group("enemies").filter(func(e: Node) -> bool:
+					return e.global_position.distance_to(_me.global_position) < 40.0 and e.get("_net_synced"))
+				_check(not near.is_empty(), "recebo o estado das criaturas perto de mim lá (%d)" % near.size())
 				_finish()
 	if _now() - _t0 > TIMEOUT:
 		_check(false, "tempo esgotado no passo %d" % _step)

@@ -55,6 +55,8 @@ const BACKPEDAL_SPEED_FACTOR := 0.65
 const LAYER_WORLD := 1
 const LAYER_PLAYERS := 2
 const LAYER_ENEMIES := 4
+## Só para a câmera achar o que tapa o herói (telhados, copas de árvore). Ninguém colide nela.
+const LAYER_OCCLUDER := 8
 
 # Combate do herói
 const PLAYER_MAX_HP := 100.0

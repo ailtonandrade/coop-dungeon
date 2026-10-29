@@ -183,6 +183,10 @@ func _process(delta: float) -> void:
 func _physics_process(delta: float) -> void:
 	if not multiplayer.is_server():
 		return
+	# Sem chão carregado embaixo (bloco ainda chegando): espera parado em vez de cair.
+	var streamer := WorldStreamer.of(self)
+	if streamer and not streamer.is_ready_at(global_position):
+		return
 	_input.begin_tick()
 	_dodge_cooldown = maxf(_dodge_cooldown - delta, 0.0)
 	_arrow_cooldown = maxf(_arrow_cooldown - delta, 0.0)

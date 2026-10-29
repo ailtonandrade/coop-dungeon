@@ -1,0 +1,39 @@
+[gd_scene load_steps=10 format=3]
+
+[ext_resource type="Script" path="res://world/world.gd" id="1_world"]
+[ext_resource type="Resource" path="res://world/test_world.tres" id="2_map"]
+[ext_resource type="Script" path="res://world/world_streamer.gd" id="3_streamer"]
+[ext_resource type="Script" path="res://core/player_manager.gd" id="4_players"]
+[ext_resource type="Script" path="res://net/net_replicator.gd" id="5_net"]
+[ext_resource type="Script" path="res://camera/shared_camera.gd" id="6_camera"]
+[ext_resource type="Script" path="res://world/camera_occlusion.gd" id="7_occlusion"]
+[ext_resource type="Script" path="res://ui/hud.gd" id="8_hud"]
+
+[node name="World" type="Node3D"]
+script = ExtResource("1_world")
+world_map = ExtResource("2_map")
+
+[node name="WorldStreamer" type="Node3D" parent="."]
+script = ExtResource("3_streamer")
+
+[node name="PlayerManager" type="Node3D" parent="."]
+script = ExtResource("4_players")
+
+[node name="Creatures" type="Node3D" parent="."]
+
+[node name="NetReplicator" type="Node" parent="." node_paths=PackedStringArray("player_root", "enemy_root", "fx_root")]
+script = ExtResource("5_net")
+player_root = NodePath("../PlayerManager")
+enemy_root = NodePath("../Creatures")
+fx_root = NodePath("..")
+
+[node name="SharedCamera" type="Camera3D" parent="." node_paths=PackedStringArray("player_root")]
+current = true
+script = ExtResource("6_camera")
+player_root = NodePath("../PlayerManager")
+
+[node name="CameraOcclusion" type="Node" parent="SharedCamera"]
+script = ExtResource("7_occlusion")
+
+[node name="HUD" type="CanvasLayer" parent="."]
+script = ExtResource("8_hud")

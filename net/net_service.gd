@@ -13,7 +13,7 @@ signal peer_ready(peer_id: int)
 
 const GAME_VERSION := "0.9"
 const DEFAULT_PORT := 7777
-const LEVEL_SCENE := "res://levels/level_01.tscn"
+const LEVEL_SCENE := "res://world/world.tscn"
 const MENU_SCENE := "res://ui/main_menu.tscn"
 
 enum Mode { OFFLINE, HOST, CLIENT }

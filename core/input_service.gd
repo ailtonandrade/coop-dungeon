@@ -42,6 +42,9 @@ const KEYS := {
 
 ## Só aceita entrar no jogo dentro de uma fase (no menu, o controle navega a interface).
 var joining_enabled := false
+## Menu que cobre a tela inteira (pausa): bloqueia os comandos de jogo de todos os slots
+## desta máquina, inclusive cliques do mouse nos botões do menu.
+var screen_menu_open := false
 ## Último controle (ou teclado) usado, para entrar sozinho ao começar a fase.
 var last_device := KEYBOARD
 
@@ -106,21 +109,21 @@ func active_slots() -> Array[int]:
 
 
 func is_pressed(slot: int, action: Action) -> bool:
-	return not _blocked[slot] and raw_pressed(slot, action)
+	return not is_blocked(slot) and raw_pressed(slot, action)
 
 
 func just_pressed(slot: int, action: Action) -> bool:
-	return not _blocked[slot] and raw_just_pressed(slot, action)
+	return not is_blocked(slot) and raw_just_pressed(slot, action)
 
 
 ## Bitmask das ações seguradas neste quadro.
 func get_down_mask(slot: int) -> int:
-	return 0 if _blocked[slot] else _down[slot]
+	return 0 if is_blocked(slot) else _down[slot]
 
 
 ## Bitmask das ações que começaram a ser apertadas neste quadro.
 func get_pressed_mask(slot: int) -> int:
-	return 0 if _blocked[slot] else _down[slot] & ~_prev[slot]
+	return 0 if is_blocked(slot) else _down[slot] & ~_prev[slot]
 
 
 ## Bloqueia (ou libera) os comandos de jogo de um slot enquanto ele usa um menu.
@@ -128,8 +131,9 @@ func set_blocked(slot: int, blocked: bool) -> void:
 	_blocked[slot] = blocked
 
 
+## Comandos de jogo bloqueados: menu do próprio slot (inventário) ou menu da tela toda (pausa).
 func is_blocked(slot: int) -> bool:
-	return _blocked[slot]
+	return _blocked[slot] or screen_menu_open
 
 
 ## Leitura para menus: ignora o bloqueio.
@@ -151,19 +155,20 @@ func join_last_device() -> void:
 ## Volta ao estado do menu: ninguém no jogo e sem aceitar entradas novas.
 func reset() -> void:
 	joining_enabled = false
+	screen_menu_open = false
 	for slot in _devices.size():
 		leave(slot)
 
 
 ## Direção do analógico esquerdo (ou WASD) em coordenadas de tela, comprimento 0..1.
 func get_move(slot: int) -> Vector2:
-	return Vector2.ZERO if _blocked[slot] else raw_move(slot)
+	return Vector2.ZERO if is_blocked(slot) else raw_move(slot)
 
 
 ## Mira (twin-stick) já no chão do mundo: Vector2(x, z) de comprimento 1, ou zero se não mira.
 ## Controle: analógico direito. Teclado: mouse, enquanto segura um botão do mouse.
 func get_aim(slot: int) -> Vector2:
-	if _blocked[slot]:
+	if is_blocked(slot):
 		return Vector2.ZERO
 	var device := _devices[slot]
 	if device == KEYBOARD:

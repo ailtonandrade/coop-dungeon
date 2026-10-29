@@ -13,6 +13,8 @@ var _pause_info: Label
 var _resume_button: Button
 var _minimap_button: Button
 var _inventories := {}  # slot local -> InventoryPanel
+var _region_label: Label
+var _region: RegionDef
 
 
 func _ready() -> void:
@@ -52,6 +54,15 @@ func _ready() -> void:
 	_wave_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_wave_label.offset_top = 52
 	add_child(_wave_label)
+
+	# Nome da região ao entrar nela (some sozinho).
+	_region_label = _make_label(40, Color.WHITE)
+	_region_label.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)
+	_region_label.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	_region_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_region_label.offset_top = 110
+	_region_label.modulate.a = 0.0
+	add_child(_region_label)
 
 	var help := _make_label(18, Color(1, 1, 1, 0.8))
 	help.text = "Controle: analógico dir. mira · X ataca · RT atira · A pula · B rola · Y poção · LB pega · Back inventário     Teclado: mouse mira/ataca/atira · Espaço · Shift · E · F · I     Esc/Start: menu"
@@ -104,6 +115,7 @@ func _process(_delta: float) -> void:
 	else:
 		_wave_label.text = ""
 	_net_label.text = _connection_text()
+	_update_region()
 	_process_inventory_layout()
 
 
@@ -115,7 +127,10 @@ func _physics_process(_delta: float) -> void:
 		if not InputService.is_active(slot):
 			_close_inventory(slot)
 	for slot in InputService.active_slots():
-		if InputService.just_pressed(slot, InputService.Action.PAUSE):
+		# Com o menu aberto os comandos de jogo estão bloqueados, então o Start que fecha é lido direto.
+		var pressed := InputService.raw_just_pressed(slot, InputService.Action.PAUSE) if _pause.visible \
+				else InputService.just_pressed(slot, InputService.Action.PAUSE)
+		if pressed:
 			_toggle_pause()
 			return
 
@@ -126,6 +141,29 @@ func _unhandled_input(event: InputEvent) -> void:
 			and event.physical_keycode == KEY_ESCAPE and not InputService.active_slots().size()
 	if escape:
 		_toggle_pause()
+
+
+## Mostra o nome da região quando o primeiro jogador desta tela entra numa nova.
+func _update_region() -> void:
+	var streamer := WorldStreamer.of(self)
+	if streamer == null:
+		return
+	var player: Player = null
+	for candidate: Player in get_tree().get_nodes_in_group("players"):
+		if candidate.is_local() and (player == null or candidate.index < player.index):
+			player = candidate
+	if player == null:
+		return
+	var region := streamer.region_at(player.global_position)
+	if region == null or region == _region:
+		return
+	_region = region
+	_region_label.text = "%s\n%s" % [region.display_name, "área segura" if region.safe else "perigo %d" % region.danger]
+	_region_label.add_theme_color_override("font_color", region.color)
+	var tween := _region_label.create_tween()
+	tween.tween_property(_region_label, "modulate:a", 1.0, 0.4)
+	tween.tween_interval(2.5)
+	tween.tween_property(_region_label, "modulate:a", 0.0, 0.8)
 
 
 ## Abre o inventário do jogador local `slot` acima do cartão dele, ou fecha se já está aberto.
@@ -208,6 +246,7 @@ func _update_minimap_button() -> void:
 
 func _toggle_pause() -> void:
 	_pause.visible = not _pause.visible
+	InputService.screen_menu_open = _pause.visible
 	if not _pause.visible:
 		return
 	var lines := PackedStringArray([_connection_text()])
