@@ -1,0 +1,29 @@
+; Engine configuration file.
+
+config_version=5
+
+[application]
+
+config/name="Coop Dungeon"
+run/main_scene="res://levels/level_01.tscn"
+config/features=PackedStringArray("4.4", "Forward Plus")
+
+[autoload]
+
+InputService="*res://core/input_service.gd"
+PlatformService="*res://platform/platform_service.gd"
+SaveService="*res://core/save_service.gd"
+
+[display]
+
+window/size/viewport_width=1920
+window/size/viewport_height=1080
+window/stretch/mode="canvas_items"
+
+[physics]
+
+common/physics_interpolation=true
+
+[rendering]
+
+anti_aliasing/quality/msaa_3d=2

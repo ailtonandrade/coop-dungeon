@@ -1,0 +1,3 @@
+Ultimate Modular Men (fev/2022), por Quaternius - https://quaternius.com
+Licença: CC0 1.0 (domínio público). Pode usar, alterar e distribuir, inclusive comercialmente, sem atribuição obrigatória.
+Convertidos de glTF (assets/modelos/glTF) para GLB, sem alterar o conteúdo.
