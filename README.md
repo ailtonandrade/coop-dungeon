@@ -8,8 +8,10 @@ Design completo em [`docs/GDD.md`](docs/GDD.md).
 1. Instale o **Godot 4.7** (versão padrão, não a .NET): https://godotengine.org/download
 2. No Godot: **Importar** e escolha `coop-dungeon/project.godot`.
 3. **F5** para jogar.
-   - Teclado: **Enter** entra, WASD anda, Espaço pula, J ataca, K atira flecha, Shift rola, E bebe poção.
-   - Cada controle: **Start** (ou A) entra, analógico anda, A pula, X ataca, RT atira, B rola, Y poção.
+   - Teclado: **Enter** entra, WASD anda, Espaço pula, J ataca, K atira flecha, Shift rola, E bebe poção,
+     F pega item do chão, I abre o inventário.
+   - Cada controle: **Start** (ou A) entra, analógico anda, A pula, X ataca, RT atira, B rola, Y poção,
+     LB pega item do chão, Back abre o inventário.
    - Pule contra uma borda (até ~2,7 m: pilares, plataformas, carro, contêiner) e o herói escala sozinho.
    - Ondas de inimigos chegam sozinhas. Quem cai é revivido quando um companheiro fica perto.
 
@@ -40,12 +42,26 @@ Os modelos atuais são provisórios (Quaternius, CC0, liberados para uso comerci
 - Coloque os arquivos em `assets/` (o Godot importa .glb, .gltf, .fbx, .obj e .blend).
 - Confira a licença de cada pacote antes de lançar.
 
+## Inventário
+
+Estilo Tibia: 9 casas de equipamento e a mochila equipada, que pode ter bolsas dentro.
+Cada jogador do sofá abre o seu (Back / I) e navega com o próprio controle ao mesmo tempo.
+- Controle: direcional move · **A** pega e solta · **Y** equipa (ou abre a bolsa) · **X** larga no chão · **B** volta.
+- Teclado: WASD/setas · Espaço · E · J · Shift.
+- O loot é do time todo (estilo MU): quem pegar primeiro (LB / F perto do item) leva.
+
 ## Testes automáticos
 
 Jogo offline (fase, combate, escalada, inimigos, save):
 
 ```bash
 godot --headless --fixed-fps 60 --path coop-dungeon -s tests/smoke_test.gd
+```
+
+Lógica do inventário (equipar, bolsas dentro de bolsas, mochila cheia, save):
+
+```bash
+godot --headless --path coop-dungeon -s tests/inventory_test.gd
 ```
 
 Online de ponta a ponta (sobe um host e um cliente na mesma máquina):

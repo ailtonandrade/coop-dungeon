@@ -20,6 +20,7 @@ func _process(_delta: float) -> bool:
 	var net := root.get_node("NetService")
 	match _step:
 		0:
+			root.get_node("SaveService").use_test_storage("test_saves_client")
 			_discovery = load("res://net/lan_discovery.gd").new()
 			root.add_child(_discovery)
 			_check(_discovery.start_listening() == OK, "escutando a busca de mundos")
@@ -52,11 +53,39 @@ func _process(_delta: float) -> bool:
 				_check(true, "inimigos do host apareceram aqui (%d)" % enemies.size())
 				var spawner := get_first_node_in_group("wave_spawner")
 				_check(spawner.wave >= 1, "número da onda chegou (onda %d)" % spawner.wave)
+				_t0 = _now()
+				_step = 5
+		5:
+			if not get_nodes_in_group("loot").is_empty():
+				_check(true, "elmo que o host largou apareceu no chão aqui")
+				_key(KEY_F, true)
+				_step = 6
+		6:
+			_key(KEY_F, false)
+			var path := _find_in_bag("iron_helmet")
+			if not path.is_empty():
+				_check(true, "elmo chegou na minha cópia do inventário")
+				_me.request_inventory("equip", [path])
+				_step = 7
+		7:
+			var head: Variant = _me.inventory.equipment.get("head")
+			if head and head.id == "iron_helmet":
+				_check(true, "equipei pelo inventário e o host confirmou")
+				_check(not root.get_node("SaveService").load_player(0).is_empty(), "meu inventário ficou salvo aqui no cliente")
 				_finish()
 	if _now() - _t0 > TIMEOUT:
 		_check(false, "tempo esgotado no passo %d" % _step)
 		_finish()
 	return false
+
+
+func _find_in_bag(id: String) -> Array:
+	var bag: Variant = _me.inventory.equipment.get("bag")
+	if bag:
+		for i in bag.contents.size():
+			if bag.contents[i] and bag.contents[i].id == id:
+				return ["bag", i]
+	return []
 
 
 func _my_player() -> Node3D:

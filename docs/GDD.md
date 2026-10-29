@@ -119,6 +119,31 @@ sem precisar de servidor dedicado.
   (hoje: melhor onda). Fica salvo no perfil do host; no online o mundo é sempre o do host.
 - A semente já é guardada para a geração do mundo aberto (M7).
 
+## Inventário e loot
+
+**Inventário estilo Tibia, individual de cada jogador:**
+- 9 casas de equipamento num "boneco" 3x3: amuleto, cabeça, mochila / corpo a corpo, peito,
+  à distância / anel, pernas, pés.
+- A mochila equipada tem casas (Bolsa 6, Mochila 12, Mochila grande 20) e pode ter outras bolsas
+  dentro, que também têm casas. Equipar uma mochila que está dentro da atual coloca a atual dentro da nova.
+- Soltar um item em cima de uma bolsa guarda dentro dela; uma bolsa não entra nela mesma.
+- Cada jogador do sofá abre o próprio painel acima do seu cartão e navega com o próprio controle.
+  Enquanto está aberto, aquele herói não anda nem ataca.
+- Atributos: dano (arma corpo a corpo e à distância), armadura (reduz dano: 25 deixa passar 2/3),
+  vida extra, % de dano. Escalam com raridade (comum 1x, raro 1,25x, único 1,5x) e poder (+8% por ponto).
+- **Visível no boneco:** peito, pernas e pés pintam o próprio modelo; elmo, ombreiras, armas,
+  amuleto e mochila são peças presas nos ossos. Todas as peças são provisórias, feitas de blocos.
+
+**Loot estilo MU Online:**
+- O que cai é o mesmo para todos: todo mundo vê e qualquer um do time pode pegar (quem pegar primeiro leva).
+- Uma criatura pode deixar mais de um item (55% o 1º, depois 30%, depois 12%), espalhados no chão.
+- Pegar é sempre manual: perto do item, LB / F. Nome no chão na cor da raridade e facho de luz.
+- O poder do loot acompanha a onda (vai virar o nível da região no mundo aberto).
+
+**Rede e save:** o host é dono da verdade (pegar, mover, equipar, largar); o dono do herói
+manda comandos e recebe a cópia do inventário a cada mudança, e salva na própria conta
+(cross save). Cada convidado entra com o inventário salvo dele.
+
 ## Minimapa
 
 Canto superior direito. Câmera de cima desenha o terreno; por cima vão os heróis
@@ -217,7 +242,7 @@ Regras:
 | M5 | Save local `world` / `player` ligado ao jogo | serviço ✅ |
 | M6 | **Base do online**: host/entrar por IP, 2 máquinas + sofá, inimigos e dano pelo host | ✅ + menu de mundos e busca na rede local |
 | M7 | **Mundo aberto**: 3x3 blocos com carregamento, 1 porta para interior, recorte de telhado | |
-| M8 | Loot e progressão sincronizados no online | |
+| M8 | Loot e progressão sincronizados no online | ✅ inventário estilo Tibia, loot estilo MU, equipamento no boneco |
 
 O online (M6) vem **antes** do mundo aberto e do loot: todo sistema novo
 já nasce sincronizado. Adaptar depois custaria reescrever cada sistema.

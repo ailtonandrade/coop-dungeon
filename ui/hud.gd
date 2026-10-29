@@ -12,6 +12,7 @@ var _pause: PanelContainer
 var _pause_info: Label
 var _resume_button: Button
 var _minimap_button: Button
+var _inventories := {}  # slot local -> InventoryPanel
 
 
 func _ready() -> void:
@@ -53,7 +54,7 @@ func _ready() -> void:
 	add_child(_wave_label)
 
 	var help := _make_label(18, Color(1, 1, 1, 0.8))
-	help.text = "Controle: A pula · X ataca · RT flecha · B rola · Y poção     Teclado: Espaço pula · J ataca · K flecha · Shift rola · E poção     Esc/Start: menu"
+	help.text = "Controle: A pula · X ataca · RT flecha · B rola · Y poção · LB pega · Back inventário     Teclado: Espaço · J · K · Shift · E · F pega · I inventário     Esc/Start: menu"
 	help.position = Vector2(24, 16)
 	add_child(help)
 
@@ -103,9 +104,16 @@ func _process(_delta: float) -> void:
 	else:
 		_wave_label.text = ""
 	_net_label.text = _connection_text()
+	_process_inventory_layout()
 
 
 func _physics_process(_delta: float) -> void:
+	for slot in InputService.active_slots():
+		if InputService.raw_just_pressed(slot, InputService.Action.INVENTORY):
+			_toggle_inventory(slot)
+	for slot: int in _inventories.keys():
+		if not InputService.is_active(slot):
+			_close_inventory(slot)
 	for slot in InputService.active_slots():
 		if InputService.just_pressed(slot, InputService.Action.PAUSE):
 			_toggle_pause()
@@ -113,12 +121,46 @@ func _physics_process(_delta: float) -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	# Esc e Back abrem o menu mesmo sem ninguém no jogo ainda.
+	# Esc abre o menu mesmo sem ninguém no jogo ainda.
 	var escape: bool = event is InputEventKey and event.pressed and not event.echo \
 			and event.physical_keycode == KEY_ESCAPE and not InputService.active_slots().size()
-	var back: bool = event is InputEventJoypadButton and event.pressed and event.button_index == JOY_BUTTON_BACK
-	if escape or back:
+	if escape:
 		_toggle_pause()
+
+
+## Abre o inventário do jogador local `slot` acima do cartão dele, ou fecha se já está aberto.
+func _toggle_inventory(slot: int) -> void:
+	if _inventories.has(slot):
+		_close_inventory(slot)
+		return
+	var player: Player = null
+	for candidate: Player in get_tree().get_nodes_in_group("players"):
+		if candidate.is_local() and candidate.slot == slot:
+			player = candidate
+	if player == null:
+		return
+	var panel := InventoryPanel.new()
+	add_child(panel)
+	panel.open_for(player)
+	panel.close_requested.connect(_close_inventory.bind(slot))
+	_inventories[slot] = panel
+
+
+func _close_inventory(slot: int) -> void:
+	if _inventories.has(slot):
+		_inventories[slot].queue_free()
+		_inventories.erase(slot)
+
+
+func _process_inventory_layout() -> void:
+	# Cada painel fica acima do cartão do dono (a tela é dividida em 4 colunas, P1 a P4).
+	var view := get_viewport().get_visible_rect().size
+	var column := view.x / GameConfig.MAX_PLAYERS
+	for panel: InventoryPanel in _inventories.values():
+		if not is_instance_valid(panel.player):
+			continue
+		var x := clampf(panel.player.index * column + (column - panel.size.x) / 2.0, 8.0, view.x - panel.size.x - 8.0)
+		panel.position = Vector2(x, view.y - 112.0 - panel.size.y)
 
 
 func _connection_text() -> String:

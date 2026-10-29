@@ -10,6 +10,15 @@ const SAVE_VERSION := 1
 var _backend: SaveBackend = LocalSaveBackend.new()
 
 
+## Testes automáticos salvam numa pasta separada (e limpa), sem tocar nos saves de verdade.
+func use_test_storage(folder: String) -> void:
+	var local := LocalSaveBackend.new()
+	local.dir = "user://" + folder
+	for file in DirAccess.get_files_at(local.dir):
+		DirAccess.remove_absolute(local.dir.path_join(file))
+	_backend = local
+
+
 ## Cria a ficha de um mundo novo (ainda não salva).
 func new_world(world_name: String, world_seed: int, visibility: String) -> Dictionary:
 	return {

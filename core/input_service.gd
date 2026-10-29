@@ -8,7 +8,7 @@ signal player_left(slot: int)
 const KEYBOARD := -1
 const NO_DEVICE := -2
 
-enum Action { MELEE, DODGE, RANGED, POTION, ARTIFACT, PAUSE, JUMP }
+enum Action { MELEE, DODGE, RANGED, POTION, ARTIFACT, PAUSE, JUMP, INVENTORY, PICKUP }
 
 const JOY_BUTTONS := {
 	Action.MELEE: JOY_BUTTON_X,
@@ -17,6 +17,8 @@ const JOY_BUTTONS := {
 	Action.POTION: JOY_BUTTON_Y,
 	Action.ARTIFACT: JOY_BUTTON_RIGHT_SHOULDER,
 	Action.PAUSE: JOY_BUTTON_START,
+	Action.INVENTORY: JOY_BUTTON_BACK,
+	Action.PICKUP: JOY_BUTTON_LEFT_SHOULDER,
 }
 const JOY_TRIGGERS := {
 	Action.RANGED: JOY_AXIS_TRIGGER_RIGHT,
@@ -29,6 +31,8 @@ const KEYS := {
 	Action.POTION: KEY_E,
 	Action.ARTIFACT: KEY_Q,
 	Action.PAUSE: KEY_ESCAPE,
+	Action.INVENTORY: KEY_I,
+	Action.PICKUP: KEY_F,
 }
 
 ## Só aceita entrar no jogo dentro de uma fase (no menu, o controle navega a interface).
@@ -37,6 +41,8 @@ var joining_enabled := false
 var last_device := KEYBOARD
 
 var _devices: Array[int] = []
+## Slot com menu aberto (inventário): o jogo não vê os comandos dele, só a interface (raw_*).
+var _blocked: Array[bool] = []
 ## Bitmask das ações pressionadas por slot, neste frame e no anterior.
 var _down: Array[int] = []
 var _prev: Array[int] = []
@@ -45,6 +51,7 @@ var _prev: Array[int] = []
 func _ready() -> void:
 	for i in GameConfig.MAX_PLAYERS:
 		_devices.append(NO_DEVICE)
+		_blocked.append(false)
 		_down.append(0)
 		_prev.append(0)
 	Input.joy_connection_changed.connect(_on_joy_connection_changed)
@@ -87,21 +94,39 @@ func active_slots() -> Array[int]:
 
 
 func is_pressed(slot: int, action: Action) -> bool:
-	return _down[slot] & (1 << action) != 0
+	return not _blocked[slot] and raw_pressed(slot, action)
 
 
 func just_pressed(slot: int, action: Action) -> bool:
-	return is_pressed(slot, action) and _prev[slot] & (1 << action) == 0
+	return not _blocked[slot] and raw_just_pressed(slot, action)
 
 
 ## Bitmask das ações seguradas neste quadro.
 func get_down_mask(slot: int) -> int:
-	return _down[slot]
+	return 0 if _blocked[slot] else _down[slot]
 
 
 ## Bitmask das ações que começaram a ser apertadas neste quadro.
 func get_pressed_mask(slot: int) -> int:
-	return _down[slot] & ~_prev[slot]
+	return 0 if _blocked[slot] else _down[slot] & ~_prev[slot]
+
+
+## Bloqueia (ou libera) os comandos de jogo de um slot enquanto ele usa um menu.
+func set_blocked(slot: int, blocked: bool) -> void:
+	_blocked[slot] = blocked
+
+
+func is_blocked(slot: int) -> bool:
+	return _blocked[slot]
+
+
+## Leitura para menus: ignora o bloqueio.
+func raw_pressed(slot: int, action: Action) -> bool:
+	return _down[slot] & (1 << action) != 0
+
+
+func raw_just_pressed(slot: int, action: Action) -> bool:
+	return raw_pressed(slot, action) and _prev[slot] & (1 << action) == 0
 
 
 func join_last_device() -> void:
@@ -120,13 +145,25 @@ func reset() -> void:
 
 ## Direção do analógico esquerdo (ou WASD) em coordenadas de tela, comprimento 0..1.
 func get_move(slot: int) -> Vector2:
+	return Vector2.ZERO if _blocked[slot] else raw_move(slot)
+
+
+## Direção para menus: analógico, direcional ou WASD/setas, ignorando o bloqueio.
+func raw_move(slot: int) -> Vector2:
 	var device := _devices[slot]
 	if device == KEYBOARD:
 		var v := Vector2(
-			float(Input.is_physical_key_pressed(KEY_D)) - float(Input.is_physical_key_pressed(KEY_A)),
-			float(Input.is_physical_key_pressed(KEY_S)) - float(Input.is_physical_key_pressed(KEY_W)))
+			float(Input.is_physical_key_pressed(KEY_D) or Input.is_physical_key_pressed(KEY_RIGHT))
+					- float(Input.is_physical_key_pressed(KEY_A) or Input.is_physical_key_pressed(KEY_LEFT)),
+			float(Input.is_physical_key_pressed(KEY_S) or Input.is_physical_key_pressed(KEY_DOWN))
+					- float(Input.is_physical_key_pressed(KEY_W) or Input.is_physical_key_pressed(KEY_UP)))
 		return v.limit_length(1.0)
 	if device >= 0:
+		var dpad := Vector2(
+			float(Input.is_joy_button_pressed(device, JOY_BUTTON_DPAD_RIGHT)) - float(Input.is_joy_button_pressed(device, JOY_BUTTON_DPAD_LEFT)),
+			float(Input.is_joy_button_pressed(device, JOY_BUTTON_DPAD_DOWN)) - float(Input.is_joy_button_pressed(device, JOY_BUTTON_DPAD_UP)))
+		if dpad != Vector2.ZERO:
+			return dpad.normalized()
 		var v := Vector2(Input.get_joy_axis(device, JOY_AXIS_LEFT_X), Input.get_joy_axis(device, JOY_AXIS_LEFT_Y))
 		var mag := v.length()
 		if mag < GameConfig.STICK_DEADZONE:
@@ -141,6 +178,7 @@ func leave(slot: int) -> void:
 	if not is_active(slot):
 		return
 	_devices[slot] = NO_DEVICE
+	_blocked[slot] = false
 	_down[slot] = 0
 	_prev[slot] = 0
 	player_left.emit(slot)

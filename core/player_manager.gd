@@ -18,7 +18,7 @@ func _ready() -> void:
 	InputService.player_left.connect(func(slot: int) -> void: NetService.request_leave(slot))
 
 
-func add_player(peer: int, slot: int, display_name: String) -> void:
+func add_player(peer: int, slot: int, display_name: String, save := {}) -> void:
 	if _find(peer, slot) or _players.size() >= GameConfig.MAX_PLAYERS:
 		return
 	var index := 0
@@ -29,6 +29,7 @@ func add_player(peer: int, slot: int, display_name: String) -> void:
 		base = (_players.values()[0] as Player).global_position
 	_players[index] = NetReplicator.of(self).spawn("player", {
 		"peer": peer, "slot": slot, "index": index, "name": display_name,
+		"inventory": save.get("inventory", {}),
 		"pos": base + _ring_offset(index),
 	})
 

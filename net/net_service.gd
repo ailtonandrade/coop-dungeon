@@ -11,7 +11,7 @@ extends Node
 signal status_changed(text: String)
 signal peer_ready(peer_id: int)
 
-const GAME_VERSION := "0.7"
+const GAME_VERSION := "0.8"
 const DEFAULT_PORT := 7777
 const LEVEL_SCENE := "res://levels/level_01.tscn"
 const MENU_SCENE := "res://ui/main_menu.tscn"
@@ -137,11 +137,13 @@ func notify_level_ready() -> void:
 ## Jogadores
 
 ## Um jogador local apertou Start: pede uma vaga para ele (ao host, se for cliente).
+## Vai junto o save do personagem (inventário) da conta desse controle.
 func request_player(slot: int) -> void:
+	var save := SaveService.load_player(slot)
 	if is_host():
-		_add_player(1, slot)
+		_add_player(1, slot, save)
 	elif mode == Mode.CLIENT:
-		_rpc_request_player.rpc_id(1, slot)
+		_rpc_request_player.rpc_id(1, slot, save)
 
 
 func request_leave(slot: int) -> void:
@@ -164,10 +166,16 @@ func display_name(peer: int, slot: int) -> String:
 	return base if slot == 0 else "%s (%d)" % [base, slot + 1]
 
 
-func _add_player(peer: int, slot: int) -> void:
+## Comando da tela de inventário de um jogador deste cliente, para o host executar.
+func send_inventory_command(player: Node, command: String, args: Array) -> void:
+	if player.has_meta("net_id"):
+		_rpc_inventory_command.rpc_id(1, player.get_meta("net_id"), command, args)
+
+
+func _add_player(peer: int, slot: int, save: Dictionary) -> void:
 	var manager := get_tree().get_first_node_in_group("player_manager")
 	if manager:
-		manager.add_player(peer, slot, display_name(peer, slot))
+		manager.add_player(peer, slot, display_name(peer, slot), save)
 
 
 func _remove_player(peer: int, slot: int) -> void:
@@ -256,10 +264,19 @@ func _rpc_client_ready() -> void:
 
 
 @rpc("any_peer", "call_remote", "reliable")
-func _rpc_request_player(slot: int) -> void:
+func _rpc_request_player(slot: int, save: Dictionary) -> void:
 	var peer := multiplayer.get_remote_sender_id()
 	if _ready_peers.has(peer) and slot >= 0 and slot < GameConfig.MAX_PLAYERS:
-		_add_player(peer, slot)
+		_add_player(peer, slot, save)
+
+
+@rpc("any_peer", "call_remote", "reliable")
+func _rpc_inventory_command(net_id: int, command: String, args: Array) -> void:
+	var replicator := get_tree().get_first_node_in_group("net_replicator")
+	var player: Node = replicator.get_entity(net_id) if replicator else null
+	# Só o dono mexe no inventário do próprio herói.
+	if player is Player and player.owner_peer == multiplayer.get_remote_sender_id():
+		player.apply_inventory_command(command, args)
 
 
 @rpc("any_peer", "call_remote", "reliable")

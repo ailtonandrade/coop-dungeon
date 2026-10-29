@@ -6,6 +6,8 @@ extends CharacterBody3D
 
 signal downed
 signal revived
+## O inventário mudou (no dono, para a tela de inventário se atualizar).
+signal inventory_updated
 
 ## Modelo provisório por jogador da sala (P1 a P4) (Quaternius, CC0). Para trocar, basta outro .glb na mesma
 ## escala (1 unidade = 1 m, pé na origem) com animações Idle, Run, Roll, Sword_Slash e Death.
@@ -20,6 +22,8 @@ const ANIM_BLEND := 0.15
 ## Suavização da posição replicada nos clientes (maior = segue mais rápido).
 const NET_SMOOTHING := 18.0
 const NET_SNAP_DISTANCE := 3.0
+## Dano sem arma corpo a corpo.
+const UNARMED_DAMAGE := 5.0
 ## Golpes do combo corpo a corpo, em ordem. Apertar ataque durante um golpe encadeia o próximo.
 const COMBO: Array[Dictionary] = [
 	{"damage": 10.0, "knockback": 3.0, "windup": 0.12, "recovery": 0.22, "lunge": 2.5},
@@ -37,6 +41,8 @@ var slot := 0
 ## Posição na sala (P1 a P4): define cor e modelo.
 var index := 0
 var display_name := ""
+## Inventário: no host é o de verdade; no dono é a cópia que ele recebe; nos outros fica vazio.
+var inventory := Inventory.new()
 var state := State.NORMAL
 var health := Health.new()
 var revive_progress := 0.0
@@ -67,6 +73,7 @@ var _anim_serial := 0
 var _net_pos := Vector3.ZERO
 var _net_yaw := 0.0
 var _net_synced := false
+var _visual := []
 
 @onready var _ring: MeshInstance3D = $Ring
 @onready var _tag: Label3D = $Tag
@@ -77,6 +84,10 @@ func setup(data: Dictionary) -> void:
 	slot = data.slot
 	index = data.index
 	display_name = data.get("name", "")
+	inventory = Inventory.from_dict(data.get("inventory", {}))
+	if inventory.is_empty():
+		inventory = Inventory.starter()
+	_visual = data.get("visual", inventory.visual())
 
 
 func _ready() -> void:
@@ -106,6 +117,12 @@ func _ready() -> void:
 		for anim_name in ["Idle", "Run"]:
 			if _anim.has_animation(anim_name):
 				_anim.get_animation(anim_name).loop_mode = Animation.LOOP_LINEAR
+	ItemVisuals.dress(_model, _visual)
+	if multiplayer.is_server():
+		inventory.changed.connect(_on_inventory_changed)
+		_apply_stats()
+		# Depois de nascer em todo mundo, o dono recebe o inventário (e salva o kit inicial).
+		_send_inventory.call_deferred()
 
 
 func is_targetable() -> bool:
@@ -127,6 +144,8 @@ func take_hit(amount: float, knockback := Vector3.ZERO) -> void:
 	# A rolada dá invulnerabilidade, como no gênero.
 	if state == State.DODGING or state == State.DOWNED:
 		return
+	# Armadura reduz o dano: 25 de armadura deixa passar 2/3.
+	amount *= 100.0 / (100.0 + armor() * 2.0)
 	if health.take_hit(amount):
 		_knockback = Combat.flat(knockback)
 		_fx("fx_flash", [Color(1.0, 0.2, 0.2, 0.6), 0.1])
@@ -237,6 +256,8 @@ func _update_normal(delta: float, dir: Vector3) -> Vector3:
 		_shoot_arrow()
 	if _input.just_pressed(InputService.Action.POTION):
 		_drink_potion()
+	if _input.just_pressed(InputService.Action.PICKUP):
+		_pick_up()
 
 	var target := dir * GameConfig.PLAYER_SPEED
 	_move = _move.move_toward(target, GameConfig.PLAYER_ACCEL * delta)
@@ -372,7 +393,7 @@ func _melee_hit(hit: Dictionary) -> void:
 	var finisher := _combo_step == COMBO.size() - 1
 	var targets := Combat.query_arc(self, _facing, GameConfig.MELEE_RADIUS, GameConfig.MELEE_ARC_DEG, GameConfig.LAYER_ENEMIES)
 	for target in targets:
-		target.take_hit(hit.damage, _facing * hit.knockback)
+		target.take_hit(hit.damage / 10.0 * melee_damage(), _facing * hit.knockback)
 	_fx("fx_slash", [finisher, _facing])
 	if not targets.is_empty():
 		_hitstop = GameConfig.HITSTOP_TIME
@@ -435,6 +456,8 @@ static func _get_arc_mesh() -> ArrayMesh:
 ## À distância, poção, cair
 
 func _shoot_arrow() -> void:
+	if ranged_damage() <= 0.0:
+		return
 	_arrow_cooldown = GameConfig.ARROW_COOLDOWN
 	var enemies := get_tree().get_nodes_in_group("enemies")
 	var aim := Combat.nearest_in_cone(global_position, _facing, enemies, GameConfig.ARROW_RANGE, GameConfig.ARROW_AIM_CONE_DEG)
@@ -444,7 +467,7 @@ func _shoot_arrow() -> void:
 	var dir := _facing
 	if aim:
 		dir = (aim.global_position + Vector3.UP * 1.0 - from).normalized()
-	Projectile.fire(self, from, dir, GameConfig.ARROW_SPEED, GameConfig.ARROW_DAMAGE,
+	Projectile.fire(self, from, dir, GameConfig.ARROW_SPEED, ranged_damage(),
 			GameConfig.LAYER_ENEMIES, Color(1.0, 0.95, 0.7))
 	_play("Gun_Shoot", 0.3, true)
 	_anim_lock = 0.3
@@ -500,7 +523,7 @@ func _play(anim_name: String, duration := 0.0, restart := false) -> bool:
 
 func get_net_state() -> Array:
 	return [global_position, rotation.y, _anim_name, _anim_speed, _anim_serial,
-			health.hp, state, revive_progress, potion_cooldown]
+			health.hp, state, revive_progress, potion_cooldown, health.max_hp]
 
 
 func apply_net_state(s: Array) -> void:
@@ -520,3 +543,116 @@ func apply_net_state(s: Array) -> void:
 	state = s[6]
 	revive_progress = s[7]
 	potion_cooldown = s[8]
+	health.max_hp = s[9]
+
+
+## Inventário e atributos
+
+func melee_damage() -> float:
+	var weapon: Variant = inventory.equipment.get("melee")
+	var base := ItemDB.stat(weapon, "damage") if weapon else UNARMED_DAMAGE
+	return base * (1.0 + inventory.total("damage_pct") / 100.0)
+
+
+func ranged_damage() -> float:
+	var weapon: Variant = inventory.equipment.get("ranged")
+	return ItemDB.stat(weapon, "damage") * (1.0 + inventory.total("damage_pct") / 100.0) if weapon else 0.0
+
+
+func armor() -> float:
+	return inventory.total("armor")
+
+
+## Pedido vindo da tela de inventário do dono. Comandos: "move" [de, para],
+## "equip" [casa], "drop" [casa]. Quem executa é sempre o host.
+func request_inventory(command: String, args: Array) -> void:
+	if multiplayer.is_server():
+		apply_inventory_command(command, args)
+	else:
+		NetService.send_inventory_command(self, command, args)
+
+
+func apply_inventory_command(command: String, args: Array) -> void:
+	match command:
+		"move":
+			inventory.move(args[0], args[1])
+		"equip":
+			inventory.equip(args[0])
+		"drop":
+			var item: Variant = inventory.remove(args[0])
+			if item != null:
+				Loot.drop(self, item, Combat.flat(global_position) + _facing * 1.2)
+
+
+## Pega do chão o item mais perto (qualquer um do time pode pegar; quem pegar primeiro leva).
+func _pick_up() -> void:
+	var loot := Loot.nearest(get_tree(), global_position)
+	if loot and give_item(loot.item):
+		loot.queue_free()
+
+
+## Host: guarda o item na mochila. Retorna false se não couber.
+func give_item(item: Dictionary) -> bool:
+	if inventory.add_item(item).is_empty():
+		_fx("fx_toast", ["Mochila cheia", Color(1.0, 0.5, 0.4)])
+		return false
+	_fx("fx_toast", [ItemDB.display_name(item), ItemDB.rarity_color(item)])
+	return true
+
+
+func _on_inventory_changed() -> void:
+	_apply_stats()
+	var visual := inventory.visual()
+	if visual != _visual:
+		_visual = visual
+		var data: Dictionary = get_meta("net_data", {})
+		data["visual"] = visual
+		_fx("fx_dress", [visual])
+	_send_inventory()
+
+
+func _send_inventory() -> void:
+	var replicator := NetReplicator.of(self)
+	if replicator:
+		replicator.send_to_peer(owner_peer, self, "net_inventory", [inventory.to_dict()])
+	else:
+		net_inventory(inventory.to_dict())
+
+
+func _apply_stats() -> void:
+	var old_max := health.max_hp
+	health.max_hp = GameConfig.PLAYER_MAX_HP + inventory.total("hp")
+	if not health.is_dead():
+		health.hp = clampf(health.hp + maxf(health.max_hp - old_max, 0.0), 0.0, health.max_hp)
+
+
+## No dono: chegou a versão nova do inventário (no host o objeto já é o mesmo).
+func net_inventory(data: Dictionary) -> void:
+	if not multiplayer.is_server():
+		inventory = Inventory.from_dict(data)
+	if is_local():
+		SaveService.save_player(slot, {"inventory": data})
+	inventory_updated.emit()
+
+
+func fx_dress(visual: Array) -> void:
+	_visual = visual
+	ItemVisuals.dress(_model, visual)
+
+
+## Texto que sobe da cabeça (item pego, mochila cheia).
+func fx_toast(text: String, color: Color) -> void:
+	var label := Label3D.new()
+	label.text = text
+	label.modulate = color
+	label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	label.no_depth_test = true
+	label.font_size = 40
+	label.outline_size = 10
+	label.layers = 2
+	add_child(label)
+	label.position = Vector3.UP * 2.9
+	var tween := label.create_tween()
+	tween.tween_property(label, "position:y", 3.6, 1.2)
+	tween.parallel().tween_property(label, "modulate:a", 0.0, 1.2).set_delay(0.5)
+	tween.tween_callback(label.queue_free)

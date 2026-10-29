@@ -238,6 +238,8 @@ func _find_target() -> Player:
 func _on_died() -> void:
 	_become_dead()
 	_play("Death", 0.0, true)
+	var spawner := get_tree().get_first_node_in_group("wave_spawner")
+	Loot.roll_drops(self, (spawner.wave if spawner else 1) + randi_range(0, 1))
 	died.emit(self)
 	get_tree().create_timer(1.5).timeout.connect(queue_free)
 

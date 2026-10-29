@@ -10,16 +10,16 @@ var _frames := 0
 var _failed := false
 var _enemy: Node3D
 var _enemy_hp := 0.0
-
-
-func _initialize() -> void:
-	change_scene_to_file("res://levels/level_01.tscn")
+var _armor_before := 0.0
 
 
 func _process(_delta: float) -> bool:
 	_frames += 1
 	var input := root.get_node("InputService")
 	match _frames:
+		1:
+			root.get_node("SaveService").use_test_storage("test_saves_smoke")
+			change_scene_to_file("res://levels/level_01.tscn")
 		5:
 			input._try_join(input.KEYBOARD)
 			input._try_join(0)
@@ -50,6 +50,30 @@ func _process(_delta: float) -> bool:
 			_check(absf(p1.global_position.y - 2.0) < 0.1 and p1.state == 0,
 					"P1 terminou em cima do pilar (y=%.2f)" % p1.global_position.y)
 			p1.teleport_to(Vector3.ZERO)
+		SECOND + 60:
+			# Loot: cai no chão, o P1 pega com o botão e equipa.
+			var p1 := _player(0)
+			_armor_before = p1.armor()
+			var plate: Dictionary = load("res://items/item_db.gd").make("plate_armor", 3, "rare")
+			load("res://items/loot.gd").drop(p1, plate, p1.global_position + Vector3(0.6, 0, 0))
+		SECOND + 65:
+			var p1 := _player(0)
+			_check(get_nodes_in_group("loot").size() == 1, "item caiu no chão e todos veem")
+			p1._pick_up()
+		SECOND + 70:
+			var p1 := _player(0)
+			_check(get_nodes_in_group("loot").is_empty(), "P1 pegou o item do chão")
+			var path := []
+			var bag: Dictionary = p1.inventory.equipment.bag
+			for i in bag.contents.size():
+				if bag.contents[i] and bag.contents[i].id == "plate_armor":
+					path = ["bag", i]
+			_check(not path.is_empty(), "peitoral foi para a mochila")
+			p1.apply_inventory_command("equip", [path])
+			_check(p1.inventory.equipment.chest.id == "plate_armor", "peitoral equipado")
+			_check(p1.armor() > _armor_before, "armadura subiu (%.1f -> %.1f)" % [_armor_before, p1.armor()])
+			_check(p1._visual.any(func(v: Dictionary) -> bool: return v.id == "plate_armor"), "peitoral aparece no boneco")
+			_check(not root.get_node("SaveService").load_player(0).is_empty(), "inventário salvo na conta do P1")
 		3 * SECOND:
 			var enemies := get_nodes_in_group("enemies")
 			_check(enemies.size() == 3, "onda 1 com 3 inimigos (achou %d)" % enemies.size())

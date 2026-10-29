@@ -41,6 +41,18 @@ func spawn(type: String, data: Dictionary) -> Node:
 	return node
 
 
+## Roda `method` só na máquina `peer` (ex.: o inventário vai só para o dono do herói).
+func send_to_peer(peer: int, node: Node, method: String, args: Array) -> void:
+	if peer == multiplayer.get_unique_id():
+		node.callv(method, args)
+	elif node.has_meta("net_id") and NetService.ready_peers().has(peer):
+		_rpc_fx.rpc_id(peer, node.get_meta("net_id"), method, args)
+
+
+func get_entity(id: int) -> Node:
+	return _entities.get(id)
+
+
 ## Roda `method` com `args` na entidade aqui e nos clientes.
 func broadcast_fx(node: Node, method: String, args: Array) -> void:
 	node.callv(method, args)
@@ -63,6 +75,9 @@ func _create(id: int, type: String, data: Dictionary) -> Node:
 			parent = enemy_root
 		"projectile":
 			node = Projectile.build(data)
+			parent = fx_root
+		"loot":
+			node = Loot.build(data)
 			parent = fx_root
 		_:
 			push_error("Tipo de entidade desconhecido: %s" % type)

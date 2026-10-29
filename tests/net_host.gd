@@ -19,6 +19,7 @@ func _process(_delta: float) -> bool:
 	var net := root.get_node("NetService")
 	match _step:
 		0:
+			root.get_node("SaveService").use_test_storage("test_saves_host")
 			net.port = int(OS.get_environment("NET_PORT"))
 			var world: Dictionary = root.get_node("SaveService").new_world("Mundo Teste", 42, "open")
 			_check(net.play_world(world) == OK, "host abriu o mundo na porta %d" % net.port)
@@ -34,6 +35,14 @@ func _process(_delta: float) -> bool:
 			if _now() - _t0 > 3.0:
 				var moved := _remote.global_position.x - _remote_x
 				_check(moved > 2.0, "comando do cliente moveu o jogador dele no host (%.1f m)" % moved)
+				var helmet: Dictionary = load("res://items/item_db.gd").make("iron_helmet", 2, "rare")
+				load("res://items/loot.gd").drop(_remote, helmet, _remote.global_position + Vector3(0.5, 0, 0))
+				_step = 4
+		4:
+			var head: Variant = _remote.inventory.equipment.get("head")
+			if head and head.id == "iron_helmet":
+				_check(true, "cliente pegou o elmo do chão e equipou (visto no host)")
+				_check(_remote.armor() > 5.0, "armadura do cliente subiu no host (%.1f)" % _remote.armor())
 				_step = 3
 		3:
 			if _remote_player() == null:
