@@ -19,6 +19,8 @@ func _process(_delta: float) -> bool:
 	match _step:
 		0:
 			root.get_node("SaveService").use_test_storage("test_saves_tamper_host")
+			# Sem tela de escolha nos testes: entra com o personagem da vaga.
+			Engine.set_meta("auto_pick_character", true)
 			net.port = int(OS.get_environment("NET_PORT"))
 			net.multiplayer.peer_connected.connect(func(_id: int) -> void: _connected = true)
 			net.play_world(root.get_node("SaveService").new_world("Mundo Original", 1, "private"))

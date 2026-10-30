@@ -7,13 +7,17 @@ extends SceneTree
 var _failed := false
 var _frames := 0
 var _waited := 0.0
+var _started := 0.0
 
 
 func _process(delta: float) -> bool:
 	_frames += 1
 	if _frames == 1:
+		_started = Time.get_ticks_msec() / 1000.0
 		_unit_checks()
 		root.get_node("SaveService").use_test_storage("test_saves_internet")
+		# Sem tela de escolha nos testes: entra com o personagem da vaga.
+		Engine.set_meta("auto_pick_character", true)
 		var net := root.get_node("NetService")
 		net.port = 7790
 		var world: Dictionary = root.get_node("SaveService").new_world("Mundo internet", 1, "private")
@@ -21,8 +25,9 @@ func _process(delta: float) -> bool:
 		_check(net.internet != null, "começou a abrir para a internet")
 		return false
 	var net := root.get_node("NetService")
-	_waited += delta
-	if net.internet and net.internet.state != 0 or _waited > 15.0:
+	# Tempo de verdade (o roteador e o serviço de IP respondem no relógio de parede).
+	_waited = Time.get_ticks_msec() / 1000.0 - _started
+	if net.internet and net.internet.state != 0 or _waited > 20.0:
 		_check(net.internet != null and net.internet.state != 0, "terminou de tentar sem travar o jogo (estado %s)" % (net.internet.state if net.internet else -1))
 		_check(not net.internet.describe().is_empty(), "explica para o jogador: %s" % net.internet.describe())
 		net.leave_session()

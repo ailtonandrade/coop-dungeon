@@ -2,7 +2,9 @@
 
 ## Quem abre o mundo (host)
 
-1. Crie ou abra um mundo **Aberto** ou **Privado** (Offline não aceita ninguém de fora).
+1. Crie ou abra um mundo **Aberto** ou **Privado** (Offline é só o sofá: não aceita ninguém
+   pela rede). Para só entrar quem você quiser, ponha uma **senha** ao criar o mundo, ou na
+   pausa (aba Jogo > Senha do mundo; vazio = sem senha). Vale para a rede local e a internet.
 2. Na primeira vez, o Windows pergunta sobre o Firewall: clique em **Permitir** (redes
    privadas e públicas).
 3. Aperte **Start/Esc**: o menu de pausa diz como ficou o acesso pela internet:
@@ -19,8 +21,9 @@
 ## Quem entra
 
 1. Mesma versão do jogo que o host (o mesmo .zip/instalador).
-2. **Buscar mundos** > digite o **código do mundo** (ou o IP) > **Entrar**.
-3. Dentro, aperte **Start** (ou Enter) para o herói aparecer.
+2. **Buscar mundos** > digite o **código do mundo** (ou o IP) e, se o mundo tiver, a **senha**
+   > **Entrar**. Na lista da rede local, mundos com senha aparecem marcados.
+3. Dentro, aperte **Start** (ou Enter) e escolha o personagem (ou crie um, até 5 por PC).
 
 ## VPN de jogo (funciona até com CGNAT)
 

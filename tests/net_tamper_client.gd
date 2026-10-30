@@ -17,6 +17,8 @@ func _process(_delta: float) -> bool:
 	match _step:
 		0:
 			root.get_node("SaveService").use_test_storage("test_saves_tamper_client")
+			# Sem tela de escolha nos testes: entra com o personagem da vaga.
+			Engine.set_meta("auto_pick_character", true)
 			# Como se os arquivos do mapa tivessem sido mexidos nesta instalação.
 			net.map_fingerprint = "mapa-adulterado"
 			net.join("127.0.0.1", int(OS.get_environment("NET_PORT")))

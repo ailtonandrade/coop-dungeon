@@ -30,6 +30,8 @@ var last_message := ""
 ## (ItemDB). Calculada uma vez, na primeira vez que abre ou entra num mundo online.
 var map_fingerprint := ""
 
+## Senha que o convidado digitou para entrar (vai como resumo no "olá").
+var _join_password := ""
 var _ready_peers: Array[int] = []
 var _peer_names := {}
 var _remote_inputs := {}  # "peer:slot" -> PlayerInput
@@ -75,6 +77,27 @@ func local_addresses() -> PackedStringArray:
 	return result
 
 
+## Senha do mundo
+
+## Resumo da senha (o texto não fica salvo nem viaja pela rede).
+static func password_hash(text: String) -> String:
+	return ("corrumpted:" + text).sha256_text()
+
+
+func has_password() -> bool:
+	return not String(world.get("password", "")).is_empty()
+
+
+## Host: troca a senha do mundo em jogo (vazio = sem senha) e salva.
+func set_world_password(text: String) -> void:
+	if text.strip_edges().is_empty():
+		world.erase("password")
+	else:
+		world["password"] = password_hash(text)
+	if is_host() and not world.is_empty():
+		SaveService.save_world(world)
+
+
 ## Abrir mundo
 
 ## O navegador (versão Web, usada para testar no Xbox pelo Edge) não tem a rede do jogo:
@@ -111,8 +134,9 @@ func play_world(info: Dictionary) -> Error:
 	return OK
 
 
-func join(address: String, p_port := DEFAULT_PORT) -> Error:
+func join(address: String, p_port := DEFAULT_PORT, password := "") -> Error:
 	_ensure_fingerprint()
+	_join_password = password
 	var peer := ENetMultiplayerPeer.new()
 	var err := peer.create_client(address, p_port)
 	if err != OK:
@@ -157,10 +181,17 @@ func notify_level_ready() -> void:
 
 ## Jogadores
 
-## Um jogador local apertou Start: pede uma vaga para ele (ao host, se for cliente).
-## Vai junto o save do personagem (inventário) da conta desse controle.
-func request_player(slot: int) -> void:
-	var save := SaveService.load_player(slot)
+## Um jogador local escolheu o personagem: pede uma vaga para ele (ao host, se for cliente).
+## Vai junto a ficha do personagem desta máquina (nome, visual, inventário, progressão).
+func request_player(slot: int, character_id: String) -> void:
+	var character := SaveService.load_character(character_id)
+	if character.is_empty():
+		return
+	var save := {
+		"character": character.id, "name": character.name, "model": character.model,
+		"chip_color": character.chip_color, "inventory": character.get("inventory", {}),
+		"progress": character.get("progress", {}),
+	}
 	if is_host():
 		_add_player(1, slot, save)
 	elif mode == Mode.CLIENT:
@@ -182,7 +213,10 @@ func remote_input(peer: int, slot: int) -> PlayerInput:
 	return _remote_inputs[key]
 
 
-func display_name(peer: int, slot: int) -> String:
+## Nome na tela: o do personagem; sem ele, o da conta (com o número da vaga no sofá).
+func display_name(peer: int, slot: int, character_name := "") -> String:
+	if not character_name.strip_edges().is_empty():
+		return character_name.strip_edges().left(Characters.NAME_MAX)
 	var base: String = player_name if peer == multiplayer.get_unique_id() else _peer_names.get(peer, "Convidado")
 	return base if slot == 0 else "%s (%d)" % [base, slot + 1]
 
@@ -221,7 +255,7 @@ func send_inventory_command(player: Node, command: String, args: Array) -> void:
 func _add_player(peer: int, slot: int, save: Dictionary) -> void:
 	var manager := get_tree().get_first_node_in_group("player_manager")
 	if manager:
-		manager.add_player(peer, slot, display_name(peer, slot), save)
+		manager.add_player(peer, slot, display_name(peer, slot, str(save.get("name", ""))), save)
 
 
 func _remove_player(peer: int, slot: int) -> void:
@@ -249,7 +283,7 @@ func _physics_process(_delta: float) -> void:
 
 func _on_connected() -> void:
 	status_changed.emit("Conectado. Entrando no mundo...")
-	_rpc_hello.rpc_id(1, GAME_VERSION, player_name, map_fingerprint)
+	_rpc_hello.rpc_id(1, GAME_VERSION, player_name, map_fingerprint, password_hash(_join_password) if _join_password else "")
 
 
 func _on_connection_failed() -> void:
@@ -272,17 +306,22 @@ func _on_peer_disconnected(peer: int) -> void:
 
 
 @rpc("any_peer", "call_remote", "reliable")
-func _rpc_hello(version: String, peer_name: String, fingerprint: String) -> void:
+func _rpc_hello(version: String, peer_name: String, fingerprint: String, password: String) -> void:
 	var peer := multiplayer.get_remote_sender_id()
 	if version != GAME_VERSION:
 		_reject(peer, "Versão diferente do jogo (host: %s, você: %s)." % [GAME_VERSION, version])
 	elif fingerprint != map_fingerprint:
 		_reject(peer, "O seu mapa ou os seus itens são diferentes dos do host (arquivos do jogo alterados ou atualização diferente).")
+	elif has_password() and password != world.password:
+		_reject(peer, "Senha errada." if password else "Este mundo tem senha: digite a senha antes de entrar.")
 	elif player_count() >= GameConfig.MAX_PLAYERS:
 		_reject(peer, "O mundo está cheio (%d jogadores)." % GameConfig.MAX_PLAYERS)
 	else:
 		_peer_names[peer] = peer_name.left(24)
-		_rpc_welcome.rpc_id(peer, world)
+		# A senha (resumo) fica só no host.
+		var shared := world.duplicate()
+		shared.erase("password")
+		_rpc_welcome.rpc_id(peer, shared)
 
 
 func _reject(peer: int, reason: String) -> void:
@@ -354,6 +393,7 @@ func _advert() -> Dictionary:
 		"max": GameConfig.MAX_PLAYERS,
 		"port": port,
 		"version": GAME_VERSION,
+		"locked": has_password(),
 	}
 
 

@@ -18,7 +18,10 @@ func _process(_delta: float) -> bool:
 	match _frames:
 		1:
 			root.get_node("SaveService").use_test_storage("test_saves_progress")
-			root.get_node("SaveService").save_player(0, {})
+			# Sem tela de escolha nos testes: entra com o personagem da vaga.
+			Engine.set_meta("auto_pick_character", true)
+			for character in root.get_node("SaveService").list_characters():
+				root.get_node("SaveService").delete_character(character.id)
 			_unit_checks()
 			change_scene_to_file("res://world/world.tscn")
 		SECOND:
@@ -47,7 +50,7 @@ func _process(_delta: float) -> bool:
 			_check(p1.health.max_hp > _hp_before and is_equal_approx(p1.health.hp, p1.health.max_hp), "subir de nível dá vida e enche a barra")
 			_check(root.get_node("Sound").played.has("level_up"), "som de subir de nível")
 			_check(p1.progress.points_free() == 2, "2 pontos de chip para instalar")
-			var saved: Dictionary = root.get_node("SaveService").load_player(0)
+			var saved: Dictionary = root.get_node("SaveService").load_character(_p1().character_id)
 			_check(int(saved.get("progress", {}).get("level", 0)) == 3, "nível salvo no personagem")
 			_hp_before = p1.health.max_hp
 			_key(KEY_I, true)
@@ -90,7 +93,7 @@ func _process(_delta: float) -> bool:
 		SECOND + 56:
 			_check(not _hud()._inventories.has(0), "I fecha o painel")
 			_check(not root.get_node("InputService").is_blocked(0), "herói solto de novo")
-			var saved: Dictionary = root.get_node("SaveService").load_player(0)
+			var saved: Dictionary = root.get_node("SaveService").load_character(_p1().character_id)
 			_check(int(saved.get("progress", {}).get("chips", {}).get("braco", 0)) == 1, "chips salvos no personagem")
 			print("PROGRESSÃO: ", "FALHOU" if _failed else "OK")
 			quit(1 if _failed else 0)

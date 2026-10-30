@@ -21,6 +21,8 @@ func _process(_delta: float) -> bool:
 	match _step:
 		0:
 			root.get_node("SaveService").use_test_storage("test_saves_host")
+			# Sem tela de escolha nos testes: entra com o personagem da vaga.
+			Engine.set_meta("auto_pick_character", true)
 			net.port = int(OS.get_environment("NET_PORT"))
 			var world: Dictionary = root.get_node("SaveService").new_world("Mundo Teste", 42, "open")
 			_check(net.play_world(world) == OK, "host abriu o mundo na porta %d" % net.port)

@@ -50,6 +50,10 @@ var display_name := ""
 ## Inventário: no host é o de verdade; no dono é a cópia que ele recebe; nos outros fica vazio.
 var inventory := Inventory.new()
 var progress := Progression.new()
+## Personagem da máquina do dono (para salvar nele); visual escolhido na criação.
+var character_id := ""
+var model_id := ""
+var chip_color := 0
 var state := State.NORMAL
 var health := Health.new()
 var revive_progress := 0.0
@@ -96,6 +100,9 @@ func setup(data: Dictionary) -> void:
 	if inventory.is_empty():
 		inventory = Inventory.starter()
 	progress = Progression.from_dict(data.get("progress", {}))
+	character_id = str(data.get("character", ""))
+	model_id = str(data.get("model", ""))
+	chip_color = int(data.get("chip_color", index))
 	_visual = data.get("visual", inventory.visual())
 
 
@@ -119,8 +126,10 @@ func _ready() -> void:
 	_ring.material_override = material
 	_tag.modulate = color
 
-	_model = MODELS[index % MODELS.size()].instantiate()
+	var scene := Characters.model_scene(model_id) if Characters.MODELS.has(model_id) else MODELS[index % MODELS.size()]
+	_model = scene.instantiate()
 	$Model.add_child(_model)
+	Characters.attach_chip(_model, Characters.chip_color(chip_color))
 	_animator = CharacterAnimator.new(_model, AnimSets.HUMANOID)
 	ItemVisuals.dress(_model, _visual)
 	if multiplayer.is_server():
@@ -773,8 +782,8 @@ func net_inventory(data: Dictionary, progress_data := {}) -> void:
 		inventory = Inventory.from_dict(data)
 		if not progress_data.is_empty():
 			progress = Progression.from_dict(progress_data)
-	if is_local():
-		SaveService.save_player(slot, {"inventory": data, "progress": progress_data})
+	if is_local() and not character_id.is_empty():
+		SaveService.save_character_progress(character_id, data, progress_data)
 	inventory_updated.emit()
 
 

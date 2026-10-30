@@ -17,6 +17,8 @@ func _process(_delta: float) -> bool:
 	match _frames:
 		1:
 			root.get_node("SaveService").use_test_storage("test_saves_camera")
+			# Sem tela de escolha nos testes: entra com o personagem da vaga.
+			Engine.set_meta("auto_pick_character", true)
 			root.get_node("Settings").camera_mode = "behind"
 			change_scene_to_file("res://world/world.tscn")
 		SECOND:

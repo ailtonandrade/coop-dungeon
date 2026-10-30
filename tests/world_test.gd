@@ -26,6 +26,8 @@ func _process(_delta: float) -> bool:
 	match _frames:
 		1:
 			root.get_node("SaveService").use_test_storage("test_saves_world")
+			# Sem tela de escolha nos testes: entra com o personagem da vaga.
+			Engine.set_meta("auto_pick_character", true)
 			change_scene_to_file("res://world/world.tscn")
 		10:
 			root.get_node("InputService")._try_join(0)

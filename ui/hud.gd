@@ -21,6 +21,7 @@ const CONTROLS := [
 
 var _root: Control
 var _cards: Array[PlayerCard] = []
+var _card_row: HBoxContainer
 var _wave_label: Label
 var _net_label: Label
 var _net_chip: PanelContainer
@@ -28,16 +29,21 @@ var _pause: Control
 var _pause_info: Label
 var _resume_button: Button
 var _copy_button: Button
+var _password_row: Control
+var _pause_pages := {}
+var _pause_tabs := {}
+var _pause_page := "Jogo"
 var _shown_internet_state := -1
-var _minimap_button: Button
-var _camera_button: Button
+
 var _inventories := {}  # slot local -> InventoryPanel
 var _services := {}  # slot local -> ServicePanel
+var _selects := {}  # slot local -> CharacterSelect (escolhendo personagem antes de entrar)
 var _banner: RegionBanner
 var _region: RegionDef
 
 
 func _ready() -> void:
+	add_to_group("hud")
 	_root = Control.new()
 	_root.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_root.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -51,6 +57,7 @@ func _ready() -> void:
 	row.add_theme_constant_override("separation", 18)
 	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_root.add_child(row)
+	_card_row = row
 	for index in GameConfig.MAX_PLAYERS:
 		var card := PlayerCard.new()
 		card.index = index
@@ -113,13 +120,15 @@ func _process(_delta: float) -> void:
 	var free_local := InputService.active_slots().size() < GameConfig.MAX_PLAYERS
 	for card in _cards:
 		card.player = players.get(card.index)
-		card.invite = free_local and NetService.player_count() < GameConfig.MAX_PLAYERS
+		# Vagas livres ("aperte START") só aparecem com o menu de pausa aberto.
+		card.invite = _pause.visible and free_local and NetService.player_count() < GameConfig.MAX_PLAYERS
 
 	var spawner := get_tree().get_first_node_in_group("wave_spawner")
 	if spawner and spawner.wave > 0:
 		_wave_label.text = "Onda %d  ·  inimigos: %d" % [spawner.wave, spawner.alive_count()]
 	else:
 		_wave_label.text = ""
+	_fit_cards()
 	_net_label.text = _connection_text()
 	_net_chip.visible = not _net_label.text.is_empty()
 	_update_region()
@@ -138,6 +147,17 @@ func _physics_process(_delta: float) -> void:
 	for slot: int in _services.keys():
 		if not InputService.is_active(slot):
 			_close_service(slot)
+	for slot: int in _selects.keys():
+		if not InputService.is_active(slot):
+			_close_select(slot)
+	if _pause.visible:
+		for slot in InputService.active_slots():
+			var step := int(InputService.raw_just_pressed(slot, InputService.Action.ARTIFACT)) \
+					- int(InputService.raw_just_pressed(slot, InputService.Action.PICKUP))
+			if step != 0:
+				var names := _pause_pages.keys()
+				_show_pause_page(names[wrapi(names.find(_pause_page) + step, 0, names.size())])
+				Sound.play("ui_move")
 	for slot in InputService.active_slots():
 		# Com o menu aberto os comandos de jogo estão bloqueados, então o Start que fecha é lido direto.
 		var pressed := InputService.raw_just_pressed(slot, InputService.Action.PAUSE) if _pause.visible \
@@ -153,6 +173,15 @@ func _unhandled_input(event: InputEvent) -> void:
 			and event.physical_keycode == KEY_ESCAPE and not InputService.active_slots().size()
 	if escape:
 		_toggle_pause()
+
+
+## Interface grande (configurações) ou tela estreita: os 4 cartões encolhem para caber.
+func _fit_cards() -> void:
+	var view := get_viewport().get_visible_rect().size
+	var needed := _card_row.get_combined_minimum_size().x
+	var fit := minf(1.0, (view.x - 24.0) / maxf(needed, 1.0))
+	_card_row.pivot_offset = Vector2(_card_row.size.x / 2.0, _card_row.size.y)
+	_card_row.scale = Vector2(fit, fit)
 
 
 ## Mostra o nome da região quando o primeiro jogador desta tela entra numa nova.
@@ -171,6 +200,34 @@ func _update_region() -> void:
 		return
 	_region = region
 	_banner.show_region(region)
+
+## Controle que acabou de entrar: escolhe o personagem antes de nascer.
+func open_character_select(slot: int) -> void:
+	if _selects.has(slot):
+		return
+	var panel := CharacterSelect.new()
+	_root.add_child(panel)
+	panel.open_for(slot, _characters_in_use)
+	panel.finished.connect(func(character_id: String) -> void:
+		_close_select(slot)
+		NetService.request_player(slot, character_id))
+	panel.cancelled.connect(func() -> void:
+		_close_select(slot)
+		InputService.leave(slot))
+	_selects[slot] = panel
+
+
+## Personagens desta máquina que já estão em jogo (cada um só entra uma vez).
+func _characters_in_use() -> Array:
+	var manager := get_tree().get_first_node_in_group("player_manager")
+	return manager.local_characters() if manager else []
+
+
+func _close_select(slot: int) -> void:
+	if _selects.has(slot):
+		_selects[slot].queue_free()
+		_selects.erase(slot)
+
 
 ## Abre o inventário do jogador local `slot` acima do cartão dele, ou fecha se já está aberto.
 func _toggle_inventory(slot: int) -> void:
@@ -250,6 +307,16 @@ func _process_inventory_layout() -> void:
 			continue
 		var x := clampf(panel.player.index * column + (column - panel.size.x) / 2.0, 8.0, view.x - panel.size.x - 8.0)
 		panel.position = Vector2(x, view.y - PlayerCard.SIZE.y - 24.0 - panel.size.y)
+	# Escolha de personagem: na coluna da vaga, no meio da altura da tela.
+	# Sozinho, em tamanho normal; com mais gente escolhendo, cada um cabe na sua coluna.
+	var crowded := _selects.size() > 1
+	for slot: int in _selects:
+		var select: Control = _selects[slot]
+		var fit := minf(1.0, (column - 12.0) / maxf(select.size.x, 1.0)) if crowded else 1.0
+		select.scale = Vector2(fit, fit)
+		var width := select.size.x * fit
+		var sx := clampf(slot * column + (column - width) / 2.0, 8.0, view.x - width - 8.0)
+		select.position = Vector2(sx, (view.y - select.size.y * fit) / 2.0 - 40.0)
 
 
 func _connection_text() -> String:
@@ -285,39 +352,40 @@ func _build_pause_menu() -> void:
 	panel.grow_horizontal = Control.GROW_DIRECTION_BOTH
 	panel.grow_vertical = Control.GROW_DIRECTION_BOTH
 	_pause.add_child(panel)
-	var columns := HBoxContainer.new()
-	columns.add_theme_constant_override("separation", 32)
-	panel.add_child(columns)
-
-	var box := VBoxContainer.new()
-	box.custom_minimum_size = Vector2(420, 0)
-	box.add_theme_constant_override("separation", 12)
-	columns.add_child(box)
+	var column := VBoxContainer.new()
+	column.custom_minimum_size = Vector2(640, 0)
+	column.add_theme_constant_override("separation", 12)
+	panel.add_child(column)
 	var title := UiSkin.title("PAUSA", 44, UiSkin.AMBER)
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	box.add_child(title)
+	column.add_child(title)
+
+	# Abas: Jogo, Configurações, Controles (LB/RB ou os botões trocam).
+	var tabs := HBoxContainer.new()
+	tabs.add_theme_constant_override("separation", 8)
+	column.add_child(tabs)
+	var pages := {}
+
+	var game := VBoxContainer.new()
+	game.add_theme_constant_override("separation", 12)
 	_pause_info = UiSkin.label("", 17, Color(0.8, 0.92, 1.0), "Regular", 4)
 	_pause_info.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_pause_info.autowrap_mode = TextServer.AUTOWRAP_WORD
-	box.add_child(_pause_info)
-	_resume_button = _make_button(box, "Continuar", _toggle_pause)
-	_copy_button = _make_button(box, "", func() -> void:
+	game.add_child(_pause_info)
+	_resume_button = _make_button(game, "Continuar", _toggle_pause)
+	_copy_button = _make_button(game, "", func() -> void:
 		if NetService.internet:
 			DisplayServer.clipboard_set(NetService.internet.code)
 			_copy_button.text = "Copiado! Mande para o amigo: %s" % NetService.internet.code)
 	_copy_button.visible = false
-	_camera_button = _make_button(box, "", Settings.toggle_camera_mode)
-	_minimap_button = _make_button(box, "", Settings.toggle_minimap_mode)
-	Settings.changed.connect(_update_minimap_button)
-	_update_minimap_button()
-	for entry: Array in [["Volume geral", "master"], ["Música e ambiente", "music"], ["Efeitos", "sfx"]]:
-		_make_volume(box, entry[0], entry[1])
-	_make_button(box, "Sair para o menu", func() -> void: NetService.leave_session())
+	_password_row = _build_password_row(game)
+	_make_button(game, "Sair para o menu", func() -> void: NetService.leave_session())
+	pages["Jogo"] = game
+
+	pages["Configurações"] = SettingsPanel.new()
 
 	var controls := VBoxContainer.new()
 	controls.add_theme_constant_override("separation", 4)
-	columns.add_child(controls)
-	controls.add_child(UiSkin.label("CONTROLES", 22, UiSkin.NEON, "Bold"))
 	var grid := GridContainer.new()
 	grid.columns = 3
 	grid.add_theme_constant_override("h_separation", 18)
@@ -329,11 +397,42 @@ func _build_pause_menu() -> void:
 		grid.add_child(UiSkin.label(entry[0], 16, UiSkin.TEXT, "SemiBold", 3))
 		grid.add_child(UiSkin.label(entry[1], 16, UiSkin.AMBER, "Bold", 3))
 		grid.add_child(UiSkin.label(entry[2], 16, Color(0.75, 0.9, 1.0), "Regular", 3))
+	pages["Controles"] = controls
+
+	for page_name: String in pages:
+		var page: Control = pages[page_name]
+		column.add_child(page)
+		var tab := _make_button(tabs, page_name, _show_pause_page.bind(page_name))
+		tab.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		tab.toggle_mode = true
+		_pause_tabs[page_name] = tab
+	_pause_pages = pages
+	_show_pause_page("Jogo")
 
 
-func _update_minimap_button() -> void:
-	_camera_button.text = "Câmera: atrás do herói (só 1 jogador na tela)" if Settings.camera_mode == "behind" else "Câmera: de cima (isométrica)"
-	_minimap_button.text = "Minimapa: %s" % ("rotativo (gira com o herói)" if Settings.minimap_mode == "rotating" else "fixo (norte pra cima)")
+func _show_pause_page(page_name: String) -> void:
+	for key: String in _pause_pages:
+		_pause_pages[key].visible = key == page_name
+		_pause_tabs[key].set_pressed_no_signal(key == page_name)
+	_pause_page = page_name
+
+
+## Host: senha do mundo (vazia = sem senha). Vale para quem entrar pela rede local ou internet.
+func _build_password_row(parent: Control) -> Control:
+	var row := HBoxContainer.new()
+	parent.add_child(row)
+	var edit := LineEdit.new()
+	edit.placeholder_text = "Senha do mundo (vazio = sem senha)"
+	edit.secret = true
+	edit.custom_minimum_size = Vector2(0, 46)
+	edit.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_child(edit)
+	var save := _make_button(row, "Salvar senha", func() -> void:
+		NetService.set_world_password(edit.text)
+		edit.text = ""
+		_update_pause_info())
+	save.custom_minimum_size = Vector2(170, 46)
+	return row
 
 
 func _toggle_pause() -> void:
@@ -341,6 +440,7 @@ func _toggle_pause() -> void:
 	InputService.screen_menu_open = _pause.visible
 	if not _pause.visible:
 		return
+	_show_pause_page("Jogo")
 	_update_pause_info()
 	_resume_button.grab_focus()
 
@@ -352,31 +452,13 @@ func _update_pause_info() -> void:
 		lines.append("Amigos na mesma rede veem este mundo em \"Buscar mundos\".")
 		if internet:
 			lines.append(internet.describe())
+	_password_row.visible = NetService.mode == NetService.Mode.HOST
+	if NetService.mode == NetService.Mode.HOST:
+		lines.append("Mundo com senha." if NetService.has_password() else "Mundo sem senha: quem tiver o código ou o IP entra.")
 	_pause_info.text = "\n".join(lines)
 	_copy_button.visible = internet != null and not internet.code.is_empty()
 	if _copy_button.visible:
 		_copy_button.text = "Copiar código do mundo (%s)" % internet.code
-
-
-## Linha de volume (controle: esquerda/direita mudam quando ela está em foco).
-func _make_volume(parent: Control, text: String, which: String) -> void:
-	var row := HBoxContainer.new()
-	parent.add_child(row)
-	var label := UiSkin.label(text, 16, UiSkin.TEXT, "SemiBold", 3)
-	label.custom_minimum_size = Vector2(170, 0)
-	row.add_child(label)
-	var slider := HSlider.new()
-	slider.min_value = 0.0
-	slider.max_value = 1.0
-	slider.step = 0.05
-	slider.value = Settings.get(which + "_volume")
-	slider.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	slider.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	slider.focus_mode = Control.FOCUS_ALL
-	slider.value_changed.connect(func(value: float) -> void:
-		Settings.set_volume(which, value)
-		Sound.play("ui_move"))
-	row.add_child(slider)
 
 
 func _make_button(parent: Control, text: String, action: Callable) -> Button:

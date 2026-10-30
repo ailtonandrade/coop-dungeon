@@ -60,12 +60,66 @@ func _world_prefix() -> String:
 	return "world_%s_" % PlatformService.get_host_profile_id()
 
 
-func save_player(slot: int, data: Dictionary) -> bool:
-	return _write("player_" + PlatformService.get_profile_id(slot), data)
+## Personagens desta máquina (até Characters.MAX), mais antigos primeiro.
+func list_characters() -> Array[Dictionary]:
+	_migrate_old_players()
+	var result: Array[Dictionary] = []
+	for key in _backend.list(_character_prefix()):
+		var data := _read(key)
+		if not data.is_empty():
+			result.append(Characters.sanitize(data))
+	result.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return a.get("created_at", 0) < b.get("created_at", 0))
+	return result
 
 
-func load_player(slot: int) -> Dictionary:
-	return _read("player_" + PlatformService.get_profile_id(slot))
+func load_character(character_id: String) -> Dictionary:
+	if character_id.is_empty():
+		return {}
+	var data := _read(_character_prefix() + character_id)
+	return Characters.sanitize(data) if not data.is_empty() else {}
+
+
+## Salva a ficha inteira (nome, visual, inventário, progressão). Recusa passar do limite.
+func save_character(data: Dictionary) -> bool:
+	var clean := Characters.sanitize(data)
+	var key: String = _character_prefix() + str(clean.id)
+	if _backend.read(key).is_empty() and list_characters().size() >= Characters.MAX:
+		return false
+	return _write(key, clean)
+
+
+## Só o que muda jogando (inventário e progressão), mantendo nome e visual.
+func save_character_progress(character_id: String, inventory: Dictionary, progress: Dictionary) -> bool:
+	var data := load_character(character_id)
+	if data.is_empty():
+		return false
+	data["inventory"] = inventory
+	if not progress.is_empty():
+		data["progress"] = progress
+	return _write(_character_prefix() + character_id, data)
+
+
+func delete_character(character_id: String) -> bool:
+	return _backend.delete(_character_prefix() + character_id)
+
+
+func _character_prefix() -> String:
+	return "char_%s_" % PlatformService.get_host_profile_id()
+
+
+## Saves de antes dos personagens (um por vaga do sofá) viram personagens, uma vez só.
+func _migrate_old_players() -> void:
+	var old_models := ["Adventurer", "Swat", "Farmer", "Worker"]
+	for slot in 4:
+		var key := "player_" + PlatformService.get_profile_id(slot)
+		var old := _read(key)
+		if old.is_empty():
+			continue
+		var character := Characters.create("Herói %d" % (slot + 1), old_models[slot], slot)
+		character["inventory"] = old.get("inventory", {})
+		character["progress"] = old.get("progress", {})
+		_write(_character_prefix() + str(character.id), character)
+		_backend.delete(key)
 
 
 ## O envelope guarda versão (para migrar saves antigos) e horário (para resolver

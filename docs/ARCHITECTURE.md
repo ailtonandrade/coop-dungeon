@@ -6,7 +6,8 @@ acrescentar coisas novas (item, criatura, região, NPC) sem mexer no resto.
 ## Pastas
 
 ```
-core/        serviços do jogo inteiro e regras de grupo
+core/        serviços do jogo inteiro e regras de grupo; Characters (personagens da máquina:
+             até 5, visual, chip; o save fica no SaveService)
              InputService (controle -> slot, mira), PlayerInput (comandos de um jogador),
              SaveService (fachada de save), Settings (preferências da máquina),
              PlayerManager (vagas P1-P4, corda do sofá), GameConfig (números do jogo)
@@ -44,7 +45,9 @@ addons/map_editor/  editor de mapa: painel "Mapa do Mundo" (world_map_dock, map_
              e MapTools (a lógica: criar bloco/masmorra, ligar e sincronizar entradas, validar,
              assar navegação), usado pelo painel e pelos testes
 ui/          menu principal (com a vila 3D ao fundo: MenuBackdrop), HUD (PlayerCard, RegionBanner),
-             inventário, Chip pirata (ChipPanel), tela de serviço (ServicePanel), minimapa
+             inventário, Chip pirata (ChipPanel), escolha de personagem (CharacterSelect, com
+             CharacterPreview), configurações (SettingsPanel, no menu e na pausa), tela de serviço
+             (ServicePanel), minimapa
 ui/skin/     visual da interface: texturas das molduras, corrumpted_theme.tres (tema do projeto
              inteiro) e UiSkin (paleta, fontes, peças desenhadas por código)
 ui/fonts/    Chakra Petch (texto) e Black Ops One (títulos), licença OFL (vai junto na exportação)
@@ -173,8 +176,12 @@ godot --headless --fixed-fps 60 --path coop-dungeon -s tests/container_test.gd #
 godot --headless --fixed-fps 60 --path coop-dungeon -s tests/camera_test.gd    # câmera atrás do herói
 godot --headless --fixed-fps 60 --path coop-dungeon -s tests/progress_test.gd  # nível, XP, chip pirata, sons e números
 godot --headless --path coop-dungeon -s tests/internet_test.gd                 # código do mundo, UPnP sem roteador
-GODOT=godot coop-dungeon/tests/run_net_test.sh                                 # online: host + cliente, e mapa adulterado recusado
+godot --headless --fixed-fps 60 --path coop-dungeon -s tests/character_test.gd # personagens: migrar, escolher, personalizar
+GODOT=godot coop-dungeon/tests/run_net_test.sh                                 # online: host + cliente, mapa adulterado e senha
 ```
+
+Os testes que entram no mundo ligam `Engine.set_meta("auto_pick_character", true)`: sem tela
+de escolha, cada vaga entra com o último personagem dela (ou um novo).
 
 Os scripts de teste não usam os tipos do jogo (Player, ItemDB...) direto, porque compilam
 antes dos serviços globais existirem: carregam com `load(...)` na hora.

@@ -21,6 +21,8 @@ func _process(_delta: float) -> bool:
 	match _step:
 		0:
 			root.get_node("SaveService").use_test_storage("test_saves_client")
+			# Sem tela de escolha nos testes: entra com o personagem da vaga.
+			Engine.set_meta("auto_pick_character", true)
 			_discovery = load("res://net/lan_discovery.gd").new()
 			root.add_child(_discovery)
 			_check(_discovery.start_listening() == OK, "escutando a busca de mundos")
@@ -71,11 +73,11 @@ func _process(_delta: float) -> bool:
 			var head: Variant = _me.inventory.equipment.get("head")
 			if head and head.id == "iron_helmet":
 				_check(true, "equipei pelo inventário e o host confirmou")
-				_check(not root.get_node("SaveService").load_player(0).is_empty(), "meu inventário ficou salvo aqui no cliente")
+				_check(not root.get_node("SaveService").load_character(_me.character_id).get("inventory", {}).is_empty(), "meu inventário ficou salvo no meu personagem, aqui no cliente")
 				_step = 13
 		13:
 			# O host me deu XP: o nível chega aqui e fica salvo no meu personagem.
-			if _me.progress.level >= 2 and int(root.get_node("SaveService").load_player(0).get("progress", {}).get("level", 0)) >= 2:
+			if _me.progress.level >= 2 and int(root.get_node("SaveService").load_character(_me.character_id).get("progress", {}).get("level", 0)) >= 2:
 				_check(true, "subi de nível pelo host e salvei aqui (nível %d)" % _me.progress.level)
 				_step = 10
 		10:

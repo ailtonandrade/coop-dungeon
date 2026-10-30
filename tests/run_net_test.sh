@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Testes de rede na mesma máquina:
 #  1. host + convidado: sessão online de ponta a ponta;
-#  2. host + convidado com mapa adulterado: tem que ser recusado.
+#  2. host + convidado com mapa adulterado: tem que ser recusado;
+#  3. mundo com senha: sem senha e senha errada recusados, senha certa entra.
 # Uso: GODOT=/caminho/do/godot tests/run_net_test.sh
 set -u
 cd "$(dirname "$0")/.."
@@ -25,4 +26,6 @@ run_pair tests/net_host.gd tests/net_client.gd net_host net_client
 FIRST=$?
 run_pair tests/net_tamper_host.gd tests/net_tamper_client.gd net_tamper_host net_tamper_client
 SECOND=$?
-[ $FIRST -eq 0 ] && [ $SECOND -eq 0 ]
+run_pair tests/net_password_host.gd tests/net_password_client.gd net_password_host net_password_client
+THIRD=$?
+[ $FIRST -eq 0 ] && [ $SECOND -eq 0 ] && [ $THIRD -eq 0 ]

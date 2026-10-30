@@ -13,11 +13,22 @@ var _status: Label
 var _name_edit: LineEdit
 var _seed_edit: LineEdit
 var _visibility: OptionButton
+var _password_edit: LineEdit
+var _join_password_edit: LineEdit
 var _worlds_box: VBoxContainer
 var _found_box: VBoxContainer
 var _ip_edit: LineEdit
 var _discovery: LanDiscovery
 var _pending_delete := ""
+# Tela Personagens
+var _char_list: VBoxContainer
+var _char_name: LineEdit
+var _char_model: OptionButton
+var _char_colors: HBoxContainer
+var _char_preview: CharacterPreview
+var _char_info: Label
+var _char_delete: Button
+var _editing := {}
 
 
 func _ready() -> void:
@@ -45,6 +56,8 @@ func _ready() -> void:
 	_screens.create = _build_create()
 	_screens.worlds = _build_worlds()
 	_screens.browse = _build_browse()
+	_screens.settings = _build_settings()
+	_screens.characters = _build_characters()
 	for screen: Control in _screens.values():
 		column.add_child(screen)
 	_show("main")
@@ -67,6 +80,8 @@ func _show(screen_name: String) -> void:
 			_refresh_worlds()
 		"browse":
 			_start_browse()
+		"characters":
+			_refresh_characters()
 	_focus_first(_screens[screen_name])
 
 
@@ -185,8 +200,138 @@ func _build_main() -> Control:
 	_button(box, "Meus mundos", func() -> void: _show("worlds"))
 	if NetService.online_supported():
 		_button(box, "Buscar mundos (rede local / IP)", func() -> void: _show("browse"))
+	_button(box, "Personagens", func() -> void: _show("characters"))
+	_button(box, "Configurações", func() -> void: _show("settings"))
 	if not OS.has_feature("web"):
 		_button(box, "Sair", func() -> void: get_tree().quit())
+	return box
+
+
+## Personagens desta máquina (até 5): criar, mudar nome e visual, apagar.
+func _build_characters() -> Control:
+	var box := _vbox()
+	box.add_child(_label("Personagens", 34))
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 14)
+	box.add_child(row)
+	var left := _vbox()
+	left.custom_minimum_size = Vector2(300, 0)
+	row.add_child(left)
+	_char_list = _vbox()
+	left.add_child(_char_list)
+	var editor := _vbox()
+	editor.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_child(editor)
+	_char_preview = CharacterPreview.new()
+	_char_preview.custom_minimum_size = Vector2(0, 230)
+	editor.add_child(_char_preview)
+	_char_name = LineEdit.new()
+	_char_name.placeholder_text = "Nome do personagem"
+	_char_name.max_length = Characters.NAME_MAX
+	_style_input(_char_name)
+	_char_name.text_changed.connect(func(text: String) -> void: _edit_character("name", text))
+	editor.add_child(_char_name)
+	_char_model = OptionButton.new()
+	for model: String in Characters.MODELS:
+		_char_model.add_item(Characters.MODELS[model])
+	_char_model.custom_minimum_size = Vector2(0, 48)
+	_char_model.item_selected.connect(func(index: int) -> void: _edit_character("model", Characters.MODELS.keys()[index]))
+	editor.add_child(_char_model)
+	_char_colors = HBoxContainer.new()
+	_char_colors.add_theme_constant_override("separation", 6)
+	editor.add_child(_char_colors)
+	for i in Characters.CHIP_COLORS.size():
+		var swatch := Button.new()
+		swatch.custom_minimum_size = Vector2(44, 40)
+		swatch.tooltip_text = "Chip %s" % Characters.CHIP_COLOR_NAMES[i]
+		var style := StyleBoxFlat.new()
+		style.bg_color = Characters.CHIP_COLORS[i]
+		style.set_corner_radius_all(4)
+		swatch.add_theme_stylebox_override("normal", style)
+		swatch.add_theme_stylebox_override("hover", style)
+		swatch.add_theme_stylebox_override("pressed", style)
+		swatch.pressed.connect(func() -> void: _edit_character("chip_color", i))
+		_char_colors.add_child(swatch)
+	_char_info = _label("", 16, UiSkin.DIM)
+	editor.add_child(_char_info)
+	var actions := HBoxContainer.new()
+	editor.add_child(actions)
+	_button(actions, "Sortear nome", func() -> void:
+		_char_name.text = Characters.random_name()
+		_edit_character("name", _char_name.text))
+	_char_delete = _button(actions, "Apagar", _delete_character)
+	_button(box, "Voltar", func() -> void: _show("main"))
+	return box
+
+
+func _refresh_characters(select_id := "") -> void:
+	for child in _char_list.get_children():
+		child.queue_free()
+	var characters := SaveService.list_characters()
+	if select_id.is_empty() and not _editing.is_empty():
+		select_id = _editing.id
+	_editing = {}
+	for character in characters:
+		var text := "%s  ·  nível %d" % [character.name, Characters.level_of(character)]
+		_button(_char_list, text, _select_character.bind(character.id))
+		if character.id == select_id or (select_id.is_empty() and _editing.is_empty()):
+			_editing = character
+	if characters.size() < Characters.MAX:
+		_button(_char_list, "+ Novo personagem (%d/%d)" % [characters.size(), Characters.MAX], func() -> void:
+			var created := Characters.create()
+			SaveService.save_character(created)
+			_refresh_characters(created.id))
+	_show_editing()
+
+
+func _select_character(character_id: String) -> void:
+	_pending_delete = ""
+	_editing = SaveService.load_character(character_id)
+	_show_editing()
+
+
+func _show_editing() -> void:
+	var has := not _editing.is_empty()
+	for control: Control in [_char_name, _char_model, _char_colors, _char_delete]:
+		control.visible = has
+	_char_preview.show_character(_editing)
+	if not has:
+		_char_info.text = "Nenhum personagem ainda: crie um."
+		return
+	_char_name.text = _editing.name
+	_char_model.select(Characters.MODELS.keys().find(_editing.model))
+	_char_info.text = "%s · chip %s · nível %d" % [Characters.MODELS[_editing.model], Characters.CHIP_COLOR_NAMES[_editing.chip_color], Characters.level_of(_editing)]
+	_char_delete.text = "Apagar"
+
+
+func _edit_character(field: String, value: Variant) -> void:
+	if _editing.is_empty():
+		return
+	_editing[field] = value
+	SaveService.save_character(_editing)
+	_editing = SaveService.load_character(_editing.id)
+	_char_preview.show_character(_editing)
+	_char_info.text = "%s · chip %s · nível %d" % [Characters.MODELS[_editing.model], Characters.CHIP_COLOR_NAMES[_editing.chip_color], Characters.level_of(_editing)]
+
+
+## Apagar pede confirmação (o personagem leva junto inventário e nível).
+func _delete_character() -> void:
+	if _editing.is_empty():
+		return
+	if _pending_delete != _editing.id:
+		_pending_delete = _editing.id
+		_char_delete.text = "Confirmar? (perde itens e nível)"
+		return
+	_pending_delete = ""
+	SaveService.delete_character(_editing.id)
+	_editing = {}
+	_refresh_characters()
+
+
+func _build_settings() -> Control:
+	var box := _vbox()
+	box.add_child(SettingsPanel.new())
+	_button(box, "Voltar", func() -> void: _show("main"))
 	return box
 
 
@@ -212,6 +357,16 @@ func _build_create() -> Control:
 	_visibility.custom_minimum_size = Vector2(0, 52)
 	_visibility.add_theme_font_size_override("font_size", 19)
 	box.add_child(_visibility)
+	_password_edit = LineEdit.new()
+	_password_edit.placeholder_text = "Senha para entrar (vazio = sem senha)"
+	_password_edit.secret = true
+	_style_input(_password_edit)
+	box.add_child(_password_edit)
+	# Offline é só o sofá: ninguém entra pela rede, então senha não faz sentido.
+	_visibility.item_selected.connect(func(index: int) -> void:
+		_password_edit.editable = VISIBILITIES[index][0] != "offline"
+		if not _password_edit.editable:
+			_password_edit.text = "")
 	_button(box, "Criar e jogar", _create_world)
 	_button(box, "Voltar", func() -> void: _show("main"))
 	return box
@@ -249,6 +404,12 @@ func _build_browse() -> Control:
 	_button(row, "Entrar", _join_typed)
 	_ip_edit.text_submitted.connect(func(_t: String) -> void: _join_typed())
 	box.add_child(row)
+	_join_password_edit = LineEdit.new()
+	_join_password_edit.placeholder_text = "Senha (se o mundo tiver)"
+	_join_password_edit.secret = true
+	_style_input(_join_password_edit)
+	_join_password_edit.text_submitted.connect(func(_t: String) -> void: _join_typed())
+	box.add_child(_join_password_edit)
 	_button(box, "Voltar", func() -> void: _show("main"))
 	return box
 
@@ -266,6 +427,8 @@ func _create_world() -> void:
 	elif not seed_text.is_empty():
 		world_seed = seed_text.hash()
 	var world := SaveService.new_world(world_name, world_seed, VISIBILITIES[_visibility.selected][0])
+	if not _password_edit.text.strip_edges().is_empty() and world.visibility != "offline":
+		world["password"] = NetService.password_hash(_password_edit.text)
 	SaveService.save_world(world)
 	_play(world)
 
@@ -288,7 +451,7 @@ func _join(address: String, port: int) -> void:
 	if address.is_empty():
 		_status.text = "Digite o IP do host."
 		return
-	if NetService.join(address, port) != OK:
+	if NetService.join(address, port, _join_password_edit.text) != OK:
 		_status.text = NetService.last_message
 
 
@@ -303,7 +466,8 @@ func _refresh_worlds() -> void:
 		var row := HBoxContainer.new()
 		_worlds_box.add_child(row)
 		var visibility_name: String = {"open": "aberto", "private": "privado", "offline": "offline"}.get(world.get("visibility"), "")
-		var play := _button(row, "%s  ·  %s  ·  melhor onda %d" % [world.name, visibility_name, int(world.get("best_wave", 0))],
+		var lock := "  ·  com senha" if world.has("password") else ""
+		var play := _button(row, "%s  ·  %s%s" % [world.name, visibility_name, lock],
 				_play.bind(world))
 		play.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		var delete := _button(row, "Apagar", Callable())
@@ -341,6 +505,8 @@ func _refresh_found() -> void:
 		var full := int(info.players) >= int(info.max)
 		var other_version: bool = info.get("version") != NetService.GAME_VERSION
 		var text := "%s  ·  de %s  ·  %d/%d" % [info.name, info.host, int(info.players), int(info.max)]
+		if info.get("locked", false):
+			text += "  ·  com senha"
 		if full:
 			text += "  ·  cheio"
 		elif other_version:

@@ -16,7 +16,7 @@ var _wipe_timer := 0.0
 
 func _ready() -> void:
 	add_to_group("player_manager")
-	InputService.player_joined.connect(func(slot: int, _device: int) -> void: NetService.request_player(slot))
+	InputService.player_joined.connect(_on_joined)
 	InputService.player_left.connect(func(slot: int) -> void: NetService.request_leave(slot))
 
 
@@ -33,8 +33,48 @@ func add_player(peer: int, slot: int, display_name: String, save := {}) -> void:
 		"peer": peer, "slot": slot, "index": index, "name": display_name,
 		"inventory": save.get("inventory", {}),
 		"progress": save.get("progress", {}),
+		"character": str(save.get("character", "")),
+		"model": Characters.sanitize(save).model,
+		"chip_color": Characters.sanitize(save).chip_color,
 		"pos": base + _ring_offset(index),
 	})
+
+
+## Um controle entrou: abre a escolha de personagem dele (na HUD). Sem HUD, ou com a escolha
+## automática ligada (testes), entra direto com o último personagem dessa vaga.
+func _on_joined(slot: int, _device: int) -> void:
+	var hud := get_tree().get_first_node_in_group("hud")
+	if hud and not Characters.auto_pick():
+		hud.open_character_select(slot)
+		return
+	NetService.request_player(slot, pick_character(slot, local_characters()))
+
+
+## Personagem para a vaga: o último usado nela (se não estiver com outro do sofá), senão o
+## primeiro livre, senão um novo (se couber).
+static func pick_character(slot: int, taken: Array = []) -> String:
+	var characters := SaveService.list_characters()
+	var free := characters.filter(func(c: Dictionary) -> bool: return not taken.has(c.id))
+	var last: String = Settings.last_character[slot] if slot < Settings.last_character.size() else ""
+	for character in free:
+		if character.id == last:
+			return character.id
+	if not free.is_empty():
+		return free[0].id
+	if characters.size() < Characters.MAX:
+		var created := Characters.create()
+		SaveService.save_character(created)
+		return created.id
+	return ""
+
+
+## Ids dos personagens já em jogo nesta máquina (cada personagem só entra uma vez).
+func local_characters() -> Array:
+	var ids := []
+	for player: Player in _players.values():
+		if player.is_local():
+			ids.append(player.character_id)
+	return ids
 
 
 func remove_player(peer: int, slot: int) -> void:

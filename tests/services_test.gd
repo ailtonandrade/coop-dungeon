@@ -21,6 +21,8 @@ func _process(_delta: float) -> bool:
 	match _frames:
 		1:
 			root.get_node("SaveService").use_test_storage("test_saves_services")
+			# Sem tela de escolha nos testes: entra com o personagem da vaga.
+			Engine.set_meta("auto_pick_character", true)
 			change_scene_to_file("res://world/world.tscn")
 		SECOND:
 			var p1 := _p1()
@@ -97,8 +99,9 @@ func _process(_delta: float) -> bool:
 			_p1()._pick_up()
 		SECOND + 54:
 			_check(_p1().inventory.gold == _gold + 37, "pegou 37 moedas do chão")
-			_check(not root.get_node("SaveService").load_player(0).get("inventory", {}).is_empty(), "moedas e itens salvos na conta")
-			_check(int(root.get_node("SaveService").load_player(0).inventory.get("gold", 0)) == _gold + 37, "save tem as moedas certas")
+			var saved: Dictionary = root.get_node("SaveService").load_character(_p1().character_id)
+			_check(not saved.get("inventory", {}).is_empty(), "moedas e itens salvos no personagem")
+			_check(int(saved.inventory.get("gold", 0)) == _gold + 37, "save tem as moedas certas")
 			print("SERVIÇOS: ", "FALHOU" if _failed else "OK")
 			quit(1 if _failed else 0)
 	return false

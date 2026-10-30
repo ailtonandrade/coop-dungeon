@@ -26,6 +26,8 @@ func _process(_delta: float) -> bool:
 	match _frames:
 		1:
 			root.get_node("SaveService").use_test_storage("test_saves_smoke")
+			# Sem tela de escolha nos testes: entra com o personagem da vaga.
+			Engine.set_meta("auto_pick_character", true)
 			change_scene_to_file("res://levels/level_01.tscn")
 		5:
 			input._try_join(input.KEYBOARD)
@@ -80,7 +82,8 @@ func _process(_delta: float) -> bool:
 			_check(p1.inventory.equipment.chest.id == "plate_armor", "peitoral equipado")
 			_check(p1.armor() > _armor_before, "armadura subiu (%.1f -> %.1f)" % [_armor_before, p1.armor()])
 			_check(p1._visual.any(func(v: Dictionary) -> bool: return v.id == "plate_armor"), "peitoral aparece no boneco")
-			_check(not root.get_node("SaveService").load_player(0).is_empty(), "inventário salvo na conta do P1")
+			var saved: Dictionary = root.get_node("SaveService").load_character(p1.character_id)
+			_check(not saved.get("inventory", {}).is_empty(), "inventário salvo no personagem do P1")
 		SECOND + 75:
 			# Daqui em diante, tudo pelos botões de verdade (teclado = P1, controle 0 = P2).
 			_key(KEY_SPACE, true)
@@ -149,9 +152,18 @@ func _process(_delta: float) -> bool:
 		12 * SECOND:
 			var hurt := get_nodes_in_group("players").filter(func(p: Node) -> bool: return p.health.hp < p.health.max_hp)
 			_check(not hurt.is_empty(), "inimigos chegaram e bateram nos jogadores parados")
+			# Personagens: no máximo 5 por máquina.
 			var save := root.get_node("SaveService")
-			_check(save.save_player(0, {"level": 3}), "save_player escreveu")
-			_check(save.load_player(0).get("level") == 3, "load_player leu o que foi salvo")
+			var characters: Script = load("res://core/characters.gd")
+			while save.list_characters().size() < characters.MAX:
+				save.save_character(characters.create())
+			_check(not save.save_character(characters.create()), "não passa de %d personagens" % characters.MAX)
+			var first: Dictionary = save.list_characters()[0]
+			first.name = "  Nome bem comprido demais para caber  "
+			first.model = "Punk"
+			_check(save.save_character(first), "editar personagem salva")
+			var loaded: Dictionary = save.load_character(first.id)
+			_check(loaded.name.length() <= characters.NAME_MAX and loaded.model != "Punk", "nome limpo e visual de criatura recusado (%s, %s)" % [loaded.name, loaded.model])
 			print("SMOKE TEST: ", "FALHOU" if _failed else "OK")
 			quit(1 if _failed else 0)
 	return false
