@@ -104,6 +104,9 @@ const REVIVE_TIME := 2.0
 const REVIVE_HP := 0.5
 const WIPE_RESTART_TIME := 3.0
 
+## Distância em que o time ganha a XP de uma criatura derrotada (todos ganham o mesmo).
+const XP_SHARE_RADIUS := 35.0
+
 ## Criaturas (id -> nome no editor), para as regras de loot das fichas de item.
 ## O id é o "id" da criatura em Enemy.STATS.
 const CREATURES := {

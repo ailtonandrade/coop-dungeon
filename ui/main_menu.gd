@@ -22,6 +22,8 @@ var _pending_delete := ""
 
 func _ready() -> void:
 	InputService.reset()
+	Sound.play_ambience("")
+	Sound.play_music("menu")
 	add_child(MenuBackdrop.new())
 	_build_overlay()
 

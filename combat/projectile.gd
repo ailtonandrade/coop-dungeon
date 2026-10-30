@@ -12,6 +12,7 @@ var knockback := 2.0
 
 var _life := LIFETIME
 var _from := Vector3.ZERO
+var _from_player := false
 
 
 ## Dispara (só o host chama). `shooter` é qualquer nó dentro da fase.
@@ -30,6 +31,7 @@ static func build(data: Dictionary) -> Projectile:
 	projectile.damage = data.damage
 	projectile.collision_layer = 0
 	projectile.collision_mask = GameConfig.LAYER_WORLD | int(data.target_layer)
+	projectile._from_player = int(data.target_layer) & GameConfig.LAYER_ENEMIES != 0
 	var color: Color = data.color
 
 	var sphere := SphereShape3D.new()
@@ -55,6 +57,8 @@ static func build(data: Dictionary) -> Projectile:
 func _ready() -> void:
 	global_transform = Transform3D(Basis.looking_at(velocity.normalized()), _from)
 	reset_physics_interpolation()
+	# Nasce em todas as máquinas: o disparo soa em todas.
+	Sound.play("shot" if _from_player else "enemy_shot", _from)
 	body_entered.connect(_on_body_entered)
 
 

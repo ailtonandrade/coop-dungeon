@@ -178,11 +178,27 @@ func _toggle_inventory(slot: int) -> void:
 			player = candidate
 	if player == null:
 		return
-	var panel := InventoryPanel.new()
+	_open_panel(slot, InventoryPanel.new(), player)
+
+
+## Abre no lugar do inventário um painel do jogador (inventário ou chip pirata); RB/Q alterna.
+func _open_panel(slot: int, panel: Control, player: Player) -> void:
 	_root.add_child(panel)
 	panel.open_for(player)
 	panel.close_requested.connect(_close_inventory.bind(slot))
+	panel.switch_requested.connect(_switch_panel.bind(slot))
 	_inventories[slot] = panel
+
+
+func _switch_panel(slot: int) -> void:
+	var current: Control = _inventories.get(slot)
+	if current == null or not is_instance_valid(current.player):
+		return
+	var player: Player = current.player
+	current.keep_blocked = true
+	current.queue_free()
+	_inventories.erase(slot)
+	_open_panel(slot, ChipPanel.new() if current is InventoryPanel else InventoryPanel.new(), player)
 
 
 func _close_inventory(slot: int) -> void:
@@ -279,6 +295,8 @@ func _build_pause_menu() -> void:
 	_minimap_button = _make_button(box, "", Settings.toggle_minimap_mode)
 	Settings.changed.connect(_update_minimap_button)
 	_update_minimap_button()
+	for entry: Array in [["Volume geral", "master"], ["Música e ambiente", "music"], ["Efeitos", "sfx"]]:
+		_make_volume(box, entry[0], entry[1])
 	_make_button(box, "Sair para o menu", func() -> void: NetService.leave_session())
 
 	var controls := VBoxContainer.new()
@@ -314,6 +332,27 @@ func _toggle_pause() -> void:
 		lines.append("Pela internet: passe o IP e libere a porta %d (UDP) no roteador." % NetService.port)
 	_pause_info.text = "\n".join(lines)
 	_resume_button.grab_focus()
+
+
+## Linha de volume (controle: esquerda/direita mudam quando ela está em foco).
+func _make_volume(parent: Control, text: String, which: String) -> void:
+	var row := HBoxContainer.new()
+	parent.add_child(row)
+	var label := UiSkin.label(text, 16, UiSkin.TEXT, "SemiBold", 3)
+	label.custom_minimum_size = Vector2(170, 0)
+	row.add_child(label)
+	var slider := HSlider.new()
+	slider.min_value = 0.0
+	slider.max_value = 1.0
+	slider.step = 0.05
+	slider.value = Settings.get(which + "_volume")
+	slider.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	slider.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	slider.focus_mode = Control.FOCUS_ALL
+	slider.value_changed.connect(func(value: float) -> void:
+		Settings.set_volume(which, value)
+		Sound.play("ui_move"))
+	row.add_child(slider)
 
 
 func _make_button(parent: Control, text: String, action: Callable) -> Button:

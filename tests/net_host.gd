@@ -44,6 +44,8 @@ func _process(_delta: float) -> bool:
 			if head and head.id == "iron_helmet":
 				_check(true, "cliente pegou o elmo do chão e equipou (visto no host)")
 				_check(_remote.armor() > 5.0, "armadura do cliente subiu no host (%.1f)" % _remote.armor())
+				# XP: o host dá experiência ao jogador do cliente (sobe para o nível 2).
+				_remote.add_xp(70)
 				# Comerciante: o cliente ganha moedas e vai até ele para comprar.
 				_remote.inventory.add_gold(500)
 				_remote.teleport_to(Vector3(25, 0, 31.6))

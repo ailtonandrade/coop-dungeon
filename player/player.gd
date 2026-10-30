@@ -49,6 +49,7 @@ var index := 0
 var display_name := ""
 ## Inventário: no host é o de verdade; no dono é a cópia que ele recebe; nos outros fica vazio.
 var inventory := Inventory.new()
+var progress := Progression.new()
 var state := State.NORMAL
 var health := Health.new()
 var revive_progress := 0.0
@@ -80,6 +81,7 @@ var _net_pos := Vector3.ZERO
 var _net_yaw := 0.0
 var _net_synced := false
 var _visual := []
+var _air_time := 0.0
 
 @onready var _ring: MeshInstance3D = $Ring
 @onready var _tag: Label3D = $Tag
@@ -93,6 +95,7 @@ func setup(data: Dictionary) -> void:
 	inventory = Inventory.from_dict(data.get("inventory", {}))
 	if inventory.is_empty():
 		inventory = Inventory.starter()
+	progress = Progression.from_dict(data.get("progress", {}))
 	_visual = data.get("visual", inventory.visual())
 
 
@@ -150,12 +153,13 @@ func take_hit(amount: float, knockback := Vector3.ZERO) -> void:
 	amount *= 100.0 / (100.0 + armor() * 2.0)
 	if health.take_hit(amount):
 		_knockback = Combat.flat(knockback)
-		_fx("fx_flash", [Color(1.0, 0.2, 0.2, 0.6), 0.1])
+		_fx("fx_hurt", [amount])
 		_fx("fx_shake", [0.25])
 
 
 func revive(fraction: float) -> void:
 	health.reset(fraction)
+	_fx("fx_sound", ["revive"])
 	revive_progress = 0.0
 	state = State.NORMAL
 	_animator.play("idle")
@@ -203,6 +207,13 @@ func _physics_process(delta: float) -> void:
 	_anim_lock = maxf(_anim_lock - delta, 0.0)
 	_shoot_pose = maxf(_shoot_pose - delta, 0.0)
 	_coyote = GameConfig.COYOTE_TIME if is_on_floor() else maxf(_coyote - delta, 0.0)
+	# Pousou depois de um tempo no ar (pulo, queda de um muro): baque no chão.
+	if is_on_floor():
+		if _air_time > 0.35:
+			_fx("fx_sound", ["land"])
+		_air_time = 0.0
+	else:
+		_air_time += delta
 	_jump_buffer = maxf(_jump_buffer - delta, 0.0)
 	if _input.just_pressed(InputService.Action.JUMP):
 		_jump_buffer = GameConfig.JUMP_BUFFER
@@ -264,6 +275,7 @@ func _update_normal(delta: float, dir: Vector3) -> Vector3:
 		velocity.y = GameConfig.JUMP_VELOCITY
 		_jump_buffer = 0.0
 		_coyote = 0.0
+		_fx("fx_sound", ["jump"])
 		_animator.play("jump", 0.0, true, 0.08)
 	# No quadro do pulo o herói ainda conta como "no chão"; a subida já vale como ar.
 	var grounded := is_on_floor() and velocity.y <= 0.0
@@ -336,8 +348,9 @@ func _try_dodge() -> bool:
 	state = State.DODGING
 	_dodge_dir = _facing
 	_state_timer = GameConfig.DODGE_TIME
-	_dodge_cooldown = GameConfig.DODGE_COOLDOWN
+	_dodge_cooldown = GameConfig.DODGE_COOLDOWN * cooldown_factor()
 	_animator.play("roll", GameConfig.DODGE_TIME, true)
+	_fx("fx_sound", ["dodge"])
 	return true
 
 
@@ -493,7 +506,26 @@ func fx_shake(strength: float) -> void:
 	Combat.shake_camera(self, strength)
 
 
+## Som num ponto do herói, em todas as máquinas (pulo, rolada, poção...).
+func fx_sound(event: String) -> void:
+	Sound.play(event, global_position + Vector3.UP * 1.0)
+
+
+func fx_hurt(amount: float) -> void:
+	fx_flash(Color(1.0, 0.2, 0.2, 0.6), 0.1)
+	HitFx.damage_number(self, global_position + Vector3.UP * 2.1, amount, "hurt")
+	HitFx.sparks(self, global_position + Vector3.UP * 1.1, Color(1.0, 0.3, 0.25), 8, 3.5)
+	Sound.play("player_hurt", global_position + Vector3.UP * 1.0)
+
+
+func fx_heal(amount: float) -> void:
+	fx_flash(Color(0.3, 1.0, 0.4, 0.5), 0.25)
+	HitFx.damage_number(self, global_position + Vector3.UP * 2.1, amount, "heal")
+	Sound.play("potion", global_position + Vector3.UP * 1.0)
+
+
 func fx_slash(finisher: bool, facing: Vector3) -> void:
+	Sound.play("swing_heavy" if finisher else "swing", global_position + Vector3.UP * 1.1)
 	var material := Combat.overlay_material(Color(1.0, 0.97, 0.85, 0.85 if finisher else 0.6))
 	material.cull_mode = BaseMaterial3D.CULL_DISABLED
 	var fx := MeshInstance3D.new()
@@ -533,7 +565,7 @@ static func _get_arc_mesh() -> ArrayMesh:
 func _shoot_arrow() -> void:
 	if ranged_damage() <= 0.0:
 		return
-	_arrow_cooldown = GameConfig.ARROW_COOLDOWN
+	_arrow_cooldown = GameConfig.ARROW_COOLDOWN * cooldown_factor()
 	# Mirando de verdade (analógico/mouse) a correção é pequena; atirando "para a frente", maior.
 	var aimed := _aim_dir != Vector3.ZERO
 	var cone := GameConfig.ARROW_AIM_ASSIST_DEG if aimed else GameConfig.ARROW_AIM_CONE_DEG
@@ -557,12 +589,14 @@ func _shoot_arrow() -> void:
 func _drink_potion() -> void:
 	if potion_cooldown > 0.0 or health.hp >= health.max_hp:
 		return
+	var before := health.hp
 	health.heal(health.max_hp * GameConfig.POTION_HEAL)
-	potion_cooldown = GameConfig.POTION_COOLDOWN
-	_fx("fx_flash", [Color(0.3, 1.0, 0.4, 0.5), 0.25])
+	potion_cooldown = GameConfig.POTION_COOLDOWN * cooldown_factor()
+	_fx("fx_heal", [health.hp - before])
 
 
 func _on_died() -> void:
+	_fx("fx_sound", ["player_down"])
 	state = State.DOWNED
 	revive_progress = 0.0
 	_move = Vector3.ZERO
@@ -585,7 +619,7 @@ func _update_downed(delta: float) -> void:
 
 func get_net_state() -> Array:
 	return [global_position, rotation.y, _animator.net_state(),
-			health.hp, state, revive_progress, potion_cooldown, health.max_hp]
+			health.hp, state, revive_progress, potion_cooldown, health.max_hp, progress.level, progress.xp]
 
 
 func apply_net_state(s: Array) -> void:
@@ -601,6 +635,10 @@ func apply_net_state(s: Array) -> void:
 	revive_progress = s[5]
 	potion_cooldown = s[6]
 	health.max_hp = s[7]
+	if progress.level != s[8] or progress.xp != s[9]:
+		progress.level = s[8]
+		progress.xp = s[9]
+		progress.changed.emit()
 
 
 ## Inventário e atributos
@@ -608,12 +646,22 @@ func apply_net_state(s: Array) -> void:
 func melee_damage() -> float:
 	var weapon: Variant = inventory.equipment.get("melee")
 	var base := ItemDB.stat(weapon, "damage") if weapon else UNARMED_DAMAGE
-	return base * (1.0 + inventory.total("damage_pct") / 100.0)
+	return base * damage_factor()
 
 
 func ranged_damage() -> float:
 	var weapon: Variant = inventory.equipment.get("ranged")
-	return ItemDB.stat(weapon, "damage") * (1.0 + inventory.total("damage_pct") / 100.0) if weapon else 0.0
+	return ItemDB.stat(weapon, "damage") * damage_factor() if weapon else 0.0
+
+
+## Multiplicador de dano: mods dos itens, níveis e o chip Braço hidráulico.
+func damage_factor() -> float:
+	return 1.0 + (inventory.total("damage_pct") + progress.bonus("damage_pct")) / 100.0
+
+
+## Multiplicador das recargas (rolar, tiro, poção) pelo chip Reflexo turbinado.
+func cooldown_factor() -> float:
+	return 1.0 - minf(progress.bonus("cooldown_pct"), 50.0) / 100.0
 
 
 func armor() -> float:
@@ -621,7 +669,7 @@ func armor() -> float:
 
 
 func move_speed() -> float:
-	return GameConfig.PLAYER_SPEED * (1.0 + inventory.total("move_speed_pct") / 100.0)
+	return GameConfig.PLAYER_SPEED * (1.0 + (inventory.total("move_speed_pct") + progress.bonus("speed_pct")) / 100.0)
 
 
 ## Pedido vindo da tela de inventário do dono. Comandos: "move" [de, para],
@@ -636,7 +684,12 @@ func request_inventory(command: String, args: Array) -> void:
 func apply_inventory_command(command: String, args: Array) -> void:
 	if command in Services.COMMANDS:
 		var result := Services.run(self, command, args)
-		_fx("fx_toast", [result[1], result[2]])
+		var sound := "ui_error"
+		if result[0]:
+			sound = "refine_ok" if command in ["refine", "enchant"] else "ui_confirm"
+		elif command == "refine" and String(result[1]).begins_with("O upgrade falhou"):
+			sound = "refine_fail"
+		_fx("fx_toast", [result[1], result[2], sound])
 		return
 	match command:
 		"move":
@@ -651,6 +704,14 @@ func apply_inventory_command(command: String, args: Array) -> void:
 			var item: Variant = inventory.remove(args[0])
 			if item != null:
 				Loot.drop(self, item, Combat.flat(global_position) + _facing * 1.2)
+		"chip":
+			var id := String(args[0])
+			if progress.install(id):
+				_apply_stats()
+				_fx("fx_toast", ["%s %d" % [Progression.CHIPS[id].name, progress.chip_level(id)], Color(0.3, 0.95, 1.0), "chip_install"])
+				_send_inventory()
+			else:
+				_fx("fx_toast", ["Sem pontos de chip", Color(1.0, 0.5, 0.4), "ui_error"])
 
 
 ## Pega do chão o item mais perto (qualquer um do time pode pegar; quem pegar primeiro leva).
@@ -670,12 +731,12 @@ func _pick_up() -> void:
 func give_item(item: Dictionary) -> bool:
 	if item.get("id") == "gold":
 		inventory.add_gold(int(item.get("amount", 0)))
-		_fx("fx_toast", ["+" + ItemDB.money(int(item.get("amount", 0))), ItemDB.GOLD.color])
+		_fx("fx_toast", ["+" + ItemDB.money(int(item.get("amount", 0))), ItemDB.GOLD.color, "coin"])
 		return true
 	if inventory.add_item(item).is_empty():
-		_fx("fx_toast", ["Mochila cheia", Color(1.0, 0.5, 0.4)])
+		_fx("fx_toast", ["Mochila cheia", Color(1.0, 0.5, 0.4), "ui_error"])
 		return false
-	_fx("fx_toast", [ItemDB.display_name(item), ItemDB.rarity_color(item)])
+	_fx("fx_toast", [ItemDB.display_name(item), ItemDB.rarity_color(item), "pickup"])
 	return true
 
 
@@ -693,25 +754,44 @@ func _on_inventory_changed() -> void:
 func _send_inventory() -> void:
 	var replicator := NetReplicator.of(self)
 	if replicator:
-		replicator.send_to_peer(owner_peer, self, "net_inventory", [inventory.to_dict()])
+		replicator.send_to_peer(owner_peer, self, "net_inventory", [inventory.to_dict(), progress.to_dict()])
 	else:
-		net_inventory(inventory.to_dict())
+		net_inventory(inventory.to_dict(), progress.to_dict())
 
 
 func _apply_stats() -> void:
 	var old_max := health.max_hp
-	health.max_hp = GameConfig.PLAYER_MAX_HP + inventory.total("hp")
+	health.max_hp = (GameConfig.PLAYER_MAX_HP + inventory.total("hp") + progress.bonus("hp_flat")) \
+			* (1.0 + progress.bonus("hp_pct") / 100.0)
 	if not health.is_dead():
 		health.hp = clampf(health.hp + maxf(health.max_hp - old_max, 0.0), 0.0, health.max_hp)
 
 
 ## No dono: chegou a versão nova do inventário (no host o objeto já é o mesmo).
-func net_inventory(data: Dictionary) -> void:
+func net_inventory(data: Dictionary, progress_data := {}) -> void:
 	if not multiplayer.is_server():
 		inventory = Inventory.from_dict(data)
+		if not progress_data.is_empty():
+			progress = Progression.from_dict(progress_data)
 	if is_local():
-		SaveService.save_player(slot, {"inventory": data})
+		SaveService.save_player(slot, {"inventory": data, "progress": progress_data})
 	inventory_updated.emit()
+
+
+## Host: experiência de uma criatura derrotada. Subiu de nível: vida cheia e festa.
+func add_xp(amount: int) -> void:
+	var gained := progress.add_xp(amount)
+	if gained > 0:
+		_apply_stats()
+		health.heal(health.max_hp)
+		_fx("fx_level_up", [progress.level])
+	_send_inventory()
+
+
+## Coluna de luz, brilho e o número do nível novo (em todas as máquinas).
+func fx_level_up(new_level: int) -> void:
+	Sound.play("level_up", global_position + Vector3.UP * 1.0)
+	HitFx.level_up(self, global_position, new_level, GameConfig.PLAYER_COLORS[index])
 
 
 func fx_dress(visual: Array) -> void:
@@ -720,7 +800,9 @@ func fx_dress(visual: Array) -> void:
 
 
 ## Texto que sobe da cabeça (item pego, mochila cheia).
-func fx_toast(text: String, color: Color) -> void:
+func fx_toast(text: String, color: Color, sound := "") -> void:
+	if sound:
+		Sound.play(sound, global_position + Vector3.UP * 1.0)
 	var label := Label3D.new()
 	label.text = text
 	label.modulate = color

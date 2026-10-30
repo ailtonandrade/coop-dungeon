@@ -226,6 +226,7 @@ func _physics_process(delta: float) -> void:
 
 
 func _step(dir: Vector2i) -> void:
+	Sound.play("ui_move")
 	if dir.x != 0 and _enchant_path.is_empty():
 		_tab = posmod(_tab + dir.x, _tabs().size())
 		_cursor = 0
@@ -248,6 +249,7 @@ func _confirm() -> void:
 
 
 func _back() -> void:
+	Sound.play("ui_back")
 	if not _enchant_path.is_empty():
 		_enchant_path = []
 		_cursor = 0

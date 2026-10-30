@@ -8,6 +8,8 @@ extends PanelContainer
 ## Teclado:  WASD/setas · Espaço · E · J · Shift · I
 
 signal close_requested
+## RB / Q: troca para o painel Chip pirata.
+signal switch_requested
 
 const COLUMNS := 4
 const REPEAT_DELAY := 0.3
@@ -18,6 +20,8 @@ const PLACEHOLDERS := {
 }
 
 var player: Player
+## Trocando para o outro painel do mesmo jogador: ao sair, não solta o herói.
+var keep_blocked := false
 
 var _equip_icons: Array[ItemIcon] = []
 var _bag_icons: Array[ItemIcon] = []
@@ -41,7 +45,7 @@ func open_for(p_player: Player) -> void:
 
 
 func _exit_tree() -> void:
-	if is_instance_valid(player):
+	if is_instance_valid(player) and not keep_blocked:
 		InputService.set_blocked(player.slot, false)
 
 
@@ -88,7 +92,7 @@ func _build() -> void:
 	_details.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_details.custom_minimum_size = Vector2(440, 96)
 	column.add_child(_details)
-	column.add_child(_label("A pega/solta · Y equipa/abre · X larga · B volta · Back fecha", 13, Color(1, 1, 1, 0.6)))
+	column.add_child(_label("A pega/solta · Y equipa/abre · X larga · RB/Q chip pirata · B volta · Back fecha", 13, Color(1, 1, 1, 0.6)))
 
 
 ## Atualização
@@ -197,12 +201,16 @@ func _physics_process(delta: float) -> void:
 		_quick()
 	elif InputService.raw_just_pressed(slot, InputService.Action.MELEE):
 		_drop()
+	elif InputService.raw_just_pressed(slot, InputService.Action.ARTIFACT):
+		Sound.play("ui_confirm")
+		switch_requested.emit()
 	elif InputService.raw_just_pressed(slot, InputService.Action.DODGE) \
 			or InputService.raw_just_pressed(slot, InputService.Action.PAUSE):
 		_back()
 
 
 func _step(dir: Vector2i) -> void:
+	Sound.play("ui_move")
 	var capacity := _bag_icons.size()
 	if _section == "eq":
 		var col := _cursor % 3 + dir.x
@@ -233,6 +241,7 @@ func _cursor_path() -> Array:
 
 ## A: pega o item da casa; com item na mão, solta nela (troca, guarda na bolsa ou equipa).
 func _confirm() -> void:
+	Sound.play("ui_confirm")
 	var path := _cursor_path()
 	if _held.is_empty():
 		if player.inventory.get_item(path) != null:
@@ -246,6 +255,7 @@ func _confirm() -> void:
 
 ## Y: equipa o item da mochila (ou abre, se for bolsa); no equipamento, guarda na mochila.
 func _quick() -> void:
+	Sound.play("equip")
 	var path := _cursor_path()
 	var item: Variant = player.inventory.get_item(path)
 	if item == null:
@@ -266,6 +276,7 @@ func _quick() -> void:
 
 
 func _drop() -> void:
+	Sound.play("ui_back")
 	var path := _cursor_path()
 	if player.inventory.get_item(path) != null:
 		player.request_inventory("drop", [path])
@@ -275,6 +286,7 @@ func _drop() -> void:
 
 ## B: solta o que está na mão; dentro de uma bolsa, volta para a anterior; senão fecha.
 func _back() -> void:
+	Sound.play("ui_back")
 	if not _held.is_empty():
 		_held = []
 	elif _container_path.size() > 1:

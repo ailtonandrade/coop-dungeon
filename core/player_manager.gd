@@ -32,6 +32,7 @@ func add_player(peer: int, slot: int, display_name: String, save := {}) -> void:
 	_players[index] = NetReplicator.of(self).spawn("player", {
 		"peer": peer, "slot": slot, "index": index, "name": display_name,
 		"inventory": save.get("inventory", {}),
+		"progress": save.get("progress", {}),
 		"pos": base + _ring_offset(index),
 	})
 

@@ -16,9 +16,13 @@ net/         sessão online e replicação
 characters/  o que todo personagem usa
              CharacterAnimator (toca AÇÕES), AnimSets (ação -> clipe por tipo de corpo),
              ProceduralAnims (pulo/queda/escalada montados por código para o esqueleto humano)
-player/      o herói (movimento, mira, combate, inventário) e a cena dele
+player/      o herói (movimento, mira, combate, inventário) e a cena dele; Progression (nível,
+             XP e chips piratas, salvos no personagem)
+audio/       Sound (autoload: eventos, som 3D, música/ambiente, barramentos), SoundBank (evento ->
+             arquivos, volume, afinação), sfx/ e music/. Ver [`SOM.md`](SOM.md)
 enemies/     criaturas (IA, ataques) e o gerador de ondas da arena de teste
-combat/      Health, Combat (golpes em leque, mira assistida, efeitos), Projectile
+combat/      Health, Combat (golpes em leque, mira assistida, efeitos), Projectile, HitFx (número
+             de dano, faíscas, explosão de morte, coluna de subir de nível)
 items/       ItemDB (lê as fichas), ItemDef/ItemDrop (ficha do item e regra de loot), Inventory
              (regras estilo Tibia), ItemVisuals (peças no boneco), Loot
 items/defs/  uma ficha por item (.tres), editadas no painel "Itens"
@@ -39,7 +43,7 @@ addons/map_editor/  editor de mapa: painel "Mapa do Mundo" (world_map_dock, map_
              e MapTools (a lógica: criar bloco/masmorra, ligar e sincronizar entradas, validar,
              assar navegação), usado pelo painel e pelos testes
 ui/          menu principal (com a vila 3D ao fundo: MenuBackdrop), HUD (PlayerCard, RegionBanner),
-             inventário, tela de serviço (ServicePanel), minimapa
+             inventário, Chip pirata (ChipPanel), tela de serviço (ServicePanel), minimapa
 ui/skin/     visual da interface: texturas das molduras, corrumpted_theme.tres (tema do projeto
              inteiro) e UiSkin (paleta, fontes, peças desenhadas por código)
 ui/fonts/    Chakra Petch (texto) e Black Ops One (títulos), licença OFL (vai junto na exportação)
@@ -66,18 +70,20 @@ Como usar o editor de mapa: [`EDITOR_DE_MAPA.md`](EDITOR_DE_MAPA.md).
    (números, textos, vetores, Dictionary/Array). Entidades replicadas implementam
    `get_net_state()` / `apply_net_state()`. Efeitos visuais vão por `broadcast_fx`;
    coisa só do dono (inventário) por `send_to_peer`.
-5. **Animação por ação, nunca por nome de clipe.** O código pede `"move"`, `"slash"`, `"hit"`;
+5. **Som por evento, nunca por arquivo.** O código pede `Sound.play("hit", posição)`; o
+   SoundBank diz quais arquivos, volume e variação. Som que todos ouvem sai de um `fx_*`.
+6. **Animação por ação, nunca por nome de clipe.** O código pede `"move"`, `"slash"`, `"hit"`;
    o mapa do tipo de corpo (AnimSets) escolhe o clipe do modelo. Assim cada criatura tem as
    próprias animações.
-6. **Dados separados de código.** Itens, criaturas e (depois) regiões e NPCs são tabelas/arquivos
+7. **Dados separados de código.** Itens, criaturas e (depois) regiões e NPCs são tabelas/arquivos
    de dados; o código é genérico.
-7. **Números do jogo em GameConfig** (ou na tabela do dado), não espalhados.
-8. **Plataforma só em `platform/`.** Xbox/Steam/PlayFab nunca aparecem no resto do código.
-9. **Visual da interface pelo tema.** Botões, painéis e campos já saem vestidos pelo tema do
+8. **Números do jogo em GameConfig** (ou na tabela do dado), não espalhados.
+9. **Plataforma só em `platform/`.** Xbox/Steam/PlayFab nunca aparecem no resto do código.
+10. **Visual da interface pelo tema.** Botões, painéis e campos já saem vestidos pelo tema do
    projeto; cores e fontes vêm do `UiSkin`. Nada de `StyleBoxFlat` solto em tela nova.
    Trocar a arte = pintar por cima das texturas de `ui/skin/` (mesmo tamanho e bordas).
-10. **GDScript tipado**, sem C#, pelo port de console.
-11. **Toda mudança roda os testes** (abaixo). Teste novo para sistema novo, de preferência
+11. **GDScript tipado**, sem C#, pelo port de console.
+12. **Toda mudança roda os testes** (abaixo). Teste novo para sistema novo, de preferência
     passando pelos botões de verdade (`Input.parse_input_event`).
 
 ## Como acrescentar
@@ -164,6 +170,7 @@ godot --headless --fixed-fps 60 --path coop-dungeon -s tests/services_test.gd  #
 godot --headless --path coop-dungeon -s tests/item_tools_test.gd               # fichas de item e painel Itens
 godot --headless --fixed-fps 60 --path coop-dungeon -s tests/container_test.gd # baús com saque
 godot --headless --fixed-fps 60 --path coop-dungeon -s tests/camera_test.gd    # câmera atrás do herói
+godot --headless --fixed-fps 60 --path coop-dungeon -s tests/progress_test.gd  # nível, XP, chip pirata, sons e números
 GODOT=godot coop-dungeon/tests/run_net_test.sh                                 # online: host + cliente, e mapa adulterado recusado
 ```
 

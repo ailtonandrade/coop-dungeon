@@ -25,6 +25,7 @@ PlatformService="*res://platform/platform_service.gd"
 SaveService="*res://core/save_service.gd"
 NetService="*res://net/net_service.gd"
 Settings="*res://core/settings.gd"
+Sound="*res://audio/sound_service.gd"
 
 [display]
 

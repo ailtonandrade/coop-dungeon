@@ -72,6 +72,11 @@ static func build(data: Dictionary) -> Loot:
 
 func _ready() -> void:
 	add_to_group("loot")
+	# Cai em todas as máquinas: o som diz o quanto é bom (Protótipo brilha mais alto).
+	var drop_sound := "loot_drop"
+	if item.get("id") != "gold":
+		drop_sound = {"unique": "loot_unique", "rare": "loot_rare"}.get(item.get("rarity", "common"), "loot_drop")
+	Sound.play(drop_sound, global_position)
 	var color: Color = ItemDB.GOLD.color if item.get("id") == "gold" else ItemDB.rarity_color(item)
 	_visual = ItemVisuals.build(item)
 	_visual.scale = Vector3.ONE * 1.6 * float(ItemDB.def(item).get("ground_scale", 1.0))

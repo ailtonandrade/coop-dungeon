@@ -7,7 +7,8 @@ extends Control
 const SIZE := Vector2(380, 104)
 const PORTRAIT_RADIUS := 38.0
 const BAR := Rect2(96, 36, 264, 22)
-const HOTBAR_Y := 66.0
+const HOTBAR_Y := 68.0
+const XP_BAR := Rect2(96, 61, 264, 4)
 const HOTBAR_SLOT := 32.0
 
 var index := 0
@@ -63,8 +64,10 @@ func _draw() -> void:
 		_draw_money(Vector2(BAR.end.x, 30))
 
 	_draw_bar(downed)
+	_draw_xp()
 	_draw_hotbar()
 	_draw_portrait(Vector2(44, 56), color, downed)
+	_draw_level_badge(Vector2(72, 86))
 
 
 func _draw_empty(color: Color) -> void:
@@ -136,13 +139,40 @@ func _draw_bar(downed: bool) -> void:
 	draw_string(f, inner.position + Vector2(0, 16), text, HORIZONTAL_ALIGNMENT_CENTER, inner.size.x, 14, Color.WHITE)
 
 
+## Barra fina de experiência embaixo da vida (neon).
+func _draw_xp() -> void:
+	draw_rect(XP_BAR.grow(1), UiSkin.INK)
+	draw_rect(XP_BAR, Color(0.05, 0.12, 0.14))
+	var ratio := player.progress.xp_ratio()
+	if ratio > 0.0:
+		draw_rect(Rect2(XP_BAR.position, Vector2(XP_BAR.size.x * ratio, XP_BAR.size.y)), UiSkin.NEON)
+		draw_rect(Rect2(XP_BAR.position, Vector2(XP_BAR.size.x * ratio, 1)), Color(1, 1, 1, 0.5))
+
+
+## Selo do nível no canto do retrato; pisca em âmbar com pontos de chip para instalar.
+func _draw_level_badge(center: Vector2) -> void:
+	var free := player.progress.points_free() if player.is_local() else 0
+	var glow := 0.5 + 0.5 * sin(_time * 5.0)
+	var ring := UiSkin.AMBER.lerp(Color.WHITE, glow * 0.4) if free > 0 else UiSkin.BRASS
+	draw_circle(center, 14.0, UiSkin.INK)
+	draw_circle(center, 12.0, Color(0.08, 0.08, 0.1))
+	draw_arc(center, 12.0, 0, TAU, 24, ring, 2.5 if free > 0 else 1.5)
+	var f := UiSkin.font("Bold")
+	var text := str(player.progress.level)
+	draw_string(f, center + Vector2(-14, 5), text, HORIZONTAL_ALIGNMENT_CENTER, 28, 14, UiSkin.TEXT)
+	if free > 0:
+		var hint := "+%d chip" % free
+		draw_string_outline(f, center + Vector2(16, 5), hint, HORIZONTAL_ALIGNMENT_LEFT, -1, 12, 4, UiSkin.INK)
+		draw_string(f, center + Vector2(16, 5), hint, HORIZONTAL_ALIGNMENT_LEFT, -1, 12, Color(UiSkin.AMBER, 0.6 + 0.4 * glow))
+
+
 func _draw_hotbar() -> void:
 	var equipment: Dictionary = player.inventory.equipment
 	var entries := [
 		["X", equipment.get("melee"), 0.0, 0.0],
 		["RT", equipment.get("ranged"), 0.0, 0.0],
-		["Y", "potion", player.potion_cooldown, GameConfig.POTION_COOLDOWN],
-		["B", "dodge", player.dodge_cooldown_left(), GameConfig.DODGE_COOLDOWN],
+		["Y", "potion", player.potion_cooldown, GameConfig.POTION_COOLDOWN * player.cooldown_factor()],
+		["B", "dodge", player.dodge_cooldown_left(), GameConfig.DODGE_COOLDOWN * player.cooldown_factor()],
 	]
 	var x := BAR.position.x
 	for entry: Array in entries:

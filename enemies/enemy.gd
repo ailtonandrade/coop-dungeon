@@ -18,23 +18,25 @@ enum State { CHASE, WINDUP, RECOVER, STAGGER, DEAD }
 
 const STATS := {
 	Kind.MELEE: {
-		"id": "punk", "model": "res://assets/characters/Punk.glb", "tint": Color(0.3, 0.9, 0.2, 0.3), "scale": 1.1,
+		"id": "punk", "xp": 12, "model": "res://assets/characters/Punk.glb", "tint": Color(0.3, 0.9, 0.2, 0.3), "scale": 1.1,
 		"hp": 30.0, "speed": 3.4, "attack_range": 1.6, "windup": 0.5, "recover": 0.8,
 		"damage": 12.0, "knockback": 6.0, "attack": "punch", "anims": AnimSets.HUMANOID,
 	},
 	Kind.RANGED: {
-		"id": "atirador", "model": "res://assets/characters/Casual_Hoodie.glb", "tint": Color(0.7, 0.3, 1.0, 0.3), "scale": 1.0,
+		"id": "atirador", "xp": 14, "model": "res://assets/characters/Casual_Hoodie.glb", "tint": Color(0.7, 0.3, 1.0, 0.3), "scale": 1.0,
 		"hp": 20.0, "speed": 3.0, "attack_range": 10.0, "windup": 0.7, "recover": 1.6,
 		"damage": 10.0, "knockback": 3.0, "attack": "shoot", "anims": AnimSets.HUMANOID,
 	},
 	Kind.CORRUPTED: {
-		"id": "corrompido", "model": "res://assets/characters/Casual_2.glb", "tint": Color(0.9, 0.15, 0.1, 0.35), "scale": 1.05,
+		"id": "corrompido", "xp": 18, "model": "res://assets/characters/Casual_2.glb", "tint": Color(0.9, 0.15, 0.1, 0.35), "scale": 1.05,
 		"hp": 22.0, "speed": 5.0, "attack_range": 1.5, "windup": 0.3, "recover": 0.5,
 		"damage": 9.0, "knockback": 4.0, "attack": "punch", "anims": AnimSets.HUMANOID,
 		"chip": Color(1.0, 0.1, 0.05),
 	},
 }
 const RANGED_MIN_DIST := 5.0
+## Empurrão a partir do qual o golpe conta como pesado (finalizador do combo).
+const HEAVY_KNOCKBACK := 6.0
 ## Atirador: entre um tiro e outro anda de lado (desvia), olhando para o alvo.
 const STRAFE_SPEED_FACTOR := 0.6
 const PROJECTILE_SPEED := 9.0
@@ -142,18 +144,43 @@ func is_targetable() -> bool:
 func take_hit(amount: float, knockback := Vector3.ZERO) -> void:
 	if state == State.DEAD or not health.take_hit(amount):
 		return
+	# Número, faísca e som em todas as máquinas (o golpe que mata também mostra o número).
+	_broadcast("fx_hit", [amount, knockback.length() >= HEAVY_KNOCKBACK])
 	_knockback = Combat.flat(knockback)
 	if state == State.DEAD:
 		return
-	var replicator := NetReplicator.of(self)
-	if replicator:
-		replicator.broadcast_fx(self, "fx_flash", [])
-	else:
-		fx_flash()
 	# Apanhar interrompe o ataque em preparo.
 	state = State.STAGGER
 	_timer = STAGGER_TIME
 	_animator.play("hit", STAGGER_TIME, true)
+
+
+func _broadcast(method: String, args: Array) -> void:
+	var replicator := NetReplicator.of(self)
+	if replicator:
+		replicator.broadcast_fx(self, method, args)
+	else:
+		callv(method, args)
+
+
+func fx_hit(amount: float, heavy: bool) -> void:
+	fx_flash()
+	var chest := global_position + Vector3.UP * 1.2
+	HitFx.damage_number(self, global_position + Vector3.UP * 2.0, amount, "heavy" if heavy else "hit")
+	HitFx.sparks(self, chest, Color(1.0, 0.75, 0.35) if kind != Kind.CORRUPTED else Color(1.0, 0.25, 0.15), 18 if heavy else 10)
+	Sound.play("hit_heavy" if heavy else "hit", chest)
+	Sound.play("enemy_hurt", chest)
+
+
+func fx_die() -> void:
+	var chest := global_position + Vector3.UP * 1.0
+	var color: Color = _stats.get("chip", Color(1.0, 0.6, 0.25))
+	HitFx.death_burst(self, chest, color)
+	Sound.play("chip_burn" if kind == Kind.CORRUPTED else "enemy_destroy", chest)
+
+
+func fx_alert() -> void:
+	Sound.play("corrupted_alert", global_position + Vector3.UP * 1.6)
 
 
 func fx_flash() -> void:
@@ -179,8 +206,12 @@ func _physics_process(delta: float) -> void:
 	if state != State.DEAD:
 		_retarget -= delta
 		if _retarget <= 0.0 or _target == null or not is_instance_valid(_target) or not _target.is_targetable():
+			var had_target := _target != null and is_instance_valid(_target)
 			_target = _find_target()
 			_retarget = 0.5
+			# Corrompido avistou alguém: grito de chip queimado.
+			if _target and not had_target and kind == Kind.CORRUPTED:
+				_broadcast("fx_alert", [])
 		_timer -= delta
 		match state:
 			State.CHASE:
@@ -307,11 +338,21 @@ func _find_target() -> Player:
 
 
 func _on_died() -> void:
+	_broadcast("fx_die", [])
 	_become_dead()
 	_animator.play("death", 0.0, true)
 	Loot.roll_drops(self, power + randi_range(0, 1), _stats.id)
+	_grant_xp()
 	died.emit(self)
 	get_tree().create_timer(1.5).timeout.connect(queue_free)
+
+
+## XP para todo o time por perto (co-op: ninguém precisa dar o último golpe).
+func _grant_xp() -> void:
+	var amount := roundi(float(_stats.get("xp", 10)) * (1.0 + 0.25 * (maxi(power, 1) - 1)))
+	for player: Player in get_tree().get_nodes_in_group("players"):
+		if player.global_position.distance_to(global_position) <= GameConfig.XP_SHARE_RADIUS:
+			player.add_xp(amount)
 
 
 func _become_dead() -> void:

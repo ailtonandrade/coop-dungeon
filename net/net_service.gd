@@ -195,7 +195,7 @@ func _apply_container(container_id: String, opened_at: float) -> void:
 	world["containers"] = states
 	for container: Node in get_tree().get_nodes_in_group("containers"):
 		if container.container_id == container_id:
-			container.refresh()
+			container.on_opened()
 
 
 @rpc("authority", "call_remote", "reliable")

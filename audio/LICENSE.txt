@@ -1,0 +1,6 @@
+Sons do jogo
+
+- audio/sfx/kenney_*.ogg: Kenney (www.kenney.nl), dos Starter Kits oficiais
+  (github.com/KenneyNL). Licença CC0 (domínio público): uso livre, inclusive comercial.
+- Os demais arquivos de audio/sfx e audio/music foram sintetizados por tools/gerar_sons.py
+  para este projeto (provisórios; troque por sons de verdade com o mesmo nome).

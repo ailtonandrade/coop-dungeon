@@ -32,6 +32,8 @@ const LOOT_SCRIPT := "res://items/loot.gd"
 @export_range(0, 10) var random_items := 0
 ## 0 = abre uma vez por mundo; senão, enche de novo depois desses minutos.
 @export_range(0.0, 10080.0, 1.0, "suffix:min") var refill_minutes := 0.0
+## Som ao abrir (evento do SoundBank): "chest_open" (madeira) ou "container_open" (metal).
+@export var open_sound := "chest_open"
 
 var _visual: Node3D
 var _label: Label3D
@@ -89,6 +91,14 @@ func refresh() -> void:
 	if _visual:
 		# Aberto: fica mais escuro, para o jogador saber que já foi saqueado.
 		_dim(_visual, _opened)
+
+
+## Acabou de ser aberto (em todas as máquinas, avisado pelo NetService).
+func on_opened() -> void:
+	refresh()
+	var sound := get_node_or_null("/root/Sound")
+	if sound:
+		sound.play(open_sound, global_position + Vector3.UP * 0.5)
 
 
 ## Host: um jogador apertou pegar perto. Larga o conteúdo no chão e guarda que abriu.

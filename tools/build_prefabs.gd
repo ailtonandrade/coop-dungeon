@@ -182,6 +182,7 @@ func _loot_container(node_name: String, title: String, model: String, model_scal
 	container.open_range = reach
 	container.gold = gold
 	container.random_items = random_items
+	container.open_sound = "container_open" if model.begins_with("Container") else "chest_open"
 	var box := _model_bounds(container.model)
 	_collider(container, container, "Solido", box.get_center() * model_scale, box.size * model_scale)
 	return container

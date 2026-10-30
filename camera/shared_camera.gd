@@ -20,6 +20,8 @@ var _behind := false
 var _yaw := 0.0
 var _pitch := -0.3
 var _behind_player: Player
+## Ouvido do som 3D: no chão, no meio do grupo (de cima) ou na câmera (atrás do herói).
+var _listener: AudioListener3D
 
 
 ## Tremida de câmera (0..1). Golpes fortes e dano recebido chamam pelo grupo "shared_camera".
@@ -29,6 +31,10 @@ func shake(strength: float) -> void:
 
 func _ready() -> void:
 	add_to_group("shared_camera")
+	_listener = AudioListener3D.new()
+	_listener.top_level = true
+	add_child(_listener)
+	_listener.make_current()
 	InputService.aim_projector = project_to_ground
 	fov = GameConfig.CAMERA_FOV
 	rotation_degrees = Vector3(GameConfig.CAMERA_PITCH_DEG, GameConfig.CAMERA_YAW_DEG, 0.0)
@@ -130,6 +136,7 @@ func _follow_behind(delta: float) -> void:
 		wanted = hit.position + (target - wanted).normalized() * 0.25
 	global_position = wanted
 	global_basis = look
+	_place_listener(global_position)
 	InputService.view_yaw_deg = rad_to_deg(_yaw)
 	InputService.view_forward = -Vector3(look.z.x, 0.0, look.z.z).normalized()
 	InputService.set_aim_anchor(slot, _behind_player.global_position)
@@ -167,6 +174,13 @@ func project_to_ground(screen_point: Vector2, height: float) -> Vector3:
 
 func _apply() -> void:
 	global_position = _focus + global_basis.z * _distance
+	_place_listener(_focus + Vector3.UP * 1.5)
+
+
+## Ouvido virado como a câmera (esquerda/direita do som batem com a tela).
+func _place_listener(point: Vector3) -> void:
+	if _listener:
+		_listener.global_transform = Transform3D(global_basis, point)
 
 
 ## No online, cada máquina enquadra só os seus jogadores (a corda mantém o grupo junto).

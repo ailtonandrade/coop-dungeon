@@ -72,6 +72,11 @@ func _process(_delta: float) -> bool:
 			if head and head.id == "iron_helmet":
 				_check(true, "equipei pelo inventário e o host confirmou")
 				_check(not root.get_node("SaveService").load_player(0).is_empty(), "meu inventário ficou salvo aqui no cliente")
+				_step = 13
+		13:
+			# O host me deu XP: o nível chega aqui e fica salvo no meu personagem.
+			if _me.progress.level >= 2 and int(root.get_node("SaveService").load_player(0).get("progress", {}).get("level", 0)) >= 2:
+				_check(true, "subi de nível pelo host e salvei aqui (nível %d)" % _me.progress.level)
 				_step = 10
 		10:
 			# O host me dá moedas e me leva até o comerciante: compro a 1ª coisa do estoque.
