@@ -105,6 +105,14 @@ static func reload() -> void:
 				_sources[source.id] = source
 
 
+## Recalcula a ficha `id` a partir da instância em memória (o painel chama a cada mudança,
+## antes de salvar, para a prévia acompanhar na hora).
+static func refresh(id: String) -> void:
+	var item := source(id)
+	if item:
+		_defs[id] = item.to_dict()
+
+
 static func has(id: String) -> bool:
 	return catalog().has(id)
 

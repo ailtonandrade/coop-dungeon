@@ -44,6 +44,17 @@ const CAMERA_FOLLOW_SPEED := 6.0
 const CAMERA_ZOOM_SPEED := 3.0
 ## Distância entre os jogadores mais afastados que leva ao zoom máximo.
 const CAMERA_SPREAD_FOR_MAX := 14.0
+## Câmera atrás do herói (estilo GTA, só com 1 jogador na tela).
+const BEHIND_DISTANCE := 4.2
+const BEHIND_HEIGHT := 1.55
+## Para a direita do herói (câmera "de ombro"), para não tapar a mira.
+const BEHIND_SHOULDER := 0.55
+const BEHIND_FOV := 65.0
+const BEHIND_PITCH_MIN := -1.15
+const BEHIND_PITCH_MAX := 0.45
+## Radianos por pixel do mouse e por segundo no analógico (vezes a sensibilidade).
+const BEHIND_MOUSE_SPEED := 0.0035
+const BEHIND_STICK_SPEED := 2.6
 
 # Co-op
 ## Sofá: distância máxima entre jogadores da mesma tela (parede invisível).

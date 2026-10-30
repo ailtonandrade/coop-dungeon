@@ -26,13 +26,40 @@ modelos 3D e mostra o herói segurando o item. O painel só existe no editor: n�
      - *Drops*: regras por criatura. Clique em "Add Element", depois em "Novo ItemDrop", e
        escolha a criatura, a chance (%), a quantidade mínima e máxima, a raridade
        (sorteada ou fixa) e um bônus de poder.
-   - **Modelo 3D:** escala do modelo, tamanho a mais no chão (loot) e o **encaixe**. Clique em
-     **Encaixe** no painel para começar do encaixe padrão do tipo; aí mude o osso, a posição e a
-     rotação no Inspector e veja na prévia.
+   - **Modelo 3D:** o modelo, a correção dele (tamanho, giro, posição), o tamanho a mais no chão
+     (loot), o encaixe no corpo e as opções de vestir (abaixo).
 4. **Gerar ícone**: fotografa o modelo para o ícone do inventário (`items/icons/<id>.res`).
 5. **Ver no chão**: mostra como o item fica caído (loot), para acertar o tamanho.
 6. O quadro de baixo do painel diz onde o item aparece e aponta problemas (arma sem dano,
    loja que não existe, ninguém vende nem dropa...). Item com problema fica amarelo na lista.
+
+## Ajustar modelo (grande demais, torto, fora da mão)
+
+A seção **Ajustar modelo** do painel mexe ao vivo na prévia:
+- **Ajuste automático:** põe o modelo no tamanho típico do tipo (espada ~0,9 m, capacete
+  ~0,32 m...). Nas armas, deixa a maior medida em pé e o cabo (a ponta de baixo) na mão. Resolve
+  o modelo gigante ou deitado de uma vez; depois é só o retoque.
+- **O que ajustar:**
+  - *Corrigir o modelo:* tamanho (com ÷2 e ×2 para modelos muito grandes ou pequenos), posição
+    e giro do próprio modelo. Vale na mão, no chão e no ícone. Arma com o cabo fora da mão ou
+    virada ao contrário se conserta aqui (ex.: **X +90°** duas vezes vira de ponta-cabeça).
+  - *Encaixe no corpo:* onde a peça fica presa (posição e giro em relação ao osso). O osso se
+    escolhe no Inspector (*Mount Bone*: mão direita, cabeça, peito, quadril...).
+- **Zerar:** volta o que está escolhido ao original.
+
+## Armadura que veste o corpo (colete, jaqueta, calça)
+
+Dois jeitos:
+1. **Peça rígida** (mais simples, funciona com qualquer modelo): importe o colete com a casa
+   *Peito*. Ele vai preso no osso do peito; ajuste tamanho e posição com a seção acima até
+   assentar no herói. Ombreira, capacete, cinto e bota também funcionam assim.
+2. **Vestir no corpo** (dobra junto com as animações): o modelo precisa ter sido feito no
+   Blender sobre o **esqueleto dos personagens** (Quaternius: ossos Hips, Chest, UpperArm.L...),
+   com pesos de pele. Marque **Vestir no corpo** no painel; a peça passa a seguir os ossos do
+   herói. Neste modo a correção de tamanho não vale (quem manda é o esqueleto).
+
+Nos dois casos, **Esconder por baixo** (Tronco, Pernas, Pés) esconde a parte do corpo do
+personagem que ficaria vazando pela roupa.
 
 **Duplicar** é o jeito rápido de fazer variações (Facão enferrujado, Facão de titânio...).
 
@@ -51,10 +78,3 @@ As criaturas que aparecem na regra de loot estão em `GameConfig.CREATURES`; o i
 
 As fichas entram na impressão digital do online junto com o mapa: quem tiver itens diferentes
 do host (arquivos mexidos ou outra versão) não entra no mundo.
-
-## Armaduras que vestem o corpo
-
-Peito, pernas e pés sem modelo próprio pintam a roupa do personagem com a cor da ficha. Com
-modelo próprio, a peça vai presa num osso (ombreira, cinto, bota). Uma roupa que dobra junto com
-o corpo precisa ser feita sobre o esqueleto dos personagens (Quaternius) com pesos de pele; esse
-tipo de peça ainda não tem caminho pronto no painel.

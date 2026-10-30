@@ -6,6 +6,7 @@ extends RefCounted
 ## Pela rede, cada ação manda um contador de apertos (e não só "apertou agora"):
 ## se um pacote se perde, o próximo ainda mostra o contador diferente e o aperto não some.
 
+## Direção de andar no chão do mundo (x, z), comprimento 0..1 (já conforme a câmera da tela).
 var move := Vector2.ZERO
 ## Mira no chão do mundo (x, z), comprimento 1, ou zero se não está mirando.
 var aim := Vector2.ZERO
@@ -26,7 +27,7 @@ static func local(slot: int) -> PlayerInput:
 ## Chamado pelo Player no começo de cada quadro de física.
 func begin_tick() -> void:
 	if _local_slot >= 0:
-		move = InputService.get_move(_local_slot)
+		move = InputService.get_world_move(_local_slot)
 		aim = InputService.get_aim(_local_slot)
 		_down = InputService.get_down_mask(_local_slot)
 		_edges |= InputService.get_pressed_mask(_local_slot)

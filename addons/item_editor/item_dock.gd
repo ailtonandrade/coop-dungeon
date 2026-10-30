@@ -38,6 +38,16 @@ var _dirty := false
 var _pending_model := ""
 var _pending_wait := 0.0
 
+# Ajuste do modelo
+var _adjust_target: OptionButton
+var _scale_box: SpinBox
+var _scale_row: HBoxContainer
+var _position_boxes: Array[SpinBox] = []
+var _rotation_boxes: Array[SpinBox] = []
+var _wear_box: CheckBox
+var _hide_boxes: Array[CheckBox] = []
+var _syncing := false
+
 
 func _ready() -> void:
 	if not Engine.is_editor_hint():
@@ -85,8 +95,9 @@ func _ready() -> void:
 		_on_ground = not _on_ground
 		_mode_button.text = "Ver no herói" if _on_ground else "Ver no chão"
 		_rebuild_preview())
-	_button(preview_row, "Encaixe", "Liga o encaixe próprio começando do padrão do tipo, para ajustar posição e rotação no Inspector.", _use_default_mount)
 	_button(preview_row, "Gerar ícone", "Fotografa o modelo para o ícone do inventário.", _make_icon)
+
+	_build_adjust()
 
 	var hint := Label.new()
 	hint.text = "Arraste na prévia para girar, roda do mouse para zoom.\nCampos da ficha: Inspector (salva sozinho)."
@@ -168,6 +179,7 @@ func _select(id: String) -> void:
 		return
 	EditorInterface.edit_resource(_current)
 	_rebuild_preview()
+	_sync_adjust()
 	_refresh_info()
 
 
@@ -180,6 +192,10 @@ func _on_property_edited(_property: String) -> void:
 func _changed() -> void:
 	_dirty = true
 	_save_timer = SAVE_DELAY
+	if _current:
+		ItemDB.refresh(_current.id)
+	_rebuild_preview(true)
+	_sync_adjust()
 	_refresh_info()
 
 
@@ -191,7 +207,7 @@ func _save_now() -> void:
 		_status.text = "Não deu para salvar %s." % _current.resource_path
 		return
 	_refresh_list(_current.id)
-	_rebuild_preview()
+	_current.notify_property_list_changed()
 	_refresh_info()
 
 
@@ -339,17 +355,167 @@ func _on_model_chosen(path: String) -> void:
 	EditorInterface.get_resource_filesystem().scan()
 
 
-func _use_default_mount() -> void:
+## Ajuste do modelo (tamanho, giro e posição), com a prévia acompanhando
+
+func _build_adjust() -> void:
+	var title := Label.new()
+	title.text = "Ajustar modelo"
+	title.add_theme_font_size_override("font_size", 14)
+	add_child(title)
+	var top := HBoxContainer.new()
+	add_child(top)
+	_button(top, "Ajuste automático", "Põe o modelo no tamanho típico do tipo; armas ficam em pé com o cabo na mão.", func() -> void:
+		if _current and Tools.auto_fit(_current):
+			_status.text = "Ajuste automático: escala %.3f, giro %s." % [_current.model_scale, _current.model_rotation]
+			_changed()
+		elif _current:
+			_status.text = "Importe um modelo 3D primeiro.")
+	_button(top, "Zerar", "Volta a correção do que está escolhido abaixo para o original.", _reset_adjust)
+
+	_adjust_target = OptionButton.new()
+	_adjust_target.add_item("Corrigir o modelo (mão, chão e ícone)")
+	_adjust_target.add_item("Encaixe no corpo (onde fica preso)")
+	_adjust_target.tooltip_text = "Modelo: conserta o próprio modelo (grande, torto, cabo fora do lugar). Encaixe: muda onde a peça fica presa no corpo (liga o encaixe próprio)."
+	_adjust_target.item_selected.connect(func(_i: int) -> void: _sync_adjust())
+	add_child(_adjust_target)
+
+	_scale_row = HBoxContainer.new()
+	add_child(_scale_row)
+	var scale_label := Label.new()
+	scale_label.text = "Tamanho"
+	scale_label.custom_minimum_size = Vector2(62, 0)
+	_scale_row.add_child(scale_label)
+	_scale_box = _spin(_scale_row, 0.001, 100.0, 0.001, "x")
+	_scale_box.allow_greater = true
+	_scale_box.value_changed.connect(func(value: float) -> void: _apply_adjust("scale", value))
+	_button(_scale_row, "÷2", "Metade do tamanho.", func() -> void: _scale_box.value = _scale_box.value / 2.0)
+	_button(_scale_row, "×2", "Dobro do tamanho.", func() -> void: _scale_box.value = _scale_box.value * 2.0)
+
+	_position_boxes = _vector_row("Posição", -5.0, 5.0, 0.005, "m", "position")
+	_rotation_boxes = _vector_row("Giro", -360.0, 360.0, 1.0, "°", "rotation")
+	var quick := HBoxContainer.new()
+	add_child(quick)
+	for axis in 3:
+		var axis_name: String = ["X", "Y", "Z"][axis]
+		_button(quick, "%s +90°" % axis_name, "Gira 90° no eixo %s." % axis_name, func() -> void:
+			_rotation_boxes[axis].value = wrapf(_rotation_boxes[axis].value + 90.0, -180.0, 180.0))
+
+	_wear_box = CheckBox.new()
+	_wear_box.text = "Vestir no corpo (modelo com ossos)"
+	_wear_box.tooltip_text = "Para roupa/armadura feita no Blender sobre o esqueleto dos personagens: dobra junto com as animações. Desligado, a peça vai presa num osso (rígida)."
+	_wear_box.toggled.connect(func(on: bool) -> void:
+		if _current and not _syncing:
+			_current.wear_on_body = on
+			_changed())
+	add_child(_wear_box)
+	var hide_row := HBoxContainer.new()
+	add_child(hide_row)
+	var hide_label := Label.new()
+	hide_label.text = "Esconder por baixo:"
+	hide_row.add_child(hide_label)
+	for i in 3:
+		var box := CheckBox.new()
+		box.text = ["Tronco", "Pernas", "Pés"][i]
+		box.tooltip_text = "Esconde essa parte do corpo do personagem quando a peça está equipada (para o corpo não vazar pela roupa)."
+		box.toggled.connect(func(on: bool) -> void:
+			if _current and not _syncing:
+				_current.hide_body = (_current.hide_body | (1 << i)) if on else (_current.hide_body & ~(1 << i))
+				_changed())
+		hide_row.add_child(box)
+		_hide_boxes.append(box)
+	_sync_adjust()
+
+
+func _vector_row(label_text: String, low: float, high: float, step: float, suffix: String, field: String) -> Array[SpinBox]:
+	var row := HBoxContainer.new()
+	add_child(row)
+	var label := Label.new()
+	label.text = label_text
+	label.custom_minimum_size = Vector2(62, 0)
+	row.add_child(label)
+	var boxes: Array[SpinBox] = []
+	for axis in 3:
+		var box := _spin(row, low, high, step, suffix)
+		box.prefix = ["X", "Y", "Z"][axis]
+		box.value_changed.connect(func(_v: float) -> void: _apply_adjust(field, 0.0))
+		boxes.append(box)
+	return boxes
+
+
+func _spin(parent: Control, low: float, high: float, step: float, suffix: String) -> SpinBox:
+	var box := SpinBox.new()
+	box.min_value = low
+	box.max_value = high
+	box.step = step
+	box.suffix = suffix
+	box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	box.custom_arrow_step = step * 10.0 if step < 1.0 else 15.0
+	parent.add_child(box)
+	return box
+
+
+func _editing_mount() -> bool:
+	return _adjust_target.selected == 1
+
+
+func _apply_adjust(field: String, value: float) -> void:
+	if _syncing or _current == null:
+		return
+	var position := Vector3(_position_boxes[0].value, _position_boxes[1].value, _position_boxes[2].value)
+	var rotation := Vector3(_rotation_boxes[0].value, _rotation_boxes[1].value, _rotation_boxes[2].value)
+	if _editing_mount():
+		if not _current.custom_mount:
+			# Primeira mexida no encaixe: começa do padrão do tipo.
+			var mount := Tools.default_mount(_current.look)
+			_current.custom_mount = true
+			_current.mount_bone = mount[0]
+		_current.mount_position = position
+		_current.mount_rotation = rotation
+	else:
+		if field == "scale":
+			_current.model_scale = value
+		_current.model_offset = position
+		_current.model_rotation = rotation
+	_changed()
+
+
+func _reset_adjust() -> void:
 	if _current == null:
 		return
-	var mount := Tools.default_mount(_current.look)
-	_current.custom_mount = true
-	_current.mount_bone = mount[0]
-	_current.mount_position = mount[1]
-	_current.mount_rotation = mount[2]
-	_current.notify_property_list_changed()
-	EditorInterface.edit_resource(_current)
+	if _editing_mount():
+		_current.custom_mount = false
+	else:
+		_current.model_scale = 1.0
+		_current.model_offset = Vector3.ZERO
+		_current.model_rotation = Vector3.ZERO
 	_changed()
+
+
+## Mostra nos campos os valores do item (sem disparar mudanças).
+func _sync_adjust() -> void:
+	if _adjust_target == null:
+		return
+	_syncing = true
+	var has := _current != null
+	for box in _position_boxes + _rotation_boxes + [_scale_box]:
+		box.editable = has
+	_scale_row.visible = not _editing_mount()
+	if has:
+		var position := _current.model_offset
+		var rotation := _current.model_rotation
+		if _editing_mount():
+			var mount := [_current.mount_bone, _current.mount_position, _current.mount_rotation] if _current.custom_mount \
+					else Tools.default_mount(_current.look)
+			position = mount[1]
+			rotation = mount[2]
+		_scale_box.value = _current.model_scale
+		for axis in 3:
+			_position_boxes[axis].value = position[axis]
+			_rotation_boxes[axis].value = rotation[axis]
+		_wear_box.button_pressed = _current.wear_on_body
+		for i in 3:
+			_hide_boxes[i].button_pressed = _current.hide_body & (1 << i) != 0
+	_syncing = false
 
 
 ## Prévia 3D
@@ -399,7 +565,8 @@ func _build_preview() -> void:
 	_place_camera()
 
 
-func _rebuild_preview() -> void:
+## `keep_camera`: mantém o zoom e o ponto da câmera (ajustes seguidos sem a vista pular).
+func _rebuild_preview(keep_camera := false) -> void:
 	for child in _stage.get_children():
 		child.queue_free()
 	if _current == null or not ItemDB.has(_current.id):
@@ -410,9 +577,10 @@ func _rebuild_preview() -> void:
 		piece.scale = Vector3.ONE * 1.6 * _current.ground_scale
 		piece.position.y = 0.05
 		_stage.add_child(piece)
-		var box := Tools.bounds(piece)
-		_focus = piece.position + box.get_center() * piece.scale
-		_distance = clampf(box.size.length() * piece.scale.x * 1.8, 0.6, 6.0)
+		if not keep_camera:
+			var box := Tools.bounds(piece)
+			_focus = piece.position + box.get_center() * piece.scale
+			_distance = clampf(box.size.length() * piece.scale.x * 1.8, 0.6, 6.0)
 	else:
 		var hero := (load(HERO) as PackedScene).instantiate() as Node3D
 		_stage.add_child(hero)
@@ -422,10 +590,11 @@ func _rebuild_preview() -> void:
 			anim.play("Idle")
 			anim.seek(0.0, true)
 			anim.pause()
-		var framing: Array = {"head": [1.45, 1.1], "amulet": [1.3, 1.1], "legs": [0.6, 1.8], "feet": [0.3, 1.4],
-				"bag": [1.1, 1.8], "chest": [1.1, 1.8]}.get(_current.slot, [1.0, 2.4])
-		_focus = Vector3(0, framing[0], 0)
-		_distance = framing[1]
+		if not keep_camera:
+			var framing: Array = {"head": [1.45, 1.1], "amulet": [1.3, 1.1], "legs": [0.6, 1.8], "feet": [0.3, 1.4],
+					"bag": [1.1, 1.8], "chest": [1.1, 1.8]}.get(_current.slot, [1.0, 2.4])
+			_focus = Vector3(0, framing[0], 0)
+			_distance = framing[1]
 	_place_camera()
 
 

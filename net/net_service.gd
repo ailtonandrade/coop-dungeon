@@ -232,7 +232,7 @@ func _physics_process(_delta: float) -> void:
 			if InputService.just_pressed(slot, action):
 				counts[action] = (counts[action] + 1) % 256
 		_press_counts[slot] = counts
-		_rpc_input.rpc_id(1, slot, InputService.get_move(slot), InputService.get_aim(slot),
+		_rpc_input.rpc_id(1, slot, InputService.get_world_move(slot), InputService.get_aim(slot),
 				InputService.get_down_mask(slot), counts)
 
 

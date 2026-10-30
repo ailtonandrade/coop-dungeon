@@ -51,6 +51,13 @@ var last_device := KEYBOARD
 ## Converte um ponto da tela num ponto do chão na altura dada (a câmera registra).
 ## Usado para mirar com o mouse.
 var aim_projector := Callable()
+## Câmera desta tela: para onde ela olha no chão (graus), para andar "pra frente" ser o que a
+## tela mostra como frente. Isométrica: fixo; atrás do herói: gira com a câmera.
+var view_yaw_deg := GameConfig.CAMERA_YAW_DEG
+## Câmera atrás do herói (estilo GTA, só com 1 jogador nesta tela): a mira é a frente da câmera
+## enquanto ataca ou atira; o analógico direito / o mouse giram a câmera.
+var behind_view := false
+var view_forward := Vector3.FORWARD
 
 var _devices: Array[int] = []
 ## Onde está o herói de cada slot (a mira do mouse sai dele).
@@ -171,11 +178,28 @@ func get_move(slot: int) -> Vector2:
 	return Vector2.ZERO if is_blocked(slot) else raw_move(slot)
 
 
+## Direção de andar já no chão do mundo (x, z), comprimento 0..1, conforme a câmera desta tela.
+## É o que vai para o herói e pela rede (o host não precisa saber como está a câmera daqui).
+func get_world_move(slot: int) -> Vector2:
+	var move := get_move(slot)
+	var world := Vector3(move.x, 0.0, move.y).rotated(Vector3.UP, deg_to_rad(view_yaw_deg))
+	return Vector2(world.x, world.z)
+
+
+func device_of(slot: int) -> int:
+	return _devices[slot]
+
+
 ## Mira (twin-stick) já no chão do mundo: Vector2(x, z) de comprimento 1, ou zero se não mira.
 ## Controle: analógico direito. Teclado: o mouse, enquanto está em uso (mexido há pouco ou
 ## com um botão apertado); parado por um tempo, o herói volta a olhar para onde anda.
 func get_aim(slot: int) -> Vector2:
 	if is_blocked(slot):
+		return Vector2.ZERO
+	if behind_view:
+		# Atrás do herói: ataca/atira para a frente da câmera; fora disso, olha para onde anda.
+		if is_pressed(slot, Action.MELEE) or is_pressed(slot, Action.RANGED):
+			return Vector2(view_forward.x, view_forward.z).normalized()
 		return Vector2.ZERO
 	var device := _devices[slot]
 	if device == KEYBOARD:

@@ -7,6 +7,7 @@ extends CanvasLayer
 
 const CONTROLS := [
 	["Mirar", "analógico direito", "mouse"],
+	["Câmera atrás: girar", "analógico direito", "mouse"],
 	["Atacar", "X (segure = combo)", "clique esquerdo / J"],
 	["Atirar", "RT", "clique direito / K"],
 	["Pular / escalar", "A", "Espaço"],
@@ -27,6 +28,7 @@ var _pause: Control
 var _pause_info: Label
 var _resume_button: Button
 var _minimap_button: Button
+var _camera_button: Button
 var _inventories := {}  # slot local -> InventoryPanel
 var _services := {}  # slot local -> ServicePanel
 var _banner: RegionBanner
@@ -273,6 +275,7 @@ func _build_pause_menu() -> void:
 	_pause_info.autowrap_mode = TextServer.AUTOWRAP_WORD
 	box.add_child(_pause_info)
 	_resume_button = _make_button(box, "Continuar", _toggle_pause)
+	_camera_button = _make_button(box, "", Settings.toggle_camera_mode)
 	_minimap_button = _make_button(box, "", Settings.toggle_minimap_mode)
 	Settings.changed.connect(_update_minimap_button)
 	_update_minimap_button()
@@ -296,6 +299,7 @@ func _build_pause_menu() -> void:
 
 
 func _update_minimap_button() -> void:
+	_camera_button.text = "Câmera: atrás do herói (só 1 jogador na tela)" if Settings.camera_mode == "behind" else "Câmera: de cima (isométrica)"
 	_minimap_button.text = "Minimapa: %s" % ("rotativo (gira com o herói)" if Settings.minimap_mode == "rotating" else "fixo (norte pra cima)")
 
 

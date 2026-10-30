@@ -176,6 +176,8 @@ func _process(delta: float) -> void:
 	if is_local():
 		InputService.set_aim_anchor(slot, global_position)
 	_tag.text = "P%d" % (index + 1)
+	# Câmera atrás do herói: a etiqueta do próprio herói só atrapalharia a vista.
+	_tag.visible = not (InputService.behind_view and is_local())
 	if state == State.DOWNED:
 		_tag.text += "  ✚ %d%%" % int(revive_progress * 100.0)
 	if not multiplayer.is_server() and _net_synced:
@@ -245,8 +247,9 @@ func _physics_process(delta: float) -> void:
 
 
 func _input_dir() -> Vector3:
+	# Já vem no chão do mundo (InputService.get_world_move conta a câmera da tela de quem joga).
 	var move := _input.move
-	return Vector3(move.x, 0.0, move.y).rotated(Vector3.UP, deg_to_rad(GameConfig.CAMERA_YAW_DEG))
+	return Vector3(move.x, 0.0, move.y)
 
 
 func _update_normal(delta: float, dir: Vector3) -> Vector3:

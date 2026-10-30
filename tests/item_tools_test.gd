@@ -126,6 +126,57 @@ func _run() -> void:
 	_check(attached.size() == 1 and attached[0].bone_name == "Wrist.L", "presa no osso da ficha (mão esquerda)")
 	hero.free()
 
+	# Modelo gigante e deitado (30 m no eixo X): o ajuste automático põe em pé, no tamanho de uma
+	# espada, com o cabo na origem.
+	var huge_root := Node3D.new()
+	var huge_mesh := MeshInstance3D.new()
+	var huge_box := BoxMesh.new()
+	huge_box.size = Vector3(30, 1, 2)
+	huge_mesh.mesh = huge_box
+	huge_mesh.position = Vector3(40, 5, 0)
+	huge_root.add_child(huge_mesh)
+	huge_mesh.owner = huge_root
+	var huge_packed := PackedScene.new()
+	huge_packed.pack(huge_root)
+	huge_root.free()
+	ResourceSaver.save(huge_packed, TMP + "/gigante.tscn")
+	var sword: Resource = tools.create_item("espada_gigante", "Espada gigante", "melee")
+	sword.damage = 10.0
+	sword.look = "sword"
+	sword.model = load(TMP + "/gigante.tscn")
+	_check(tools.auto_fit(sword), "ajuste automático roda")
+	_check(sword.model_rotation == Vector3(0, 0, 90), "deitada no X: gira para ficar em pé (%s)" % sword.model_rotation)
+	tools.save_item(sword)
+	var fitted: Node3D = visuals.build({"id": "espada_gigante", "rarity": "common"})
+	root.add_child(fitted)
+	var fit_box: AABB = tools.bounds(fitted)
+	fitted.free()
+	_check(absf(fit_box.size.y - 0.9) < 0.02 and fit_box.size.x < 0.1, "fica com 0,9 m de altura, em pé (%s)" % fit_box.size)
+	_check(absf(fit_box.position.y) < 0.01 and absf(fit_box.get_center().x) < 0.01, "cabo na origem, centralizada (%s)" % fit_box.position)
+
+	# Vestir no corpo: a roupa de outro personagem (mesmo esqueleto) dobra junto com o herói.
+	var vest: Resource = tools.create_item("roupa_teste", "Roupa de teste", "chest")
+	vest.armor = 3.0
+	vest.model = load("res://assets/characters/Casual_Hoodie.glb")
+	vest.wear_on_body = true
+	vest.hide_body = 1 | 2
+	tools.save_item(vest)
+	var wearer: Node3D = load("res://assets/characters/Adventurer.glb").instantiate()
+	root.add_child(wearer)
+	visuals.dress(wearer, [{"id": "roupa_teste", "rarity": "common"}])
+	var skeleton: Skeleton3D = wearer.find_children("*", "Skeleton3D", true, false)[0]
+	var worn := skeleton.get_children().filter(func(n: Node) -> bool: return n is MeshInstance3D and n.has_meta("equipment_piece"))
+	_check(not worn.is_empty() and worn.all(func(m: MeshInstance3D) -> bool: return m.skin != null and m.get_node_or_null(m.skeleton) == skeleton),
+			"roupa com ossos vestida no esqueleto do herói (%d malhas)" % worn.size())
+	_check(skeleton.find_children("*", "BoneAttachment3D", true, false).is_empty(), "vestida não vai presa num osso")
+	var own := skeleton.get_children().filter(func(n: Node) -> bool: return n is MeshInstance3D and not n.has_meta("equipment_piece"))
+	var body_hidden := own.filter(func(m: MeshInstance3D) -> bool: return m.name.to_lower().ends_with("body") or m.name.to_lower().ends_with("legs"))
+	_check(not body_hidden.is_empty() and body_hidden.all(func(m: MeshInstance3D) -> bool: return not m.visible), "tronco e pernas do herói escondidos por baixo")
+	_check(own.filter(func(m: MeshInstance3D) -> bool: return m.name.to_lower().ends_with("feet")).all(func(m: MeshInstance3D) -> bool: return m.visible), "pés continuam aparecendo")
+	wearer.free()
+	tools.delete_item("espada_gigante")
+	tools.delete_item("roupa_teste")
+
 	# Ícone pronto (sem importar) e a ficha usando ele.
 	var image := Image.create(16, 16, false, Image.FORMAT_RGBA8)
 	image.fill(Color.RED)

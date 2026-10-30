@@ -60,7 +60,17 @@ static func set_known_shops(shops: PackedStringArray) -> void:
 ## Cena importada (.glb, .gltf, .fbx, .obj, .blend). Vazio = modelo provisório de blocos.
 ## Armas: cabo na origem e ponta para +Y; 1 unidade = 1 metro.
 @export var model: PackedScene
-@export_range(0.05, 10.0, 0.01) var model_scale := 1.0
+## Correção do próprio modelo (vale na mão, no chão e no ícone): tamanho, giro e posição.
+## O botão "Ajuste automático" do painel calcula isso para modelos grandes ou tortos.
+@export_range(0.001, 100.0, 0.001, "or_greater") var model_scale := 1.0
+@export var model_rotation := Vector3.ZERO
+@export var model_offset := Vector3.ZERO
+## Vestir no corpo: o modelo tem ossos com os mesmos nomes do esqueleto dos personagens
+## (feito no Blender sobre o esqueleto Quaternius) e dobra junto com as animações. Desligado,
+## a peça vai presa num osso (rígida).
+@export var wear_on_body := false
+## Esconde a parte do corpo do personagem que fica por baixo da peça (para não vazar).
+@export_flags("Tronco", "Pernas", "Pés") var hide_body := 0
 ## Tamanho a mais quando está no chão (loot).
 @export_range(0.1, 5.0, 0.01) var ground_scale := 1.0
 ## Liga o encaixe abaixo; desligado = encaixe padrão do tipo (look).
@@ -83,6 +93,18 @@ func to_dict() -> Dictionary:
 	if model:
 		result["model"] = model
 		result["model_scale"] = model_scale
+		if model_rotation != Vector3.ZERO:
+			result["model_rotation"] = model_rotation
+		if model_offset != Vector3.ZERO:
+			result["model_offset"] = model_offset
+		if wear_on_body:
+			result["wear"] = true
+	if hide_body:
+		var parts := []
+		for i in 3:
+			if hide_body & (1 << i):
+				parts.append(["body", "legs", "feet"][i])
+		result["hide_body"] = parts
 	if ground_scale != 1.0:
 		result["ground_scale"] = ground_scale
 	if custom_mount:

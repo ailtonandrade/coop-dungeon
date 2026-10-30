@@ -45,6 +45,8 @@ static func build(item: Dictionary) -> Node3D:
 	if def.get("model") is PackedScene:
 		var model: Node3D = def.model.instantiate()
 		model.scale = Vector3.ONE * float(def.get("model_scale", 1.0))
+		model.rotation_degrees = def.get("model_rotation", Vector3.ZERO)
+		model.position = def.get("model_offset", Vector3.ZERO)
 		root.add_child(model)
 		if shine != Color.BLACK:
 			_glow(model, shine)
@@ -120,6 +122,7 @@ static func dress(model: Node, visual: Array) -> void:
 		if mesh.name.to_lower().contains("backpack"):
 			mesh.visible = false
 	var paints := {}  # parte do corpo -> material
+	var hidden := {}  # parte do corpo -> true (escondida por baixo de uma peça)
 	for entry: Dictionary in visual:
 		if not ItemDB.has(entry.get("id", "")):
 			continue
@@ -128,16 +131,24 @@ static func dress(model: Node, visual: Array) -> void:
 		# Peça com modelo próprio não pinta o corpo: a peça é o visual.
 		if PAINTS.has(look) and not def.has("model"):
 			paints[PAINTS[look]] = _paint_material(def.get("color", METAL), entry)
+		for part: String in def.get("hide_body", []):
+			hidden[part] = true
+		if def.get("wear", false) and def.get("model") is PackedScene:
+			_wear(skeleton, def, entry)
+			continue
 		var mount := mount_of(def)
 		if not mount.is_empty():
 			_attach(skeleton, pose, mount[0], build(entry), mount[1], mount[2])
 	for mesh: MeshInstance3D in skeleton.find_children("*", "MeshInstance3D", false, false):
+		if mesh.has_meta(ATTACH_META):
+			continue
 		var part := ""
 		for key in ["body", "legs", "feet"]:
 			if mesh.name.to_lower().ends_with(key):
 				part = key
 		if part:
 			mesh.material_overlay = paints.get(part)
+			mesh.visible = not hidden.has(part)
 
 
 ## Encaixe no corpo [osso, posição, rotação]: o da ficha, se ligado, senão o padrão do tipo.
@@ -155,6 +166,28 @@ static func mount_of(def: Dictionary) -> Array:
 	return []
 
 
+## Veste uma peça com ossos: cada malha com pele (Skin) do modelo passa a seguir o esqueleto do
+## personagem, ligada pelos nomes dos ossos, e dobra junto com as animações.
+static func _wear(skeleton: Skeleton3D, def: Dictionary, entry: Dictionary) -> void:
+	var source: Node = def.model.instantiate()
+	var shine := ItemDB.rarity_color(entry) if entry.get("rarity", "common") != "common" else Color.BLACK
+	for mesh: MeshInstance3D in source.find_children("*", "MeshInstance3D", true, false):
+		if mesh.skin == null:
+			continue
+		var worn := MeshInstance3D.new()
+		worn.name = "Veste_" + mesh.name
+		worn.mesh = mesh.mesh
+		worn.skin = mesh.skin
+		for i in mesh.get_surface_override_material_count():
+			worn.set_surface_override_material(i, mesh.get_surface_override_material(i))
+		worn.set_meta(ATTACH_META, true)
+		skeleton.add_child(worn)
+		worn.skeleton = NodePath("..")
+		if shine != Color.BLACK:
+			_glow(worn, shine)
+	source.free()
+
+
 ## Brilho da raridade por cima dos materiais do modelo.
 static func _glow(root: Node, color: Color) -> void:
 	var material := StandardMaterial3D.new()
@@ -162,7 +195,10 @@ static func _glow(root: Node, color: Color) -> void:
 	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 	material.blend_mode = BaseMaterial3D.BLEND_MODE_ADD
 	material.albedo_color = Color(color, 0.18)
-	for mesh: MeshInstance3D in root.find_children("*", "MeshInstance3D", true, false):
+	var meshes := root.find_children("*", "MeshInstance3D", true, false)
+	if root is MeshInstance3D:
+		meshes.append(root)
+	for mesh: MeshInstance3D in meshes:
 		mesh.material_overlay = material
 
 

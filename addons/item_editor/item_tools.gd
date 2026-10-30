@@ -97,6 +97,66 @@ static func import_model(source_path: String, id: String) -> String:
 	return target
 
 
+## Tamanho típico (maior medida, em metros) de cada tipo de desenho, para o ajuste automático.
+const TYPICAL_SIZE := {
+	"sword": 0.9, "dagger": 0.45, "axe": 0.95, "hammer": 0.95, "bow": 1.0, "longbow": 1.3,
+	"crossbow": 0.75, "hood": 0.32, "helmet": 0.32, "vest": 0.55, "plate": 0.6, "legs": 0.5,
+	"boots": 0.28, "amulet": 0.1, "ring": 0.08, "pouch": 0.22, "backpack": 0.48,
+}
+
+
+## Ajuste automático da correção do modelo: põe no tamanho típico do tipo e, nas armas, deita a
+## maior medida no eixo de cima (+Y) com o cabo (a ponta de baixo) na origem; nas outras peças,
+## centraliza. Devolve false se não há modelo.
+static func auto_fit(item: ItemDef) -> bool:
+	if item.model == null:
+		return false
+	var holder := Node3D.new()
+	var model: Node3D = item.model.instantiate()
+	holder.add_child(model)
+	var raw := _local_bounds(holder)
+	var weapon := item.slot in ["melee", "ranged"]
+	var rotation := Vector3.ZERO
+	if weapon:
+		var size := raw.size
+		if size.x >= size.y and size.x >= size.z:
+			rotation = Vector3(0, 0, 90)
+		elif size.z >= size.y and size.z >= size.x:
+			rotation = Vector3(-90, 0, 0)
+	model.rotation_degrees = rotation
+	var rotated := _local_bounds(holder)
+	var longest := maxf(rotated.size.x, maxf(rotated.size.y, rotated.size.z))
+	var scale: float = TYPICAL_SIZE.get(item.look, 0.5) / maxf(longest, 0.0001)
+	var center := rotated.get_center() * scale
+	var offset := -center
+	if weapon:
+		offset.y = -rotated.position.y * scale
+	holder.free()
+	item.model_scale = snappedf(scale, 0.0001)
+	item.model_rotation = rotation
+	item.model_offset = offset.snapped(Vector3.ONE * 0.001)
+	return true
+
+
+## Caixa das malhas de `root` (fora da árvore de cena: soma as transformações na mão).
+static func _local_bounds(root: Node3D) -> AABB:
+	var box := AABB()
+	var first := true
+	for mesh: MeshInstance3D in root.find_children("*", "MeshInstance3D", true, false):
+		if mesh.mesh == null:
+			continue
+		var transform := Transform3D.IDENTITY
+		var node: Node = mesh
+		while node and node != root:
+			if node is Node3D:
+				transform = (node as Node3D).transform * transform
+			node = node.get_parent()
+		var part := transform * mesh.get_aabb()
+		box = part if first else box.merge(part)
+		first = false
+	return box
+
+
 ## Encaixe padrão do tipo (para começar a ajustar a partir dele).
 static func default_mount(look: String) -> Array:
 	return ItemVisuals.MOUNTS.get(look, ["Wrist.R", Vector3.ZERO, Vector3.ZERO])

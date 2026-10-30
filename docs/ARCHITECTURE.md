@@ -22,7 +22,8 @@ combat/      Health, Combat (golpes em leque, mira assistida, efeitos), Projecti
 items/       ItemDB (lê as fichas), ItemDef/ItemDrop (ficha do item e regra de loot), Inventory
              (regras estilo Tibia), ItemVisuals (peças no boneco), Loot
 items/defs/  uma ficha por item (.tres), editadas no painel "Itens"
-camera/      câmera compartilhada (enquadra os jogadores da máquina, projeta a mira do mouse)
+camera/      câmera compartilhada: de cima (enquadra os jogadores da máquina, projeta a mira do
+             mouse) ou atrás do herói, estilo GTA, quando a tela tem um jogador só (opção na pausa)
 world/       mundo aberto: WorldMap e RegionDef (dados), WorldStreamer (carrega blocos),
              CreatureSpawner, Entrance, WorldNpc, LootContainer + ContainerItem (baús com
              saque), Services (regras dos serviços da cidade),
@@ -54,7 +55,8 @@ Como usar o editor de mapa: [`EDITOR_DE_MAPA.md`](EDITOR_DE_MAPA.md).
 ## Regras
 
 1. **Entrada só pelo InputService.** Nada lê `Input` direto. O herói lê um `PlayerInput`, que é
-   igual vindo do controle local ou da rede. Menu aberto bloqueia só os comandos daquele slot.
+   igual vindo do controle local ou da rede. Andar e mirar já vêm no chão do mundo (a câmera de
+   cada tela é contada na máquina de quem joga; o host não precisa saber dela). Menu aberto bloqueia só os comandos daquele slot.
 2. **Save só pelo SaveService.** Nada grava arquivo direto. O backend muda por plataforma
    (`platform/`); testes usam uma pasta separada (`use_test_storage`).
 3. **O host é a verdade.** Simulação (movimento, IA, dano, loot, inventário) roda só onde
@@ -161,6 +163,7 @@ godot --headless --path coop-dungeon -s tests/map_tools_test.gd                #
 godot --headless --fixed-fps 60 --path coop-dungeon -s tests/services_test.gd  # serviços da cidade
 godot --headless --path coop-dungeon -s tests/item_tools_test.gd               # fichas de item e painel Itens
 godot --headless --fixed-fps 60 --path coop-dungeon -s tests/container_test.gd # baús com saque
+godot --headless --fixed-fps 60 --path coop-dungeon -s tests/camera_test.gd    # câmera atrás do herói
 GODOT=godot coop-dungeon/tests/run_net_test.sh                                 # online: host + cliente, e mapa adulterado recusado
 ```
 

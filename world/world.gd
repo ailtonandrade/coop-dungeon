@@ -47,6 +47,14 @@ func _build_environment() -> void:
 	env.glow_intensity = 0.9
 	env.glow_bloom = 0.05
 	env.glow_hdr_threshold = 1.2
+	# Neblina de poluição só ao longe: some com a borda do mapa na câmera atrás do herói e não
+	# chega no que a câmera de cima mostra (até uns 40 m).
+	env.fog_enabled = true
+	env.fog_mode = Environment.FOG_MODE_DEPTH
+	env.fog_light_color = Color(0.1, 0.09, 0.14)
+	env.fog_depth_begin = 45.0
+	env.fog_depth_end = 120.0
+	env.fog_density = 1.0
 	var world_env := WorldEnvironment.new()
 	world_env.environment = env
 	add_child(world_env)
