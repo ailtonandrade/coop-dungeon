@@ -21,7 +21,8 @@ characters/  o que todo personagem usa
 player/      o herói (movimento, mira, combate, inventário) e a cena dele; Progression (nível,
              XP e chips piratas, salvos no personagem)
 audio/       Sound (autoload: eventos, som 3D, música/ambiente, barramentos), SoundBank (evento ->
-             arquivos, volume, afinação), sfx/ e music/. Ver [`SOM.md`](SOM.md)
+             arquivos, volume, afinação), Voice (autoload: voz pela rede, rádio, mudo do host),
+             sfx/ e music/. Ver [`SOM.md`](SOM.md)
 enemies/     criaturas (IA, ataques) e o gerador de ondas da arena de teste
 combat/      Health, Combat (golpes em leque, mira assistida, efeitos), Projectile, HitFx (número
              de dano, faíscas, explosão de morte, coluna de subir de nível)
@@ -177,7 +178,8 @@ godot --headless --fixed-fps 60 --path coop-dungeon -s tests/camera_test.gd    #
 godot --headless --fixed-fps 60 --path coop-dungeon -s tests/progress_test.gd  # nível, XP, chip pirata, sons e números
 godot --headless --path coop-dungeon -s tests/internet_test.gd                 # código do mundo, UPnP sem roteador
 godot --headless --fixed-fps 60 --path coop-dungeon -s tests/character_test.gd # personagens: migrar, escolher, personalizar
-GODOT=godot coop-dungeon/tests/run_net_test.sh                                 # online: host + cliente, mapa adulterado e senha
+godot --headless --path coop-dungeon -s tests/voice_test.gd                    # voz: codificação, rádio, volumes, distância
+GODOT=godot coop-dungeon/tests/run_net_test.sh                                 # online: host + cliente (com voz), mapa adulterado e senha
 ```
 
 Os testes que entram no mundo ligam `Engine.set_meta("auto_pick_character", true)`: sem tela

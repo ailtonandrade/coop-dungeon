@@ -31,11 +31,16 @@ func _process(_delta: float) -> bool:
 			_remote = _remote_player()
 			if _remote:
 				_check(true, "jogador do cliente nasceu no host (%s)" % _remote.display_name)
+				# Voz: o host "fala" (tom no lugar do microfone) e o convidado tem que ouvir.
+				root.get_node("Voice").inject_mic(_tone(0.5))
 				_remote_x = _remote.global_position.x
 				_t0 = _now()
 				_step = 2
 		2:
 			if _now() - _t0 > 3.0:
+				var voice := root.get_node("Voice")
+				_check(int(voice.heard.get(_remote.owner_peer, 0)) >= 3, "voz do convidado chegou no host (%d pacotes)" % int(voice.heard.get(_remote.owner_peer, 0)))
+				voice.set_muted_for_all(_remote.owner_peer, true)
 				var moved := _remote.global_position.x - _remote_x
 				_check(moved > 2.0, "comando do cliente moveu o jogador dele no host (%.1f m)" % moved)
 				var helmet: Dictionary = load("res://items/item_db.gd").make("iron_helmet", 2, "rare")
@@ -82,6 +87,14 @@ func _process(_delta: float) -> bool:
 		_check(false, "tempo esgotado no passo %d" % _step)
 		_finish()
 	return false
+
+
+## Meio segundo de um tom de voz (no lugar do microfone, que não existe no teste).
+func _tone(seconds: float) -> PackedFloat32Array:
+	var samples := PackedFloat32Array()
+	for i in int(seconds * 16000):
+		samples.append(sin(TAU * 220.0 * i / 16000.0) * 0.3)
+	return samples
 
 
 func _remote_player() -> Node3D:

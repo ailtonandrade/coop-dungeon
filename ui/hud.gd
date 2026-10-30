@@ -353,7 +353,7 @@ func _build_pause_menu() -> void:
 	panel.grow_vertical = Control.GROW_DIRECTION_BOTH
 	_pause.add_child(panel)
 	var column := VBoxContainer.new()
-	column.custom_minimum_size = Vector2(640, 0)
+	column.custom_minimum_size = Vector2(900, 0)
 	column.add_theme_constant_override("separation", 12)
 	panel.add_child(column)
 	var title := UiSkin.title("PAUSA", 44, UiSkin.AMBER)
@@ -383,6 +383,9 @@ func _build_pause_menu() -> void:
 	pages["Jogo"] = game
 
 	pages["Configurações"] = SettingsPanel.new()
+	var voice := VoicePanel.new()
+	voice.show_people = true
+	pages["Voz"] = voice
 
 	var controls := VBoxContainer.new()
 	controls.add_theme_constant_override("separation", 4)
@@ -440,6 +443,8 @@ func _toggle_pause() -> void:
 	InputService.screen_menu_open = _pause.visible
 	if not _pause.visible:
 		return
+	# Por cima de tudo (escolha de personagem, inventários).
+	_root.move_child(_pause, -1)
 	_show_pause_page("Jogo")
 	_update_pause_info()
 	_resume_button.grab_focus()

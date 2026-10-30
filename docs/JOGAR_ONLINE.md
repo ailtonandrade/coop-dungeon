@@ -25,6 +25,12 @@
    > **Entrar**. Na lista da rede local, mundos com senha aparecem marcados.
 3. Dentro, aperte **Start** (ou Enter) e escolha o personagem (ou crie um, até 5 por PC).
 
+## Voz
+
+Com o microfone ligado (Configurações > Voz), a sala se ouve; a voz fica mais baixa quando os
+heróis estão longe (opcional). Na pausa, aba Voz: volume e mudo de cada pessoa só para você;
+o host pode mutar alguém para todos. Detalhes em [`SOM.md`](SOM.md).
+
 ## VPN de jogo (funciona até com CGNAT)
 
 Todos instalam a mesma, entram na mesma rede da VPN, e quem entra usa o **IP da VPN** do host

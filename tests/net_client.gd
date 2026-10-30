@@ -39,6 +39,8 @@ func _process(_delta: float) -> bool:
 			if _me and _me.get("_net_synced"):
 				_check(true, "fase carregou e meu jogador chegou do host (P%d)" % (_me.index + 1))
 				_check(get_nodes_in_group("players").size() == 2, "vejo os 2 jogadores da sala")
+				# Voz: eu "falo" (tom no lugar do microfone); o host confere que chegou.
+				root.get_node("Voice").inject_mic(_tone(0.5))
 				_my_x = _me.global_position.x
 				_key(KEY_D, true)
 				_t0 = _now()
@@ -73,6 +75,9 @@ func _process(_delta: float) -> bool:
 			var head: Variant = _me.inventory.equipment.get("head")
 			if head and head.id == "iron_helmet":
 				_check(true, "equipei pelo inventário e o host confirmou")
+				var voice := root.get_node("Voice")
+				_check(int(voice.heard.get(1, 0)) >= 3, "ouvi a voz do host (%d pacotes)" % int(voice.heard.get(1, 0)))
+				_check(voice.am_muted() and not voice.talking, "o host me mutou para todos e meu microfone parou")
 				_check(not root.get_node("SaveService").load_character(_me.character_id).get("inventory", {}).is_empty(), "meu inventário ficou salvo no meu personagem, aqui no cliente")
 				_step = 13
 		13:
@@ -113,6 +118,13 @@ func _process(_delta: float) -> bool:
 		_check(false, "tempo esgotado no passo %d" % _step)
 		_finish()
 	return false
+
+
+func _tone(seconds: float) -> PackedFloat32Array:
+	var samples := PackedFloat32Array()
+	for i in int(seconds * 16000):
+		samples.append(sin(TAU * 220.0 * i / 16000.0) * 0.3)
+	return samples
 
 
 func _find_in_bag(id: String) -> Array:

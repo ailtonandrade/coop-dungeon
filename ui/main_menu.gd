@@ -330,7 +330,13 @@ func _delete_character() -> void:
 
 func _build_settings() -> Control:
 	var box := _vbox()
-	box.add_child(SettingsPanel.new())
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 36)
+	box.add_child(row)
+	var settings := SettingsPanel.new()
+	settings.custom_minimum_size = Vector2(560, 0)
+	row.add_child(settings)
+	row.add_child(VoicePanel.new())
 	_button(box, "Voltar", func() -> void: _show("main"))
 	return box
 

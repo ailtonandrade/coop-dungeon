@@ -40,3 +40,22 @@ Volumes (geral, música/ambiente, efeitos) ficam no menu de pausa e são salvos 
 - Sonniss "GDC Game Audio Bundle" (grátis, uso comercial liberado).
 - freesound.org (filtre por CC0).
 - Para trilha: encomendar de um compositor, ou bancos com licença comercial.
+
+## Voz (online)
+
+- **Configurações > Voz** (menu ou aba Voz da pausa): microfone deste PC, modo (desligada,
+  abre quando fala, ou apertar para falar com **V** / **direcional para cima**), sensibilidade
+  com medidor ao vivo (a barra fica verde quando a voz abre), **rádio velho** na própria voz
+  (os outros ouvem com o filtro), volume das vozes e **voz mais baixa com a distância** entre os
+  heróis.
+- **Sofá:** o Godot capta um microfone por vez, então todos do mesmo PC falam pelo mesmo; quem
+  está junto já se ouve na sala, e o microfone leva a voz do grupo para quem está online.
+- **Aba Voz da pausa:** cada pessoa da sala com volume e "mudo para mim"; o host tem
+  "mudo para todos" (o host para de repassar a voz dela e todo mundo vê o microfone cortado).
+- No cartão de quem fala aparece um microfone verde; cortado em vermelho se o host mutou.
+- Por baixo (audio/voice_chat.gd): 16 mil amostras por segundo em mu-law (1 byte por amostra,
+  uns 16 KB/s por pessoa enquanto fala), pacotes de 40 ms, convidados mandam ao host e ele
+  repassa; cada voz toca num som 3D preso aos heróis daquele PC. O rádio é um barramento
+  (VozRadio) com filtro de faixa, saturação "lo-fi" e um chiado ao abrir.
+- Ao publicar: Mac precisa da permissão de microfone no export; no Xbox, a capacidade de
+  microfone do GDK e as regras de chat da plataforma (bloqueio, denúncia) entram no port.

@@ -62,6 +62,7 @@ func _draw() -> void:
 	draw_string(f, Vector2(BAR.position.x, 30), name_text, HORIZONTAL_ALIGNMENT_LEFT, BAR.size.x - 80, 19, UiSkin.TEXT)
 	if player.is_local():
 		_draw_money(Vector2(BAR.end.x, 30))
+	_draw_voice(Vector2(BAR.position.x + f.get_string_size(name_text, HORIZONTAL_ALIGNMENT_LEFT, BAR.size.x - 80, 19).x + 14, 23))
 
 	_draw_bar(downed)
 	_draw_xp()
@@ -137,6 +138,21 @@ func _draw_bar(downed: bool) -> void:
 		text = "CAÍDO · chegue perto pra reviver"
 	draw_string_outline(f, inner.position + Vector2(0, 16), text, HORIZONTAL_ALIGNMENT_CENTER, inner.size.x, 14, 5, UiSkin.INK)
 	draw_string(f, inner.position + Vector2(0, 16), text, HORIZONTAL_ALIGNMENT_CENTER, inner.size.x, 14, Color.WHITE)
+
+
+## Microfone ao lado do nome: aceso enquanto essa pessoa fala; cortado se o host mutou.
+func _draw_voice(center: Vector2) -> void:
+	var muted: bool = Voice.muted_by_host.has(player.owner_peer)
+	var speaking: bool = Voice.is_speaking(player.owner_peer)
+	if not muted and not speaking:
+		return
+	var color := UiSkin.DANGER if muted else UiSkin.SAFE.lerp(Color.WHITE, 0.3 * (0.5 + 0.5 * sin(_time * 12.0)))
+	draw_rect(Rect2(center + Vector2(-3.5, -7), Vector2(7, 10)), color)
+	draw_arc(center + Vector2(0, 1), 6.0, 0.0, PI, 10, color, 1.5)
+	draw_line(center + Vector2(0, 7), center + Vector2(0, 10), color, 1.5)
+	if muted:
+		draw_line(center + Vector2(-7, -8), center + Vector2(7, 9), UiSkin.INK, 3.0)
+		draw_line(center + Vector2(-7, -8), center + Vector2(7, 9), color, 1.5)
 
 
 ## Barra fina de experiência embaixo da vida (neon).

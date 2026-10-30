@@ -18,6 +18,10 @@ config/name="Corrumpted"
 run/main_scene="res://ui/main_menu.tscn"
 config/features=PackedStringArray("4.7", "Forward Plus")
 
+[audio]
+
+driver/enable_input=true
+
 [autoload]
 
 InputService="*res://core/input_service.gd"
@@ -26,6 +30,7 @@ SaveService="*res://core/save_service.gd"
 NetService="*res://net/net_service.gd"
 Settings="*res://core/settings.gd"
 Sound="*res://audio/sound_service.gd"
+Voice="*res://audio/voice_chat.gd"
 
 [display]
 

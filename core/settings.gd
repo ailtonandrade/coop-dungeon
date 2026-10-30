@@ -16,6 +16,20 @@ var look_sensitivity := 1.0
 var ui_scale := 1.0
 ## Último personagem escolhido em cada vaga do sofá (P1 a P4), para já vir marcado.
 var last_character: Array = ["", "", "", ""]
+## Voz: "off" (desligado), "auto" (abre sozinho quando fala) ou "push" (apertar para falar).
+var voice_mode := "auto"
+## Microfone deste PC (nome da lista do sistema; "Default" = o padrão do sistema).
+var mic_device := "Default"
+## Sensibilidade da detecção de voz (volume mínimo do microfone, 0 a 1).
+var mic_threshold := 0.03
+## Minha voz sai com filtro de rádio velho (os outros ouvem assim).
+var radio_voice := false
+## Volume das vozes que eu ouço (0 a 1) e se caem com a distância entre os heróis.
+var voice_volume := 0.9
+var voice_proximity := true
+## Por pessoa (pelo nome): volume e mudo só para mim.
+var voice_peer_volume := {}
+var voice_peer_muted := {}
 ## Volumes (0 a 1): geral, música/ambiente e efeitos.
 var master_volume := 0.9
 var music_volume := 0.6
@@ -34,6 +48,9 @@ func _load() -> void:
 		camera_mode = config.get_value("camera", "mode", camera_mode)
 		look_sensitivity = config.get_value("camera", "look_sensitivity", look_sensitivity)
 		ui_scale = config.get_value("display", "ui_scale", ui_scale)
+		for key in ["voice_mode", "mic_device", "mic_threshold", "radio_voice", "voice_volume", "voice_proximity",
+				"voice_peer_volume", "voice_peer_muted"]:
+			set(key, config.get_value("voice", key, get(key)))
 		last_character = config.get_value("characters", "last", last_character)
 		master_volume = config.get_value("audio", "master", master_volume)
 		music_volume = config.get_value("audio", "music", music_volume)
@@ -61,6 +78,21 @@ func set_ui_scale(value: float) -> void:
 func apply_ui_scale() -> void:
 	if is_inside_tree():
 		get_tree().root.content_scale_factor = ui_scale
+
+
+## Muda uma opção de voz ("voice_mode", "mic_device", "radio_voice"...) e salva.
+func set_voice(key: String, value: Variant) -> void:
+	set(key, value)
+	_save()
+	changed.emit()
+
+
+## Volume (0 a 1) e mudo de uma pessoa, só para mim.
+func set_peer_voice(name: String, volume: float, muted: bool) -> void:
+	voice_peer_volume[name] = clampf(volume, 0.0, 1.5)
+	voice_peer_muted[name] = muted
+	_save()
+	changed.emit()
 
 
 func set_look_sensitivity(value: float) -> void:
@@ -94,6 +126,9 @@ func _save() -> void:
 	config.set_value("camera", "mode", camera_mode)
 	config.set_value("camera", "look_sensitivity", look_sensitivity)
 	config.set_value("display", "ui_scale", ui_scale)
+	for key in ["voice_mode", "mic_device", "mic_threshold", "radio_voice", "voice_volume", "voice_proximity",
+			"voice_peer_volume", "voice_peer_muted"]:
+		config.set_value("voice", key, get(key))
 	config.set_value("characters", "last", last_character)
 	config.set_value("audio", "master", master_volume)
 	config.set_value("audio", "music", music_volume)

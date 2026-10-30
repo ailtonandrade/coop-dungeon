@@ -186,6 +186,17 @@ func get_world_move(slot: int) -> Vector2:
 	return Vector2(world.x, world.z)
 
 
+## Apertar para falar (voz): V no teclado ou direcional para cima em qualquer controle do sofá.
+func push_to_talk_pressed() -> bool:
+	for slot in active_slots():
+		var device := _devices[slot]
+		if device == KEYBOARD and Input.is_physical_key_pressed(KEY_V):
+			return true
+		if device >= 0 and Input.is_joy_button_pressed(device, JOY_BUTTON_DPAD_UP):
+			return true
+	return active_slots().is_empty() and Input.is_physical_key_pressed(KEY_V)
+
+
 func device_of(slot: int) -> int:
 	return _devices[slot]
 
