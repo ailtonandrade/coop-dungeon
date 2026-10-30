@@ -25,6 +25,14 @@
    > **Entrar**. Na lista da rede local, mundos com senha aparecem marcados.
 3. Dentro, aperte **Start** (ou Enter) e escolha o personagem (ou crie um, até 5 por PC).
 
+## Chat do mundo
+
+Todo mundo da sala vê. **Enter** abre (teclado), digita e Enter manda; no controle, o
+**direcional para baixo** abre as mensagens rápidas ("Bora!", "Cuidado!", "Preciso de cura!"...).
+O chat mostra também quem entrou, quem saiu e quem subiu de nível. As mensagens somem sozinhas
+depois de um tempo e voltam ao abrir. Quem o host mutou para todos (aba Voz) fica mudo também no
+chat; o host limita o tamanho e a frequência das mensagens.
+
 ## Voz
 
 Com o microfone ligado (Configurações > Voz), a sala se ouve; a voz fica mais baixa quando os

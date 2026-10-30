@@ -31,6 +31,7 @@ NetService="*res://net/net_service.gd"
 Settings="*res://core/settings.gd"
 Sound="*res://audio/sound_service.gd"
 Voice="*res://audio/voice_chat.gd"
+Chat="*res://net/chat_service.gd"
 
 [display]
 

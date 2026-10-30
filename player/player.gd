@@ -794,6 +794,7 @@ func add_xp(amount: int) -> void:
 		_apply_stats()
 		health.heal(health.max_hp)
 		_fx("fx_level_up", [progress.level])
+		Chat.system("%s subiu para o nível %d" % [display_name, progress.level])
 	_send_inventory()
 
 

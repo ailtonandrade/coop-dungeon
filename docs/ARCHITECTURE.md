@@ -13,7 +13,8 @@ core/        serviços do jogo inteiro e regras de grupo; Characters (personagen
              PlayerManager (vagas P1-P4, corda do sofá), GameConfig (números do jogo)
 net/         sessão online e replicação
              NetService (offline/host/cliente), NetReplicator (entidades e estado),
-             LanDiscovery (busca de mundos na rede local), InternetAccess (UPnP abre a porta
+             LanDiscovery (busca de mundos na rede local), Chat (autoload: chat do mundo, o host
+             confere e espalha), InternetAccess (UPnP abre a porta
              sozinho, código do mundo, aviso de CGNAT). Ver [`JOGAR_ONLINE.md`](JOGAR_ONLINE.md)
 characters/  o que todo personagem usa
              CharacterAnimator (toca AÇÕES), AnimSets (ação -> clipe por tipo de corpo),
@@ -47,7 +48,7 @@ addons/map_editor/  editor de mapa: painel "Mapa do Mundo" (world_map_dock, map_
              assar navegação), usado pelo painel e pelos testes
 ui/          menu principal (com a vila 3D ao fundo: MenuBackdrop), HUD (PlayerCard, RegionBanner),
              inventário, Chip pirata (ChipPanel), escolha de personagem (CharacterSelect, com
-             CharacterPreview), configurações (SettingsPanel, no menu e na pausa), tela de serviço
+             CharacterPreview), ChatBox (chat do mundo), configurações (SettingsPanel, no menu e na pausa), tela de serviço
              (ServicePanel), minimapa
 ui/skin/     visual da interface: texturas das molduras, corrumpted_theme.tres (tema do projeto
              inteiro) e UiSkin (paleta, fontes, peças desenhadas por código)
@@ -179,7 +180,8 @@ godot --headless --fixed-fps 60 --path coop-dungeon -s tests/progress_test.gd  #
 godot --headless --path coop-dungeon -s tests/internet_test.gd                 # código do mundo, UPnP sem roteador
 godot --headless --fixed-fps 60 --path coop-dungeon -s tests/character_test.gd # personagens: migrar, escolher, personalizar
 godot --headless --path coop-dungeon -s tests/voice_test.gd                    # voz: codificação, rádio, volumes, distância
-GODOT=godot coop-dungeon/tests/run_net_test.sh                                 # online: host + cliente (com voz), mapa adulterado e senha
+godot --headless --fixed-fps 60 --path coop-dungeon -s tests/chat_test.gd      # chat: Enter, digitar sem acionar o jogo, rápidas
+GODOT=godot coop-dungeon/tests/run_net_test.sh                                 # online: host + cliente (voz e chat), mapa adulterado e senha
 ```
 
 Os testes que entram no mundo ligam `Engine.set_meta("auto_pick_character", true)`: sem tela

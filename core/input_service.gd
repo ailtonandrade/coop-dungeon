@@ -197,6 +197,12 @@ func push_to_talk_pressed() -> bool:
 	return active_slots().is_empty() and Input.is_physical_key_pressed(KEY_V)
 
 
+## Direcional para baixo do controle da vaga (abre as mensagens rápidas do chat).
+func dpad_down(slot: int) -> bool:
+	var device := _devices[slot]
+	return device >= 0 and Input.is_joy_button_pressed(device, JOY_BUTTON_DPAD_DOWN)
+
+
 func device_of(slot: int) -> int:
 	return _devices[slot]
 

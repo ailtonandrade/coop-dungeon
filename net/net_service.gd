@@ -169,6 +169,7 @@ func leave_session(message := "") -> void:
 	_peer_names.clear()
 	_remote_inputs.clear()
 	_press_counts.clear()
+	Chat.clear()
 	InputService.reset()
 	_go_to(MENU_SCENE)
 

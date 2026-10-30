@@ -29,6 +29,8 @@ func read(key: String) -> Dictionary:
 
 func list(prefix: String) -> PackedStringArray:
 	var keys := PackedStringArray()
+	if not DirAccess.dir_exists_absolute(dir):
+		return keys
 	for file in DirAccess.get_files_at(dir):
 		if file.ends_with(".json") and file.begins_with(prefix):
 			keys.append(file.trim_suffix(".json"))

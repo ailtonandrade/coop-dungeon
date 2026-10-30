@@ -17,6 +17,8 @@ const CONTROLS := [
 	["Pegar / falar", "LB", "F"],
 	["Inventário", "Back", "I"],
 	["Menu", "Start", "Esc"],
+	["Chat", "direcional ↓ (rápidas)", "Enter"],
+	["Falar (voz)", "direcional ↑ (se ligado)", "V"],
 ]
 
 var _root: Control
@@ -39,6 +41,8 @@ var _inventories := {}  # slot local -> InventoryPanel
 var _services := {}  # slot local -> ServicePanel
 var _selects := {}  # slot local -> CharacterSelect (escolhendo personagem antes de entrar)
 var _banner: RegionBanner
+var _chat: ChatBox
+var _dpad_was := {}  # slot -> direcional para baixo apertado no quadro anterior
 var _region: RegionDef
 
 
@@ -107,6 +111,13 @@ func _ready() -> void:
 	_net_chip.add_child(_net_label)
 	_root.add_child(_net_chip)
 
+	_chat = ChatBox.new()
+	_chat.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_LEFT)
+	_chat.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	_chat.offset_left = 20
+	_chat.offset_bottom = -(PlayerCard.SIZE.y + 40)
+	_root.add_child(_chat)
+
 	_build_pause_menu()
 
 
@@ -136,7 +147,10 @@ func _process(_delta: float) -> void:
 
 
 func _physics_process(_delta: float) -> void:
+	_check_quick_chat()
 	for slot in InputService.active_slots():
+		if _chat.is_open():
+			continue
 		if InputService.raw_just_pressed(slot, InputService.Action.INVENTORY) and not _services.has(slot):
 			_toggle_inventory(slot)
 		elif InputService.just_pressed(slot, InputService.Action.PICKUP):
@@ -167,7 +181,25 @@ func _physics_process(_delta: float) -> void:
 			return
 
 
+## Direcional para baixo (controle) abre as mensagens rápidas, fora de menus e da pausa.
+func _check_quick_chat() -> void:
+	for slot in InputService.active_slots():
+		var down := InputService.dpad_down(slot)
+		if down and not _dpad_was.get(slot, false) and not _pause.visible and not _chat.is_open() \
+				and not InputService.is_blocked(slot) and _local_player(slot) != null:
+			_chat.open_quick(slot)
+		_dpad_was[slot] = down
+
+
 func _unhandled_input(event: InputEvent) -> void:
+	# Enter: o jogador do teclado abre o chat para digitar.
+	if event is InputEventKey and event.pressed and not event.echo and event.physical_keycode == KEY_ENTER \
+			and not _pause.visible and not _chat.is_open():
+		for slot in InputService.active_slots():
+			if InputService.device_of(slot) == InputService.KEYBOARD and not InputService.is_blocked(slot) and _local_player(slot):
+				_chat.open_typing(slot)
+				get_viewport().set_input_as_handled()
+				return
 	# Esc abre o menu mesmo sem ninguém no jogo ainda.
 	var escape: bool = event is InputEventKey and event.pressed and not event.echo \
 			and event.physical_keycode == KEY_ESCAPE and not InputService.active_slots().size()
@@ -443,8 +475,10 @@ func _toggle_pause() -> void:
 	InputService.screen_menu_open = _pause.visible
 	if not _pause.visible:
 		return
-	# Por cima de tudo (escolha de personagem, inventários).
+	# Por cima de tudo (escolha de personagem, inventários); o chat fecha.
 	_root.move_child(_pause, -1)
+	if _pause.visible and _chat.is_open():
+		_chat.close()
 	_show_pause_page("Jogo")
 	_update_pause_info()
 	_resume_button.grab_focus()

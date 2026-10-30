@@ -29,6 +29,7 @@ func add_player(peer: int, slot: int, display_name: String, save := {}) -> void:
 	var base := spawn_position
 	if not _players.is_empty():
 		base = (_players.values()[0] as Player).global_position
+	Chat.system("%s entrou no mundo" % display_name)
 	_players[index] = NetReplicator.of(self).spawn("player", {
 		"peer": peer, "slot": slot, "index": index, "name": display_name,
 		"inventory": save.get("inventory", {}),
@@ -80,6 +81,7 @@ func local_characters() -> Array:
 func remove_player(peer: int, slot: int) -> void:
 	var player := _find(peer, slot)
 	if player:
+		Chat.system("%s saiu" % player.display_name)
 		_players.erase(player.index)
 		player.queue_free()
 

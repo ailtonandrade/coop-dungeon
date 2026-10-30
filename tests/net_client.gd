@@ -41,6 +41,7 @@ func _process(_delta: float) -> bool:
 				_check(get_nodes_in_group("players").size() == 2, "vejo os 2 jogadores da sala")
 				# Voz: eu "falo" (tom no lugar do microfone); o host confere que chegou.
 				root.get_node("Voice").inject_mic(_tone(0.5))
+				root.get_node("Chat").send(_me, "Bora pro túnel!")
 				_my_x = _me.global_position.x
 				_key(KEY_D, true)
 				_t0 = _now()
@@ -78,6 +79,12 @@ func _process(_delta: float) -> bool:
 				var voice := root.get_node("Voice")
 				_check(int(voice.heard.get(1, 0)) >= 3, "ouvi a voz do host (%d pacotes)" % int(voice.heard.get(1, 0)))
 				_check(voice.am_muted() and not voice.talking, "o host me mutou para todos e meu microfone parou")
+				var chat := root.get_node("Chat")
+				var texts: Array = chat.history.map(func(m: Dictionary) -> String: return m.text)
+				_check(texts.has("Chegou o host!"), "vi a mensagem do host no chat")
+				_check(texts.has("Bora pro túnel!"), "minha mensagem voltou pelo host (todos veem)")
+				_check(chat.history.any(func(m: Dictionary) -> bool: return m.kind == "system" and m.text.contains("entrou")), "aviso de quem entrou")
+				chat.send(_me, "mensagem de mutado")
 				_check(not root.get_node("SaveService").load_character(_me.character_id).get("inventory", {}).is_empty(), "meu inventário ficou salvo no meu personagem, aqui no cliente")
 				_step = 13
 		13:

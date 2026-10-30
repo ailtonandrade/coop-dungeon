@@ -33,6 +33,8 @@ func _process(_delta: float) -> bool:
 				_check(true, "jogador do cliente nasceu no host (%s)" % _remote.display_name)
 				# Voz: o host "fala" (tom no lugar do microfone) e o convidado tem que ouvir.
 				root.get_node("Voice").inject_mic(_tone(0.5))
+				# Chat: o host manda uma mensagem para a sala.
+				root.get_node("Chat").send(_local_player(), "Chegou o host!")
 				_remote_x = _remote.global_position.x
 				_t0 = _now()
 				_step = 2
@@ -40,6 +42,10 @@ func _process(_delta: float) -> bool:
 			if _now() - _t0 > 3.0:
 				var voice := root.get_node("Voice")
 				_check(int(voice.heard.get(_remote.owner_peer, 0)) >= 3, "voz do convidado chegou no host (%d pacotes)" % int(voice.heard.get(_remote.owner_peer, 0)))
+				var texts: Array = root.get_node("Chat").history.map(func(m: Dictionary) -> String: return m.text)
+				_check(texts.has("Bora pro túnel!"), "mensagem do convidado chegou no chat do host")
+				_check(root.get_node("Chat").history.any(func(m: Dictionary) -> bool: return m.from == _remote.display_name),
+						"com o nome do personagem dele")
 				voice.set_muted_for_all(_remote.owner_peer, true)
 				var moved := _remote.global_position.x - _remote_x
 				_check(moved > 2.0, "comando do cliente moveu o jogador dele no host (%.1f m)" % moved)
@@ -82,6 +88,9 @@ func _process(_delta: float) -> bool:
 		3:
 			if _remote_player() == null:
 				_check(true, "cliente saiu e o jogador dele sumiu")
+				var texts: Array = root.get_node("Chat").history.map(func(m: Dictionary) -> String: return m.text)
+				_check(not texts.has("mensagem de mutado"), "mutado pelo host não fala no chat")
+				_check(texts.any(func(t: String) -> bool: return t.ends_with("saiu")), "aviso de que ele saiu")
 				_finish()
 	if _now() - _t0 > TIMEOUT:
 		_check(false, "tempo esgotado no passo %d" % _step)
@@ -95,6 +104,13 @@ func _tone(seconds: float) -> PackedFloat32Array:
 	for i in int(seconds * 16000):
 		samples.append(sin(TAU * 220.0 * i / 16000.0) * 0.3)
 	return samples
+
+
+func _local_player() -> Node3D:
+	for p in get_nodes_in_group("players"):
+		if p.owner_peer == 1:
+			return p
+	return null
 
 
 func _remote_player() -> Node3D:
