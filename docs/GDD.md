@@ -246,7 +246,8 @@ Segue o centro dos jogadores da máquina, como a câmera principal.
 | Inventário | Back | I |
 | Artefato | RB | Q |
 | Menu | Start | Esc |
-| Entrar no jogo | Start / A | Enter |
+| Entrar no jogo (1º jogador) | — (entra direto com o personagem do menu) | — |
+| Entrar no sofá (com alguém jogando) | segurar Y 2 s com o jogo pausado | segurar Espaço 2 s com o jogo pausado |
 
 **Mira (twin-stick):** com o analógico direito (ou mouse), o herói olha para a mira e anda
 para qualquer lado: de frente, de lado e de costas (mais devagar de costas). Atirando andando,
@@ -257,6 +258,13 @@ com botão apertado); parado, volta a olhar para onde anda.
 **Segurar para atacar:** segurando o ataque corpo a corpo, o combo continua sozinho, com uma
 pausa de 0,25 s entre um combo completo e o próximo. Segurando o tiro, atira sem parar
 (recarga da arma).
+
+**Entrada no sofá:** o primeiro jogador cai direto no mundo com o personagem marcado no menu
+principal (cartão "Jogando como", à direita; câmera estilo GTA se estiver sozinho na tela e
+ela estiver ligada, senão a isométrica). Para mais alguém entrar, quem já joga pausa; o novo
+jogador segura Y (ou Espaço) por 2 s — o cartão vazio mostra a barra enchendo — e escolhe, em
+cards com prévia, um personagem deste PC que ninguém esteja usando, ou cria um novo (visual,
+cor do chip e nome) e entra.
 
 **Limite do sofá:** quem divide a tela não se afasta mais que 13 m dos outros da mesma tela
 (parede invisível); de reserva, quem passar de 16 m (queda, empurrão) é teleportado.

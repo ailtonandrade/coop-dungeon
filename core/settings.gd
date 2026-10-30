@@ -14,6 +14,8 @@ var camera_mode := "iso"
 var look_sensitivity := 1.0
 ## Tamanho da interface (textos, menus, HUD): 1.0 = normal.
 var ui_scale := 1.0
+## Personagem ativo (escolhido no menu): é com ele que o primeiro jogador entra no mundo.
+var active_character := ""
 ## Último personagem escolhido em cada vaga do sofá (P1 a P4), para já vir marcado.
 var last_character: Array = ["", "", "", ""]
 ## Voz: "off" (desligado), "auto" (abre sozinho quando fala) ou "push" (apertar para falar).
@@ -52,6 +54,7 @@ func _load() -> void:
 				"voice_peer_volume", "voice_peer_muted"]:
 			set(key, config.get_value("voice", key, get(key)))
 		last_character = config.get_value("characters", "last", last_character)
+		active_character = config.get_value("characters", "active", active_character)
 		master_volume = config.get_value("audio", "master", master_volume)
 		music_volume = config.get_value("audio", "music", music_volume)
 		sfx_volume = config.get_value("audio", "sfx", sfx_volume)
@@ -101,6 +104,12 @@ func set_look_sensitivity(value: float) -> void:
 	changed.emit()
 
 
+func set_active_character(character_id: String) -> void:
+	active_character = character_id
+	_save()
+	changed.emit()
+
+
 func remember_character(slot: int, character_id: String) -> void:
 	if slot >= 0 and slot < last_character.size():
 		last_character[slot] = character_id
@@ -130,6 +139,7 @@ func _save() -> void:
 			"voice_peer_volume", "voice_peer_muted"]:
 		config.set_value("voice", key, get(key))
 	config.set_value("characters", "last", last_character)
+	config.set_value("characters", "active", active_character)
 	config.set_value("audio", "master", master_volume)
 	config.set_value("audio", "music", music_volume)
 	config.set_value("audio", "sfx", sfx_volume)

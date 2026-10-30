@@ -29,6 +29,11 @@ var _char_preview: CharacterPreview
 var _char_info: Label
 var _char_delete: Button
 var _editing := {}
+# Personagem ativo em destaque (lado direito do menu principal)
+var _active_card: PanelContainer
+var _active_preview: CharacterPreview
+var _active_name: Label
+var _active_info: Label
 
 
 func _ready() -> void:
@@ -37,6 +42,7 @@ func _ready() -> void:
 	Sound.play_music("menu")
 	add_child(MenuBackdrop.new())
 	_build_overlay()
+	_build_active_card()
 
 	var column := VBoxContainer.new()
 	column.set_anchors_and_offsets_preset(Control.PRESET_CENTER_LEFT)
@@ -75,6 +81,10 @@ func _show(screen_name: String) -> void:
 	if _discovery and screen_name != "browse":
 		_discovery.queue_free()
 		_discovery = null
+	# O personagem ativo fica em destaque só na tela principal (as outras usam o espaço).
+	if _active_card:
+		_active_card.visible = screen_name == "main"
+		_refresh_active_card()
 	match screen_name:
 		"worlds":
 			_refresh_worlds()
@@ -83,6 +93,50 @@ func _show(screen_name: String) -> void:
 		"characters":
 			_refresh_characters()
 	_focus_first(_screens[screen_name])
+
+
+## Personagem ativo: é com ele que você entra no mundo (troca na tela Personagens).
+func _build_active_card() -> void:
+	_active_card = PanelContainer.new()
+	_active_card.set_anchors_and_offsets_preset(Control.PRESET_CENTER_RIGHT)
+	_active_card.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+	_active_card.grow_vertical = Control.GROW_DIRECTION_BOTH
+	_active_card.offset_right = -110
+	_active_card.offset_left = -110 - 360
+	add_child(_active_card)
+	var box := VBoxContainer.new()
+	box.add_theme_constant_override("separation", 6)
+	_active_card.add_child(box)
+	var header := UiSkin.label("JOGANDO COMO", 14, UiSkin.NEON, "Bold", 3)
+	header.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	box.add_child(header)
+	_active_preview = CharacterPreview.new()
+	_active_preview.custom_minimum_size = Vector2(320, 360)
+	box.add_child(_active_preview)
+	_active_name = UiSkin.title("", 30, UiSkin.AMBER)
+	_active_name.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	box.add_child(_active_name)
+	_active_info = UiSkin.label("", 15, UiSkin.TEXT, "SemiBold", 3)
+	_active_info.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	box.add_child(_active_info)
+	var change := _button(box, "Trocar personagem", func() -> void: _show("characters"))
+	change.alignment = HORIZONTAL_ALIGNMENT_CENTER
+
+
+## Mostra o ativo (sem nenhum ainda, cria um para começar).
+func _refresh_active_card() -> void:
+	var active := SaveService.load_character(Settings.active_character)
+	if active.is_empty():
+		var characters := SaveService.list_characters()
+		if characters.is_empty():
+			active = Characters.create()
+			SaveService.save_character(active)
+		else:
+			active = characters[0]
+		Settings.set_active_character(active.id)
+	_active_preview.show_character(active)
+	_active_name.text = active.name.to_upper()
+	_active_info.text = "Nível %d · %s · chip %s" % [Characters.level_of(active), Characters.MODELS[active.model], Characters.CHIP_COLOR_NAMES[active.chip_color]]
 
 
 ## Visual
@@ -269,8 +323,11 @@ func _refresh_characters(select_id := "") -> void:
 	if select_id.is_empty() and not _editing.is_empty():
 		select_id = _editing.id
 	_editing = {}
+	if select_id.is_empty():
+		select_id = Settings.active_character
 	for character in characters:
-		var text := "%s  ·  nível %d" % [character.name, Characters.level_of(character)]
+		var active: bool = character.id == Settings.active_character
+		var text := "%s%s  ·  nível %d" % ["▶ " if active else "", character.name, Characters.level_of(character)]
 		_button(_char_list, text, _select_character.bind(character.id))
 		if character.id == select_id or (select_id.is_empty() and _editing.is_empty()):
 			_editing = character
@@ -278,14 +335,16 @@ func _refresh_characters(select_id := "") -> void:
 		_button(_char_list, "+ Novo personagem (%d/%d)" % [characters.size(), Characters.MAX], func() -> void:
 			var created := Characters.create()
 			SaveService.save_character(created)
+			Settings.set_active_character(created.id)
 			_refresh_characters(created.id))
 	_show_editing()
 
 
+## Escolher na lista já deixa o personagem como ativo (é com ele que você entra no mundo).
 func _select_character(character_id: String) -> void:
 	_pending_delete = ""
-	_editing = SaveService.load_character(character_id)
-	_show_editing()
+	Settings.set_active_character(character_id)
+	_refresh_characters(character_id)
 
 
 func _show_editing() -> void:
@@ -298,7 +357,7 @@ func _show_editing() -> void:
 		return
 	_char_name.text = _editing.name
 	_char_model.select(Characters.MODELS.keys().find(_editing.model))
-	_char_info.text = "%s · chip %s · nível %d" % [Characters.MODELS[_editing.model], Characters.CHIP_COLOR_NAMES[_editing.chip_color], Characters.level_of(_editing)]
+	_char_info.text = "%s · chip %s · nível %d · ▶ é com ele que você entra no mundo" % [Characters.MODELS[_editing.model], Characters.CHIP_COLOR_NAMES[_editing.chip_color], Characters.level_of(_editing)]
 	_char_delete.text = "Apagar"
 
 
@@ -322,6 +381,9 @@ func _delete_character() -> void:
 		return
 	_pending_delete = ""
 	SaveService.delete_character(_editing.id)
+	if Settings.active_character == _editing.id:
+		var rest := SaveService.list_characters()
+		Settings.set_active_character(rest[0].id if not rest.is_empty() else "")
 	_editing = {}
 	_refresh_characters()
 

@@ -23,7 +23,9 @@
 1. Mesma versão do jogo que o host (o mesmo .zip/instalador).
 2. **Buscar mundos** > digite o **código do mundo** (ou o IP) e, se o mundo tiver, a **senha**
    > **Entrar**. Na lista da rede local, mundos com senha aparecem marcados.
-3. Dentro, aperte **Start** (ou Enter) e escolha o personagem (ou crie um, até 5 por PC).
+3. Você entra direto com o personagem marcado no menu principal (cartão **Jogando como**;
+   troque em **Personagens**, até 5 por PC). Alguém do seu sofá entra depois: pause e ele
+   segura **Y** (ou **Espaço**) por 2 s, escolhe ou cria o personagem e entra.
 
 ## Chat do mundo
 

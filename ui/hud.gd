@@ -191,6 +191,14 @@ func _check_quick_chat() -> void:
 		_dpad_was[slot] = down
 
 
+func _input(event: InputEvent) -> void:
+	# Na pausa, Espaço de um teclado que ainda não entrou é "segurar para entrar", não clique no
+	# botão em foco.
+	if _pause.visible and event is InputEventKey and event.physical_keycode == KEY_SPACE \
+			and not InputService.active_slots().any(func(slot: int) -> bool: return InputService.device_of(slot) == InputService.KEYBOARD):
+		get_viewport().set_input_as_handled()
+
+
 func _unhandled_input(event: InputEvent) -> void:
 	# Enter: o jogador do teclado abre o chat para digitar.
 	if event is InputEventKey and event.pressed and not event.echo and event.physical_keycode == KEY_ENTER \
@@ -237,6 +245,9 @@ func _update_region() -> void:
 func open_character_select(slot: int) -> void:
 	if _selects.has(slot):
 		return
+	# Entrou segurando Y na pausa: a pausa fecha e a escolha aparece.
+	if _pause.visible:
+		_toggle_pause()
 	var panel := CharacterSelect.new()
 	_root.add_child(panel)
 	panel.open_for(slot, _characters_in_use)
@@ -480,6 +491,8 @@ func _build_password_row(parent: Control) -> Control:
 func _toggle_pause() -> void:
 	_pause.visible = not _pause.visible
 	InputService.screen_menu_open = _pause.visible
+	# Na pausa, um controle novo pode entrar no sofá segurando Y (Espaço no teclado).
+	InputService.couch_join_open = _pause.visible
 	if not _pause.visible:
 		return
 	# Por cima de tudo (escolha de personagem, inventários); o chat fecha.

@@ -1,34 +1,40 @@
 class_name CharacterSelect
 extends PanelContainer
-## Escolha de personagem de um jogador do sofá, ao apertar Start no mundo. Cada um escolhe o
-## seu ao mesmo tempo, com o próprio controle. Dá para criar um novo (até 5 por máquina) e
-## personalizar ali mesmo: visual do corpo, cor do chip pirata e nome sorteado. Nome digitado e
-## apagar ficam na tela Personagens do menu principal.
+## Escolha de personagem de quem entra no sofá depois do primeiro (segurou Y na pausa).
+## Cards com prévia dos personagens deste PC e um card "Novo"; no "Novo", escolhe visual,
+## cor do chip e nome (sorteado no controle; digitado no teclado) e entra.
 ##
-## Controle: cima/baixo escolhe · esquerda/direita troca o visual · Y cor do chip
-##           X sorteia nome · A / Start entra · B sai
-## Teclado:  W/S · A/D · E · J · Espaço / Enter · Shift
+## Cards:   esquerda/direita escolhe · A entra (ou cria, no "Novo") · B desiste
+## Criação: esquerda/direita visual · Y cor do chip · X sorteia nome · A entra · B volta
+## Teclado:  nos cards A/D · Espaço · Shift; na criação, digita o nome, ← → visual, Enter, Esc
 
 signal finished(character_id: String)
 signal cancelled
 
 const REPEAT_DELAY := 0.3
-const REPEAT_RATE := 0.14
+const REPEAT_RATE := 0.16
+const CARD_SIZE := Vector2(150, 250)
 
 var slot := 0
 ## Personagens já em jogo nesta máquina (não dá para entrar duas vezes com o mesmo).
 var taken: Array = []
 ## De onde vem a lista acima (atualizada enquanto escolhe: outro do sofá pode entrar antes).
 var taken_source := Callable()
-var _taken_timer := 0.0
 
 var _characters: Array[Dictionary] = []
 var _cursor := 0
-var _list: VBoxContainer
-var _preview: CharacterPreview
-var _details: Label
+var _creating := false
+var _draft := {}
+var _title: Label
+var _cards: HBoxContainer
+var _create_box: VBoxContainer
+var _create_preview: CharacterPreview
+var _model_label: Label
+var _name_edit: LineEdit
+var _hint: Label
 var _repeat := 0.0
-var _last_dir := Vector2i.ZERO
+var _last_dir := 0
+var _taken_timer := 0.0
 
 
 func open_for(p_slot: int, source: Callable) -> void:
@@ -37,12 +43,19 @@ func open_for(p_slot: int, source: Callable) -> void:
 	taken = source.call() if source.is_valid() else []
 	InputService.set_blocked(slot, true)
 	_build()
-	_reload()
+	_characters = SaveService.list_characters()
 	var last: String = Settings.last_character[slot] if slot < Settings.last_character.size() else ""
+	# Começa no último usado por este jogador; senão, no primeiro que ninguém está usando.
+	_cursor = -1
 	for i in _characters.size():
 		if _characters[i].id == last and not taken.has(last):
 			_cursor = i
-	_refresh()
+	if _cursor == -1:
+		_cursor = maxi(_characters.find_custom(func(c: Dictionary) -> bool: return not taken.has(c.id)), 0)
+	# Sem nenhum livre: já começa no "Novo".
+	if _characters.all(func(c: Dictionary) -> bool: return taken.has(c.id)) and _characters.size() < Characters.MAX:
+		_cursor = _characters.size()
+	_refresh_cards()
 
 
 func _exit_tree() -> void:
@@ -51,90 +64,164 @@ func _exit_tree() -> void:
 
 func _build() -> void:
 	add_theme_stylebox_override("panel", UiSkin.panel())
-	custom_minimum_size = Vector2(520, 0)
 	var column := VBoxContainer.new()
-	column.add_theme_constant_override("separation", 8)
+	column.add_theme_constant_override("separation", 10)
 	add_child(column)
-	var color := GameConfig.PLAYER_COLORS[slot]
-	column.add_child(UiSkin.label("P%d · escolha seu personagem" % (slot + 1), 20, color, "Bold", 4))
-	var row := HBoxContainer.new()
-	row.add_theme_constant_override("separation", 12)
-	column.add_child(row)
-	_list = VBoxContainer.new()
-	_list.custom_minimum_size = Vector2(320, 0)
-	_list.add_theme_constant_override("separation", 4)
-	row.add_child(_list)
-	_preview = CharacterPreview.new()
-	_preview.custom_minimum_size = Vector2(170, 230)
-	row.add_child(_preview)
-	_details = UiSkin.label("", 15, UiSkin.TEXT, "Regular", 3)
-	_details.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	column.add_child(_details)
-	column.add_child(UiSkin.label("A entra · ◀ ▶ visual · Y cor do chip · X sorteia nome · B sai", 13, Color(1, 1, 1, 0.6), "Regular", 3))
+	_title = UiSkin.label("", 20, GameConfig.PLAYER_COLORS[slot], "Bold", 4)
+	column.add_child(_title)
+	_cards = HBoxContainer.new()
+	_cards.add_theme_constant_override("separation", 10)
+	column.add_child(_cards)
+
+	_create_box = VBoxContainer.new()
+	_create_box.visible = false
+	_create_box.add_theme_constant_override("separation", 6)
+	column.add_child(_create_box)
+	var create_row := HBoxContainer.new()
+	create_row.add_theme_constant_override("separation", 16)
+	_create_box.add_child(create_row)
+	_create_preview = CharacterPreview.new()
+	_create_preview.custom_minimum_size = Vector2(200, 270)
+	create_row.add_child(_create_preview)
+	var fields := VBoxContainer.new()
+	fields.add_theme_constant_override("separation", 10)
+	fields.custom_minimum_size = Vector2(320, 0)
+	create_row.add_child(fields)
+	fields.add_child(UiSkin.label("Visual", 14, UiSkin.DIM, "Regular", 3))
+	_model_label = UiSkin.label("", 22, UiSkin.TEXT, "Bold", 4)
+	fields.add_child(_model_label)
+	fields.add_child(UiSkin.label("Nome", 14, UiSkin.DIM, "Regular", 3))
+	_name_edit = LineEdit.new()
+	_name_edit.max_length = Characters.NAME_MAX
+	_name_edit.custom_minimum_size = Vector2(0, 44)
+	_name_edit.text_changed.connect(func(text: String) -> void: _draft.name = text)
+	_name_edit.text_submitted.connect(func(_text: String) -> void: _confirm_create())
+	_name_edit.gui_input.connect(func(event: InputEvent) -> void:
+		if event is InputEventKey and event.pressed and event.physical_keycode == KEY_ESCAPE:
+			_name_edit.accept_event()
+			_back())
+	fields.add_child(_name_edit)
+
+	_hint = UiSkin.label("", 13, Color(1, 1, 1, 0.65), "Regular", 3)
+	column.add_child(_hint)
 
 
-func _reload() -> void:
-	_characters = SaveService.list_characters()
-
-
-## Linha "novo personagem" no fim, se ainda couber.
-func _can_create() -> bool:
-	return _characters.size() < Characters.MAX
-
+## Cards
 
 func _row_count() -> int:
-	return _characters.size() + (1 if _can_create() else 0)
+	return _characters.size() + (1 if _characters.size() < Characters.MAX else 0)
 
 
-func _refresh() -> void:
+func _refresh_cards() -> void:
+	_creating = false
+	_create_box.visible = false
+	_cards.visible = true
+	_title.text = "P%d · escolha seu personagem" % (slot + 1)
+	_hint.text = "◀ ▶ escolhe · A entra · B desiste"
 	_cursor = clampi(_cursor, 0, maxi(_row_count() - 1, 0))
-	for child in _list.get_children():
+	for child in _cards.get_children():
 		child.queue_free()
 	for i in _row_count():
-		var is_new := i >= _characters.size()
-		var text := "+ Novo personagem"
-		var color := UiSkin.NEON
-		if not is_new:
-			var character := _characters[i]
-			text = "%s  ·  %s  ·  nível %d" % [character.name, Characters.MODELS[character.model], Characters.level_of(character)]
-			color = UiSkin.TEXT
-			if taken.has(character.id):
-				text += "  (já em jogo)"
-				color = UiSkin.DIM
-		var label := UiSkin.label(text, 17, color, "Bold" if i == _cursor else "SemiBold", 3)
-		var panel := PanelContainer.new()
-		var style := StyleBoxFlat.new()
-		style.bg_color = Color(1, 1, 1, 0.08) if i == _cursor else Color(0, 0, 0, 0)
-		style.border_color = GameConfig.PLAYER_COLORS[slot]
-		style.set_border_width_all(2 if i == _cursor else 0)
-		style.set_content_margin_all(6)
-		panel.add_theme_stylebox_override("panel", style)
-		panel.add_child(label)
-		_list.add_child(panel)
-	var current := _current()
-	_preview.show_character(current)
-	if current.is_empty():
-		_details.text = "Cria um personagem novo com nome e visual sorteados (dá para mudar aqui ou no menu Personagens)."
-	else:
-		_details.text = "%s · chip %s · %d/%d personagens nesta máquina" % [
-			Characters.MODELS[current.model], Characters.CHIP_COLOR_NAMES[current.chip_color], _characters.size(), Characters.MAX]
+		_cards.add_child(_card(i))
 
 
-func _current() -> Dictionary:
-	return _characters[_cursor] if _cursor < _characters.size() else {}
+func _card(i: int) -> Control:
+	var selected := i == _cursor
+	var is_new := i >= _characters.size()
+	var card := PanelContainer.new()
+	card.custom_minimum_size = CARD_SIZE
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.02, 0.04, 0.06, 0.85) if not selected else Color(0.06, 0.1, 0.14, 0.95)
+	style.border_color = GameConfig.PLAYER_COLORS[slot] if selected else Color(UiSkin.BRASS, 0.4)
+	style.set_border_width_all(3 if selected else 1)
+	style.set_content_margin_all(6)
+	card.add_theme_stylebox_override("panel", style)
+	var box := VBoxContainer.new()
+	box.add_theme_constant_override("separation", 2)
+	card.add_child(box)
+	if is_new:
+		var plus := UiSkin.title("+", 90, UiSkin.NEON)
+		plus.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		plus.custom_minimum_size = Vector2(0, 170)
+		plus.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		box.add_child(plus)
+		box.add_child(_centered(UiSkin.label("Novo personagem", 15, UiSkin.NEON, "Bold", 3)))
+		box.add_child(_centered(UiSkin.label("%d/%d" % [_characters.size(), Characters.MAX], 12, UiSkin.DIM, "Regular", 3)))
+		return card
+	var character := _characters[i]
+	var preview := CharacterPreview.new()
+	preview.custom_minimum_size = Vector2(0, 170)
+	box.add_child(preview)
+	preview.show_character(character)
+	var used := taken.has(character.id)
+	box.add_child(_centered(UiSkin.label(character.name, 15, UiSkin.DIM if used else UiSkin.TEXT, "Bold", 3)))
+	var info := "em jogo" if used else "nível %d · %s" % [Characters.level_of(character), Characters.MODELS[character.model]]
+	var info_label := UiSkin.label(info, 11, UiSkin.DANGER if used else UiSkin.DIM, "Regular", 2)
+	info_label.clip_text = true
+	box.add_child(_centered(info_label))
+	if used:
+		card.modulate = Color(1, 1, 1, 0.55)
+	return card
 
+
+func _centered(label: Label) -> Label:
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	return label
+
+
+## Criação
+
+func _start_create() -> void:
+	if _characters.size() >= Characters.MAX:
+		Sound.play("ui_error")
+		return
+	_creating = true
+	_draft = Characters.create()
+	_cards.visible = false
+	_create_box.visible = true
+	_title.text = "P%d · novo personagem" % (slot + 1)
+	var keyboard := InputService.device_of(slot) == InputService.KEYBOARD
+	_hint.text = "◀ ▶ visual · Y cor do chip · X sorteia nome · A entra · B volta" if not keyboard \
+			else "Digite o nome · ← → visual · Enter entra · Esc volta"
+	_name_edit.text = _draft.name
+	_name_edit.editable = keyboard
+	if keyboard:
+		_name_edit.grab_focus.call_deferred()
+	_refresh_create()
+
+
+func _refresh_create() -> void:
+	_model_label.text = "◀  %s  ▶" % Characters.MODELS[_draft.model]
+	_create_preview.show_character(_draft)
+
+
+func _confirm_create() -> void:
+	_draft = Characters.sanitize(_draft)
+	if not SaveService.save_character(_draft):
+		Sound.play("ui_error")
+		return
+	Sound.play("ui_confirm")
+	Settings.remember_character(slot, _draft.id)
+	finished.emit(_draft.id)
+
+
+## Entrada
 
 func _physics_process(delta: float) -> void:
 	_taken_timer -= delta
-	if _taken_timer <= 0.0 and taken_source.is_valid():
+	if _taken_timer <= 0.0 and taken_source.is_valid() and not _creating:
 		_taken_timer = 0.25
 		var now: Array = taken_source.call()
 		if now != taken:
 			taken = now
-			_refresh()
+			_refresh_cards()
+	var typing := _creating and _name_edit.has_focus()
 	var raw := InputService.raw_move(slot)
-	var dir := Vector2i(roundi(raw.x) if absf(raw.x) > 0.5 else 0, roundi(raw.y) if absf(raw.y) > 0.5 else 0)
-	if dir != Vector2i.ZERO:
+	var dir := 0 if absf(raw.x) < 0.5 else signi(roundi(raw.x))
+	# Digitando o nome no teclado, A/D são letras: só as setas mudam o visual.
+	if typing:
+		dir = int(Input.is_physical_key_pressed(KEY_RIGHT)) - int(Input.is_physical_key_pressed(KEY_LEFT))
+	if dir != 0:
 		if dir != _last_dir:
 			_step(dir)
 			_repeat = REPEAT_DELAY
@@ -144,57 +231,59 @@ func _physics_process(delta: float) -> void:
 				_step(dir)
 				_repeat = REPEAT_RATE
 	_last_dir = dir
+	if typing:
+		return
 	if InputService.raw_just_pressed(slot, InputService.Action.JUMP) or InputService.raw_just_pressed(slot, InputService.Action.PAUSE):
-		_confirm()
-	elif InputService.raw_just_pressed(slot, InputService.Action.POTION):
-		_edit(func(c: Dictionary) -> void: c.chip_color = wrapi(int(c.chip_color) + 1, 0, Characters.CHIP_COLORS.size()))
-	elif InputService.raw_just_pressed(slot, InputService.Action.MELEE):
-		_edit(func(c: Dictionary) -> void: c.name = Characters.random_name())
+		_accept()
 	elif InputService.raw_just_pressed(slot, InputService.Action.DODGE):
-		Sound.play("ui_back")
-		cancelled.emit()
-
-
-func _step(dir: Vector2i) -> void:
-	if dir.y != 0:
+		_back()
+	elif _creating and InputService.raw_just_pressed(slot, InputService.Action.POTION):
+		_draft.chip_color = wrapi(int(_draft.chip_color) + 1, 0, Characters.CHIP_COLORS.size())
 		Sound.play("ui_move")
-		_cursor = wrapi(_cursor + dir.y, 0, maxi(_row_count(), 1))
-		_refresh()
-	elif dir.x != 0:
-		_edit(func(c: Dictionary) -> void: c.model = Characters.step_model(c.model, dir.x))
+		_refresh_create()
+	elif _creating and InputService.raw_just_pressed(slot, InputService.Action.MELEE):
+		_draft.name = Characters.random_name()
+		_name_edit.text = _draft.name
+		Sound.play("ui_move")
 
 
-## Muda o personagem marcado (visual, cor, nome) e salva na hora.
-func _edit(change: Callable) -> void:
-	var current := _current()
-	if current.is_empty() or taken.has(current.id):
-		Sound.play("ui_error")
-		return
-	change.call(current)
-	SaveService.save_character(current)
+func _step(dir: int) -> void:
 	Sound.play("ui_move")
-	_refresh()
+	if _creating:
+		_draft.model = Characters.step_model(_draft.model, dir)
+		_refresh_create()
+	else:
+		_cursor = wrapi(_cursor + dir, 0, maxi(_row_count(), 1))
+		_refresh_cards()
 
 
-func _confirm() -> void:
-	var current := _current()
-	if current.is_empty():
-		if not _can_create():
-			Sound.play("ui_error")
-			return
-		var created := Characters.create()
-		SaveService.save_character(created)
-		_reload()
-		_cursor = _characters.size() - 1
-		Sound.play("ui_confirm")
-		_refresh()
+func _accept() -> void:
+	if _creating:
+		_confirm_create()
 		return
+	if _cursor >= _characters.size():
+		_start_create()
+		return
+	var current := _characters[_cursor]
 	if taken_source.is_valid():
 		taken = taken_source.call()
 	if taken.has(current.id):
 		Sound.play("ui_error")
-		_refresh()
+		_refresh_cards()
 		return
 	Sound.play("ui_confirm")
 	Settings.remember_character(slot, current.id)
 	finished.emit(current.id)
+
+
+func _back() -> void:
+	Sound.play("ui_back")
+	if _creating:
+		_refresh_cards()
+	else:
+		cancelled.emit()
+
+
+## Para a HUD: o card marcado agora (vazio no "Novo" e na criação).
+func _current() -> Dictionary:
+	return _characters[_cursor] if not _creating and _cursor < _characters.size() else {}

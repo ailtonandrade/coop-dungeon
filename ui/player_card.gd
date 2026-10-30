@@ -79,9 +79,16 @@ func _draw_empty(color: Color) -> void:
 	draw_polyline(_closed(UiSkin.chamfer_points(plate, 10)), Color(color, 0.35), 1.5)
 	var pulse := 0.55 + 0.45 * sin(_time * 3.0)
 	var f := UiSkin.font("Bold")
-	var text := "P%d · aperte START" % (index + 1)
+	var text := "P%d · segure Y (ou Espaço)" % (index + 1)
 	draw_string(f, Vector2(plate.position.x, plate.position.y + 26), text, HORIZONTAL_ALIGNMENT_CENTER, plate.size.x, 18, Color(color.lightened(0.3), pulse))
-	draw_string(UiSkin.font("Regular"), Vector2(plate.position.x, plate.end.y - 10), "teclado: Enter", HORIZONTAL_ALIGNMENT_CENTER, plate.size.x, 13, Color(UiSkin.DIM, 0.6 + 0.4 * pulse))
+	# Barra de segurar para entrar (enche em 2 segundos).
+	var hold := InputService.join_hold_ratio()
+	var bar := Rect2(plate.position + Vector2(20, plate.size.y - 16), Vector2(plate.size.x - 40, 5))
+	draw_rect(bar, Color(0, 0, 0, 0.5))
+	if hold > 0.0:
+		draw_rect(Rect2(bar.position, Vector2(bar.size.x * hold, bar.size.y)), color.lightened(0.3))
+	else:
+		draw_string(UiSkin.font("Regular"), Vector2(plate.position.x, plate.end.y - 20), "por 2 segundos para entrar", HORIZONTAL_ALIGNMENT_CENTER, plate.size.x, 12, Color(UiSkin.DIM, 0.6 + 0.4 * pulse))
 
 
 func _draw_portrait(center: Vector2, color: Color, downed: bool) -> void:

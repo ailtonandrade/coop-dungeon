@@ -44,14 +44,34 @@ func add_player(peer: int, slot: int, display_name: String, save := {}) -> void:
 	})
 
 
-## Um controle entrou: abre a escolha de personagem dele (na HUD). Sem HUD, ou com a escolha
-## automática ligada (testes), entra direto com o último personagem dessa vaga.
+## Um controle entrou. O primeiro desta máquina entra direto com o personagem ativo do menu;
+## os outros do sofá escolhem o seu na HUD (cards). Sem HUD, ou com a escolha automática
+## ligada (testes), entra direto com o último personagem da vaga.
 func _on_joined(slot: int, _device: int) -> void:
 	var hud := get_tree().get_first_node_in_group("hud")
+	if local_characters().is_empty() and not _has_local_select(hud):
+		NetService.request_player(slot, first_character(slot))
+		return
 	if hud and not Characters.auto_pick():
 		hud.open_character_select(slot)
 		return
 	NetService.request_player(slot, pick_character(slot, local_characters()))
+
+
+func _has_local_select(hud: Node) -> bool:
+	return hud != null and not hud._selects.is_empty()
+
+
+## Primeiro jogador da máquina: o personagem ativo do menu (ou, sem ele, o da vaga).
+static func first_character(slot: int) -> String:
+	var active := SaveService.load_character(Settings.active_character)
+	if not active.is_empty():
+		Settings.remember_character(slot, active.id)
+		return active.id
+	var picked := pick_character(slot)
+	if not picked.is_empty():
+		Settings.set_active_character(picked)
+	return picked
 
 
 ## Personagem para a vaga: o último usado nela (se não estiver com outro do sofá), senão o

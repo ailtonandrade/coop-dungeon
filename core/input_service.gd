@@ -42,6 +42,12 @@ const KEYS := {
 
 ## Só aceita entrar no jogo dentro de uma fase (no menu, o controle navega a interface).
 var joining_enabled := false
+## Sofá: com a pausa aberta, um controle novo entra segurando Y (teclado: Espaço) por
+## COUCH_JOIN_HOLD segundos. Sem ninguém no jogo, Start/A/Enter entram na hora.
+var couch_join_open := false
+const COUCH_JOIN_HOLD := 2.0
+var _join_hold := {}  # aparelho -> segundos segurando
+var _y_held := {}  # controle -> Y apertado (pelos eventos; vale também para controles virtuais)
 ## Menu que cobre a tela inteira (pausa): bloqueia os comandos de jogo de todos os slots
 ## desta máquina, inclusive cliques do mouse nos botões do menu.
 var screen_menu_open := false
@@ -86,6 +92,11 @@ func _input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion:
 		_mouse_moved_at = Time.get_ticks_msec() / 1000.0
 		_mouse_position = event.position
+	if event is InputEventJoypadButton and event.button_index == JOY_BUTTON_Y:
+		if event.pressed:
+			_y_held[event.device] = true
+		else:
+			_y_held.erase(event.device)
 	if event is InputEventJoypadButton and event.pressed:
 		last_device = event.device
 	elif event is InputEventKey and event.pressed:
@@ -93,7 +104,8 @@ func _input(event: InputEvent) -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if not joining_enabled:
+	# Com alguém já jogando, entrar é segurando Y na pausa (couch_join_open).
+	if not joining_enabled or not active_slots().is_empty():
 		return
 	if event is InputEventJoypadButton and event.pressed:
 		if event.button_index == JOY_BUTTON_START or event.button_index == JOY_BUTTON_A:
@@ -103,7 +115,40 @@ func _unhandled_input(event: InputEvent) -> void:
 			_try_join(KEYBOARD)
 
 
+## Quanto falta para entrar segurando Y/Espaço (0 a 1, o maior entre os aparelhos), para a HUD.
+func join_hold_ratio() -> float:
+	var best := 0.0
+	for device: int in _join_hold:
+		best = maxf(best, _join_hold[device] / COUCH_JOIN_HOLD)
+	return best
+
+
+func _update_couch_join(delta: float) -> void:
+	if not joining_enabled or not couch_join_open:
+		_join_hold.clear()
+		return
+	var candidates: Array = Input.get_connected_joypads()
+	for device: int in _y_held:
+		if not candidates.has(device):
+			candidates.append(device)
+	candidates.append(KEYBOARD)
+	for device: int in candidates:
+		if _devices.has(device):
+			_join_hold.erase(device)
+			continue
+		var held := Input.is_physical_key_pressed(KEY_SPACE) if device == KEYBOARD \
+				else Input.is_joy_button_pressed(device, JOY_BUTTON_Y) or _y_held.has(device)
+		if not held:
+			_join_hold.erase(device)
+			continue
+		_join_hold[device] = float(_join_hold.get(device, 0.0)) + delta
+		if _join_hold[device] >= COUCH_JOIN_HOLD:
+			_join_hold.erase(device)
+			_try_join(device)
+
+
 func _physics_process(_delta: float) -> void:
+	_update_couch_join(_delta)
 	for slot in _devices.size():
 		_prev[slot] = _down[slot]
 		_down[slot] = _poll(_devices[slot])
