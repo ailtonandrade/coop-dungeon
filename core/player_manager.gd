@@ -37,6 +37,9 @@ func add_player(peer: int, slot: int, display_name: String, save := {}) -> void:
 		"character": str(save.get("character", "")),
 		"model": Characters.sanitize(save).model,
 		"chip_color": Characters.sanitize(save).chip_color,
+		# Inventário (com os parafusos) e progressão só no host e no dono: os outros PCs
+		# recebem o visual (o que está vestido) e o nível pelo estado do herói.
+		"private": ["inventory", "progress"],
 		"pos": base + _ring_offset(index),
 	})
 

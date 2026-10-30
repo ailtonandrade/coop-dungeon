@@ -30,8 +30,13 @@ func _process(_delta: float) -> bool:
 			for player in get_nodes_in_group("players"):
 				if player.owner_peer != 1:
 					_check(true, "convidado com a senha certa entrou e ganhou herói")
-					print("HOST SENHA: ", "FALHOU" if _failed else "OK")
-					quit(1 if _failed else 0)
+					_t0 = _now()
+					_step = 2
+		2:
+			# Dá tempo do convidado receber o estado do herói antes de fechar o mundo.
+			if _now() - _t0 > 2.5:
+				print("HOST SENHA: ", "FALHOU" if _failed else "OK")
+				quit(1 if _failed else 0)
 	if _now() - _t0 > TIMEOUT:
 		_check(false, "tempo esgotado no passo %d" % _step)
 		print("HOST SENHA: FALHOU")

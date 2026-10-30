@@ -102,13 +102,19 @@ func setup(data: Dictionary) -> void:
 	index = data.index
 	display_name = data.get("name", "")
 	inventory = Inventory.from_dict(data.get("inventory", {}))
-	if inventory.is_empty():
+	# Cópia de herói de outro PC não recebe o inventário (privado): fica vazio aqui.
+	if inventory.is_empty() and data.has("inventory"):
 		inventory = Inventory.starter()
 	progress = Progression.from_dict(data.get("progress", {}))
 	character_id = str(data.get("character", ""))
 	model_id = str(data.get("model", ""))
 	chip_color = int(data.get("chip_color", index))
 	_visual = data.get("visual", inventory.visual())
+	# No host (só ele recebe o inventário): o visual vai junto para as outras máquinas, que
+	# não veem o inventário.
+	if data.has("inventory"):
+		data["visual"] = inventory.visual()
+		_visual = data.visual
 
 
 func _ready() -> void:
@@ -681,6 +687,17 @@ func ranged_damage() -> float:
 	if weapon == null:
 		return 0.0
 	return ItemDB.stat(weapon, "damage") * damage_factor() * (1.0 + progress.skill_bonus(weapon_skill("ranged")) / 100.0)
+
+
+## Item na casa `slot_name`: do inventário (host e dono) ou, para herói de outro PC, do visual
+## (o que dá para ver nele), já que o inventário dos outros não vem para cá.
+func equipped(slot_name: String) -> Variant:
+	if multiplayer.is_server() or is_local():
+		return inventory.equipment.get(slot_name)
+	for entry: Dictionary in _visual:
+		if ItemDB.slot_of(entry) == slot_name:
+			return entry
+	return null
 
 
 ## Habilidade da arma na casa (sem arma corpo a corpo: Desarmado).

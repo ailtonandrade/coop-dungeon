@@ -85,6 +85,14 @@ func _process(_delta: float) -> bool:
 				_check(texts.has("Bora pro túnel!"), "minha mensagem voltou pelo host (todos veem)")
 				_check(chat.history.any(func(m: Dictionary) -> bool: return m.kind == "system" and m.text.contains("entrou")), "aviso de quem entrou")
 				chat.send(_me, "mensagem de mutado")
+				# Herói do host aqui: sem inventário (parafusos são só dele), mas com as armas visíveis.
+				var host_hero: Node3D = null
+				for p in get_nodes_in_group("players"):
+					if p.owner_peer == 1:
+						host_hero = p
+				_check(host_hero != null and host_hero.inventory.gold == 0 and host_hero.inventory.is_empty(),
+						"inventário e parafusos do host não chegam aqui")
+				_check(host_hero != null and host_hero.equipped("melee") != null, "mas vejo a arma que ele empunha")
 				_check(not root.get_node("SaveService").load_character(_me.character_id).get("inventory", {}).is_empty(), "meu inventário ficou salvo no meu personagem, aqui no cliente")
 				_step = 13
 		13:

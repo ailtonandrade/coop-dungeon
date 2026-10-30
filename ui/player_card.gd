@@ -183,10 +183,9 @@ func _draw_level_badge(center: Vector2) -> void:
 
 
 func _draw_hotbar() -> void:
-	var equipment: Dictionary = player.inventory.equipment
 	var entries := [
-		["X", equipment.get("melee"), 0.0, 0.0],
-		["RT", equipment.get("ranged"), 0.0, 0.0],
+		["X", player.equipped("melee"), 0.0, 0.0],
+		["RT", player.equipped("ranged"), 0.0, 0.0],
 		["Y", "potion", player.potion_cooldown, GameConfig.POTION_COOLDOWN * player.cooldown_factor()],
 		["B", "dodge", player.dodge_cooldown_left(), GameConfig.DODGE_COOLDOWN * player.cooldown_factor()],
 	]

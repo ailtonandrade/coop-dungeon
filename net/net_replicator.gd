@@ -49,8 +49,21 @@ func spawn(type: String, data: Dictionary) -> Node:
 	_next_id += 1
 	var node := _create(id, type, data)
 	for peer in NetService.ready_peers():
-		_rpc_spawn.rpc_id(peer, id, type, data)
+		_rpc_spawn.rpc_id(peer, id, type, _public(data))
 	return node
+
+
+## O que vai para as outras máquinas: sem as chaves listadas em data["private"] (ex.: o
+## inventário e os parafusos de um herói, que só o dono recebe, por send_to_peer).
+static func _public(data: Dictionary) -> Dictionary:
+	var keys: Array = data.get("private", [])
+	if keys.is_empty():
+		return data
+	var shared := data.duplicate()
+	for key in keys:
+		shared.erase(key)
+	shared.erase("private")
+	return shared
 
 
 ## Roda `method` só na máquina `peer` (ex.: o inventário vai só para o dono do herói).
@@ -123,7 +136,7 @@ func _on_peer_ready(peer: int) -> void:
 
 
 func _current_data(node: Node3D) -> Dictionary:
-	var data: Dictionary = node.get_meta("net_data").duplicate()
+	var data: Dictionary = _public(node.get_meta("net_data")).duplicate()
 	data["pos"] = node.global_position
 	return data
 

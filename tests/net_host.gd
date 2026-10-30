@@ -35,6 +35,8 @@ func _process(_delta: float) -> bool:
 				root.get_node("Voice").inject_mic(_tone(0.5))
 				# Chat: o host manda uma mensagem para a sala.
 				root.get_node("Chat").send(_local_player(), "Chegou o host!")
+				# Parafusos do host: só ele (e o sofá dele) pode ver.
+				_local_player().inventory.add_gold(777)
 				_remote_x = _remote.global_position.x
 				_t0 = _now()
 				_step = 2

@@ -73,7 +73,9 @@ Como usar o editor de mapa: [`EDITOR_DE_MAPA.md`](EDITOR_DE_MAPA.md).
    `multiplayer.is_server()` é verdade (offline também é "host"). Clientes mandam comandos e
    mostram o que chega. Todo sistema novo já nasce assim.
 4. **Tudo que nasce e morre na fase passa pelo NetReplicator** (`spawn`), com dados simples
-   (números, textos, vetores, Dictionary/Array). Entidades replicadas implementam
+   (números, textos, vetores, Dictionary/Array). O que é só do dono vai em `data.private`
+   (ex.: inventário e parafusos do herói): fica no host e chega ao dono por `send_to_peer`;
+   as outras máquinas veem só o visual. Entidades replicadas implementam
    `get_net_state()` / `apply_net_state()`. Efeitos visuais vão por `broadcast_fx`;
    coisa só do dono (inventário) por `send_to_peer`.
 5. **Som por evento, nunca por arquivo.** O código pede `Sound.play("hit", posição)`; o
