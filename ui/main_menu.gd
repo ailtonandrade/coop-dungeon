@@ -22,25 +22,19 @@ var _pending_delete := ""
 
 func _ready() -> void:
 	InputService.reset()
-	var background := ColorRect.new()
-	background.color = Color(0.05, 0.05, 0.08)
-	background.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	add_child(background)
+	add_child(MenuBackdrop.new())
+	_build_overlay()
 
 	var column := VBoxContainer.new()
-	column.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
-	column.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	column.set_anchors_and_offsets_preset(Control.PRESET_CENTER_LEFT)
 	column.grow_vertical = Control.GROW_DIRECTION_BOTH
-	column.custom_minimum_size = Vector2(760, 0)
-	column.add_theme_constant_override("separation", 18)
+	column.offset_left = 90
+	column.offset_right = 90 + 620
+	column.add_theme_constant_override("separation", 14)
 	add_child(column)
 
-	var title := _label(GameConfig.GAME_TITLE.to_upper(), 72, Color(1.0, 0.3, 0.75))
-	title.add_theme_color_override("font_outline_color", Color(0.2, 0.95, 1.0))
-	title.add_theme_constant_override("outline_size", 6)
-	column.add_child(title)
-	column.add_child(_label("ferro-velho · chip queimado · gambiarra", 20, Color(0.2, 0.95, 1.0, 0.8)))
-	_status = _label(NetService.last_message, 22, Color(1.0, 0.8, 0.4))
+	column.add_child(_build_logo())
+	_status = UiSkin.label(NetService.last_message, 19, UiSkin.AMBER, "SemiBold", 4)
 	_status.autowrap_mode = TextServer.AUTOWRAP_WORD
 	column.add_child(_status)
 	NetService.status_changed.connect(func(text: String) -> void: _status.text = text)
@@ -72,6 +66,113 @@ func _show(screen_name: String) -> void:
 		"browse":
 			_start_browse()
 	_focus_first(_screens[screen_name])
+
+
+## Visual
+
+## Escurece a esquerda (onde fica o menu) e as bordas, com faíscas de solda subindo.
+func _build_overlay() -> void:
+	var gradient := Gradient.new()
+	gradient.set_color(0, Color(0.02, 0.02, 0.03, 0.92))
+	gradient.set_color(1, Color(0.02, 0.02, 0.03, 0.0))
+	gradient.add_point(0.45, Color(0.02, 0.02, 0.03, 0.75))
+	var texture := GradientTexture2D.new()
+	texture.gradient = gradient
+	texture.fill_to = Vector2(1, 0)
+	var side := TextureRect.new()
+	side.texture = texture
+	side.set_anchors_and_offsets_preset(Control.PRESET_LEFT_WIDE)
+	side.offset_right = 1100
+	side.stretch_mode = TextureRect.STRETCH_SCALE
+	side.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(side)
+
+	var vignette := ColorRect.new()
+	vignette.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	vignette.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var material := ShaderMaterial.new()
+	material.shader = preload("res://ui/skin/menu_overlay.gdshader")
+	vignette.material = material
+	add_child(vignette)
+
+	var sparks := CPUParticles2D.new()
+	sparks.amount = 70
+	sparks.lifetime = 6.0
+	sparks.preprocess = 6.0
+	sparks.emission_shape = CPUParticles2D.EMISSION_SHAPE_RECTANGLE
+	sparks.emission_rect_extents = Vector2(1200, 10)
+	sparks.direction = Vector2(0.15, -1)
+	sparks.spread = 20.0
+	sparks.gravity = Vector2(0, -8)
+	sparks.initial_velocity_min = 25.0
+	sparks.initial_velocity_max = 70.0
+	sparks.scale_amount_min = 1.5
+	sparks.scale_amount_max = 3.5
+	var ramp := Gradient.new()
+	ramp.set_color(0, Color(1.0, 0.75, 0.3, 0.0))
+	ramp.add_point(0.15, Color(1.0, 0.6, 0.2, 0.9))
+	ramp.set_color(1, Color(1.0, 0.25, 0.4, 0.0))
+	sparks.color_ramp = ramp
+	add_child(sparks)
+	var place := func() -> void:
+		var view := get_viewport_rect().size
+		sparks.position = Vector2(view.x / 2.0, view.y + 10)
+		sparks.emission_rect_extents = Vector2(view.x / 2.0, 10)
+	place.call()
+	get_viewport().size_changed.connect(place)
+
+	var version := UiSkin.label("v%s · protótipo" % NetService.GAME_VERSION, 14, UiSkin.DIM, "Regular", 3)
+	version.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_LEFT)
+	version.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	version.offset_left = 24
+	version.offset_bottom = -16
+	add_child(version)
+
+	var hints := UiSkin.label("A / Enter  confirmar      B / Esc  voltar", 15, UiSkin.TEXT, "SemiBold", 3)
+	hints.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_RIGHT)
+	hints.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+	hints.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	hints.offset_right = -24
+	hints.offset_bottom = -16
+	add_child(hints)
+
+
+## Logo: título em estêncil com o "glitch" do chip (cópias ciano e magenta tremendo).
+func _build_logo() -> Control:
+	var box := VBoxContainer.new()
+	box.add_theme_constant_override("separation", 0)
+	var stack := Control.new()
+	stack.custom_minimum_size = Vector2(620, 104)
+	box.add_child(stack)
+	var layers: Array[Label] = []
+	for color: Color in [UiSkin.NEON, UiSkin.NEON_PINK, UiSkin.AMBER]:
+		var layer := UiSkin.title(GameConfig.GAME_TITLE.to_upper(), 88, color)
+		layer.add_theme_constant_override("outline_size", 0 if color != UiSkin.AMBER else 12)
+		layer.add_theme_constant_override("shadow_offset_y", 0)
+		if color != UiSkin.AMBER:
+			layer.modulate.a = 0.75
+		stack.add_child(layer)
+		layers.append(layer)
+	var glitch := func() -> void:
+		var strong := randf() < 0.18
+		var amount := 6.0 if strong else 1.5
+		layers[0].position = Vector2(-amount, randf_range(-1, 1))
+		layers[1].position = Vector2(amount, randf_range(-1, 1))
+		layers[2].position = Vector2(randf_range(-2, 2), 0) if strong else Vector2.ZERO
+	var timer := Timer.new()
+	timer.wait_time = 0.09
+	timer.autostart = true
+	timer.timeout.connect(glitch)
+	stack.add_child(timer)
+
+	var tagline := UiSkin.label("FERRO-VELHO  ·  CHIP QUEIMADO  ·  GAMBIARRA", 18, UiSkin.NEON, "Bold", 4)
+	box.add_child(tagline)
+	var line := ColorRect.new()
+	line.color = UiSkin.BRASS
+	line.custom_minimum_size = Vector2(0, 2)
+	box.add_child(line)
+	box.add_child(Control.new())
+	return box
 
 
 ## Telas
@@ -107,7 +208,7 @@ func _build_create() -> Control:
 		_visibility.select(VISIBILITIES.size() - 1)
 		_visibility.disabled = true
 	_visibility.custom_minimum_size = Vector2(0, 52)
-	_visibility.add_theme_font_size_override("font_size", 22)
+	_visibility.add_theme_font_size_override("font_size", 19)
 	box.add_child(_visibility)
 	_button(box, "Criar e jogar", _create_world)
 	_button(box, "Voltar", func() -> void: _show("main"))
@@ -247,26 +348,24 @@ func _vbox() -> VBoxContainer:
 func _button(parent: Control, text: String, action: Callable) -> Button:
 	var button := Button.new()
 	button.text = text
-	button.custom_minimum_size = Vector2(0, 56)
-	button.add_theme_font_size_override("font_size", 24)
+	button.custom_minimum_size = Vector2(0, 54)
+	button.alignment = HORIZONTAL_ALIGNMENT_LEFT
+	button.add_theme_font_size_override("font_size", 22)
 	if action.is_valid():
 		button.pressed.connect(action)
 	parent.add_child(button)
 	return button
 
 
-func _label(text: String, size: int, color := Color.WHITE) -> Label:
-	var label := Label.new()
-	label.text = text
-	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	label.add_theme_font_size_override("font_size", size)
-	label.add_theme_color_override("font_color", color)
-	return label
+func _label(text: String, size: int, color := UiSkin.TEXT) -> Label:
+	if size >= 30:
+		return UiSkin.title(text.to_upper(), size, UiSkin.AMBER)
+	return UiSkin.label(text, size, color, "SemiBold", 4)
 
 
 func _style_input(edit: LineEdit) -> void:
 	edit.custom_minimum_size = Vector2(0, 52)
-	edit.add_theme_font_size_override("font_size", 22)
+	edit.add_theme_font_size_override("font_size", 20)
 
 
 ## Foca o primeiro botão da tela (com controle, caixas de texto pedem teclado virtual).

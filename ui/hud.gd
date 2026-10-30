@@ -1,91 +1,100 @@
 extends CanvasLayer
-## HUD: um cartão por vaga da sala (P1 a P4) com vida e poção, a onda no topo,
-## o minimapa no canto superior direito, a situação da conexão e o menu de pausa
-## (Esc, Start ou Back).
+## HUD: um cartão por vaga da sala (P1 a P4) com retrato, vida, atalhos e parafusos,
+## a faixa da região, o minimapa no canto superior direito, a situação da conexão e o menu
+## de pausa (Esc, Start ou Back) com os controles.
 ## No online o jogo não pausa de verdade: o menu só cobre a tela.
+## O visual vem do tema do projeto e do UiSkin (ui/skin/).
 
-var _names: Array[Label] = []
-var _bars: Array[ProgressBar] = []
+const CONTROLS := [
+	["Mirar", "analógico direito", "mouse"],
+	["Atacar", "X (segure = combo)", "clique esquerdo / J"],
+	["Atirar", "RT", "clique direito / K"],
+	["Pular / escalar", "A", "Espaço"],
+	["Rolar", "B", "Shift"],
+	["Poção", "Y", "E"],
+	["Artefato", "RB", "Q"],
+	["Pegar / falar", "LB", "F"],
+	["Inventário", "Back", "I"],
+	["Menu", "Start", "Esc"],
+]
+
+var _root: Control
+var _cards: Array[PlayerCard] = []
 var _wave_label: Label
 var _net_label: Label
-var _pause: PanelContainer
+var _net_chip: PanelContainer
+var _pause: Control
 var _pause_info: Label
 var _resume_button: Button
 var _minimap_button: Button
 var _inventories := {}  # slot local -> InventoryPanel
 var _services := {}  # slot local -> ServicePanel
-var _region_label: Label
+var _banner: RegionBanner
 var _region: RegionDef
 
 
 func _ready() -> void:
+	_root = Control.new()
+	_root.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_root.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(_root)
+
 	var row := HBoxContainer.new()
-	row.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_WIDE)
-	row.offset_top = -100
-	row.offset_bottom = -20
-	add_child(row)
+	row.set_anchors_and_offsets_preset(Control.PRESET_CENTER_BOTTOM)
+	row.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	row.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	row.offset_bottom = -12
+	row.add_theme_constant_override("separation", 18)
+	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_root.add_child(row)
 	for index in GameConfig.MAX_PLAYERS:
-		var color := GameConfig.PLAYER_COLORS[index]
-		var card := VBoxContainer.new()
-		card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		card.alignment = BoxContainer.ALIGNMENT_END
+		var card := PlayerCard.new()
+		card.index = index
 		row.add_child(card)
+		_cards.append(card)
 
-		var label := _make_label(22, color)
-		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		label.clip_text = true
-		card.add_child(label)
-		_names.append(label)
-
-		var bar := ProgressBar.new()
-		bar.custom_minimum_size = Vector2(260, 18)
-		bar.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-		bar.show_percentage = false
-		var fill := StyleBoxFlat.new()
-		fill.bg_color = color
-		var background := StyleBoxFlat.new()
-		background.bg_color = Color(0, 0, 0, 0.6)
-		bar.add_theme_stylebox_override("fill", fill)
-		bar.add_theme_stylebox_override("background", background)
-		card.add_child(bar)
-		_bars.append(bar)
-
-	_wave_label = _make_label(34, Color.WHITE)
+	_wave_label = UiSkin.title("", 34, UiSkin.AMBER)
 	_wave_label.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)
 	_wave_label.grow_horizontal = Control.GROW_DIRECTION_BOTH
 	_wave_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_wave_label.offset_top = 52
-	add_child(_wave_label)
+	_wave_label.offset_top = 24
+	_root.add_child(_wave_label)
 
 	# Nome da região ao entrar nela (some sozinho).
-	_region_label = _make_label(40, Color.WHITE)
-	_region_label.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)
-	_region_label.grow_horizontal = Control.GROW_DIRECTION_BOTH
-	_region_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_region_label.offset_top = 110
-	_region_label.modulate.a = 0.0
-	add_child(_region_label)
+	_banner = RegionBanner.new()
+	_banner.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)
+	_banner.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	_banner.offset_left = -RegionBanner.WIDTH / 2.0
+	_banner.offset_right = RegionBanner.WIDTH / 2.0
+	_banner.offset_top = 70
+	_banner.offset_bottom = 180
+	_root.add_child(_banner)
 
-	var help := _make_label(18, Color(1, 1, 1, 0.8))
-	help.text = "Controle: analógico dir. mira · X ataca · RT atira · A pula · B rola · Y poção · LB pega · Back inventário     Teclado: mouse mira/ataca/atira · Espaço · Shift · E · F · I     Esc/Start: menu"
-	help.position = Vector2(24, 16)
-	add_child(help)
+	var hint := PanelContainer.new()
+	hint.add_theme_stylebox_override("panel", UiSkin.chip())
+	hint.position = Vector2(20, 18)
+	hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	hint.add_child(UiSkin.label("START / ESC  ·  menu e controles", 15, UiSkin.TEXT, "SemiBold", 4))
+	_root.add_child(hint)
 
 	var minimap := Minimap.new()
 	minimap.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
 	minimap.offset_left = -24 - Minimap.SIZE
 	minimap.offset_right = -24
-	minimap.offset_top = 52
-	minimap.offset_bottom = 52 + Minimap.SIZE
-	add_child(minimap)
+	minimap.offset_top = 24
+	minimap.offset_bottom = 24 + Minimap.SIZE
+	_root.add_child(minimap)
 
-	_net_label = _make_label(18, Color(0.8, 0.9, 1.0))
-	_net_label.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
-	_net_label.grow_horizontal = Control.GROW_DIRECTION_BEGIN
-	_net_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	_net_label.offset_top = 52 + Minimap.SIZE + 8
-	_net_label.offset_right = -24
-	add_child(_net_label)
+	_net_chip = PanelContainer.new()
+	_net_chip.add_theme_stylebox_override("panel", UiSkin.chip())
+	_net_chip.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
+	_net_chip.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+	_net_chip.offset_top = 24 + Minimap.SIZE + 10
+	_net_chip.offset_right = -24
+	_net_chip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_net_label = UiSkin.label("", 15, Color(0.75, 0.95, 1.0), "SemiBold", 4)
+	_net_chip.add_child(_net_label)
+	_root.add_child(_net_chip)
 
 	_build_pause_menu()
 
@@ -95,22 +104,9 @@ func _process(_delta: float) -> void:
 	for player: Player in get_tree().get_nodes_in_group("players"):
 		players[player.index] = player
 	var free_local := InputService.active_slots().size() < GameConfig.MAX_PLAYERS
-	for index in _names.size():
-		var player: Player = players.get(index)
-		_bars[index].visible = player != null
-		if player == null:
-			_names[index].text = "P%d: aperte Start (teclado: Enter)" % (index + 1) if free_local else ""
-			continue
-		_bars[index].value = player.health.hp / player.health.max_hp * 100.0
-		var text := "P%d %s" % [index + 1, player.display_name]
-		if not player.is_targetable():
-			text += " · CAÍDO: chegue perto pra reviver"
-		elif player.potion_cooldown > 0.0:
-			text += " · poção %ds" % ceili(player.potion_cooldown)
-		# Moedas: só dos jogadores desta tela (é quem tem a cópia do inventário).
-		if player.is_local():
-			text += " · " + ItemDB.money(player.inventory.gold)
-		_names[index].text = text
+	for card in _cards:
+		card.player = players.get(card.index)
+		card.invite = free_local and NetService.player_count() < GameConfig.MAX_PLAYERS
 
 	var spawner := get_tree().get_first_node_in_group("wave_spawner")
 	if spawner and spawner.wave > 0:
@@ -118,6 +114,7 @@ func _process(_delta: float) -> void:
 	else:
 		_wave_label.text = ""
 	_net_label.text = _connection_text()
+	_net_chip.visible = not _net_label.text.is_empty()
 	_update_region()
 	_process_inventory_layout()
 
@@ -166,13 +163,7 @@ func _update_region() -> void:
 	if region == null or region == _region:
 		return
 	_region = region
-	_region_label.text = "%s\n%s" % [region.display_name, "área segura" if region.safe else "perigo %d" % region.danger]
-	_region_label.add_theme_color_override("font_color", region.color)
-	var tween := _region_label.create_tween()
-	tween.tween_property(_region_label, "modulate:a", 1.0, 0.4)
-	tween.tween_interval(2.5)
-	tween.tween_property(_region_label, "modulate:a", 0.0, 0.8)
-
+	_banner.show_region(region)
 
 ## Abre o inventário do jogador local `slot` acima do cartão dele, ou fecha se já está aberto.
 func _toggle_inventory(slot: int) -> void:
@@ -186,7 +177,7 @@ func _toggle_inventory(slot: int) -> void:
 	if player == null:
 		return
 	var panel := InventoryPanel.new()
-	add_child(panel)
+	_root.add_child(panel)
 	panel.open_for(player)
 	panel.close_requested.connect(_close_inventory.bind(slot))
 	_inventories[slot] = panel
@@ -207,7 +198,7 @@ func _try_open_service(slot: int) -> void:
 	if npc == null:
 		return
 	var panel := ServicePanel.new()
-	add_child(panel)
+	_root.add_child(panel)
 	panel.open_for(player, npc)
 	panel.close_requested.connect(_close_service.bind(slot))
 	_services[slot] = panel
@@ -235,7 +226,7 @@ func _process_inventory_layout() -> void:
 		if not is_instance_valid(panel.player):
 			continue
 		var x := clampf(panel.player.index * column + (column - panel.size.x) / 2.0, 8.0, view.x - panel.size.x - 8.0)
-		panel.position = Vector2(x, view.y - 112.0 - panel.size.y)
+		panel.position = Vector2(x, view.y - PlayerCard.SIZE.y - 24.0 - panel.size.y)
 
 
 func _connection_text() -> String:
@@ -252,21 +243,32 @@ func _connection_text() -> String:
 
 
 func _build_pause_menu() -> void:
-	_pause = PanelContainer.new()
-	_pause.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
-	_pause.grow_horizontal = Control.GROW_DIRECTION_BOTH
-	_pause.grow_vertical = Control.GROW_DIRECTION_BOTH
-	_pause.custom_minimum_size = Vector2(560, 0)
+	_pause = Control.new()
+	_pause.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_pause.visible = false
-	add_child(_pause)
+	_root.add_child(_pause)
+	var shade := ColorRect.new()
+	shade.color = Color(0.01, 0.01, 0.02, 0.6)
+	shade.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	_pause.add_child(shade)
+
+	var panel := PanelContainer.new()
+	panel.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
+	panel.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	panel.grow_vertical = Control.GROW_DIRECTION_BOTH
+	_pause.add_child(panel)
+	var columns := HBoxContainer.new()
+	columns.add_theme_constant_override("separation", 32)
+	panel.add_child(columns)
+
 	var box := VBoxContainer.new()
-	box.add_theme_constant_override("separation", 14)
-	_pause.add_child(box)
-	var title := _make_label(36, Color.WHITE)
-	title.text = "Menu"
+	box.custom_minimum_size = Vector2(420, 0)
+	box.add_theme_constant_override("separation", 12)
+	columns.add_child(box)
+	var title := UiSkin.title("PAUSA", 44, UiSkin.AMBER)
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	box.add_child(title)
-	_pause_info = _make_label(20, Color(0.85, 0.9, 1.0))
+	_pause_info = UiSkin.label("", 17, Color(0.8, 0.92, 1.0), "Regular", 4)
 	_pause_info.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_pause_info.autowrap_mode = TextServer.AUTOWRAP_WORD
 	box.add_child(_pause_info)
@@ -275,6 +277,22 @@ func _build_pause_menu() -> void:
 	Settings.changed.connect(_update_minimap_button)
 	_update_minimap_button()
 	_make_button(box, "Sair para o menu", func() -> void: NetService.leave_session())
+
+	var controls := VBoxContainer.new()
+	controls.add_theme_constant_override("separation", 4)
+	columns.add_child(controls)
+	controls.add_child(UiSkin.label("CONTROLES", 22, UiSkin.NEON, "Bold"))
+	var grid := GridContainer.new()
+	grid.columns = 3
+	grid.add_theme_constant_override("h_separation", 18)
+	grid.add_theme_constant_override("v_separation", 4)
+	controls.add_child(grid)
+	for header: String in ["", "Controle", "Teclado e mouse"]:
+		grid.add_child(UiSkin.label(header, 14, UiSkin.DIM, "Bold", 3))
+	for entry: Array in CONTROLS:
+		grid.add_child(UiSkin.label(entry[0], 16, UiSkin.TEXT, "SemiBold", 3))
+		grid.add_child(UiSkin.label(entry[1], 16, UiSkin.AMBER, "Bold", 3))
+		grid.add_child(UiSkin.label(entry[2], 16, Color(0.75, 0.9, 1.0), "Regular", 3))
 
 
 func _update_minimap_button() -> void:
@@ -297,16 +315,8 @@ func _toggle_pause() -> void:
 func _make_button(parent: Control, text: String, action: Callable) -> Button:
 	var button := Button.new()
 	button.text = text
-	button.custom_minimum_size = Vector2(0, 52)
-	button.add_theme_font_size_override("font_size", 24)
+	button.custom_minimum_size = Vector2(0, 50)
+	button.add_theme_font_size_override("font_size", 21)
 	button.pressed.connect(action)
 	parent.add_child(button)
 	return button
-
-
-func _make_label(size: int, color: Color) -> Label:
-	var label := Label.new()
-	label.add_theme_font_size_override("font_size", size)
-	label.add_theme_color_override("font_color", color)
-	label.add_theme_constant_override("outline_size", 8)
-	return label

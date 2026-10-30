@@ -54,13 +54,7 @@ func _exit_tree() -> void:
 
 func _build() -> void:
 	var color := GameConfig.PLAYER_COLORS[player.index]
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.05, 0.06, 0.08, 0.94)
-	style.border_color = color
-	style.set_border_width_all(2)
-	style.set_corner_radius_all(6)
-	style.set_content_margin_all(12)
-	add_theme_stylebox_override("panel", style)
+	add_theme_stylebox_override("panel", UiSkin.panel())
 	custom_minimum_size = Vector2(470, 0)
 
 	var column := VBoxContainer.new()

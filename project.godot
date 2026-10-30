@@ -50,6 +50,10 @@ enabled=PackedStringArray("res://addons/map_editor/plugin.cfg")
 
 common/physics_interpolation=true
 
+[gui]
+
+theme/custom="res://ui/skin/corrumpted_theme.tres"
+
 [rendering]
 
 anti_aliasing/quality/msaa_3d=2

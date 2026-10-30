@@ -163,6 +163,11 @@ func revive(fraction: float) -> void:
 
 
 ## Jogador desta máquina (a câmera e a HUD daqui cuidam dele).
+## Segundos até poder rolar de novo (o host simula; no cliente fica 0).
+func dodge_cooldown_left() -> float:
+	return _dodge_cooldown
+
+
 func is_local() -> bool:
 	return owner_peer == multiplayer.get_unique_id()
 

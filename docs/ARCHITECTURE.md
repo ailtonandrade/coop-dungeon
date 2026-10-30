@@ -26,13 +26,17 @@ world/       mundo aberto: WorldMap e RegionDef (dados), WorldStreamer (carrega 
              FadeOccluder + CameraOcclusion (o que tapa o herói),
              world.tscn (cena principal do jogo), chunks/ e interiors/ (cenas dos blocos), textures/
 levels/      arena de combate (usada nos testes de combate)
-tools/       scripts de uma vez só: build_tiles (peças de pintura), build_prefabs (peças prontas),
+tools/       scripts de uma vez só: build_ui_skin (texturas e tema da interface), build_tiles (peças de pintura), build_prefabs (peças prontas),
              migrate_map, paint_demo_ruin e build_test_world (gerou a região de teste inicial;
              não é o fluxo de criação: o mapa se edita à mão no editor)
 addons/map_editor/  editor de mapa: painel "Mapa do Mundo" (world_map_dock, map_grid_view)
              e MapTools (a lógica: criar bloco/masmorra, ligar e sincronizar entradas, validar,
              assar navegação), usado pelo painel e pelos testes
-ui/          menu principal, HUD, inventário, tela de serviço (ServicePanel), minimapa
+ui/          menu principal (com a vila 3D ao fundo: MenuBackdrop), HUD (PlayerCard, RegionBanner),
+             inventário, tela de serviço (ServicePanel), minimapa
+ui/skin/     visual da interface: texturas das molduras, corrumpted_theme.tres (tema do projeto
+             inteiro) e UiSkin (paleta, fontes, peças desenhadas por código)
+ui/fonts/    Chakra Petch (texto) e Black Ops One (títulos), licença OFL (vai junto na exportação)
 platform/    tudo que muda por plataforma: identidade (PlatformService), save (SaveBackend)
 assets/      modelos (provisórios: Quaternius, CC0)
 tests/       testes automáticos (sem tela) e o teste de rede com host + cliente
@@ -62,8 +66,11 @@ Como usar o editor de mapa: [`EDITOR_DE_MAPA.md`](EDITOR_DE_MAPA.md).
    de dados; o código é genérico.
 7. **Números do jogo em GameConfig** (ou na tabela do dado), não espalhados.
 8. **Plataforma só em `platform/`.** Xbox/Steam/PlayFab nunca aparecem no resto do código.
-9. **GDScript tipado**, sem C#, pelo port de console.
-10. **Toda mudança roda os testes** (abaixo). Teste novo para sistema novo, de preferência
+9. **Visual da interface pelo tema.** Botões, painéis e campos já saem vestidos pelo tema do
+   projeto; cores e fontes vêm do `UiSkin`. Nada de `StyleBoxFlat` solto em tela nova.
+   Trocar a arte = pintar por cima das texturas de `ui/skin/` (mesmo tamanho e bordas).
+10. **GDScript tipado**, sem C#, pelo port de console.
+11. **Toda mudança roda os testes** (abaixo). Teste novo para sistema novo, de preferência
     passando pelos botões de verdade (`Input.parse_input_event`).
 
 ## Como acrescentar

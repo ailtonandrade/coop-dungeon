@@ -21,11 +21,13 @@ func _init() -> void:
 
 func _draw() -> void:
 	var rect := Rect2(Vector2.ZERO, size)
-	draw_rect(rect, Color(0.08, 0.09, 0.11, 0.92))
-	var border := Color(0.35, 0.36, 0.4)
+	draw_style_box(UiSkin.slot(), rect)
 	if item != null:
-		border = ItemDB.rarity_color(item)
-	draw_rect(rect.grow(-1), border, false, 2.0)
+		draw_rect(rect.grow(-2), Color(ItemDB.rarity_color(item), 0.85), false, 2.0)
+		# Brilho da raridade vindo de baixo.
+		var glow := Color(ItemDB.rarity_color(item), 0.18)
+		draw_polygon(PackedVector2Array([Vector2(3, size.y * 0.5), Vector2(size.x - 3, size.y * 0.5), size - Vector2(3, 3), Vector2(3, size.y - 3)]),
+				PackedColorArray([Color(glow, 0.0), Color(glow, 0.0), glow, glow]))
 	if item != null:
 		var look: String = ItemDB.def(item).get("look", "")
 		var tint: Color = ItemDB.def(item).get("color", Color(0.8, 0.82, 0.86))

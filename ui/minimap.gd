@@ -11,6 +11,8 @@ const RANGE := 44.0
 ## Camada de render só para o mundo; o rótulo P1-P4 dos heróis fica fora do minimapa.
 const WORLD_LAYER := 1
 const ENEMY_COLOR := Color(1.0, 0.25, 0.2)
+## Largura da moldura de metal em volta do mapa.
+const FRAME := 9
 
 var _viewport: SubViewport
 var _camera: Camera3D
@@ -24,23 +26,13 @@ func _ready() -> void:
 	size = Vector2(SIZE, SIZE)
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 
-	var frame := Panel.new()
-	frame.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0, 0, 0, 0.5)
-	style.border_color = Color(1, 1, 1, 0.7)
-	style.set_border_width_all(3)
-	style.set_corner_radius_all(8)
-	frame.add_theme_stylebox_override("panel", style)
-	add_child(frame)
-
 	var container := SubViewportContainer.new()
-	container.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT, Control.PRESET_MODE_MINSIZE, 4)
+	container.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT, Control.PRESET_MODE_MINSIZE, FRAME)
 	container.stretch = true
 	container.modulate = Color(1, 1, 1, 0.85)
 	add_child(container)
 	_viewport = SubViewport.new()
-	_viewport.size = Vector2i(SIZE - 8, SIZE - 8)
+	_viewport.size = Vector2i(SIZE - FRAME * 2, SIZE - FRAME * 2)
 	_viewport.positional_shadow_atlas_size = 0
 	container.add_child(_viewport)
 	_camera = Camera3D.new()
@@ -78,7 +70,7 @@ func _process(delta: float) -> void:
 func _to_map(world_pos: Vector3) -> Vector2:
 	var rel := world_pos - _focus
 	var basis := _camera.global_basis
-	var scale_px := (SIZE - 8) / RANGE
+	var scale_px := (SIZE - FRAME * 2) / RANGE
 	return Vector2(SIZE, SIZE) / 2.0 + Vector2(rel.dot(basis.x), -rel.dot(basis.y)) * scale_px
 
 
@@ -88,7 +80,7 @@ func _direction_on_map(world_dir: Vector3) -> Vector2:
 
 
 func _draw_markers() -> void:
-	var inner := Rect2(Vector2(6, 6), Vector2(SIZE - 12, SIZE - 12))
+	var inner := Rect2(Vector2(FRAME + 3, FRAME + 3), Vector2(SIZE - FRAME * 2 - 6, SIZE - FRAME * 2 - 6))
 	for enemy in get_tree().get_nodes_in_group("enemies"):
 		var point := _to_map(enemy.global_position)
 		if inner.has_point(point):
@@ -105,12 +97,32 @@ func _draw_markers() -> void:
 		var points := PackedVector2Array([tip, point - forward * 6.0 + side * 7.0, point - forward * 6.0 - side * 7.0])
 		_markers.draw_colored_polygon(points, color)
 		_markers.draw_polyline(PackedVector2Array([points[0], points[1], points[2], points[0]]), Color.BLACK, 1.5)
+	_draw_frame()
 	# Norte: fixo no topo no modo fixo; gira junto no modo rotativo.
 	var north := _direction_on_map(Vector3.FORWARD)
-	var n_pos := Vector2(SIZE, SIZE) / 2.0 + north * (SIZE / 2.0 - 18.0)
-	_markers.draw_string(get_theme_default_font(), n_pos + Vector2(-6, 7), "N",
-			HORIZONTAL_ALIGNMENT_LEFT, -1, 20, Color.WHITE)
+	var n_pos := Vector2(SIZE, SIZE) / 2.0 + north * (SIZE / 2.0 - FRAME - 14.0)
+	_markers.draw_circle(n_pos, 11.0, UiSkin.INK)
+	_markers.draw_arc(n_pos, 11.0, 0.0, TAU, 20, UiSkin.BRASS, 2.0)
+	_markers.draw_string(UiSkin.font("Bold"), n_pos + Vector2(-11, 6), "N", HORIZONTAL_ALIGNMENT_CENTER, 22, 16, UiSkin.AMBER)
 
+
+## Moldura de metal rebitada por cima do mapa.
+func _draw_frame() -> void:
+	var outer := Rect2(Vector2.ZERO, Vector2(SIZE, SIZE))
+	var band := outer.grow(-FRAME / 2.0)
+	_markers.draw_rect(band, UiSkin.BRASS.darkened(0.3), false, FRAME)
+	_markers.draw_rect(outer.grow(-1), UiSkin.INK, false, 2.0)
+	_markers.draw_rect(outer.grow(-FRAME), UiSkin.INK, false, 2.0)
+	_markers.draw_rect(outer.grow(-2.5), Color(UiSkin.BRASS.lightened(0.3), 0.7), false, 1.0)
+	for corner: Vector2 in [Vector2(0, 0), Vector2(SIZE, 0), Vector2(SIZE, SIZE), Vector2(0, SIZE)]:
+		var plate := Rect2(corner - Vector2(14, 14), Vector2(28, 28)).intersection(outer)
+		_markers.draw_rect(plate, UiSkin.RUST.darkened(0.2))
+		_markers.draw_rect(plate, UiSkin.INK, false, 1.5)
+		var bolt := plate.get_center()
+		_markers.draw_circle(bolt, 3.2, UiSkin.INK)
+		_markers.draw_circle(bolt, 2.4, Color(0.85, 0.78, 0.62))
+	# Filete de neon embaixo, como nos painéis.
+	_markers.draw_line(Vector2(SIZE * 0.3, SIZE - 1.5), Vector2(SIZE * 0.7, SIZE - 1.5), UiSkin.NEON, 2.0)
 
 func _local_players() -> Array[Player]:
 	var local: Array[Player] = []
