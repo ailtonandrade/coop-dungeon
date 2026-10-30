@@ -4,6 +4,8 @@ extends Node
 
 signal player_joined(slot: int, device: int)
 signal player_left(slot: int)
+## Jogando sozinho nesta máquina, trocou do teclado para um controle (ou o contrário).
+signal device_changed(slot: int, device: int)
 
 const KEYBOARD := -1
 const NO_DEVICE := -2
@@ -101,6 +103,35 @@ func _input(event: InputEvent) -> void:
 		last_device = event.device
 	elif event is InputEventKey and event.pressed:
 		last_device = KEYBOARD
+	var device := _device_used(event)
+	if device != NO_DEVICE:
+		_maybe_swap_solo(device)
+
+
+## Aparelho que mexeu de propósito neste evento (botão, tecla, clique ou analógico bem
+## inclinado); NO_DEVICE para o resto (mouse andando, analógico com folga).
+func _device_used(event: InputEvent) -> int:
+	if event is InputEventJoypadButton and event.pressed:
+		return event.device
+	if event is InputEventJoypadMotion and absf(event.axis_value) > 0.5:
+		return event.device
+	if (event is InputEventKey and event.pressed and not event.echo) or (event is InputEventMouseButton and event.pressed):
+		return KEYBOARD
+	return NO_DEVICE
+
+
+## Sozinho nesta máquina: quem jogar com outro aparelho (controle no lugar do teclado ou o
+## contrário) continua sendo o mesmo herói. Com a pausa aberta, não troca: aí um aparelho novo
+## segurando Y/Espaço entra como outro jogador do sofá.
+func _maybe_swap_solo(device: int) -> void:
+	if not joining_enabled or couch_join_open or _devices.has(device):
+		return
+	var slots := active_slots()
+	if slots.size() != 1:
+		return
+	var slot := slots[0]
+	_devices[slot] = device
+	device_changed.emit(slot, device)
 
 
 func _unhandled_input(event: InputEvent) -> void:

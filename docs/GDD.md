@@ -264,6 +264,12 @@ com botão apertado); parado, volta a olhar para onde anda.
 pausa de 0,25 s entre um combo completo e o próximo. Segurando o tiro, atira sem parar
 (recarga da arma).
 
+**Teclado ou controle, sozinho:** jogando só uma pessoa nesta máquina, o herói segue o
+aparelho que estiver sendo usado: apertou um botão ou inclinou o analógico do controle, passa
+para o controle; apertou uma tecla ou clicou, volta para o teclado e mouse. Mexer só o mouse ou
+analógico com folga não troca. Com a pausa aberta não troca (aí o aparelho novo segurando
+Y/Espaço entra como outro jogador). Com dois ou mais no sofá, cada um fica no seu.
+
 **Entrada no sofá:** o primeiro jogador cai direto no mundo com o personagem marcado no menu
 principal (cartão "Jogando como", à direita; câmera estilo GTA se estiver sozinho na tela e
 ela estiver ligada, senão a isométrica). Para mais alguém entrar, quem já joga pausa; o novo

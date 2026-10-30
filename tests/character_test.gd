@@ -41,17 +41,20 @@ func _process(_delta: float) -> bool:
 			_check(p1 != null and p1.display_name == "Herói 1", "com o nome dele")
 			_check(p1 != null and int(p1.inventory.gold) == 321 and p1.inventory.equipment.melee.id == "axe" and p1.progress.level == 4, "com o inventário e o nível dele")
 			_check(p1 != null and p1.find_child("ChipPirata", true, false) != null, "chip pirata aceso na cabeça")
-			# A no 2º controle fora da pausa: não entra (agora é segurando Y na pausa).
+			_check(_input_service().device_of(0) == -1, "P1 começou no teclado")
+			# Sozinho, apertar A no controle: o mesmo herói passa para o controle (não entra outro).
 			_joy(JOY_BUTTON_A, true)
 		SECOND + 2:
 			_joy(JOY_BUTTON_A, false)
 		SECOND + 6:
-			_check(get_nodes_in_group("players").size() == 1 and _hud()._selects.is_empty(), "A no 2º controle não faz ninguém entrar")
+			_check(get_nodes_in_group("players").size() == 1 and _hud()._selects.is_empty(), "A no controle não faz ninguém entrar")
+			_check(_input_service().device_of(0) == 0, "sozinho: P1 passou para o controle")
 			_key(KEY_ESCAPE, true)
 		SECOND + 8:
 			_key(KEY_ESCAPE, false)
 		SECOND + 12:
 			_check(_hud()._pause.visible, "Esc pausa")
+			_check(_input_service().device_of(0) == -1, "sozinho: teclado de novo devolve o P1 ao teclado")
 			_joy(JOY_BUTTON_Y, true)
 		SECOND + 60:
 			_check(not _hud()._selects.has(1), "segurando Y por menos de 2 s ainda não entra")
@@ -114,6 +117,10 @@ func _key(code: Key, down: bool) -> void:
 	event.keycode = code
 	event.pressed = down
 	Input.parse_input_event(event)
+
+
+func _input_service() -> Node:
+	return root.get_node("InputService")
 
 
 func _joy(button: JoyButton, down: bool) -> void:
