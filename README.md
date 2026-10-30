@@ -59,6 +59,12 @@ planície, bosque, colinas e a Caverna Velha (fique na entrada para o grupo entr
 Os blocos do mapa ficam em `world/chunks/` e se editam no Godot com o painel **Mapa do Mundo**
 (pintar chão e paredes, peças prontas, masmorras, entradas, validar): ver `docs/EDITOR_DE_MAPA.md`.
 
+## Exportar
+
+`export_presets.cfg` já tem a exportação para Windows; ela deixa de fora o editor de mapa
+(`addons/`), as ferramentas, os testes e a documentação. Precisa dos modelos de exportação do
+Godot 4.7 instalados (Editor > Gerenciar modelos de exportação).
+
 ## Testes automáticos
 
 Jogo offline (fase, combate, escalada, inimigos, save):
@@ -91,7 +97,8 @@ Serviços da cidade (comerciante pela tela, refino, encantamento, banco, moedas)
 godot --headless --fixed-fps 60 --path coop-dungeon -s tests/services_test.gd
 ```
 
-Online de ponta a ponta (sobe um host e um cliente na mesma máquina):
+Online de ponta a ponta (sobe um host e um cliente na mesma máquina; depois um cliente com mapa
+adulterado, que tem que ser recusado):
 
 ```bash
 GODOT=godot coop-dungeon/tests/run_net_test.sh

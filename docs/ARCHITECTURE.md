@@ -110,6 +110,24 @@ Por baixo:
 3. Encantamento novo: uma linha em `ItemDB.ENCHANTS` (atributo, por nível, em que peças). Se o
    atributo for novo, ele precisa ser lido no herói (como `lifesteal_pct` e `move_speed_pct`).
 
+## O mapa é do dono do jogo
+
+O mapa é único e só o dono do jogo edita, no editor do Godot. Os jogadores não têm como mexer:
+- **O editor não vai no jogo:** a exportação (`export_presets.cfg`) exclui `addons/`, `tools/`,
+  `tests/` e `docs/`. O painel do editor só existe dentro do Godot; o jogo não tem nenhum comando
+  ou mensagem de rede que altere o mapa. Conferido abrindo o pacote exportado.
+- **Impressão digital do mapa** (`MapIntegrity`): hash do conteúdo de verdade do WorldMap e de
+  todas as cenas de blocos, interiores e peças prontas, como o jogo carregou. Ao entrar num mundo
+  online, o convidado manda a dele e o host recusa se for diferente (arquivos mexidos ou
+  atualização diferente). Hoje leva ~0,6 s para 17 blocos; com o mapa grande, calcular em
+  segundo plano ao abrir o jogo.
+- **Host com autoridade:** colisão, criaturas, loot e inventário são do host. Um convidado com
+  arquivos mexidos só veria coisas diferentes na própria tela (e nem entra, pela impressão digital).
+- **Xbox:** o pacote é assinado; não dá para alterar arquivos. **PC:** dá para dificultar mais com
+  PCK criptografado (exige compilar os modelos de exportação com chave própria); nenhum jogo de PC
+  é 100% à prova de modificação, mas o que importa (online) está protegido acima.
+- O save do mundo guarda progresso, não o mapa: editar o save não muda o mapa.
+
 ## Mundo: carregamento e rede
 
 - `WorldStreamer` carrega os blocos a até 1 bloco de cada jogador (3x3) e descarrega a mais de 2.
@@ -127,7 +145,7 @@ godot --headless --path coop-dungeon -s tests/inventory_test.gd                #
 godot --headless --fixed-fps 60 --path coop-dungeon -s tests/world_test.gd     # mundo aberto
 godot --headless --path coop-dungeon -s tests/map_tools_test.gd                # editor de mapa
 godot --headless --fixed-fps 60 --path coop-dungeon -s tests/services_test.gd  # serviços da cidade
-GODOT=godot coop-dungeon/tests/run_net_test.sh                                 # online: host + cliente
+GODOT=godot coop-dungeon/tests/run_net_test.sh                                 # online: host + cliente, e mapa adulterado recusado
 ```
 
 Os scripts de teste não usam os tipos do jogo (Player, ItemDB...) direto, porque compilam

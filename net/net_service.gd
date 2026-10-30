@@ -11,7 +11,7 @@ extends Node
 signal status_changed(text: String)
 signal peer_ready(peer_id: int)
 
-const GAME_VERSION := "0.9"
+const GAME_VERSION := "0.10"
 const DEFAULT_PORT := 7777
 const LEVEL_SCENE := "res://world/world.tscn"
 const MENU_SCENE := "res://ui/main_menu.tscn"
@@ -25,6 +25,10 @@ var player_name := "Jogador"
 var port := DEFAULT_PORT
 ## Última mensagem para o menu mostrar (ex.: por que a conexão caiu).
 var last_message := ""
+
+## Impressão digital do mapa desta instalação (MapIntegrity). Calculada uma vez, na primeira
+## vez que abre ou entra num mundo online.
+var map_fingerprint := ""
 
 var _ready_peers: Array[int] = []
 var _peer_names := {}
@@ -80,6 +84,7 @@ func play_world(info: Dictionary) -> Error:
 		_go_to(LEVEL_SCENE)
 		return OK
 
+	_ensure_fingerprint()
 	var peer := ENetMultiplayerPeer.new()
 	var err := peer.create_server(port, GameConfig.MAX_PLAYERS - 1)
 	if err != OK:
@@ -96,6 +101,7 @@ func play_world(info: Dictionary) -> Error:
 
 
 func join(address: String, p_port := DEFAULT_PORT) -> Error:
+	_ensure_fingerprint()
 	var peer := ENetMultiplayerPeer.new()
 	var err := peer.create_client(address, p_port)
 	if err != OK:
@@ -203,7 +209,7 @@ func _physics_process(_delta: float) -> void:
 
 func _on_connected() -> void:
 	status_changed.emit("Conectado. Entrando no mundo...")
-	_rpc_hello.rpc_id(1, GAME_VERSION, player_name)
+	_rpc_hello.rpc_id(1, GAME_VERSION, player_name, map_fingerprint)
 
 
 func _on_connection_failed() -> void:
@@ -226,10 +232,12 @@ func _on_peer_disconnected(peer: int) -> void:
 
 
 @rpc("any_peer", "call_remote", "reliable")
-func _rpc_hello(version: String, peer_name: String) -> void:
+func _rpc_hello(version: String, peer_name: String, fingerprint: String) -> void:
 	var peer := multiplayer.get_remote_sender_id()
 	if version != GAME_VERSION:
 		_reject(peer, "Versão diferente do jogo (host: %s, você: %s)." % [GAME_VERSION, version])
+	elif fingerprint != map_fingerprint:
+		_reject(peer, "O seu mapa é diferente do mapa do host (arquivos do jogo alterados ou atualização diferente).")
 	elif player_count() >= GameConfig.MAX_PLAYERS:
 		_reject(peer, "O mundo está cheio (%d jogadores)." % GameConfig.MAX_PLAYERS)
 	else:
@@ -290,6 +298,11 @@ func _rpc_input(slot: int, move: Vector2, aim: Vector2, down: int, counts: Packe
 	var peer := multiplayer.get_remote_sender_id()
 	if _ready_peers.has(peer):
 		remote_input(peer, slot).apply_remote(move, aim, down, counts)
+
+
+func _ensure_fingerprint() -> void:
+	if map_fingerprint.is_empty():
+		map_fingerprint = MapIntegrity.fingerprint(load(GameConfig.WORLD_MAP))
 
 
 func _advert() -> Dictionary:

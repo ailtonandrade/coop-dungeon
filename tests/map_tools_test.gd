@@ -38,6 +38,11 @@ func _run() -> void:
 	_check(empty_polygons > 0, "navegação do bloco novo calculada (%d)" % empty_polygons)
 	_check(scene.get_node("Navigation/Tiles") is GridMap, "bloco novo tem grade de pintura")
 
+	# Impressão digital do mapa: qualquer mudança nos blocos muda ela.
+	var integrity: Script = load("res://world/map_integrity.gd")
+	var before: String = integrity.fingerprint(map)
+	_check(before == integrity.fingerprint(map), "impressão digital do mapa é estável")
+
 	# Pinta um muro em L: a navegação das criaturas tem que desviar dele.
 	var tiles: GridMap = scene.get_node("Navigation/Tiles")
 	for x in range(10, 40):
@@ -50,6 +55,7 @@ func _run() -> void:
 	_check(walled_polygons != empty_polygons, "paredes pintadas mudam a navegação (%d -> %d polígonos)" % [empty_polygons, walled_polygons])
 	_check(not _nav_has_point_near(scene.get_node("Navigation").navigation_mesh, Vector3(25, 0, 20), 0.3), "criaturas não andam por dentro do muro pintado")
 	scene.free()
+	_check(integrity.fingerprint(map) != before, "pintar parede muda a impressão digital do mapa")
 
 	# Masmorra nova longe do mapa e das outras.
 	var cave_path: String = tools.create_interior(map, map_path, "teste_masmorra", "caverna", Vector2i(30, 30), root)

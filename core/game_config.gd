@@ -5,6 +5,10 @@ extends RefCounted
 
 const MAX_PLAYERS := 4
 
+## O mapa do mundo (único para todos; só o dono do jogo edita, no editor).
+## A cena world/world.tscn aponta para o mesmo arquivo.
+const WORLD_MAP := "res://world/test_world.tres"
+
 # Personagem (altura ~1.8 tile, como herói de dungeon crawler isométrico)
 const PLAYER_HEIGHT := 1.8
 const PLAYER_RADIUS := 0.35
