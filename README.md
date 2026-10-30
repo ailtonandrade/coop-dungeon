@@ -8,10 +8,11 @@ Design completo em [`docs/GDD.md`](docs/GDD.md); estrutura e como estender em [`
 1. Instale o **Godot 4.7** (versão padrão, não a .NET): https://godotengine.org/download
 2. No Godot: **Importar** e escolha `coop-dungeon/project.godot`.
 3. **F5** para jogar.
-   - Teclado + mouse: **Enter** entra, WASD anda, mouse mira (segurando um botão), botão esquerdo
-     (ou J) ataca, botão direito (ou K) atira, Espaço pula, Shift rola, E poção, F pega item, I inventário.
+   - Teclado + mouse: **Enter** entra, WASD anda, mouse mira, botão esquerdo (ou J) ataca,
+     botão direito (ou K) atira, Espaço pula, Shift rola, E poção, F pega item / fala com NPC, I inventário.
    - Cada controle: **Start** (ou A) entra, analógico esquerdo anda, **analógico direito mira**,
-     X ataca, RT atira, A pula, B rola, Y poção, LB pega item, Back inventário.
+     X ataca, RT atira, A pula, B rola, Y poção, LB pega item / fala com NPC, Back inventário.
+   - Na Vila de Pedra: comerciante, ferreiro (refino), encantador e banco. Criaturas soltam moedas.
    - Mirando, o herói anda de costas e de lado olhando para a mira, e dá pra atirar andando.
    - Pule contra uma borda (até ~2,7 m: pilares, plataformas, carro, contêiner) e o herói escala sozinho.
    - Ondas de inimigos chegam sozinhas. Quem cai é revivido quando um companheiro fica perto.
@@ -82,6 +83,12 @@ Editor de mapa (criar bloco, pintar, masmorra, entradas, validar):
 
 ```bash
 godot --headless --path coop-dungeon -s tests/map_tools_test.gd
+```
+
+Serviços da cidade (comerciante pela tela, refino, encantamento, banco, moedas):
+
+```bash
+godot --headless --fixed-fps 60 --path coop-dungeon -s tests/services_test.gd
 ```
 
 Online de ponta a ponta (sobe um host e um cliente na mesma máquina):

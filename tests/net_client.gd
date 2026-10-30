@@ -72,6 +72,15 @@ func _process(_delta: float) -> bool:
 			if head and head.id == "iron_helmet":
 				_check(true, "equipei pelo inventário e o host confirmou")
 				_check(not root.get_node("SaveService").load_player(0).is_empty(), "meu inventário ficou salvo aqui no cliente")
+				_step = 10
+		10:
+			# O host me dá moedas e me leva até o comerciante: compro a 1ª coisa do estoque.
+			if int(_me.inventory.gold) == 500 and _me.global_position.distance_to(Vector3(25, 0, 31.6)) < 1.0:
+				_me.request_inventory("buy", [0])
+				_step = 11
+		11:
+			if int(_me.inventory.gold) < 500:
+				_check(true, "comprei do comerciante pela rede (sobrou %d moedas)" % _me.inventory.gold)
 				_t0 = _now()
 				_step = 8
 		8:

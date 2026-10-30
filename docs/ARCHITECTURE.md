@@ -22,7 +22,8 @@ combat/      Health, Combat (golpes em leque, mira assistida, efeitos), Projecti
 items/       ItemDB (catálogo), Inventory (regras estilo Tibia), ItemVisuals (peças no boneco), Loot
 camera/      câmera compartilhada (enquadra os jogadores da máquina, projeta a mira do mouse)
 world/       mundo aberto: WorldMap e RegionDef (dados), WorldStreamer (carrega blocos),
-             CreatureSpawner, Entrance, WorldNpc, FadeOccluder + CameraOcclusion (o que tapa o herói),
+             CreatureSpawner, Entrance, WorldNpc, Services (regras dos serviços da cidade),
+             FadeOccluder + CameraOcclusion (o que tapa o herói),
              world.tscn (cena principal do jogo), chunks/ e interiors/ (cenas dos blocos), textures/
 levels/      arena de combate (usada nos testes de combate)
 tools/       scripts de uma vez só: build_tiles (peças de pintura), build_prefabs (peças prontas),
@@ -31,7 +32,7 @@ tools/       scripts de uma vez só: build_tiles (peças de pintura), build_pref
 addons/map_editor/  editor de mapa: painel "Mapa do Mundo" (world_map_dock, map_grid_view)
              e MapTools (a lógica: criar bloco/masmorra, ligar e sincronizar entradas, validar,
              assar navegação), usado pelo painel e pelos testes
-ui/          menu principal, HUD, inventário, minimapa
+ui/          menu principal, HUD, inventário, tela de serviço (ServicePanel), minimapa
 platform/    tudo que muda por plataforma: identidade (PlatformService), save (SaveBackend)
 assets/      modelos (provisórios: Quaternius, CC0)
 tests/       testes automáticos (sem tela) e o teste de rede com host + cliente
@@ -101,10 +102,13 @@ Por baixo:
 1. Um `RegionDef` em `regions` do WorldMap: id, nome, perigo (= poder base do loot), segura ou não, cor.
 2. Os blocos apontam para ela em `chunk_regions`.
 
-### Um NPC de serviço (M9)
-1. `WorldNpc` fixo no mapa, com o tipo de serviço: comerciante, ferreiro, encantador, banco.
-2. A tela do serviço usa o mesmo padrão do inventário: painel por jogador local, cursor próprio,
-   comandos executados pelo host.
+### Um NPC de serviço
+1. `WorldNpc` fixo no mapa (peça pronta no editor), com o serviço; comerciante tem `shop_items`
+   e `shop_power` no Inspector.
+2. Serviço novo: um comando em `world/services.gd` (confere NPC perto e moedas, muda o inventário,
+   devolve a mensagem) e uma aba em `ServicePanel.TABS` com as linhas dela.
+3. Encantamento novo: uma linha em `ItemDB.ENCHANTS` (atributo, por nível, em que peças). Se o
+   atributo for novo, ele precisa ser lido no herói (como `lifesteal_pct` e `move_speed_pct`).
 
 ## Mundo: carregamento e rede
 
@@ -122,6 +126,7 @@ godot --headless --fixed-fps 60 --path coop-dungeon -s tests/smoke_test.gd    # 
 godot --headless --path coop-dungeon -s tests/inventory_test.gd                # regras do inventário
 godot --headless --fixed-fps 60 --path coop-dungeon -s tests/world_test.gd     # mundo aberto
 godot --headless --path coop-dungeon -s tests/map_tools_test.gd                # editor de mapa
+godot --headless --fixed-fps 60 --path coop-dungeon -s tests/services_test.gd  # serviços da cidade
 GODOT=godot coop-dungeon/tests/run_net_test.sh                                 # online: host + cliente
 ```
 

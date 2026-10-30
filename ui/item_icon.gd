@@ -89,6 +89,10 @@ static func draw_glyph(canvas: CanvasItem, look: String, r: Rect2, color: Color,
 			canvas.draw_circle(at.call(0.5, 0.65), s.x * 0.2, c)
 		"ring":
 			canvas.draw_arc(at.call(0.5, 0.55), s.x * 0.3, 0.0, TAU, 16, c, 5.0)
+		"coins":
+			for i in 3:
+				canvas.draw_circle(at.call(0.35 + 0.15 * i, 0.65 - 0.12 * i), s.x * 0.18, c)
+				canvas.draw_arc(at.call(0.35 + 0.15 * i, 0.65 - 0.12 * i), s.x * 0.18, 0.0, TAU, 12, dark, 1.5)
 		"pouch", "backpack":
 			var w := 0.6 if look == "pouch" else 0.76
 			var x0 := (1.0 - w) / 2.0

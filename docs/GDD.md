@@ -201,6 +201,24 @@ sem precisar de servidor dedicado.
 manda comandos e recebe a cópia do inventário a cada mudança, e salva na própria conta
 (cross save). Cada convidado entra com o inventário salvo dele.
 
+## Economia e serviços da cidade
+
+**Moedas:** criaturas soltam moedas no chão quase sempre (85%), mais quanto maior o perigo da
+região; qualquer um do time pega (LB / F). Cada jogador tem as suas, salvas na conta dele.
+
+**Conversar:** perto de um NPC aparece "[LB / F] falar"; o botão abre a tela do serviço daquele
+jogador (painel próprio, cursor próprio, como o inventário). O host confere que o jogador está
+perto do NPC certo e que tem as moedas antes de executar.
+
+| Serviço | O que faz |
+|---|---|
+| Comerciante | Comprar do estoque dele (lista e poder definidos no NPC) e vender (paga 30% do valor). |
+| Ferreiro | Refino +1 a +9: cada nível dá +10% nos atributos do item. +1 a +3 sempre dá certo; depois 80%, 65%, 50%, 40%, 30%, 20%. Falhar gasta as moedas, não estraga o item. |
+| Encantador | Até 3 encantamentos por item, cada um até o nível 3: Afiado (+12% dano por nível, armas), Vampírico (+3% roubo de vida, corpo a corpo), Protetor (+3 armadura, cabeça/peito/pernas/pés), Robusto (+12 vida, peito/pernas/amuleto), Ágil (+5% velocidade, pés/pernas). |
+| Banco | Depósito de 40 casas estilo Tibia: guardar e retirar itens, só perto do banco. |
+
+Valor de um item: preço base x raridade² x poder x refino + encantamentos. Tudo em `ItemDB`.
+
 ## Minimapa
 
 Canto superior direito. Câmera de cima desenha o terreno; por cima vão os heróis
@@ -221,7 +239,7 @@ Segue o centro dos jogadores da máquina, como a câmera principal.
 | Pular / escalar | A | Espaço |
 | Rolar | B | Shift |
 | Poção | Y | E |
-| Pegar item do chão | LB | F |
+| Pegar item do chão / falar com NPC | LB | F |
 | Inventário | Back | I |
 | Artefato | RB | Q |
 | Menu | Start | Esc |
@@ -304,7 +322,7 @@ Estrutura de pastas, regras e como estender cada parte: ver [`ARCHITECTURE.md`](
 | M7 | **Mundo aberto (base)**: região de teste em blocos com carregamento por grupo, 1 entrada de masmorra, recorte de telhado | ✅ 4x4 blocos, vila, 3 regiões, caverna |
 | M7.5 | **Editor de mapa** (estilo Remere's): pintar chão e paredes em grade, paleta de peças, mapa geral, ligar entradas, validar | ✅ painel Mapa do Mundo, ver EDITOR_DE_MAPA.md |
 | M8 | Loot e progressão sincronizados no online | ✅ inventário estilo Tibia, loot estilo MU, equipamento no boneco, mira twin-stick |
-| M9 | **Cidade e serviços**: comerciante, refino e encantamento | |
+| M9 | **Cidade e serviços**: comerciante, refino e encantamento | ✅ + banco, moedas, telas por jogador |
 
 O online (M6) vem **antes** do mundo aberto e do loot: todo sistema novo
 já nasce sincronizado. Adaptar depois custaria reescrever cada sistema.

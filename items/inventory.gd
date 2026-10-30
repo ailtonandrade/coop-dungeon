@@ -7,11 +7,18 @@ extends RefCounted
 ##   ["eq", "head"]       casa de equipamento
 ##   ["bag", 3]           4ª casa da mochila equipada
 ##   ["bag", 3, 0]        1ª casa da bolsa que está na 4ª casa da mochila
+##   ["depot", 7]         8ª casa do depósito do banco (só mexe nele perto do banco)
+## Também guarda as moedas do herói.
 ## Quem altera é o host; o dono recebe uma cópia a cada mudança (e salva na conta dele).
 
 signal changed
 
+const DEPOT_CAPACITY := 40
+
 var equipment := {}  # slot -> item (Dictionary); casa vazia não tem chave
+var gold := 0
+## Depósito do banco: como uma bolsa grande que fica no banco ({"contents": [...]}).
+var depot := {"contents": _empty_contents(DEPOT_CAPACITY)}
 
 
 static func from_dict(data: Dictionary) -> Inventory:
@@ -21,6 +28,11 @@ static func from_dict(data: Dictionary) -> Inventory:
 		var item: Variant = source.get(slot)
 		if ItemDB.is_valid(item) and ItemDB.slot_of(item) == slot:
 			inventory.equipment[slot] = _sanitize(item)
+	inventory.gold = maxi(0, int(data.get("gold", 0)))
+	var saved: Array = data.get("depot", [])
+	for i in mini(saved.size(), DEPOT_CAPACITY):
+		if ItemDB.is_valid(saved[i]) and saved[i].id != "gold":
+			inventory.depot.contents[i] = _sanitize(saved[i])
 	return inventory
 
 
@@ -29,7 +41,7 @@ static func starter() -> Inventory:
 
 
 func to_dict() -> Dictionary:
-	return {"equipment": equipment.duplicate(true)}
+	return {"equipment": equipment.duplicate(true), "gold": gold, "depot": depot.contents.duplicate(true)}
 
 
 func is_empty() -> bool:
@@ -48,11 +60,11 @@ func get_item(path: Array) -> Variant:
 	return holder.contents[index] if index >= 0 and index < holder.contents.size() else null
 
 
-## Recipiente (bolsa) que contém a casa `path`, ou {} se o caminho não existe.
+## Recipiente (bolsa ou depósito) que contém a casa `path`, ou {} se o caminho não existe.
 func _holder(path: Array) -> Dictionary:
-	if path.size() < 2 or path[0] != "bag":
+	if path.size() < 2 or not (path[0] == "bag" or path[0] == "depot"):
 		return {}
-	var container: Variant = equipment.get("bag")
+	var container: Variant = _root_container(path[0])
 	for i in range(1, path.size() - 1):
 		if not ItemDB.is_container(container):
 			return {}
@@ -63,10 +75,14 @@ func _holder(path: Array) -> Dictionary:
 	return container if ItemDB.is_container(container) else {}
 
 
-## Conteúdo da bolsa aberta em `container_path` (["bag"] = mochila equipada).
+## Conteúdo da bolsa aberta em `container_path` (["bag"] = mochila equipada, ["depot"] = banco).
 func container_at(container_path: Array) -> Variant:
-	var item: Variant = equipment.get("bag") if container_path.size() == 1 else get_item(container_path)
+	var item: Variant = _root_container(container_path[0]) if container_path.size() == 1 else get_item(container_path)
 	return item if ItemDB.is_container(item) else null
+
+
+func _root_container(root: String) -> Variant:
+	return depot if root == "depot" else equipment.get("bag")
 
 
 ## Soma de um atributo em tudo que está equipado.
@@ -95,6 +111,8 @@ func _set_item(path: Array, item: Variant) -> void:
 func can_place(item: Variant, path: Array) -> bool:
 	if path.size() < 2:
 		return false
+	if item != null and item.get("id") == "gold":
+		return false  # moedas vão para o contador, nunca para uma casa
 	if path[0] == "eq":
 		return item == null or ItemDB.slot_of(item) == path[1]
 	var holder := _holder(path)
@@ -105,11 +123,11 @@ func can_place(item: Variant, path: Array) -> bool:
 
 
 func _path_goes_through(path: Array, item: Dictionary) -> bool:
-	var container: Variant = equipment.get("bag")
+	var container: Variant = _root_container(path[0])
 	for i in range(1, path.size()):
 		if not ItemDB.is_container(container):
 			return false
-		if container.uid == item.uid:
+		if container.get("uid", -1) == item.uid:
 			return true
 		if i < path.size() - 1:
 			container = container.contents[path[i]]
@@ -184,6 +202,61 @@ func add_item(item: Dictionary) -> Array:
 	return []
 
 
+## Guarda na primeira casa livre do depósito (só a primeira camada). [] se está cheio.
+func add_to_depot(item: Dictionary) -> Array:
+	var free: int = depot.contents.find(null)
+	if free == -1:
+		return []
+	depot.contents[free] = item
+	changed.emit()
+	return ["depot", free]
+
+
+func add_gold(amount: int) -> void:
+	gold += maxi(amount, 0)
+	changed.emit()
+
+
+## Gasta se tiver; retorna false (sem gastar) se não tiver o suficiente.
+func spend_gold(amount: int) -> bool:
+	if amount < 0 or gold < amount:
+		return false
+	gold -= amount
+	changed.emit()
+	return true
+
+
+## Avisa que um item mudou por dentro (refino, encantamento) para sincronizar e salvar.
+func touch() -> void:
+	changed.emit()
+
+
+## Todos os itens: [[path, item], ...]. `roots`: "eq" (equipados), "bag" (mochila e bolsas
+## dentro, em qualquer profundidade), "depot".
+func all_items(roots := ["eq", "bag"]) -> Array:
+	var result := []
+	if "eq" in roots:
+		for slot: String in ItemDB.EQUIP_SLOTS:
+			if equipment.has(slot):
+				result.append([["eq", slot], equipment[slot]])
+	for root: String in ["bag", "depot"]:
+		if root in roots:
+			_collect([root], result)
+	return result
+
+
+func _collect(container_path: Array, result: Array) -> void:
+	var container: Variant = container_at(container_path)
+	if container == null:
+		return
+	for i in container.contents.size():
+		var item: Variant = container.contents[i]
+		if item != null:
+			result.append([container_path + [i], item])
+			if ItemDB.is_container(item):
+				_collect(container_path + [i], result)
+
+
 func remove(path: Array) -> Variant:
 	var item: Variant = get_item(path)
 	if item != null:
@@ -201,12 +274,29 @@ func visual() -> Array:
 	return result
 
 
+static func _empty_contents(size: int) -> Array:
+	var contents := []
+	contents.resize(size)
+	return contents
+
+
 static func _sanitize(item: Dictionary) -> Dictionary:
 	var clean := {
 		"id": str(item.id), "uid": int(item.get("uid", randi())),
 		"power": clampi(int(item.get("power", 1)), 1, 999),
 		"rarity": item.get("rarity", "common") if ItemDB.RARITIES.has(item.get("rarity")) else "common",
 	}
+	var refine := clampi(int(item.get("refine", 0)), 0, ItemDB.MAX_REFINE)
+	if refine > 0:
+		clean["refine"] = refine
+	var enchants := {}
+	var source_enchants: Variant = item.get("enchants", {})
+	if source_enchants is Dictionary:
+		for enchant_id: String in source_enchants:
+			if ItemDB.ENCHANTS.has(enchant_id) and enchants.size() < ItemDB.MAX_ENCHANTS:
+				enchants[enchant_id] = clampi(int(source_enchants[enchant_id]), 1, ItemDB.MAX_ENCHANT_LEVEL)
+	if not enchants.is_empty():
+		clean["enchants"] = enchants
 	var capacity: int = ItemDB.DEFS[clean.id].get("capacity", 0)
 	if capacity > 0:
 		var contents := []

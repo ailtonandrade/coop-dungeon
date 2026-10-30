@@ -13,6 +13,7 @@ var _pause_info: Label
 var _resume_button: Button
 var _minimap_button: Button
 var _inventories := {}  # slot local -> InventoryPanel
+var _services := {}  # slot local -> ServicePanel
 var _region_label: Label
 var _region: RegionDef
 
@@ -30,8 +31,9 @@ func _ready() -> void:
 		card.alignment = BoxContainer.ALIGNMENT_END
 		row.add_child(card)
 
-		var label := _make_label(26, color)
+		var label := _make_label(22, color)
 		label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		label.clip_text = true
 		card.add_child(label)
 		_names.append(label)
 
@@ -102,11 +104,12 @@ func _process(_delta: float) -> void:
 		_bars[index].value = player.health.hp / player.health.max_hp * 100.0
 		var text := "P%d %s" % [index + 1, player.display_name]
 		if not player.is_targetable():
-			text += "  CAÍDO: chegue perto pra reviver"
+			text += " · CAÍDO: chegue perto pra reviver"
 		elif player.potion_cooldown > 0.0:
-			text += "  poção %ds" % ceili(player.potion_cooldown)
-		else:
-			text += "  poção pronta"
+			text += " · poção %ds" % ceili(player.potion_cooldown)
+		# Moedas: só dos jogadores desta tela (é quem tem a cópia do inventário).
+		if player.is_local():
+			text += " · %d moedas" % player.inventory.gold
 		_names[index].text = text
 
 	var spawner := get_tree().get_first_node_in_group("wave_spawner")
@@ -121,11 +124,16 @@ func _process(_delta: float) -> void:
 
 func _physics_process(_delta: float) -> void:
 	for slot in InputService.active_slots():
-		if InputService.raw_just_pressed(slot, InputService.Action.INVENTORY):
+		if InputService.raw_just_pressed(slot, InputService.Action.INVENTORY) and not _services.has(slot):
 			_toggle_inventory(slot)
+		elif InputService.just_pressed(slot, InputService.Action.PICKUP):
+			_try_open_service(slot)
 	for slot: int in _inventories.keys():
 		if not InputService.is_active(slot):
 			_close_inventory(slot)
+	for slot: int in _services.keys():
+		if not InputService.is_active(slot):
+			_close_service(slot)
 	for slot in InputService.active_slots():
 		# Com o menu aberto os comandos de jogo estão bloqueados, então o Start que fecha é lido direto.
 		var pressed := InputService.raw_just_pressed(slot, InputService.Action.PAUSE) if _pause.visible \
@@ -190,11 +198,40 @@ func _close_inventory(slot: int) -> void:
 		_inventories.erase(slot)
 
 
+## Perto de um NPC, o botão de pegar abre a tela do serviço dele para esse jogador.
+func _try_open_service(slot: int) -> void:
+	var player := _local_player(slot)
+	if player == null or _inventories.has(slot) or _services.has(slot):
+		return
+	var npc := WorldNpc.nearest(get_tree(), player.global_position)
+	if npc == null:
+		return
+	var panel := ServicePanel.new()
+	add_child(panel)
+	panel.open_for(player, npc)
+	panel.close_requested.connect(_close_service.bind(slot))
+	_services[slot] = panel
+
+
+func _close_service(slot: int) -> void:
+	if _services.has(slot):
+		_services[slot].queue_free()
+		_services.erase(slot)
+
+
+func _local_player(slot: int) -> Player:
+	for candidate: Player in get_tree().get_nodes_in_group("players"):
+		if candidate.is_local() and candidate.slot == slot:
+			return candidate
+	return null
+
+
 func _process_inventory_layout() -> void:
-	# Cada painel fica acima do cartão do dono (a tela é dividida em 4 colunas, P1 a P4).
+	# Cada painel (inventário ou serviço) fica acima do cartão do dono: a tela é dividida
+	# em 4 colunas, P1 a P4.
 	var view := get_viewport().get_visible_rect().size
 	var column := view.x / GameConfig.MAX_PLAYERS
-	for panel: InventoryPanel in _inventories.values():
+	for panel: Control in _inventories.values() + _services.values():
 		if not is_instance_valid(panel.player):
 			continue
 		var x := clampf(panel.player.index * column + (column - panel.size.x) / 2.0, 8.0, view.x - panel.size.x - 8.0)

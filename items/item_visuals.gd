@@ -87,6 +87,9 @@ static func build(item: Dictionary) -> Node3D:
 			_box(root, Vector3(0.08, 0.08, 0.02), Vector3.ZERO, color, color)
 		"pouch":
 			_box(root, Vector3(0.16, 0.18, 0.12), Vector3.ZERO, color, shine)
+		"coins":
+			for i in 3:
+				_box(root, Vector3(0.14, 0.03, 0.14), Vector3(0.03 * i, 0.035 * i, 0.0), color, color)
 		"backpack":
 			var size: float = 1.15 if def.get("capacity", 0) > 12 else 1.0
 			_box(root, Vector3(0.36, 0.4, 0.2) * size, Vector3.ZERO, color, shine)

@@ -40,6 +40,35 @@ func _initialize() -> void:
 	var rare := ItemDB.make("sword", 5, "rare")
 	_check(ItemDB.stat(rare, "damage") > ItemDB.stat(ItemDB.make("sword"), "damage"), "raro e poder 5 batem mais (%.1f)" % ItemDB.stat(rare, "damage"))
 
+	# Moedas, depósito do banco, refino, encantamento, preços.
+	var shop := Inventory.starter()
+	shop.add_gold(100)
+	_check(shop.spend_gold(60) and shop.gold == 40, "gastar moedas tendo o suficiente")
+	_check(not shop.spend_gold(41) and shop.gold == 40, "não gasta o que não tem")
+	_check(not shop.can_place(ItemDB.make_gold(5), ["bag", 4]), "moedas nunca ocupam casa da mochila")
+	var stored := shop.add_to_depot(shop.remove(["bag", 1]))
+	_check(stored == ["depot", 0] and shop.get_item(["depot", 0]).id == "leather_hood", "guardar no depósito do banco")
+	_check(shop.move(["depot", 0], ["bag", 5]), "tirar do depósito para a mochila")
+	var blade := ItemDB.make("sword", 3, "rare")
+	var base_damage := ItemDB.stat(blade, "damage")
+	blade["refine"] = 3
+	_check(absf(ItemDB.stat(blade, "damage") - base_damage * 1.3) <= 0.11, "refino +3 dá +30%% de dano (%.1f -> %.1f)" % [base_damage, ItemDB.stat(blade, "damage")])
+	_check(ItemDB.display_name(blade) == "Espada curta +3", "nome mostra o refino")
+	_check(ItemDB.refine_chance(blade) == 0.8 and ItemDB.refine_chance(ItemDB.make("sword")) == 1.0, "chance de refino cai depois do +3")
+	_check(ItemDB.can_enchant(blade, "afiado") and not ItemDB.can_enchant(blade, "protetor"), "encantamento só na peça certa")
+	blade["enchants"] = {"afiado": 2}
+	_check(ItemDB.stat(blade, "damage_pct") == 24.0, "Afiado 2 dá +24% de dano")
+	blade["enchants"] = {"afiado": 3, "vampirico": 1}
+	_check(not ItemDB.can_enchant(blade, "afiado"), "encantamento para no nível 3")
+	_check(ItemDB.value(blade) > ItemDB.value(ItemDB.make("sword")), "item refinado e encantado vale mais")
+	_check(ItemDB.sell_price(ItemDB.make("sword")) < ItemDB.value(ItemDB.make("sword")), "comerciante paga menos do que cobra")
+	shop.add_item(blade)
+	var saved := Inventory.from_dict(shop.to_dict())
+	_check(saved.to_dict() == shop.to_dict() and saved.gold == 40, "save guarda moedas, depósito, refino e encantamentos")
+	var bad := Inventory.from_dict({"equipment": {"melee": {"id": "sword", "refine": 99, "enchants": {"x": 1, "afiado": 9}}}, "gold": -5})
+	_check(bad.equipment.melee.refine == ItemDB.MAX_REFINE and bad.equipment.melee.enchants == {"afiado": 3} and bad.gold == 0,
+			"save adulterado é corrigido ao carregar")
+
 	print("INVENTARIO: ", "FALHOU" if _failed else "OK")
 	quit(1 if _failed else 0)
 

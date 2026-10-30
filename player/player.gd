@@ -277,7 +277,7 @@ func _update_normal(delta: float, dir: Vector3) -> Vector3:
 	if _input.just_pressed(InputService.Action.PICKUP):
 		_pick_up()
 
-	var target := dir * GameConfig.PLAYER_SPEED * _strafe_factor(dir)
+	var target := dir * move_speed() * _strafe_factor(dir)
 	_move = _move.move_toward(target, GameConfig.PLAYER_ACCEL * delta)
 	if not grounded:
 		if not _animator.is_playing("jump"):
@@ -337,7 +337,7 @@ func _update_dodge(delta: float) -> Vector3:
 	_state_timer -= delta
 	if _state_timer <= 0.0:
 		state = State.NORMAL
-		_move = _dodge_dir * GameConfig.PLAYER_SPEED
+		_move = _dodge_dir * move_speed()
 	return _dodge_dir * GameConfig.DODGE_SPEED
 
 
@@ -453,8 +453,14 @@ func _update_attack(delta: float, dir: Vector3) -> Vector3:
 func _melee_hit(hit: Dictionary) -> void:
 	var finisher := _combo_step == COMBO.size() - 1
 	var targets := Combat.query_arc(self, _facing, GameConfig.MELEE_RADIUS, GameConfig.MELEE_ARC_DEG, GameConfig.LAYER_ENEMIES)
+	var dealt := 0.0
 	for target in targets:
-		target.take_hit(hit.damage / 10.0 * melee_damage(), _facing * hit.knockback)
+		var amount: float = hit.damage / 10.0 * melee_damage()
+		target.take_hit(amount, _facing * hit.knockback)
+		dealt += amount
+	# Roubo de vida (encantamento Vampírico).
+	if dealt > 0.0:
+		health.heal(dealt * inventory.total("lifesteal_pct") / 100.0)
 	_fx("fx_slash", [finisher, _facing])
 	if not targets.is_empty():
 		_hitstop = GameConfig.HITSTOP_TIME
@@ -606,6 +612,10 @@ func armor() -> float:
 	return inventory.total("armor")
 
 
+func move_speed() -> float:
+	return GameConfig.PLAYER_SPEED * (1.0 + inventory.total("move_speed_pct") / 100.0)
+
+
 ## Pedido vindo da tela de inventário do dono. Comandos: "move" [de, para],
 ## "equip" [casa], "drop" [casa]. Quem executa é sempre o host.
 func request_inventory(command: String, args: Array) -> void:
@@ -616,8 +626,16 @@ func request_inventory(command: String, args: Array) -> void:
 
 
 func apply_inventory_command(command: String, args: Array) -> void:
+	if command in Services.COMMANDS:
+		var result := Services.run(self, command, args)
+		_fx("fx_toast", [result[1], result[2]])
+		return
 	match command:
 		"move":
+			# O depósito do banco só se mexe perto do banco.
+			if (args[0][0] == "depot" or args[1][0] == "depot") \
+					and WorldNpc.nearest(get_tree(), global_position, Services.BANK, WorldNpc.TALK_RANGE + 0.6) == null:
+				return
 			inventory.move(args[0], args[1])
 		"equip":
 			inventory.equip(args[0])
@@ -636,6 +654,10 @@ func _pick_up() -> void:
 
 ## Host: guarda o item na mochila. Retorna false se não couber.
 func give_item(item: Dictionary) -> bool:
+	if item.get("id") == "gold":
+		inventory.add_gold(int(item.get("amount", 0)))
+		_fx("fx_toast", ["+%d moedas" % int(item.get("amount", 0)), ItemDB.DEFS.gold.color])
+		return true
 	if inventory.add_item(item).is_empty():
 		_fx("fx_toast", ["Mochila cheia", Color(1.0, 0.5, 0.4)])
 		return false

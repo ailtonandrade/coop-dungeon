@@ -8,6 +8,9 @@ const PICKUP_RADIUS := 1.8
 const LIFETIME := 180.0
 ## Quantos itens uma criatura pode deixar: cada chance é testada em ordem e para na primeira que falha.
 const DROP_CHANCES := [0.55, 0.3, 0.12]
+## Moedas: quase sempre caem, mais quanto maior o poder (perigo da região).
+const GOLD_CHANCE := 0.85
+const GOLD_PER_POWER := Vector2i(3, 8)
 
 var item: Dictionary
 
@@ -22,6 +25,9 @@ static func drop(source: Node, p_item: Dictionary, pos: Vector3) -> void:
 
 ## Host: o que uma criatura deixa ao morrer (zero, um ou mais itens espalhados).
 static func roll_drops(source: Node3D, power: int) -> void:
+	if randf() < GOLD_CHANCE:
+		var amount := maxi(1, power) * randi_range(GOLD_PER_POWER.x, GOLD_PER_POWER.y)
+		drop(source, ItemDB.make_gold(amount), Combat.flat(source.global_position) + Vector3(randf_range(-0.8, 0.8), 0, randf_range(-0.8, 0.8)))
 	for chance: float in DROP_CHANCES:
 		if randf() >= chance:
 			break
@@ -49,7 +55,7 @@ static func build(data: Dictionary) -> Loot:
 
 func _ready() -> void:
 	add_to_group("loot")
-	var color := ItemDB.rarity_color(item)
+	var color: Color = ItemDB.DEFS.gold.color if item.get("id") == "gold" else ItemDB.rarity_color(item)
 	_visual = ItemVisuals.build(item)
 	_visual.scale = Vector3.ONE * 1.6
 	add_child(_visual)
@@ -69,7 +75,8 @@ func _ready() -> void:
 
 	# Nome no chão na cor da raridade (como no MU).
 	var label := Label3D.new()
-	label.text = "%s +%d" % [ItemDB.display_name(item), int(item.get("power", 1))]
+	label.text = ItemDB.display_name(item) if item.get("id") == "gold" \
+			else "%s · poder %d" % [ItemDB.display_name(item), int(item.get("power", 1))]
 	label.modulate = color
 	label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 	label.no_depth_test = true

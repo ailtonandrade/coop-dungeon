@@ -44,6 +44,14 @@ func _process(_delta: float) -> bool:
 			if head and head.id == "iron_helmet":
 				_check(true, "cliente pegou o elmo do chão e equipou (visto no host)")
 				_check(_remote.armor() > 5.0, "armadura do cliente subiu no host (%.1f)" % _remote.armor())
+				# Comerciante: o cliente ganha moedas e vai até ele para comprar.
+				_remote.inventory.add_gold(500)
+				_remote.teleport_to(Vector3(25, 0, 31.6))
+				_t0 = _now()
+				_step = 6
+		6:
+			if int(_remote.inventory.gold) < 500:
+				_check(true, "cliente comprou do comerciante e o host cobrou (%d moedas)" % _remote.inventory.gold)
 				# O jogador do cliente vai para a outra ponta do mapa; o do host fica na vila.
 				var streamer := get_first_node_in_group("world_streamer")
 				streamer.load_now(FAR_POINT)
