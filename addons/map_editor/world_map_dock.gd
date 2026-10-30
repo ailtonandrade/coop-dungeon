@@ -260,20 +260,24 @@ func stamp_at(camera: Camera3D, screen_point: Vector2) -> void:
 	if root == null or _prefabs.get_selected_items().is_empty():
 		set_stamping(false)
 		return
-	var from := camera.project_ray_origin(screen_point)
-	var direction := camera.project_ray_normal(screen_point)
-	var point: Variant = null
-	var space := camera.get_world_3d().direct_space_state
-	if space:
-		var hit := space.intersect_ray(PhysicsRayQueryParameters3D.create(from, from + direction * 500.0))
-		if not hit.is_empty():
-			point = hit.position
-	if point == null:
-		point = Plane(Vector3.UP, root.global_position.y).intersects_ray(from, direction)
+	var point: Variant = _ground_hit(camera, camera.project_ray_origin(screen_point), camera.project_ray_normal(screen_point), root)
 	if point == null:
 		return
 	var local: Vector3 = root.global_transform.affine_inverse() * point
 	_place_prefab(root, local.snapped(Vector3(0.1, 0.05, 0.1)), _vary.button_pressed)
+
+
+## Onde um raio bate: no que tiver colisão (chão com relevo, caixas) ou no plano do chão do bloco.
+func _ground_hit(camera: Camera3D, from: Vector3, direction: Vector3, root: Node3D, reach := 500.0) -> Variant:
+	var space := camera.get_world_3d().direct_space_state
+	if space:
+		var hit := space.intersect_ray(PhysicsRayQueryParameters3D.create(from, from + direction * reach))
+		if not hit.is_empty():
+			return hit.position
+	var point: Variant = Plane(Vector3.UP, root.global_position.y).intersects_ray(from, direction)
+	if point != null and from.distance_to(point) > reach:
+		return null
+	return point
 
 
 func _insert_prefab() -> void:
@@ -281,15 +285,25 @@ func _insert_prefab() -> void:
 	if _prefabs.get_selected_items().is_empty() or root == null:
 		_say("[color=orange]Abra um bloco e escolha uma peça.[/color]")
 		return
-	_place_prefab(root, _view_center_on_ground(root), false)
+	var camera := _editor_camera()
+	if camera == null:
+		_say("[color=orange]Abra a vista 3D do bloco.[/color]")
+		return
+	var point := _insert_point(camera, root)
+	var local: Vector3 = root.global_transform.affine_inverse() * point
+	# De frente para quem está olhando (de 15 em 15 graus).
+	var to_camera := camera.global_position - point
+	var yaw := snappedf(atan2(to_camera.x, to_camera.z), deg_to_rad(15.0)) if Vector2(to_camera.x, to_camera.z).length() > 0.01 else 0.0
+	_place_prefab(root, local.snapped(Vector3(0.1, 0.05, 0.1)), false, yaw - root.global_rotation.y)
 
 
-func _place_prefab(root: Node3D, position: Vector3, vary: bool) -> void:
+func _place_prefab(root: Node3D, position: Vector3, vary: bool, yaw := 0.0) -> void:
 	var picked := _prefabs.get_selected_items()
 	var instance: Node3D = (load(_prefabs.get_item_metadata(picked[0])) as PackedScene).instantiate()
 	# Sólidos entram na navegação das criaturas; NPCs e geradores podem ficar fora, mas não atrapalha.
 	var parent: Node = root.get_node_or_null("Navigation") if root.has_node("Navigation") else root
 	instance.position = position
+	instance.rotation.y = yaw
 	if vary:
 		instance.rotation.y = randf() * TAU
 		# NPC, baú, gerador e entrada não mudam de tamanho.
@@ -305,19 +319,33 @@ func _place_prefab(root: Node3D, position: Vector3, vary: bool) -> void:
 	EditorInterface.get_selection().clear()
 	EditorInterface.get_selection().add_node(instance)
 	if not stamping:
-		_say("Peça colocada. Depois de arrumar o bloco: Ctrl+S e \"Assar navegação de tudo\" (para as criaturas desviarem).")
+		_say("Peça colocada em (%.1f, %.1f, %.1f). Depois de arrumar o bloco: Ctrl+S e \"Assar navegação de tudo\" (para as criaturas desviarem)." % [position.x, position.y, position.z])
 
 
-## Ponto do chão (y = 0) no centro da vista 3D do editor, em coordenadas da cena, em metros inteiros.
-func _view_center_on_ground(root: Node3D) -> Vector3:
+## Até onde o centro da vista vale; mais longe que isso (ou olhando para o céu), a peça cai no
+## chão abaixo desse ponto da linha do centro, ainda na tela. A câmera do editor gira em volta de um ponto fixo: girar e dar zoom não
+## mudam o centro, então só o centro levaria a peça para longe de onde se está olhando.
+const INSERT_REACH := 15.0
+
+
+func _editor_camera() -> Camera3D:
 	var viewport := EditorInterface.get_editor_viewport_3d(0)
-	var camera := viewport.get_camera_3d()
-	if camera == null:
-		return Vector3.ZERO
-	var center := viewport.get_visible_rect().size / 2.0
-	var hit: Variant = Plane(Vector3.UP, 0.0).intersects_ray(camera.project_ray_origin(center), camera.project_ray_normal(center))
-	var point: Vector3 = hit if hit != null else Vector3.ZERO
-	return (root.global_transform.affine_inverse() * point).round() * Vector3(1, 0, 1)
+	return viewport.get_camera_3d() if viewport else null
+
+
+## Onde "Inserir no centro da vista" põe a peça (coordenadas globais): o chão no centro da vista,
+## se estiver perto; senão, o chão abaixo da linha do centro, a INSERT_REACH da câmera.
+func _insert_point(camera: Camera3D, root: Node3D) -> Vector3:
+	var center := camera.get_viewport().get_visible_rect().size / 2.0
+	var from := camera.project_ray_origin(center)
+	var hit: Variant = _ground_hit(camera, from, camera.project_ray_normal(center), root, INSERT_REACH)
+	if hit != null:
+		return hit
+	# Anda pela linha do centro da vista até INSERT_REACH e desce dali até o chão (com relevo).
+	var ahead := from + camera.project_ray_normal(center) * INSERT_REACH
+	var top := Vector3(ahead.x, maxf(camera.global_position.y, root.global_position.y) + 50.0, ahead.z)
+	var ground: Variant = _ground_hit(camera, top, Vector3.DOWN, root, 200.0)
+	return ground if ground != null else Vector3(ahead.x, root.global_position.y, ahead.z)
 
 
 ## Manutenção

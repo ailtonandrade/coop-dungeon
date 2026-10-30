@@ -41,7 +41,10 @@ Dois jeitos de colocar:
   cada clique põe uma peça ali (no chão ou em cima do que tiver colisão). Com **Variar giro e
   tamanho** ligado, cada uma sai girada e com tamanho um pouco diferente (bom para mato, pedras e
   lixo; NPC, baú e gerador só giram). Clique direito, Esc ou o botão de novo param o carimbo.
-- **Inserir no centro da vista:** uma peça no meio da vista 3D.
+- **Inserir no centro da vista:** uma peça onde o centro da vista 3D bate no chão (com relevo),
+  virada para a câmera. Se esse ponto estiver longe (mais de 15 m) ou a vista apontar para o céu,
+  a peça cai no chão um pouco à frente da câmera, ainda na tela. (A câmera do editor gira em volta
+  de um ponto fixo: girar e dar zoom não mudam o centro; andar com botão direito + WASD muda.)
 
 Depois mova e gire como qualquer nó (Ctrl+Z desfaz). Ao terminar o bloco: Ctrl+S e
 **Assar navegação de tudo**, para as criaturas desviarem das peças novas.
