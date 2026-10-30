@@ -2,6 +2,9 @@
 
 ## Visão
 
+> Identidade, narrativa e estética (cyberpunk de ferro-velho): ver [`IDENTIDADE.md`](IDENTIDADE.md).
+> As mecânicas abaixo continuam "1:1 com a referência"; mundo, história e visual são os de lá.
+
 RPG de ação isométrico em **mundo aberto**, com entradas para **interiores** (masmorras,
 casas, prédios), com escala, proporções, ritmo e funcionalidades **1:1 com a referência
 Minecraft Dungeons 2**. Plataformas: **Xbox Series X|S** e **Windows**
