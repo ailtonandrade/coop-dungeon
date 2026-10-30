@@ -3,7 +3,7 @@ extends PanelContainer
 ## Chip pirata: onde o jogador instala os pontos que ganha subindo de nível. Abre de dentro do
 ## inventário (RB / Q) e volta para ele do mesmo jeito. Cada um do sofá mexe no seu.
 ##
-## Controle: cima/baixo escolhe · A instala um ponto · RB volta ao inventário · B / Back fecha
+## Controle: cima/baixo escolhe · A instala um ponto · RB passa para Habilidades · B / Back fecha
 ## Teclado:  W/S · Espaço · Q · Shift / I
 
 signal close_requested
@@ -58,7 +58,7 @@ func _build() -> void:
 	_details.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_details.custom_minimum_size = Vector2(440, 40)
 	column.add_child(_details)
-	column.add_child(UiSkin.label("Cima/baixo escolhe · A instala · RB/Q inventário · B fecha", 13, Color(1, 1, 1, 0.6), "Regular", 3))
+	column.add_child(UiSkin.label("Cima/baixo escolhe · A instala · RB/Q habilidades · B fecha", 13, Color(1, 1, 1, 0.6), "Regular", 3))
 
 
 func _refresh() -> void:

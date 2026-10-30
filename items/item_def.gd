@@ -31,6 +31,8 @@ static func set_known_shops(shops: PackedStringArray) -> void:
 @export var display_name := ""
 @export var slot := "melee"
 @export var look := "sword"
+## Habilidade que esta arma treina e usa; vazio = pelo tipo de desenho (look).
+@export var skill := ""
 ## Cor do modelo provisório e da pintura no corpo (peito, pernas, pés).
 @export var color := Color(0.72, 0.74, 0.78)
 ## Preço base no comerciante (sobe com poder, raridade e refino).
@@ -84,6 +86,8 @@ static func set_known_shops(shops: PackedStringArray) -> void:
 ## Formato que o jogo usa (ItemDB.def).
 func to_dict() -> Dictionary:
 	var result := {"name": display_name, "slot": slot, "price": price, "look": look, "color": color}
+	if not skill.is_empty():
+		result["skill"] = skill
 	for stat: String in STAT_FIELDS:
 		var value: Variant = get(stat)
 		if value != 0:
@@ -120,6 +124,9 @@ func _validate_property(property: Dictionary) -> void:
 		"look":
 			property.hint = PROPERTY_HINT_ENUM
 			property.hint_string = ",".join(LOOKS)
+		"skill":
+			property.hint = PROPERTY_HINT_ENUM_SUGGESTION
+			property.hint_string = ",laminas,machados,impacto,disparo"
 		"mount_bone":
 			property.hint = PROPERTY_HINT_ENUM_SUGGESTION
 			property.hint_string = ",".join(BONES)

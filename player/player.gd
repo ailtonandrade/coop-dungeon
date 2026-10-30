@@ -34,6 +34,8 @@ const COMBO: Array[Dictionary] = [
 ]
 ## Em que fração da animação de golpe ("slash") a lâmina passa pela frente (para casar com o acerto).
 const SLASH_IMPACT := 0.4
+## Segundos entre os envios do treino das habilidades ao dono (para o save dele).
+const PROGRESS_SYNC_TIME := 5.0
 ## Depois de atirar, por quanto tempo as pernas correm com a animação de "correr atirando".
 const SHOOT_POSE_TIME := 0.35
 
@@ -86,6 +88,9 @@ var _net_yaw := 0.0
 var _net_synced := false
 var _visual := []
 var _air_time := 0.0
+## Treino de habilidade ainda não mandado ao dono (vai junto a cada poucos segundos).
+var _progress_dirty := false
+var _progress_sync := 0.0
 
 @onready var _ring: MeshInstance3D = $Ring
 @onready var _tag: Label3D = $Tag
@@ -155,8 +160,11 @@ func teleport_to(target: Vector3) -> void:
 
 
 func take_hit(amount: float, knockback := Vector3.ZERO) -> void:
-	# A rolada dá invulnerabilidade, como no gênero.
-	if state == State.DODGING or state == State.DOWNED:
+	# A rolada dá invulnerabilidade, como no gênero (e esquivar treina Resiliência).
+	if state == State.DODGING:
+		train("resiliencia", 0.5)
+		return
+	if state == State.DOWNED:
 		return
 	# Armadura reduz o dano: 25 de armadura deixa passar 2/3.
 	amount *= 100.0 / (100.0 + armor() * 2.0)
@@ -164,6 +172,8 @@ func take_hit(amount: float, knockback := Vector3.ZERO) -> void:
 		_knockback = Combat.flat(knockback)
 		_fx("fx_hurt", [amount])
 		_fx("fx_shake", [0.25])
+		train("vigor", amount / 4.0)
+		train("resiliencia", 1.0)
 
 
 func revive(fraction: float) -> void:
@@ -209,6 +219,9 @@ func _physics_process(delta: float) -> void:
 	if streamer and not streamer.is_ready_at(global_position):
 		return
 	_input.begin_tick()
+	_progress_sync -= delta
+	if _progress_dirty and _progress_sync <= 0.0:
+		_send_inventory()
 	_dodge_cooldown = maxf(_dodge_cooldown - delta, 0.0)
 	_arrow_cooldown = maxf(_arrow_cooldown - delta, 0.0)
 	_melee_cooldown = maxf(_melee_cooldown - delta, 0.0)
@@ -488,9 +501,13 @@ func _melee_hit(hit: Dictionary) -> void:
 		var amount: float = hit.damage / 10.0 * melee_damage()
 		target.take_hit(amount, _facing * hit.knockback)
 		dealt += amount
+	if not targets.is_empty():
+		train(weapon_skill("melee"), targets.size())
 	# Roubo de vida (encantamento Vampírico).
 	if dealt > 0.0:
-		health.heal(dealt * inventory.total("lifesteal_pct") / 100.0)
+		var stolen := dealt * inventory.total("lifesteal_pct") / 100.0
+		health.heal(stolen)
+		train("vigor", stolen / 8.0)
 	_fx("fx_slash", [finisher, _facing])
 	if not targets.is_empty():
 		_hitstop = GameConfig.HITSTOP_TIME
@@ -602,6 +619,7 @@ func _drink_potion() -> void:
 	health.heal(health.max_hp * GameConfig.POTION_HEAL)
 	potion_cooldown = GameConfig.POTION_COOLDOWN * cooldown_factor()
 	_fx("fx_heal", [health.hp - before])
+	train("vigor", (health.hp - before) / 8.0)
 
 
 func _on_died() -> void:
@@ -655,12 +673,23 @@ func apply_net_state(s: Array) -> void:
 func melee_damage() -> float:
 	var weapon: Variant = inventory.equipment.get("melee")
 	var base := ItemDB.stat(weapon, "damage") if weapon else UNARMED_DAMAGE
-	return base * damage_factor()
+	return base * damage_factor() * (1.0 + progress.skill_bonus(weapon_skill("melee")) / 100.0)
 
 
 func ranged_damage() -> float:
 	var weapon: Variant = inventory.equipment.get("ranged")
-	return ItemDB.stat(weapon, "damage") * damage_factor() if weapon else 0.0
+	if weapon == null:
+		return 0.0
+	return ItemDB.stat(weapon, "damage") * damage_factor() * (1.0 + progress.skill_bonus(weapon_skill("ranged")) / 100.0)
+
+
+## Habilidade da arma na casa (sem arma corpo a corpo: Desarmado).
+func weapon_skill(slot_name: String) -> String:
+	var weapon: Variant = inventory.equipment.get(slot_name)
+	if weapon == null:
+		return "desarmado" if slot_name == "melee" else "disparo"
+	var def := ItemDB.def(weapon)
+	return def.get("skill", Progression.WEAPON_SKILL.get(def.get("look", ""), "laminas" if slot_name == "melee" else "disparo"))
 
 
 ## Multiplicador de dano: mods dos itens, níveis e o chip Braço hidráulico.
@@ -674,7 +703,7 @@ func cooldown_factor() -> float:
 
 
 func armor() -> float:
-	return inventory.total("armor")
+	return inventory.total("armor") + progress.skill_bonus("resiliencia")
 
 
 func move_speed() -> float:
@@ -761,6 +790,8 @@ func _on_inventory_changed() -> void:
 
 
 func _send_inventory() -> void:
+	_progress_dirty = false
+	_progress_sync = PROGRESS_SYNC_TIME
 	var replicator := NetReplicator.of(self)
 	if replicator:
 		replicator.send_to_peer(owner_peer, self, "net_inventory", [inventory.to_dict(), progress.to_dict()])
@@ -771,7 +802,7 @@ func _send_inventory() -> void:
 func _apply_stats() -> void:
 	var old_max := health.max_hp
 	health.max_hp = (GameConfig.PLAYER_MAX_HP + inventory.total("hp") + progress.bonus("hp_flat")) \
-			* (1.0 + progress.bonus("hp_pct") / 100.0)
+			* (1.0 + (progress.bonus("hp_pct") + progress.skill_bonus("vigor")) / 100.0)
 	if not health.is_dead():
 		health.hp = clampf(health.hp + maxf(health.max_hp - old_max, 0.0), 0.0, health.max_hp)
 
@@ -785,6 +816,28 @@ func net_inventory(data: Dictionary, progress_data := {}) -> void:
 	if is_local() and not character_id.is_empty():
 		SaveService.save_character_progress(character_id, data, progress_data)
 	inventory_updated.emit()
+
+
+## Host: uso de uma habilidade (acerto com a arma, golpe recebido...). Subiu: aviso e atributos
+## novos. O treino miúdo vai ao dono a cada poucos segundos (save), não a cada golpe.
+func train(skill: String, amount: float) -> void:
+	if not multiplayer.is_server():
+		return
+	var gained := progress.train(skill, amount)
+	if gained <= 0:
+		_progress_dirty = true
+		return
+	var level := progress.skill_level(skill)
+	var name: String = Progression.SKILLS[skill].name
+	_apply_stats()
+	_fx("fx_toast", ["%s %d" % [name, level], Color(0.55, 1.0, 0.7), "refine_ok"])
+	Chat.system("%s avançou em %s (%d)" % [display_name, name, level])
+	_send_inventory()
+
+
+## Projétil deste herói acertou alguém (o tiro treina a habilidade da arma à distância).
+func on_ranged_hit() -> void:
+	train(weapon_skill("ranged"), 1.0)
 
 
 ## Host: experiência de uma criatura derrotada. Subiu de nível: vida cheia e festa.

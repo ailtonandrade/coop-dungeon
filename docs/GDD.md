@@ -329,3 +329,19 @@ Estrutura de pastas, regras e como estender cada parte: ver [`ARCHITECTURE.md`](
 
 O online (M6) vem **antes** do mundo aberto e do loot: todo sistema novo
 já nasce sincronizado. Adaptar depois custaria reescrever cada sistema.
+
+
+## Habilidades (estilo Tibia)
+
+Além do nível (XP das criaturas) e dos chips piratas, cada personagem tem habilidades que sobem
+**usando**, começando no 10:
+- **Armas:** Lâminas (facão, estilete), Machados, Impacto (martelo), Disparo (bestas, rifle,
+  lança-pregos) e Desarmado. Cada acerto com aquele tipo treina; cada nível dá +1,5% de dano
+  com ele (Desarmado +2%). A ficha do item pode apontar outra habilidade (campo *Skill*).
+- **Vigor:** treina aguentando dano e recuperando vida (poção, roubo de vida); +1,5% de vida
+  máxima por nível.
+- **Resiliência:** treina a cada golpe recebido (e a cada golpe esquivado rolando); +0,8 de
+  armadura por nível.
+- Curva exponencial como no Tibia (cada nível pede ~10% mais uso), até 120. Subir avisa no chat
+  ("Nina avançou em Lâminas (15)") e sobre o herói. Janela **Habilidades** na roda do
+  inventário (RB/Q: Inventário -> Chip pirata -> Habilidades).

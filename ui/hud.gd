@@ -275,7 +275,8 @@ func _toggle_inventory(slot: int) -> void:
 	_open_panel(slot, InventoryPanel.new(), player)
 
 
-## Abre no lugar do inventário um painel do jogador (inventário ou chip pirata); RB/Q alterna.
+## Abre no lugar do inventário um painel do jogador (inventário, chip pirata ou habilidades);
+## RB/Q passa para o próximo.
 func _open_panel(slot: int, panel: Control, player: Player) -> void:
 	_root.add_child(panel)
 	panel.open_for(player)
@@ -292,7 +293,13 @@ func _switch_panel(slot: int) -> void:
 	current.keep_blocked = true
 	current.queue_free()
 	_inventories.erase(slot)
-	_open_panel(slot, ChipPanel.new() if current is InventoryPanel else InventoryPanel.new(), player)
+	# Roda: Inventário -> Chip pirata -> Habilidades -> Inventário.
+	var next: Control = InventoryPanel.new()
+	if current is InventoryPanel:
+		next = ChipPanel.new()
+	elif current is ChipPanel:
+		next = SkillsPanel.new()
+	_open_panel(slot, next, player)
 
 
 func _close_inventory(slot: int) -> void:

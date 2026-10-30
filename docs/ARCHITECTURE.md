@@ -20,7 +20,7 @@ characters/  o que todo personagem usa
              CharacterAnimator (toca AÇÕES), AnimSets (ação -> clipe por tipo de corpo),
              ProceduralAnims (pulo/queda/escalada montados por código para o esqueleto humano)
 player/      o herói (movimento, mira, combate, inventário) e a cena dele; Progression (nível,
-             XP e chips piratas, salvos no personagem)
+             XP, chips piratas e habilidades estilo Tibia, salvos no personagem)
 audio/       Sound (autoload: eventos, som 3D, música/ambiente, barramentos), SoundBank (evento ->
              arquivos, volume, afinação), Voice (autoload: voz pela rede, rádio, mudo do host),
              sfx/ e music/. Ver [`SOM.md`](SOM.md)
@@ -47,7 +47,7 @@ addons/map_editor/  editor de mapa: painel "Mapa do Mundo" (world_map_dock, map_
              e MapTools (a lógica: criar bloco/masmorra, ligar e sincronizar entradas, validar,
              assar navegação), usado pelo painel e pelos testes
 ui/          menu principal (com a vila 3D ao fundo: MenuBackdrop), HUD (PlayerCard, RegionBanner),
-             inventário, Chip pirata (ChipPanel), escolha de personagem (CharacterSelect, com
+             inventário, Chip pirata (ChipPanel), Habilidades (SkillsPanel), escolha de personagem (CharacterSelect, com
              CharacterPreview), ChatBox (chat do mundo), configurações (SettingsPanel, no menu e na pausa), tela de serviço
              (ServicePanel), minimapa
 ui/skin/     visual da interface: texturas das molduras, corrumpted_theme.tres (tema do projeto
@@ -181,6 +181,7 @@ godot --headless --path coop-dungeon -s tests/internet_test.gd                 #
 godot --headless --fixed-fps 60 --path coop-dungeon -s tests/character_test.gd # personagens: migrar, escolher, personalizar
 godot --headless --path coop-dungeon -s tests/voice_test.gd                    # voz: codificação, rádio, volumes, distância
 godot --headless --fixed-fps 60 --path coop-dungeon -s tests/chat_test.gd      # chat: Enter, digitar sem acionar o jogo, rápidas
+godot --headless --fixed-fps 60 --path coop-dungeon -s tests/skill_test.gd     # habilidades: treino pelo uso, efeitos, janela
 GODOT=godot coop-dungeon/tests/run_net_test.sh                                 # online: host + cliente (voz e chat), mapa adulterado e senha
 ```
 
