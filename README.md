@@ -64,9 +64,8 @@ Os blocos do mapa ficam em `world/chunks/` e se editam no Godot com o painel **M
 
 ## Exportar
 
-`export_presets.cfg` já tem a exportação para Windows; ela deixa de fora o editor de mapa
-(`addons/`), as ferramentas, os testes e a documentação. Precisa dos modelos de exportação do
-Godot 4.7 instalados (Editor > Gerenciar modelos de exportação).
+PC (.exe e instalador), Microsoft Store, Steam, Xbox e como testar no Series S pelo Edge:
+ver [`docs/PUBLICAR.md`](docs/PUBLICAR.md). Atalho: `tools/exportar_windows.bat`.
 
 ## Testes automáticos
 

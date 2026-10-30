@@ -75,10 +75,16 @@ func local_addresses() -> PackedStringArray:
 
 ## Abrir mundo
 
+## O navegador (versão Web, usada para testar no Xbox pelo Edge) não tem a rede do jogo:
+## lá só existe o co-op de sofá.
+func online_supported() -> bool:
+	return not OS.has_feature("web")
+
+
 func play_world(info: Dictionary) -> Error:
 	world = info
 	last_message = ""
-	if info.get("visibility", "open") == "offline":
+	if info.get("visibility", "open") == "offline" or not online_supported():
 		mode = Mode.OFFLINE
 		multiplayer.multiplayer_peer = OfflineMultiplayerPeer.new()
 		_go_to(LEVEL_SCENE)

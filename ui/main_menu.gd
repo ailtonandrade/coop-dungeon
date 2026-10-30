@@ -80,8 +80,10 @@ func _build_main() -> Control:
 	var box := _vbox()
 	_button(box, "Novo mundo", func() -> void: _show("create"))
 	_button(box, "Meus mundos", func() -> void: _show("worlds"))
-	_button(box, "Buscar mundos (rede local / IP)", func() -> void: _show("browse"))
-	_button(box, "Sair", func() -> void: get_tree().quit())
+	if NetService.online_supported():
+		_button(box, "Buscar mundos (rede local / IP)", func() -> void: _show("browse"))
+	if not OS.has_feature("web"):
+		_button(box, "Sair", func() -> void: get_tree().quit())
 	return box
 
 
@@ -100,6 +102,10 @@ func _build_create() -> Control:
 	_visibility = OptionButton.new()
 	for entry: Array in VISIBILITIES:
 		_visibility.add_item(entry[1])
+	# Sem online (navegador): só o pessoal do sofá.
+	if not NetService.online_supported():
+		_visibility.select(VISIBILITIES.size() - 1)
+		_visibility.disabled = true
 	_visibility.custom_minimum_size = Vector2(0, 52)
 	_visibility.add_theme_font_size_override("font_size", 22)
 	box.add_child(_visibility)
