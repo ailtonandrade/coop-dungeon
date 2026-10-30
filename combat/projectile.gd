@@ -32,7 +32,7 @@ static func build(data: Dictionary) -> Projectile:
 	projectile.velocity = data.velocity
 	projectile.damage = data.damage
 	projectile.collision_layer = 0
-	projectile.collision_mask = GameConfig.LAYER_WORLD | int(data.target_layer)
+	projectile.collision_mask = GameConfig.LAYER_SOLID | int(data.target_layer)
 	projectile._from_player = int(data.target_layer) & GameConfig.LAYER_ENEMIES != 0
 	projectile._shooter = int(data.get("shooter", -1))
 	var color: Color = data.color

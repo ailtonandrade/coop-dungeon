@@ -11,6 +11,7 @@ const CAVE_EXIT := Vector3(4024, 0, 44)
 var _frames := 0
 var _failed := false
 var _creature: Node3D
+var _guests: Array[int] = []
 ## Segura a linha do tempo até a condição valer (carregamento em segundo plano não tem hora certa).
 var _wait_until := Callable()
 var _wait_left := 0
@@ -57,6 +58,27 @@ func _process(_delta: float) -> bool:
 			_teleport_group(Vector3(32, 0, 38))
 		SECOND + 60:
 			_check(_house("House_14_14").target == 0.0, "saiu da casa: telhado volta")
+			# Caindo em cima da casa: o telhado segura (não se entra pelo telhado).
+			_teleport_group(Vector3(14, 6, 15.5))
+		SECOND + 85:
+			var p0 := _player(0)
+			_check(p0.global_position.y > 3.5 and p0.is_on_floor(), "em cima da casa: fica no telhado (y %.2f)" % p0.global_position.y)
+			# Câmera estilo GTA (só com um na tela) dentro da casa: nada some nem fica translúcido.
+			var input := root.get_node("InputService")
+			for slot in range(1, 4):
+				if input.is_active(slot):
+					_guests.append(input.device_of(slot))
+					input.leave(slot)
+			root.get_node("Settings").camera_mode = "behind"
+			_teleport_group(Vector3(14, 0, 15.5))
+		SECOND + 110:
+			_check(get_first_node_in_group("shared_camera").is_behind(), "câmera GTA com um jogador só")
+			var house := current_scene.find_child("House_14_14", true, false)
+			_check(_house("House_14_14").target == 0.0, "câmera GTA dentro da casa: telhado não some")
+			_check(house.get_node("FrontWalls").target == 0.0, "câmera GTA dentro da casa: paredes sem transparência")
+			root.get_node("Settings").camera_mode = "iso"
+			for device: int in _guests:
+				root.get_node("InputService")._try_join(device)
 			# Atravessa o mapa: blocos em volta do novo lugar carregam, os longe descarregam.
 			_teleport_group(Vector3(160, 0, 160))
 		3 * SECOND - 1:

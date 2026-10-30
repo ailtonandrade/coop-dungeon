@@ -86,7 +86,7 @@ func _ready() -> void:
 	_stats = STATS[kind]
 	add_to_group("enemies")
 	collision_layer = GameConfig.LAYER_ENEMIES
-	collision_mask = GameConfig.LAYER_WORLD | GameConfig.LAYER_PLAYERS | GameConfig.LAYER_ENEMIES
+	collision_mask = GameConfig.LAYER_SOLID | GameConfig.LAYER_PLAYERS | GameConfig.LAYER_ENEMIES
 
 	var capsule := CapsuleShape3D.new()
 	capsule.radius = 0.4
@@ -315,7 +315,7 @@ func _strike() -> void:
 
 func _has_line_of_sight() -> bool:
 	var query := PhysicsRayQueryParameters3D.create(
-			global_position + Vector3.UP * 1.1, _target.global_position + Vector3.UP * 1.1, GameConfig.LAYER_WORLD)
+			global_position + Vector3.UP * 1.1, _target.global_position + Vector3.UP * 1.1, GameConfig.LAYER_SOLID)
 	return get_world_3d().direct_space_state.intersect_ray(query).is_empty()
 
 
@@ -358,7 +358,7 @@ func _grant_xp() -> void:
 func _become_dead() -> void:
 	state = State.DEAD
 	collision_layer = 0
-	collision_mask = GameConfig.LAYER_WORLD
+	collision_mask = GameConfig.LAYER_SOLID
 	remove_from_group("enemies")
 	Combat.set_overlay(_model, _tint)
 

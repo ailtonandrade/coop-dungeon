@@ -130,7 +130,7 @@ func _follow_behind(delta: float) -> void:
 	var target := _behind_player.global_position + Vector3.UP * GameConfig.BEHIND_HEIGHT
 	var wanted := target + look.z * GameConfig.BEHIND_DISTANCE + look.x * GameConfig.BEHIND_SHOULDER
 	# Parede entre o herói e a câmera: chega a câmera para a frente dela.
-	var query := PhysicsRayQueryParameters3D.create(target, wanted, GameConfig.LAYER_WORLD)
+	var query := PhysicsRayQueryParameters3D.create(target, wanted, GameConfig.LAYER_SOLID)
 	var hit := get_world_3d().direct_space_state.intersect_ray(query)
 	if not hit.is_empty():
 		wanted = hit.position + (target - wanted).normalized() * 0.25

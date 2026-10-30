@@ -140,7 +140,7 @@ see_through = 0.75
 
 [node name="RoofSlab" type="StaticBody3D" parent="Roof" unique_id=442087155]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.45, 0)
-collision_layer = 8
+collision_layer = 24
 collision_mask = 0
 
 [node name="Collision" type="CollisionShape3D" parent="Roof/RoofSlab" unique_id=705397861]
@@ -152,7 +152,7 @@ mesh = SubResource("BoxMesh_bet3b")
 
 [node name="RoofTop" type="StaticBody3D" parent="Roof" unique_id=231677761]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4, 0)
-collision_layer = 8
+collision_layer = 24
 collision_mask = 0
 
 [node name="Collision" type="CollisionShape3D" parent="Roof/RoofTop" unique_id=493308252]

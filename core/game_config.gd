@@ -78,6 +78,11 @@ const LAYER_PLAYERS := 2
 const LAYER_ENEMIES := 4
 ## Só para a câmera achar o que tapa o herói (telhados, copas de árvore). Ninguém colide nela.
 const LAYER_OCCLUDER := 8
+## Telhados: sólidos para heróis, criaturas, tiros e a câmera atrás do herói, mas fora da
+## navegação das criaturas (que só assa LAYER_WORLD) para ninguém achar caminho lá em cima.
+const LAYER_ROOF := 16
+## Tudo em que se esbarra: mundo + telhados.
+const LAYER_SOLID := LAYER_WORLD | LAYER_ROOF
 
 # Combate do herói
 const PLAYER_MAX_HP := 100.0

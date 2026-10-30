@@ -125,7 +125,7 @@ func _ready() -> void:
 		else:
 			_input = NetService.remote_input(owner_peer, slot)
 	collision_layer = GameConfig.LAYER_PLAYERS
-	collision_mask = GameConfig.LAYER_WORLD | GameConfig.LAYER_ENEMIES
+	collision_mask = GameConfig.LAYER_SOLID | GameConfig.LAYER_ENEMIES
 	health.max_hp = GameConfig.PLAYER_MAX_HP
 	add_child(health)
 	health.died.connect(_on_died)
@@ -397,7 +397,7 @@ func _try_mantle() -> bool:
 	var wall := {}
 	for height: float in [1.2, 0.5]:
 		var from := global_position + Vector3.UP * height
-		var ray := PhysicsRayQueryParameters3D.create(from, from + _facing * 0.8, GameConfig.LAYER_WORLD)
+		var ray := PhysicsRayQueryParameters3D.create(from, from + _facing * 0.8, GameConfig.LAYER_SOLID)
 		wall = space.intersect_ray(ray)
 		if not wall.is_empty():
 			break
@@ -407,7 +407,7 @@ func _try_mantle() -> bool:
 	var probe: Vector3 = wall.position + _facing * 0.25
 	var top_ray := PhysicsRayQueryParameters3D.create(
 			Vector3(probe.x, global_position.y + GameConfig.MANTLE_REACH + 0.3, probe.z),
-			Vector3(probe.x, global_position.y + 0.3, probe.z), GameConfig.LAYER_WORLD)
+			Vector3(probe.x, global_position.y + 0.3, probe.z), GameConfig.LAYER_SOLID)
 	var top := space.intersect_ray(top_ray)
 	if top.is_empty() or top.normal.y < 0.7:
 		return false
@@ -421,7 +421,7 @@ func _try_mantle() -> bool:
 	var room := PhysicsShapeQueryParameters3D.new()
 	room.shape = capsule
 	room.transform = Transform3D(Basis.IDENTITY, ledge + Vector3.UP * (GameConfig.PLAYER_HEIGHT / 2.0 + 0.05))
-	room.collision_mask = GameConfig.LAYER_WORLD | GameConfig.LAYER_ENEMIES
+	room.collision_mask = GameConfig.LAYER_SOLID | GameConfig.LAYER_ENEMIES
 	if not space.intersect_shape(room, 1).is_empty():
 		return false
 

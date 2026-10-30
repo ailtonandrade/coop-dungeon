@@ -468,7 +468,7 @@ see_through = 0.75
 
 [node name="RoofSlab" type="StaticBody3D" parent="Navigation/House_14_14/Roof" unique_id=1741400674]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.45, 0)
-collision_layer = 8
+collision_layer = 24
 collision_mask = 0
 
 [node name="Collision" type="CollisionShape3D" parent="Navigation/House_14_14/Roof/RoofSlab" unique_id=105092235]
@@ -480,7 +480,7 @@ mesh = SubResource("BoxMesh_4r154")
 
 [node name="RoofTop" type="StaticBody3D" parent="Navigation/House_14_14/Roof" unique_id=1527339996]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4, 0)
-collision_layer = 8
+collision_layer = 24
 collision_mask = 0
 
 [node name="Collision" type="CollisionShape3D" parent="Navigation/House_14_14/Roof/RoofTop" unique_id=968876332]
@@ -571,7 +571,7 @@ see_through = 0.75
 
 [node name="RoofSlab" type="StaticBody3D" parent="Navigation/House_50_14/Roof" unique_id=1033809996]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.45, 0)
-collision_layer = 8
+collision_layer = 24
 collision_mask = 0
 
 [node name="Collision" type="CollisionShape3D" parent="Navigation/House_50_14/Roof/RoofSlab" unique_id=1041432152]
@@ -583,7 +583,7 @@ mesh = SubResource("BoxMesh_7rcjf")
 
 [node name="RoofTop" type="StaticBody3D" parent="Navigation/House_50_14/Roof" unique_id=708757125]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4, 0)
-collision_layer = 8
+collision_layer = 24
 collision_mask = 0
 
 [node name="Collision" type="CollisionShape3D" parent="Navigation/House_50_14/Roof/RoofTop" unique_id=1887705545]
@@ -674,7 +674,7 @@ see_through = 0.75
 
 [node name="RoofSlab" type="StaticBody3D" parent="Navigation/House_14_50/Roof" unique_id=2100802154]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.45, 0)
-collision_layer = 8
+collision_layer = 24
 collision_mask = 0
 
 [node name="Collision" type="CollisionShape3D" parent="Navigation/House_14_50/Roof/RoofSlab" unique_id=749555682]
@@ -686,7 +686,7 @@ mesh = SubResource("BoxMesh_ehsxw")
 
 [node name="RoofTop" type="StaticBody3D" parent="Navigation/House_14_50/Roof" unique_id=2058911045]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4, 0)
-collision_layer = 8
+collision_layer = 24
 collision_mask = 0
 
 [node name="Collision" type="CollisionShape3D" parent="Navigation/House_14_50/Roof/RoofTop" unique_id=1165875375]
@@ -777,7 +777,7 @@ see_through = 0.75
 
 [node name="RoofSlab" type="StaticBody3D" parent="Navigation/House_50_50/Roof" unique_id=485945313]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.45, 0)
-collision_layer = 8
+collision_layer = 24
 collision_mask = 0
 
 [node name="Collision" type="CollisionShape3D" parent="Navigation/House_50_50/Roof/RoofSlab" unique_id=608273802]
@@ -789,7 +789,7 @@ mesh = SubResource("BoxMesh_il72c")
 
 [node name="RoofTop" type="StaticBody3D" parent="Navigation/House_50_50/Roof" unique_id=459664423]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4, 0)
-collision_layer = 8
+collision_layer = 24
 collision_mask = 0
 
 [node name="Collision" type="CollisionShape3D" parent="Navigation/House_50_50/Roof/RoofTop" unique_id=733007639]

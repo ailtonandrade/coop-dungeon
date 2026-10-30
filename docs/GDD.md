@@ -97,7 +97,12 @@ qual masmorra dá qual loot, qual região é perigosa para o nível dele.
   em volta dos seus jogadores.
 - **Entrar numa masmorra/casa:** como a tela é uma só, quem divide a tela entra junto
   (contagem curta na porta). Jogadores online de outras máquinas podem ficar do lado de fora.
-- **Telhados e paredes que tapam o herói** somem quando alguém passa por trás (recorte por câmera).
+- **Telhados e paredes que tapam o herói** somem quando alguém passa por trás (recorte por câmera),
+  só na câmera isométrica; na câmera estilo GTA nada some (dá para girar a câmera).
+- **Telhados são sólidos:** dá para subir e andar em cima, mas não entrar pelo telhado. Para ter
+  entrada por cima, o telhado precisa ter a abertura de verdade (peças separadas com o vão).
+  Eles ficam numa camada própria (LAYER_ROOF): heróis, criaturas, tiros e a câmera esbarram,
+  mas a navegação das criaturas não usa telhado como caminho.
 - **Criaturas por região** (acampamentos, patrulhas, chefes) com reaparecimento por tempo,
   em vez de ondas. As ondas atuais são só a arena de teste do combate.
 - **Estado do mundo** (baús abertos, chefes mortos, serviços descobertos) fica no save do mundo do host.

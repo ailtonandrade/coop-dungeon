@@ -5,6 +5,8 @@ extends Node
 ## estiver entre a câmera e um jogador fica transparente. Fica como filho da câmera.
 ## Paredes pintadas na grade (peças da biblioteca) usam outro jeito: o material delas abre um
 ## buraco em volta de cada jogador; aqui só passamos onde os jogadores estão na tela.
+## Na câmera atrás do herói (estilo GTA) nada some: dá para girar a câmera, e ela já fica
+## do lado de dentro de paredes e telhados.
 
 ## Quantas coisas o raio atravessa procurando o que tapa (paredes em sequência, árvore + telhado).
 const MAX_HITS := 4
@@ -28,6 +30,8 @@ func _process(_delta: float) -> void:
 	for player: Player in get_tree().get_nodes_in_group("players"):
 		if player.is_local():
 			local_players.append(player)
+	if _camera.has_method("is_behind") and _camera.is_behind():
+		local_players.clear()
 
 	_update_wall_cutout(local_players)
 	var blocking := {}

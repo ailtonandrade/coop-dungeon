@@ -143,13 +143,13 @@ func _house(nav: Node3D, root: Node3D, center: Vector3, size: Vector2, npc_servi
 	_static(front, root, "WallFrontL", Vector3(-size.x / 2 + side / 2, h / 2, size.y / 2), Vector3(side, h, t), wall)
 	_static(front, root, "WallFrontR", Vector3(size.x / 2 - side / 2, h / 2, size.y / 2), Vector3(side, h, t), wall)
 	_static(front, root, "Lintel", Vector3(0, h - 0.4, size.y / 2), Vector3(2.0, 0.8, t), wall)
-	# Telhado: só a câmera "vê" (camada de oclusão), ninguém colide nele.
+	# Telhado: a câmera "vê" (camada de oclusão) e é sólido (camada de telhado), fora da navegação.
 	var roof_node := _occluder(house, root, "Roof", inside, 0.75, 1.0)
 	var roof := _static(roof_node, root, "RoofSlab", Vector3(0, h + 0.25, 0), Vector3(size.x + 1.0, 0.5, size.y + 1.0), Color(0.6, 0.25, 0.18))
-	roof.collision_layer = GameConfig.LAYER_OCCLUDER
+	roof.collision_layer = GameConfig.LAYER_OCCLUDER | GameConfig.LAYER_ROOF
 	roof.collision_mask = 0
 	var ridge := _static(roof_node, root, "RoofTop", Vector3(0, h + 0.8, 0), Vector3(size.x * 0.6, 0.6, size.y * 0.6), Color(0.5, 0.2, 0.15))
-	ridge.collision_layer = GameConfig.LAYER_OCCLUDER
+	ridge.collision_layer = GameConfig.LAYER_OCCLUDER | GameConfig.LAYER_ROOF
 	ridge.collision_mask = 0
 	var floor_mesh := MeshInstance3D.new()
 	floor_mesh.name = "Floor"

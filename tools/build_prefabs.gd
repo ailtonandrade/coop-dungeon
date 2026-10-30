@@ -78,7 +78,7 @@ func _house(size: Vector2) -> Node3D:
 	for part: Array in [["RoofSlab", Vector3(0, h + 0.25, 0), Vector3(size.x + 1, 0.5, size.y + 1), Color(0.6, 0.25, 0.18)],
 			["RoofTop", Vector3(0, h + 0.8, 0), Vector3(size.x * 0.6, 0.6, size.y * 0.6), Color(0.5, 0.2, 0.15)]]:
 		var body := _static(roof, root, part[0], part[1], part[2], part[3])
-		body.collision_layer = GameConfig.LAYER_OCCLUDER
+		body.collision_layer = GameConfig.LAYER_OCCLUDER | GameConfig.LAYER_ROOF
 		body.collision_mask = 0
 	var floor_mesh := MeshInstance3D.new()
 	floor_mesh.name = "Floor"
