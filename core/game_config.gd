@@ -3,6 +3,9 @@ extends RefCounted
 ## Escala e proporções de referência do jogo.
 ## Regra de ouro: 1 unidade = 1 metro = 1 tile. Todo asset é modelado nessa escala.
 
+## Nome do jogo (menu, janela, exportação). Troque aqui.
+const GAME_TITLE := "Corrumpted"
+
 const MAX_PLAYERS := 4
 
 ## O mapa do mundo (único para todos; só o dono do jogo edita, no editor).

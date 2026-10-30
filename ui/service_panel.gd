@@ -16,8 +16,8 @@ const REPEAT_DELAY := 0.3
 const REPEAT_RATE := 0.1
 const TABS := {
 	Services.MERCHANT: ["Comprar", "Vender"],
-	Services.BLACKSMITH: ["Refinar"],
-	Services.ENCHANTER: ["Encantar"],
+	Services.BLACKSMITH: ["Upgrade"],
+	Services.ENCHANTER: ["Instalar mod"],
 	Services.BANK: ["Guardar", "Retirar"],
 }
 
@@ -99,21 +99,21 @@ func _build_rows() -> Array[Dictionary]:
 				if item.is_empty():
 					continue
 				var price := ItemDB.value(item)
-				rows.append(_row(item, "%d moedas" % price, ["buy", [i]], inventory.gold >= price))
+				rows.append(_row(item, ItemDB.money(price), ["buy", [i]], inventory.gold >= price))
 		"Vender":
 			for entry: Array in inventory.all_items(["bag"]):
 				var item: Dictionary = entry[1]
 				var full: bool = ItemDB.is_container(item) and item.contents.any(func(i: Variant) -> bool: return i != null)
 				rows.append(_row(item, "+%d" % ItemDB.sell_price(item), ["sell", [entry[0]]], not full))
-		"Refinar":
+		"Upgrade":
 			for entry: Array in inventory.all_items(["eq", "bag"]):
 				var item: Dictionary = entry[1]
 				if ItemDB.is_container(item) or ItemDB.slot_of(item) == "":
 					continue
 				var maxed := int(item.get("refine", 0)) >= ItemDB.MAX_REFINE
-				var right := "máximo" if maxed else "%d moedas · %d%%" % [ItemDB.refine_cost(item), roundi(ItemDB.refine_chance(item) * 100)]
+				var right := "máximo" if maxed else "%s · %d%%" % [ItemDB.money(ItemDB.refine_cost(item)), roundi(ItemDB.refine_chance(item) * 100)]
 				rows.append(_row(item, right, ["refine", [entry[0]]], not maxed and inventory.gold >= ItemDB.refine_cost(item)))
-		"Encantar":
+		"Instalar mod":
 			if _enchant_path.is_empty():
 				for entry: Array in inventory.all_items(["eq", "bag"]):
 					var item: Dictionary = entry[1]
@@ -128,7 +128,7 @@ func _build_rows() -> Array[Dictionary]:
 					var enchant: Dictionary = ItemDB.ENCHANTS[enchant_id]
 					var level := int(item.get("enchants", {}).get(enchant_id, 0))
 					var cost := ItemDB.enchant_cost(item, enchant_id)
-					var row := _row(item, "%d moedas" % cost, ["enchant", [_enchant_path, enchant_id]],
+					var row := _row(item, ItemDB.money(cost), ["enchant", [_enchant_path, enchant_id]],
 							ItemDB.can_enchant(item, enchant_id) and inventory.gold >= cost)
 					row.text = "%s %d → %d (+%s %s)" % [enchant.name, level, level + 1, str(enchant.per_level), ItemDB.STATS[enchant.stat]]
 					if level >= ItemDB.MAX_ENCHANT_LEVEL:
@@ -156,7 +156,7 @@ func _refresh() -> void:
 	var names := PackedStringArray()
 	for i in _tabs().size():
 		names.append("[ %s ]" % _tabs()[i] if i == _tab else _tabs()[i])
-	_tab_label.text = "   ".join(names) + ("   (escolha o encantamento)" if not _enchant_path.is_empty() else "")
+	_tab_label.text = "   ".join(names) + ("   (escolha o mod)" if not _enchant_path.is_empty() else "")
 	for child in _list.get_children():
 		child.queue_free()
 	if _rows.is_empty():
@@ -165,7 +165,7 @@ func _refresh() -> void:
 	for i in range(first, mini(first + VISIBLE_ROWS, _rows.size())):
 		_list.add_child(_row_view(_rows[i], i == _cursor))
 	_details.text = _describe()
-	_footer.text = "%d moedas" % player.inventory.gold
+	_footer.text = ItemDB.money(player.inventory.gold)
 
 
 func _row_view(row: Dictionary, selected: bool) -> Control:

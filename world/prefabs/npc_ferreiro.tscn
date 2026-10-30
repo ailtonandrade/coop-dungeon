@@ -3,7 +3,8 @@
 [ext_resource type="Script" path="res://world/world_npc.gd" id="1_ki7jq"]
 [ext_resource type="PackedScene" path="res://assets/characters/Worker.glb" id="2_ofj43"]
 
-[node name="Npc" type="Node3D" unique_id=581434512]
+[node name="Npc" type="Node3D" unique_id=56318513]
 script = ExtResource("1_ki7jq")
 service = 1
 model = ExtResource("2_ofj43")
+shop_items = PackedStringArray("sword", "axe", "bow", "longbow", "leather_hood", "iron_helmet", "leather_vest", "chainmail", "leather_pants", "leather_boots", "pouch", "backpack")

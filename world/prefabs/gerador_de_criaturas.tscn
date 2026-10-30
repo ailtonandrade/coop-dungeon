@@ -2,6 +2,6 @@
 
 [ext_resource type="Script" path="res://world/creature_spawner.gd" id="1_bi1sm"]
 
-[node name="GeradorDeCriaturas" type="Marker3D" unique_id=639142251]
+[node name="GeradorDeCriaturas" type="Marker3D" unique_id=1741776787]
 script = ExtResource("1_bi1sm")
 kinds = PackedInt32Array(0)

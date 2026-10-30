@@ -1,8 +1,8 @@
 class_name Services
 extends RefCounted
-## Regras dos serviços da cidade, executadas no host: comerciante (comprar/vender), ferreiro
-## (refino), encantador e banco (depósito). Cada comando confere que o jogador está perto de
-## um NPC do serviço certo e que tem as moedas; o resultado aparece como texto sobre o herói.
+## Regras dos serviços do assentamento, executadas no host: sucateiro (comprar/vender),
+## mecânico (upgrade = refino), hacker de chips (mods = encantamentos) e cofre (depósito). Cada comando confere que o jogador está perto de
+## um NPC do serviço certo e que tem os parafusos; o resultado aparece como texto sobre o herói.
 ## Serviço novo = um comando novo aqui + uma aba no ServicePanel.
 
 const MERCHANT := 0
@@ -24,20 +24,20 @@ static func run(player: Node3D, command: String, args: Array) -> Array:
 		"buy":
 			var npc := _npc(player, MERCHANT)
 			if npc == null:
-				return _fail("Longe do comerciante")
+				return _fail("Longe do sucateiro")
 			var item := npc.shop_item(int(args[0]))
 			if item.is_empty():
 				return _fail("Item indisponível")
 			var price := ItemDB.value(item)
 			if inventory.gold < price:
-				return _fail("Moedas insuficientes (%d)" % price)
+				return _fail("Faltam parafusos (%d)" % price)
 			if inventory.add_item(item).is_empty():
 				return _fail("Mochila cheia")
 			inventory.spend_gold(price)
 			return _ok("Comprou %s (-%d)" % [ItemDB.display_name(item), price])
 		"sell":
 			if _npc(player, MERCHANT) == null:
-				return _fail("Longe do comerciante")
+				return _fail("Longe do sucateiro")
 			var item: Variant = inventory.get_item(args[0])
 			if item == null or args[0] == ["eq", "bag"]:
 				return _fail("Não dá para vender isso")
@@ -49,30 +49,30 @@ static func run(player: Node3D, command: String, args: Array) -> Array:
 			return _ok("Vendeu %s (+%d)" % [ItemDB.display_name(item), price])
 		"refine":
 			if _npc(player, BLACKSMITH) == null:
-				return _fail("Longe do ferreiro")
+				return _fail("Longe do mecânico")
 			var item: Variant = inventory.get_item(args[0])
 			if item == null or ItemDB.is_container(item) or ItemDB.slot_of(item) == "":
-				return _fail("Esse item não se refina")
+				return _fail("Essa peça não tem upgrade")
 			if int(item.get("refine", 0)) >= ItemDB.MAX_REFINE:
 				return _fail("Já está no máximo (+%d)" % ItemDB.MAX_REFINE)
 			var cost := ItemDB.refine_cost(item)
 			if not inventory.spend_gold(cost):
-				return _fail("Moedas insuficientes (%d)" % cost)
+				return _fail("Faltam parafusos (%d)" % cost)
 			if randf() >= ItemDB.refine_chance(item):
-				return _fail("O refino falhou (-%d)" % cost)
+				return _fail("O upgrade falhou (-%d)" % cost)
 			item["refine"] = int(item.get("refine", 0)) + 1
 			inventory.touch()
 			return _ok("%s! (-%d)" % [ItemDB.display_name(item), cost])
 		"enchant":
 			if _npc(player, ENCHANTER) == null:
-				return _fail("Longe do encantador")
+				return _fail("Longe do hacker")
 			var item: Variant = inventory.get_item(args[0])
 			var enchant_id: String = args[1]
 			if item == null or not ItemDB.can_enchant(item, enchant_id):
-				return _fail("Não dá para encantar isso")
+				return _fail("Esse mod não encaixa aqui")
 			var cost := ItemDB.enchant_cost(item, enchant_id)
 			if not inventory.spend_gold(cost):
-				return _fail("Moedas insuficientes (%d)" % cost)
+				return _fail("Faltam parafusos (%d)" % cost)
 			var enchants: Dictionary = item.get("enchants", {})
 			enchants[enchant_id] = int(enchants.get(enchant_id, 0)) + 1
 			item["enchants"] = enchants
@@ -80,17 +80,17 @@ static func run(player: Node3D, command: String, args: Array) -> Array:
 			return _ok("%s %d em %s (-%d)" % [ItemDB.ENCHANTS[enchant_id].name, enchants[enchant_id], ItemDB.display_name(item), cost])
 		"deposit":
 			if _npc(player, BANK) == null:
-				return _fail("Longe do banco")
+				return _fail("Longe do cofre")
 			var item: Variant = inventory.get_item(args[0])
 			if item == null or args[0][0] == "depot" or args[0] == ["eq", "bag"]:
 				return _fail("Não dá para guardar isso")
 			if not inventory.depot.contents.has(null):
-				return _fail("Depósito cheio")
+				return _fail("Cofre cheio")
 			inventory.add_to_depot(inventory.remove(args[0]))
 			return _ok("Guardou %s" % ItemDB.display_name(item))
 		"withdraw":
 			if _npc(player, BANK) == null:
-				return _fail("Longe do banco")
+				return _fail("Longe do cofre")
 			var item: Variant = inventory.get_item(["depot", int(args[0])])
 			if item == null:
 				return _fail("Casa vazia")

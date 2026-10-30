@@ -1,6 +1,6 @@
 [gd_scene format=3]
 
-[ext_resource type="Texture2D" path="res://world/textures/ground_264524_36572e.res" id="1_xfnqo"]
+[ext_resource type="Texture2D" path="res://world/textures/ground_243d24_334d2b.res" id="1_jqthd"]
 [ext_resource type="Script" path="res://world/fade_occluder.gd" id="2_jqthd"]
 [ext_resource type="PackedScene" path="res://assets/props/Wheels_Stack.glb" id="3_5mw31"]
 [ext_resource type="PackedScene" path="res://assets/props/CinderBlock.glb" id="4_qrfii"]
@@ -18,8 +18,8 @@ filter_baking_aabb = AABB(0, -5, 0, 64, 30, 64)
 [sub_resource type="BoxShape3D" id="BoxShape3D_jfk62"]
 size = Vector3(64, 1, 64)
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_rsyto"]
-albedo_texture = ExtResource("1_xfnqo")
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_wv54i"]
+albedo_texture = ExtResource("1_jqthd")
 uv1_scale = Vector3(4, 4, 1)
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_5w3yg"]
@@ -542,7 +542,7 @@ shape = SubResource("BoxShape3D_jfk62")
 
 [node name="Mesh" type="MeshInstance3D" parent="Navigation/Ground" unique_id=288674557]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
-material_override = SubResource("StandardMaterial3D_rsyto")
+material_override = SubResource("StandardMaterial3D_wv54i")
 mesh = SubResource("PlaneMesh_5w3yg")
 
 [node name="Tree_4_53" type="Node3D" parent="Navigation" unique_id=329344544]
@@ -1349,7 +1349,7 @@ collision_mask = 0
 [node name="Spawner_0" type="Marker3D" parent="." unique_id=1004690286]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 22.919329, 0, 51.808537)
 script = ExtResource("6_innak")
-kinds = PackedInt32Array(0, 1)
+kinds = PackedInt32Array(0, 2, 1)
 count = 4
 respawn_time = 40.0
 power = 4
@@ -1357,7 +1357,7 @@ power = 4
 [node name="Spawner_1" type="Marker3D" parent="." unique_id=1029981156]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 50.694084, 0, 51.77818)
 script = ExtResource("6_innak")
-kinds = PackedInt32Array(0, 1)
+kinds = PackedInt32Array(0, 2, 1)
 count = 4
 respawn_time = 40.0
 power = 4

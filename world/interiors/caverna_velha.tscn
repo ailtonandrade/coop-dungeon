@@ -1,6 +1,6 @@
 [gd_scene format=3]
 
-[ext_resource type="Texture2D" path="res://world/textures/ground_211f21_332e2e.res" id="1_lqe0j"]
+[ext_resource type="Texture2D" path="res://world/textures/ground_1f1f24_2e2b33.res" id="1_84qgr"]
 [ext_resource type="Script" path="res://world/fade_occluder.gd" id="2_84qgr"]
 [ext_resource type="MeshLibrary" path="res://world/tiles/tiles.meshlib" id="3_84qgr"]
 [ext_resource type="Script" path="res://world/creature_spawner.gd" id="3_mxd8k"]
@@ -17,7 +17,7 @@ filter_baking_aabb = AABB(0, -5, 0, 48, 30, 48)
 size = Vector3(48, 1, 48)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_4csnt"]
-albedo_texture = ExtResource("1_lqe0j")
+albedo_texture = ExtResource("1_84qgr")
 uv1_scale = Vector3(4, 4, 1)
 
 [sub_resource type="BoxMesh" id="BoxMesh_yx02k"]
@@ -232,7 +232,7 @@ omni_range = 12.0
 [node name="Spawner_0" type="Marker3D" parent="." unique_id=1763750253]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 0, 18)
 script = ExtResource("3_mxd8k")
-kinds = PackedInt32Array(0, 1)
+kinds = PackedInt32Array(2, 2, 1)
 aggro_radius = 9.0
 leash_radius = 16.0
 power = 8
@@ -240,7 +240,7 @@ power = 8
 [node name="Spawner_1" type="Marker3D" parent="." unique_id=1152921730]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 40, 0, 10)
 script = ExtResource("3_mxd8k")
-kinds = PackedInt32Array(0, 1)
+kinds = PackedInt32Array(2, 2, 1)
 aggro_radius = 9.0
 leash_radius = 16.0
 power = 8
@@ -248,7 +248,7 @@ power = 8
 [node name="Spawner_2" type="Marker3D" parent="." unique_id=610024151]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 24, 0, 20)
 script = ExtResource("3_mxd8k")
-kinds = PackedInt32Array(0, 1)
+kinds = PackedInt32Array(2, 2, 1)
 aggro_radius = 9.0
 leash_radius = 16.0
 power = 8

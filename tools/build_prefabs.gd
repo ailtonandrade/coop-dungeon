@@ -25,6 +25,7 @@ func _process(_delta: float) -> bool:
 	_save(_cave_mouth(), "boca_de_caverna")
 	_save(_well(), "poco")
 	_save(_spawner(), "gerador_de_criaturas")
+	_save(_neon_sign(Color(0.2, 0.95, 1.0)), "placa_neon")
 	for entry: Array in [[0, "Comerciante", "Beach"], [1, "Ferreiro", "Worker"], [2, "Encantador", "King"], [3, "Banco", "Suit"]]:
 		_save(_npc(entry[0], entry[2]), "npc_" + String(entry[1]).to_lower())
 	print("Peças prontas salvas em ", DIR)
@@ -101,6 +102,34 @@ func _well() -> Node3D:
 	var root := Node3D.new()
 	root.name = "Poco"
 	_static(root, root, "Stone", Vector3(0, 0.5, 0), Vector3(2.2, 1.0, 2.2), Color(0.45, 0.45, 0.5))
+	return root
+
+
+## Placa de neon (barra acesa + luz colorida). Sem colisão: é decoração de parede.
+static func _neon_sign(color: Color) -> Node3D:
+	var root := Node3D.new()
+	root.name = "PlacaNeon"
+	var box := BoxMesh.new()
+	box.size = Vector3(1.6, 0.35, 0.08)
+	var material := StandardMaterial3D.new()
+	material.albedo_color = color
+	material.emission_enabled = true
+	material.emission = color
+	material.emission_energy_multiplier = 3.0
+	var bar := MeshInstance3D.new()
+	bar.name = "Barra"
+	bar.mesh = box
+	bar.material_override = material
+	root.add_child(bar)
+	bar.owner = root
+	var light := OmniLight3D.new()
+	light.name = "Luz"
+	light.light_color = color
+	light.light_energy = 1.5
+	light.omni_range = 6.0
+	light.position = Vector3(0, 0, 0.6)
+	root.add_child(light)
+	light.owner = root
 	return root
 
 

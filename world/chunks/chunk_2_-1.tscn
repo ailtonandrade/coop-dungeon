@@ -1,6 +1,6 @@
 [gd_scene format=3]
 
-[ext_resource type="Texture2D" path="res://world/textures/ground_706140_85734d.res" id="1_jdokd"]
+[ext_resource type="Texture2D" path="res://world/textures/ground_665433_806b42.res" id="1_fp71o"]
 [ext_resource type="Script" path="res://world/fade_occluder.gd" id="2_fp71o"]
 [ext_resource type="PackedScene" path="res://assets/props/CinderBlock.glb" id="3_1r56g"]
 [ext_resource type="PackedScene" path="res://assets/props/Wheels_Stack.glb" id="4_rvuqs"]
@@ -19,7 +19,7 @@ filter_baking_aabb = AABB(0, -5, 0, 64, 30, 64)
 size = Vector3(64, 1, 64)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_m4okt"]
-albedo_texture = ExtResource("1_jdokd")
+albedo_texture = ExtResource("1_fp71o")
 uv1_scale = Vector3(4, 4, 1)
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_0xtwd"]

@@ -8,7 +8,7 @@ var _failed := false
 func _initialize() -> void:
 	var inv := Inventory.starter()
 	_check(inv.equipment.has("melee") and inv.equipment.has("bag"), "kit inicial tem arma e mochila")
-	_check(ItemDB.display_name(inv.get_item(["bag", 0])) == "Bolsa", "bolsa dentro da mochila")
+	_check(inv.get_item(["bag", 0]).id == "pouch", "bolsa dentro da mochila")
 
 	_check(inv.equip(["bag", 1]) and inv.get_item(["eq", "head"]).id == "leather_hood", "equipar o capuz da mochila")
 	_check(inv.get_item(["bag", 1]) == null, "casa da mochila ficou vazia")
@@ -53,7 +53,7 @@ func _initialize() -> void:
 	var base_damage := ItemDB.stat(blade, "damage")
 	blade["refine"] = 3
 	_check(absf(ItemDB.stat(blade, "damage") - base_damage * 1.3) <= 0.11, "refino +3 dá +30%% de dano (%.1f -> %.1f)" % [base_damage, ItemDB.stat(blade, "damage")])
-	_check(ItemDB.display_name(blade) == "Espada curta +3", "nome mostra o refino")
+	_check(ItemDB.display_name(blade) == "Facão de serra +3", "nome mostra o upgrade (+3)")
 	_check(ItemDB.refine_chance(blade) == 0.8 and ItemDB.refine_chance(ItemDB.make("sword")) == 1.0, "chance de refino cai depois do +3")
 	_check(ItemDB.can_enchant(blade, "afiado") and not ItemDB.can_enchant(blade, "protetor"), "encantamento só na peça certa")
 	blade["enchants"] = {"afiado": 2}

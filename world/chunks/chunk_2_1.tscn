@@ -1,6 +1,6 @@
 [gd_scene format=3]
 
-[ext_resource type="Texture2D" path="res://world/textures/ground_706140_85734d.res" id="1_v0oqd"]
+[ext_resource type="Texture2D" path="res://world/textures/ground_665433_806b42.res" id="1_43s23"]
 [ext_resource type="Script" path="res://world/fade_occluder.gd" id="2_43s23"]
 [ext_resource type="PackedScene" path="res://assets/props/Chest.glb" id="3_7difs"]
 [ext_resource type="PackedScene" path="res://assets/props/Wheels_Stack.glb" id="4_2x812"]
@@ -18,8 +18,8 @@ filter_baking_aabb = AABB(0, -5, 0, 64, 30, 64)
 [sub_resource type="BoxShape3D" id="BoxShape3D_8vitk"]
 size = Vector3(64, 1, 64)
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_m4okt"]
-albedo_texture = ExtResource("1_v0oqd")
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ehe5m"]
+albedo_texture = ExtResource("1_43s23")
 uv1_scale = Vector3(4, 4, 1)
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_qwh4i"]
@@ -224,7 +224,7 @@ shape = SubResource("BoxShape3D_8vitk")
 
 [node name="Mesh" type="MeshInstance3D" parent="Navigation/Ground" unique_id=927338813]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
-material_override = SubResource("StandardMaterial3D_m4okt")
+material_override = SubResource("StandardMaterial3D_ehe5m")
 mesh = SubResource("PlaneMesh_qwh4i")
 
 [node name="CaveLeft" type="StaticBody3D" parent="Navigation" unique_id=885502790]
@@ -531,7 +531,7 @@ collision_mask = 0
 [node name="Entrance_Caverna" type="Marker3D" parent="." unique_id=1931225624]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 32, 0, 29.2)
 script = ExtResource("5_dm85y")
-title = "Caverna Velha · perigo 4"
+title = "Túnel do Metrô · perigo 4"
 link_id = "caverna_velha"
 target_point = Vector3(4024, 0, 41.5)
 

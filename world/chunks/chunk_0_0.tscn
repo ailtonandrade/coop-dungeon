@@ -1,6 +1,6 @@
 [gd_scene format=3]
 
-[ext_resource type="Texture2D" path="res://world/textures/ground_666157_7a7366.res" id="1_q2ehu"]
+[ext_resource type="Texture2D" path="res://world/textures/ground_4d453d_615447.res" id="1_y326l"]
 [ext_resource type="Script" path="res://world/fade_occluder.gd" id="2_y326l"]
 [ext_resource type="PackedScene" path="res://assets/props/Barrel.glb" id="3_t5grd"]
 [ext_resource type="PackedScene" path="res://assets/props/Chest.glb" id="4_10agt"]
@@ -22,7 +22,7 @@ filter_baking_aabb = AABB(0, -5, 0, 64, 30, 64)
 size = Vector3(64, 1, 64)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ffok1"]
-albedo_texture = ExtResource("1_q2ehu")
+albedo_texture = ExtResource("1_y326l")
 uv1_scale = Vector3(4, 4, 1)
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_8ynnr"]
@@ -324,6 +324,42 @@ size = Vector3(0.7041178, 1.1449082, 0.70411783)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_byblc"]
 size = Vector3(0.6396171, 0.4061696, 0.48294973)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_oeamu"]
+albedo_color = Color(0.2, 0.95, 1, 1)
+emission_enabled = true
+emission = Color(0.2, 0.95, 1, 1)
+emission_energy_multiplier = 3.0
+
+[sub_resource type="BoxMesh" id="BoxMesh_63e1h"]
+size = Vector3(1.6, 0.35, 0.08)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_vfcfh"]
+albedo_color = Color(1, 0.25, 0.8, 1)
+emission_enabled = true
+emission = Color(1, 0.25, 0.8, 1)
+emission_energy_multiplier = 3.0
+
+[sub_resource type="BoxMesh" id="BoxMesh_xl4y7"]
+size = Vector3(1.6, 0.35, 0.08)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_mo6wq"]
+albedo_color = Color(1, 0.85, 0.2, 1)
+emission_enabled = true
+emission = Color(1, 0.85, 0.2, 1)
+emission_energy_multiplier = 3.0
+
+[sub_resource type="BoxMesh" id="BoxMesh_14m0m"]
+size = Vector3(1.6, 0.35, 0.08)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_3nijq"]
+albedo_color = Color(0.2, 0.95, 1, 1)
+emission_enabled = true
+emission = Color(0.2, 0.95, 1, 1)
+emission_energy_multiplier = 3.0
+
+[sub_resource type="BoxMesh" id="BoxMesh_v5epx"]
+size = Vector3(1.6, 0.35, 0.08)
 
 [node name="Chunk" type="Node3D" unique_id=1626088061]
 
@@ -791,8 +827,9 @@ collision_mask = 0
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, 0, 12.5)
 script = ExtResource("5_2772y")
 service = 3
-npc_name = "Sr. Gouveia"
+npc_name = "Seu Gouveia"
 model = ExtResource("6_f5q74")
+shop_items = PackedStringArray("sword", "axe", "bow", "longbow", "leather_hood", "iron_helmet", "leather_vest", "chainmail", "leather_pants", "leather_boots", "pouch", "backpack")
 
 [node name="Npc_Brando" type="Node3D" parent="." unique_id=769559558]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 50, 0, 48.5)
@@ -800,16 +837,73 @@ script = ExtResource("5_2772y")
 service = 1
 npc_name = "Brando"
 model = ExtResource("7_y8j3o")
+shop_items = PackedStringArray("sword", "axe", "bow", "longbow", "leather_hood", "iron_helmet", "leather_vest", "chainmail", "leather_pants", "leather_boots", "pouch", "backpack")
 
 [node name="Npc_Dona_Alda" type="Node3D" parent="." unique_id=878288960]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 25, 0, 30)
 script = ExtResource("5_2772y")
 npc_name = "Dona Alda"
 model = ExtResource("8_t0nbh")
+shop_items = PackedStringArray("sword", "axe", "bow", "longbow", "leather_hood", "iron_helmet", "leather_vest", "chainmail", "leather_pants", "leather_boots", "pouch", "backpack")
 
 [node name="Npc_Mestre_Ivo" type="Node3D" parent="." unique_id=328570620]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 39, 0, 30)
 script = ExtResource("5_2772y")
 service = 2
-npc_name = "Mestre Ivo"
+npc_name = "Zé Gato"
 model = ExtResource("9_ud5yq")
+shop_items = PackedStringArray("sword", "axe", "bow", "longbow", "leather_hood", "iron_helmet", "leather_vest", "chainmail", "leather_pants", "leather_boots", "pouch", "backpack")
+
+[node name="Neon" type="Node3D" parent="." unique_id=614537992]
+
+[node name="Placa_0" type="Node3D" parent="Neon" unique_id=532450821]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, 2.7, 18.35)
+
+[node name="Barra" type="MeshInstance3D" parent="Neon/Placa_0" unique_id=1372797415]
+material_override = SubResource("StandardMaterial3D_oeamu")
+mesh = SubResource("BoxMesh_63e1h")
+
+[node name="Luz" type="OmniLight3D" parent="Neon/Placa_0" unique_id=488217675]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.6)
+light_color = Color(0.2, 0.95, 1, 1)
+light_energy = 1.5
+omni_range = 6.0
+
+[node name="Placa_1" type="Node3D" parent="Neon" unique_id=1659204507]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 50, 2.7, 17.85)
+
+[node name="Barra" type="MeshInstance3D" parent="Neon/Placa_1" unique_id=1914898617]
+material_override = SubResource("StandardMaterial3D_vfcfh")
+mesh = SubResource("BoxMesh_xl4y7")
+
+[node name="Luz" type="OmniLight3D" parent="Neon/Placa_1" unique_id=1585388263]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.6)
+light_color = Color(1, 0.25, 0.8, 1)
+light_energy = 1.5
+omni_range = 6.0
+
+[node name="Placa_2" type="Node3D" parent="Neon" unique_id=1278798644]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, 2.7, 53.85)
+
+[node name="Barra" type="MeshInstance3D" parent="Neon/Placa_2" unique_id=2059294721]
+material_override = SubResource("StandardMaterial3D_mo6wq")
+mesh = SubResource("BoxMesh_14m0m")
+
+[node name="Luz" type="OmniLight3D" parent="Neon/Placa_2" unique_id=534358414]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.6)
+light_color = Color(1, 0.85, 0.2, 1)
+light_energy = 1.5
+omni_range = 6.0
+
+[node name="Placa_3" type="Node3D" parent="Neon" unique_id=954341459]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 50, 2.7, 54.35)
+
+[node name="Barra" type="MeshInstance3D" parent="Neon/Placa_3" unique_id=2139373858]
+material_override = SubResource("StandardMaterial3D_3nijq")
+mesh = SubResource("BoxMesh_v5epx")
+
+[node name="Luz" type="OmniLight3D" parent="Neon/Placa_3" unique_id=430783445]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.6)
+light_color = Color(0.2, 0.95, 1, 1)
+light_energy = 1.5
+omni_range = 6.0

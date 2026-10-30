@@ -656,7 +656,7 @@ func _pick_up() -> void:
 func give_item(item: Dictionary) -> bool:
 	if item.get("id") == "gold":
 		inventory.add_gold(int(item.get("amount", 0)))
-		_fx("fx_toast", ["+%d moedas" % int(item.get("amount", 0)), ItemDB.DEFS.gold.color])
+		_fx("fx_toast", ["+" + ItemDB.money(int(item.get("amount", 0))), ItemDB.DEFS.gold.color])
 		return true
 	if inventory.add_item(item).is_empty():
 		_fx("fx_toast", ["Mochila cheia", Color(1.0, 0.5, 0.4)])

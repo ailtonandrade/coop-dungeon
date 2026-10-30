@@ -37,17 +37,24 @@ func _debug_spawn_point(default: Vector3) -> Vector3:
 func _build_environment() -> void:
 	var env := Environment.new()
 	env.background_mode = Environment.BG_COLOR
-	env.background_color = Color(0.06, 0.07, 0.09)
+	# Clima de ferro-velho: céu de poluição, luz fria e neon que brilha (glow).
+	env.background_color = Color(0.05, 0.05, 0.08)
 	env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
-	env.ambient_light_color = Color(0.55, 0.6, 0.7)
-	env.ambient_light_energy = 0.6
+	env.ambient_light_color = Color(0.5, 0.52, 0.68)
+	env.ambient_light_energy = 0.55
 	env.tonemap_mode = Environment.TONE_MAPPER_FILMIC
+	env.glow_enabled = true
+	env.glow_intensity = 0.9
+	env.glow_bloom = 0.05
+	env.glow_hdr_threshold = 1.2
 	var world_env := WorldEnvironment.new()
 	world_env.environment = env
 	add_child(world_env)
 
 	var sun := DirectionalLight3D.new()
 	sun.rotation_degrees = Vector3(-60.0, 30.0, 0.0)
+	sun.light_color = Color(1.0, 0.9, 0.78)
+	sun.light_energy = 0.85
 	sun.shadow_enabled = true
 	sun.directional_shadow_max_distance = 60.0
 	add_child(sun)

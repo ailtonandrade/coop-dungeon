@@ -1,4 +1,15 @@
-# Identidade e narrativa (proposta)
+# Identidade e narrativa: Corrumpted
+
+## Decidido
+
+- **Nome:** *Corrumpted* (grafia estilizada, de propósito; em `GameConfig.GAME_TITLE`).
+- **Sabor brasileiro:** sim (gambiarra, camelô de peças, gato de energia, baile com neon).
+- **Dinheiro:** parafusos (`ItemDB.CURRENCY`; trocar para "créditos" é uma linha).
+- **Reviravolta:** os Corrompidos ainda têm memória lá dentro; alguns chefes são pessoas
+  conhecidas dos assentamentos.
+- **Já no jogo:** itens, raridades (Sucata / Remendado / Protótipo), mods, serviços (sucateiro,
+  mecânico, hacker de chips, cofre), regiões e NPCs com os nomes daqui, o Corrompido como
+  criatura (chip vermelho na cabeça, rápido e furioso) e o clima de ferrugem + neon.
 
 Cyberpunk de ferro-velho: um futuro que chegou, quebrou e foi remendado com fita e solda.
 Nada aqui é brilhante e novo; tudo é sucata reaproveitada, gambiarra que funciona,

@@ -1,4 +1,7 @@
-# Coop Dungeon (protótipo Godot)
+# Corrumpted (protótipo Godot)
+
+RPG de ação isométrico em cyberpunk de ferro-velho: robôs sucateados, gangues e os Corrompidos
+(humanos com chip queimado). Identidade e história em [`docs/IDENTIDADE.md`](docs/IDENTIDADE.md).
 
 Dungeon crawler isométrico, co-op de sofá até 4 jogadores. Alvo: Xbox e Windows com cross save.
 Design completo em [`docs/GDD.md`](docs/GDD.md); estrutura e como estender em [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).

@@ -11,7 +11,9 @@ extends CharacterBody3D
 
 signal died(enemy: Enemy)
 
-enum Kind { MELEE, RANGED }
+## MELEE e RANGED são os bandidos das gangues; CORRUPTED é o Corrompido (humano + máquina que
+## deu errado: chip queimando na cabeça, rápido e furioso).
+enum Kind { MELEE, RANGED, CORRUPTED }
 enum State { CHASE, WINDUP, RECOVER, STAGGER, DEAD }
 
 const STATS := {
@@ -24,6 +26,12 @@ const STATS := {
 		"model": "res://assets/characters/Casual_Hoodie.glb", "tint": Color(0.7, 0.3, 1.0, 0.3), "scale": 1.0,
 		"hp": 20.0, "speed": 3.0, "attack_range": 10.0, "windup": 0.7, "recover": 1.6,
 		"damage": 10.0, "knockback": 3.0, "attack": "shoot", "anims": AnimSets.HUMANOID,
+	},
+	Kind.CORRUPTED: {
+		"model": "res://assets/characters/Casual_2.glb", "tint": Color(0.9, 0.15, 0.1, 0.35), "scale": 1.05,
+		"hp": 22.0, "speed": 5.0, "attack_range": 1.5, "windup": 0.3, "recover": 0.5,
+		"damage": 9.0, "knockback": 4.0, "attack": "punch", "anims": AnimSets.HUMANOID,
+		"chip": Color(1.0, 0.1, 0.05),
 	},
 }
 const RANGED_MIN_DIST := 5.0
@@ -99,6 +107,8 @@ func _ready() -> void:
 	add_child(pivot)
 	_model = (load(_stats.model) as PackedScene).instantiate()
 	pivot.add_child(_model)
+	if _stats.has("chip"):
+		_add_chip(pivot, _stats.chip)
 	_tint = Combat.overlay_material(_stats.tint)
 	Combat.set_overlay(_model, _tint)
 	_animator = CharacterAnimator.new(_model, _stats.anims)
@@ -106,6 +116,23 @@ func _ready() -> void:
 	health.max_hp = _stats.hp
 	add_child(health)
 	health.died.connect(_on_died)
+
+
+## O chip queimado: um brilho na cabeça (marca visual dos Corrompidos).
+func _add_chip(pivot: Node3D, color: Color) -> void:
+	var box := BoxMesh.new()
+	box.size = Vector3(0.12, 0.08, 0.12)
+	var material := StandardMaterial3D.new()
+	material.albedo_color = color
+	material.emission_enabled = true
+	material.emission = color
+	material.emission_energy_multiplier = 4.0
+	var chip := MeshInstance3D.new()
+	chip.name = "Chip"
+	chip.mesh = box
+	chip.material_override = material
+	chip.position = Vector3(0.0, 1.78, 0.0)
+	pivot.add_child(chip)
 
 
 func is_targetable() -> bool:

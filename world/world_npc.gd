@@ -8,8 +8,8 @@ extends Node3D
 enum Service { MERCHANT, BLACKSMITH, ENCHANTER, BANK }
 
 const SERVICE_NAMES := {
-	Service.MERCHANT: "Comerciante", Service.BLACKSMITH: "Ferreiro (refino)",
-	Service.ENCHANTER: "Encantador", Service.BANK: "Banco",
+	Service.MERCHANT: "Sucateiro", Service.BLACKSMITH: "Mecânico (upgrade)",
+	Service.ENCHANTER: "Hacker de chips (mods)", Service.BANK: "Cofre",
 }
 
 ## Distância para conversar.

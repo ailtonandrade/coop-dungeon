@@ -1,6 +1,6 @@
 [gd_scene format=3]
 
-[ext_resource type="Texture2D" path="res://world/textures/ground_264524_36572e.res" id="1_3xdv1"]
+[ext_resource type="Texture2D" path="res://world/textures/ground_243d24_334d2b.res" id="1_doag5"]
 [ext_resource type="Script" path="res://world/fade_occluder.gd" id="2_doag5"]
 [ext_resource type="PackedScene" path="res://assets/props/Pallet.glb" id="3_bqspe"]
 [ext_resource type="PackedScene" path="res://assets/props/Barrel.glb" id="4_4mmxm"]
@@ -18,7 +18,7 @@ filter_baking_aabb = AABB(0, -5, 0, 64, 30, 64)
 size = Vector3(64, 1, 64)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_rsyto"]
-albedo_texture = ExtResource("1_3xdv1")
+albedo_texture = ExtResource("1_doag5")
 uv1_scale = Vector3(4, 4, 1)
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_f1y28"]
@@ -1348,7 +1348,7 @@ collision_mask = 0
 [node name="Spawner_0" type="Marker3D" parent="." unique_id=1532983321]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 56.5515, 0, 48.287643)
 script = ExtResource("5_1pmc8")
-kinds = PackedInt32Array(0, 1)
+kinds = PackedInt32Array(0, 2, 1)
 count = 4
 respawn_time = 40.0
 power = 4
@@ -1356,7 +1356,7 @@ power = 4
 [node name="Spawner_1" type="Marker3D" parent="." unique_id=750672549]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14.952176, 0, 41.123062)
 script = ExtResource("5_1pmc8")
-kinds = PackedInt32Array(0, 1)
+kinds = PackedInt32Array(0, 2, 1)
 count = 4
 respawn_time = 40.0
 power = 4

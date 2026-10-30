@@ -30,44 +30,44 @@ albedo_color = Color(0.05, 0.05, 0.06, 1)
 [sub_resource type="BoxMesh" id="BoxMesh_eutt3"]
 size = Vector3(8.8, 4, 0.6)
 
-[node name="BocaDeCaverna" type="Node3D" unique_id=197823300]
+[node name="BocaDeCaverna" type="Node3D" unique_id=1060476160]
 
-[node name="Left" type="StaticBody3D" parent="." unique_id=1865318104]
+[node name="Left" type="StaticBody3D" parent="." unique_id=1005416351]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.2, 2, -1.5)
 
-[node name="Collision" type="CollisionShape3D" parent="Left" unique_id=1046087210]
+[node name="Collision" type="CollisionShape3D" parent="Left" unique_id=81590761]
 shape = SubResource("BoxShape3D_1tisf")
 
-[node name="Mesh" type="MeshInstance3D" parent="Left" unique_id=829272966]
+[node name="Mesh" type="MeshInstance3D" parent="Left" unique_id=1066112389]
 material_override = SubResource("StandardMaterial3D_rhift")
 mesh = SubResource("BoxMesh_fsk8m")
 
-[node name="Right" type="StaticBody3D" parent="." unique_id=1665051706]
+[node name="Right" type="StaticBody3D" parent="." unique_id=1748896189]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.2, 2, -1.5)
 
-[node name="Collision" type="CollisionShape3D" parent="Right" unique_id=1304716412]
+[node name="Collision" type="CollisionShape3D" parent="Right" unique_id=729547924]
 shape = SubResource("BoxShape3D_0ict3")
 
-[node name="Mesh" type="MeshInstance3D" parent="Right" unique_id=1727912342]
+[node name="Mesh" type="MeshInstance3D" parent="Right" unique_id=953699174]
 material_override = SubResource("StandardMaterial3D_rhift")
 mesh = SubResource("BoxMesh_rnsgi")
 
-[node name="Top" type="StaticBody3D" parent="." unique_id=1105032085]
+[node name="Top" type="StaticBody3D" parent="." unique_id=64222333]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.4, -1.5)
 
-[node name="Collision" type="CollisionShape3D" parent="Top" unique_id=2040560462]
+[node name="Collision" type="CollisionShape3D" parent="Top" unique_id=2028666446]
 shape = SubResource("BoxShape3D_u3rtb")
 
-[node name="Mesh" type="MeshInstance3D" parent="Top" unique_id=1439375334]
+[node name="Mesh" type="MeshInstance3D" parent="Top" unique_id=1232484185]
 material_override = SubResource("StandardMaterial3D_rhift")
 mesh = SubResource("BoxMesh_ivlsk")
 
-[node name="Back" type="StaticBody3D" parent="." unique_id=268864330]
+[node name="Back" type="StaticBody3D" parent="." unique_id=42797815]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, -3.8)
 
-[node name="Collision" type="CollisionShape3D" parent="Back" unique_id=826350992]
+[node name="Collision" type="CollisionShape3D" parent="Back" unique_id=965433487]
 shape = SubResource("BoxShape3D_vpm71")
 
-[node name="Mesh" type="MeshInstance3D" parent="Back" unique_id=621435818]
+[node name="Mesh" type="MeshInstance3D" parent="Back" unique_id=820350929]
 material_override = SubResource("StandardMaterial3D_v41wb")
 mesh = SubResource("BoxMesh_eutt3")

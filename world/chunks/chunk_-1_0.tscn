@@ -1,6 +1,6 @@
 [gd_scene format=3]
 
-[ext_resource type="Texture2D" path="res://world/textures/ground_456633_577a40.res" id="1_7blj6"]
+[ext_resource type="Texture2D" path="res://world/textures/ground_57595c_6b6e6e.res" id="1_2mi8f"]
 [ext_resource type="Script" path="res://world/fade_occluder.gd" id="2_2mi8f"]
 [ext_resource type="PackedScene" path="res://assets/props/Chest.glb" id="3_40av1"]
 [ext_resource type="PackedScene" path="res://assets/props/CinderBlock.glb" id="4_uqc21"]
@@ -19,7 +19,7 @@ filter_baking_aabb = AABB(0, -5, 0, 64, 30, 64)
 size = Vector3(64, 1, 64)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_2334k"]
-albedo_texture = ExtResource("1_7blj6")
+albedo_texture = ExtResource("1_2mi8f")
 uv1_scale = Vector3(4, 4, 1)
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_so7p8"]

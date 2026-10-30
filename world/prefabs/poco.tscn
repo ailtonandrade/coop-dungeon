@@ -9,14 +9,14 @@ albedo_color = Color(0.45, 0.45, 0.5, 1)
 [sub_resource type="BoxMesh" id="BoxMesh_srjx1"]
 size = Vector3(2.2, 1, 2.2)
 
-[node name="Poco" type="Node3D" unique_id=823503482]
+[node name="Poco" type="Node3D" unique_id=1068051813]
 
-[node name="Stone" type="StaticBody3D" parent="." unique_id=1042768420]
+[node name="Stone" type="StaticBody3D" parent="." unique_id=588310679]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
 
-[node name="Collision" type="CollisionShape3D" parent="Stone" unique_id=395961430]
+[node name="Collision" type="CollisionShape3D" parent="Stone" unique_id=1847613196]
 shape = SubResource("BoxShape3D_wc67v")
 
-[node name="Mesh" type="MeshInstance3D" parent="Stone" unique_id=26878476]
+[node name="Mesh" type="MeshInstance3D" parent="Stone" unique_id=507595667]
 material_override = SubResource("StandardMaterial3D_xpe8q")
 mesh = SubResource("BoxMesh_srjx1")

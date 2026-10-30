@@ -1,6 +1,6 @@
 [gd_scene format=3]
 
-[ext_resource type="Texture2D" path="res://world/textures/ground_456633_577a40.res" id="1_pvxii"]
+[ext_resource type="Texture2D" path="res://world/textures/ground_57595c_6b6e6e.res" id="1_xddbf"]
 [ext_resource type="Script" path="res://world/fade_occluder.gd" id="2_xddbf"]
 [ext_resource type="PackedScene" path="res://assets/props/CinderBlock.glb" id="3_1atqw"]
 [ext_resource type="PackedScene" path="res://assets/props/Barrel.glb" id="4_5xvv3"]
@@ -18,8 +18,8 @@ filter_baking_aabb = AABB(0, -5, 0, 64, 30, 64)
 [sub_resource type="BoxShape3D" id="BoxShape3D_nwmbn"]
 size = Vector3(64, 1, 64)
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_2334k"]
-albedo_texture = ExtResource("1_pvxii")
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_yyc55"]
+albedo_texture = ExtResource("1_xddbf")
 uv1_scale = Vector3(4, 4, 1)
 
 [sub_resource type="PlaneMesh" id="PlaneMesh_e324w"]
@@ -254,7 +254,7 @@ shape = SubResource("BoxShape3D_nwmbn")
 
 [node name="Mesh" type="MeshInstance3D" parent="Navigation/Ground" unique_id=1632247244]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
-material_override = SubResource("StandardMaterial3D_2334k")
+material_override = SubResource("StandardMaterial3D_yyc55")
 mesh = SubResource("PlaneMesh_e324w")
 
 [node name="Tree_46_49" type="Node3D" parent="Navigation" unique_id=1337912970]

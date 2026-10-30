@@ -109,7 +109,7 @@ func _process(_delta: float) -> void:
 			text += " · poção %ds" % ceili(player.potion_cooldown)
 		# Moedas: só dos jogadores desta tela (é quem tem a cópia do inventário).
 		if player.is_local():
-			text += " · %d moedas" % player.inventory.gold
+			text += " · " + ItemDB.money(player.inventory.gold)
 		_names[index].text = text
 
 	var spawner := get_tree().get_first_node_in_group("wave_spawner")

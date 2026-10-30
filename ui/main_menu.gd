@@ -23,7 +23,7 @@ var _pending_delete := ""
 func _ready() -> void:
 	InputService.reset()
 	var background := ColorRect.new()
-	background.color = Color(0.08, 0.09, 0.11)
+	background.color = Color(0.05, 0.05, 0.08)
 	background.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(background)
 
@@ -35,8 +35,11 @@ func _ready() -> void:
 	column.add_theme_constant_override("separation", 18)
 	add_child(column)
 
-	var title := _label("COOP DUNGEON", 64)
+	var title := _label(GameConfig.GAME_TITLE.to_upper(), 72, Color(1.0, 0.3, 0.75))
+	title.add_theme_color_override("font_outline_color", Color(0.2, 0.95, 1.0))
+	title.add_theme_constant_override("outline_size", 6)
 	column.add_child(title)
+	column.add_child(_label("ferro-velho · chip queimado · gambiarra", 20, Color(0.2, 0.95, 1.0, 0.8)))
 	_status = _label(NetService.last_message, 22, Color(1.0, 0.8, 0.4))
 	_status.autowrap_mode = TextServer.AUTOWRAP_WORD
 	column.add_child(_status)
