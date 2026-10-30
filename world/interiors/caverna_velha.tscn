@@ -2,13 +2,13 @@
 
 [ext_resource type="Texture2D" path="res://world/textures/ground_211f21_332e2e.res" id="1_lqe0j"]
 [ext_resource type="Script" path="res://world/fade_occluder.gd" id="2_84qgr"]
+[ext_resource type="MeshLibrary" path="res://world/tiles/tiles.meshlib" id="3_84qgr"]
 [ext_resource type="Script" path="res://world/creature_spawner.gd" id="3_mxd8k"]
 [ext_resource type="Script" path="res://world/entrance.gd" id="4_xpebx"]
 
 [sub_resource type="NavigationMesh" id="NavigationMesh_cbfr8"]
 vertices = PackedVector3Array(11, 0.5, 4.75, 12.25, 0.5, 4.5, 12.25, 0.5, 1.25, 1.25, 0.5, 1.25, 1.25, 0.5, 18.25, 11, 0.5, 18, 13.25, 0.5, 4.75, 33, 0.5, 7.75, 34, 0.5, 7.5, 34, 0.5, 1.25, 25.5, 0.5, 27, 33, 0.5, 27.5, 13.25, 0.5, 19.25, 25.75, 0.5, 27.75, 12, 0.5, 19.75, 12, 0.5, 27, 35.25, 0.5, 7.75, 47, 0.5, 1.25, 35.25, 0.5, 26.75, 47, 0.5, 27, 1.25, 0.5, 28.25, 6.5, 0.5, 28.25, 6.75, 0.5, 27, 11, 0.5, 19.5, 35.25, 0.5, 28.25, 34, 0.5, 28.75, 34, 0.5, 47, 47, 0.5, 47, 33, 0.5, 28.5, 25.25, 0.5, 29.25, 24, 0.5, 47, 23.75, 0.5, 29.25, 6.75, 0.5, 29.25, 1.25, 0.5, 47)
 polygons = [PackedInt32Array(1, 0, 2), PackedInt32Array(2, 0, 3), PackedInt32Array(5, 4, 0), PackedInt32Array(0, 4, 3), PackedInt32Array(1, 2, 6), PackedInt32Array(6, 2, 7), PackedInt32Array(7, 2, 8), PackedInt32Array(8, 2, 9), PackedInt32Array(10, 12, 11), PackedInt32Array(11, 12, 7), PackedInt32Array(7, 12, 6), PackedInt32Array(11, 13, 10), PackedInt32Array(14, 12, 15), PackedInt32Array(15, 12, 10), PackedInt32Array(8, 9, 16), PackedInt32Array(16, 9, 17), PackedInt32Array(18, 16, 19), PackedInt32Array(19, 16, 17), PackedInt32Array(20, 22, 21), PackedInt32Array(14, 15, 23), PackedInt32Array(23, 15, 22), PackedInt32Array(23, 22, 5), PackedInt32Array(5, 22, 20), PackedInt32Array(5, 20, 4), PackedInt32Array(24, 18, 19), PackedInt32Array(24, 19, 25), PackedInt32Array(25, 19, 26), PackedInt32Array(26, 19, 27), PackedInt32Array(13, 11, 28), PackedInt32Array(28, 25, 13), PackedInt32Array(13, 25, 29), PackedInt32Array(29, 25, 26), PackedInt32Array(29, 26, 30), PackedInt32Array(30, 31, 29), PackedInt32Array(21, 32, 20), PackedInt32Array(20, 32, 33), PackedInt32Array(31, 30, 32), PackedInt32Array(32, 30, 33)]
-geometry_parsed_geometry_type = 1
 geometry_collision_mask = 1
 agent_height = 2.0
 filter_baking_aabb = AABB(0, -5, 0, 48, 30, 48)
@@ -26,7 +26,7 @@ size = Vector3(48, 1, 48)
 [sub_resource type="BoxShape3D" id="BoxShape3D_buc60"]
 size = Vector3(48, 4, 1)
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ydlnf"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_84qgr"]
 albedo_color = Color(0.3, 0.28, 0.3, 1)
 
 [sub_resource type="BoxMesh" id="BoxMesh_f6tci"]
@@ -35,7 +35,7 @@ size = Vector3(48, 4, 1)
 [sub_resource type="BoxShape3D" id="BoxShape3D_h75hf"]
 size = Vector3(48, 4, 1)
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_fnbrr"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_mxd8k"]
 albedo_color = Color(0.3, 0.28, 0.3, 1)
 
 [sub_resource type="BoxMesh" id="BoxMesh_c23ib"]
@@ -44,7 +44,7 @@ size = Vector3(48, 4, 1)
 [sub_resource type="BoxShape3D" id="BoxShape3D_yotid"]
 size = Vector3(1, 4, 48)
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_3wc57"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_xpebx"]
 albedo_color = Color(0.3, 0.28, 0.3, 1)
 
 [sub_resource type="BoxMesh" id="BoxMesh_lqo1c"]
@@ -53,7 +53,7 @@ size = Vector3(1, 4, 48)
 [sub_resource type="BoxShape3D" id="BoxShape3D_nw0jt"]
 size = Vector3(1, 4, 48)
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_13yem"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_cbfr8"]
 albedo_color = Color(0.3, 0.28, 0.3, 1)
 
 [sub_resource type="BoxMesh" id="BoxMesh_yntdn"]
@@ -62,7 +62,7 @@ size = Vector3(1, 4, 48)
 [sub_resource type="BoxShape3D" id="BoxShape3D_wpj34"]
 size = Vector3(18, 4, 1)
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_m5me8"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_k5hpr"]
 albedo_color = Color(0.3, 0.28, 0.3, 1)
 
 [sub_resource type="BoxMesh" id="BoxMesh_hxjsw"]
@@ -71,7 +71,7 @@ size = Vector3(18, 4, 1)
 [sub_resource type="BoxShape3D" id="BoxShape3D_xf4ue"]
 size = Vector3(1, 4, 20)
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_x1pq0"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_yx02k"]
 albedo_color = Color(0.3, 0.28, 0.3, 1)
 
 [sub_resource type="BoxMesh" id="BoxMesh_4wm1h"]
@@ -80,7 +80,7 @@ size = Vector3(1, 4, 20)
 [sub_resource type="BoxShape3D" id="BoxShape3D_rdr70"]
 size = Vector3(1, 4, 14)
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_tu4xr"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_buc60"]
 albedo_color = Color(0.3, 0.28, 0.3, 1)
 
 [sub_resource type="BoxMesh" id="BoxMesh_8m3uj"]
@@ -94,10 +94,10 @@ navigation_mesh = SubResource("NavigationMesh_cbfr8")
 [node name="Floor" type="StaticBody3D" parent="Navigation" unique_id=1688974795]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 24, -0.5, 24)
 
-[node name="@CollisionShape3D@1085" type="CollisionShape3D" parent="Navigation/Floor" unique_id=681730055]
+[node name="Collision" type="CollisionShape3D" parent="Navigation/Floor" unique_id=681730055]
 shape = SubResource("BoxShape3D_k5hpr")
 
-[node name="@MeshInstance3D@1086" type="MeshInstance3D" parent="Navigation/Floor" unique_id=1465085327]
+[node name="Mesh" type="MeshInstance3D" parent="Navigation/Floor" unique_id=1465085327]
 material_override = SubResource("StandardMaterial3D_4csnt")
 mesh = SubResource("BoxMesh_yx02k")
 
@@ -108,11 +108,11 @@ see_through = 0.8
 [node name="Stone" type="StaticBody3D" parent="Navigation/WallNorth" unique_id=722567941]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 24, 2, 0)
 
-[node name="@CollisionShape3D@1087" type="CollisionShape3D" parent="Navigation/WallNorth/Stone" unique_id=913926418]
+[node name="Collision" type="CollisionShape3D" parent="Navigation/WallNorth/Stone" unique_id=913926418]
 shape = SubResource("BoxShape3D_buc60")
 
-[node name="@MeshInstance3D@1088" type="MeshInstance3D" parent="Navigation/WallNorth/Stone" unique_id=1891149698]
-material_override = SubResource("StandardMaterial3D_ydlnf")
+[node name="Mesh" type="MeshInstance3D" parent="Navigation/WallNorth/Stone" unique_id=1891149698]
+material_override = SubResource("StandardMaterial3D_84qgr")
 mesh = SubResource("BoxMesh_f6tci")
 
 [node name="WallSouth" type="Node3D" parent="Navigation" unique_id=1487735247]
@@ -122,11 +122,11 @@ see_through = 0.8
 [node name="Stone" type="StaticBody3D" parent="Navigation/WallSouth" unique_id=349349981]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 24, 2, 48)
 
-[node name="@CollisionShape3D@1089" type="CollisionShape3D" parent="Navigation/WallSouth/Stone" unique_id=2034507217]
+[node name="Collision" type="CollisionShape3D" parent="Navigation/WallSouth/Stone" unique_id=2034507217]
 shape = SubResource("BoxShape3D_h75hf")
 
-[node name="@MeshInstance3D@1090" type="MeshInstance3D" parent="Navigation/WallSouth/Stone" unique_id=1129025854]
-material_override = SubResource("StandardMaterial3D_fnbrr")
+[node name="Mesh" type="MeshInstance3D" parent="Navigation/WallSouth/Stone" unique_id=1129025854]
+material_override = SubResource("StandardMaterial3D_mxd8k")
 mesh = SubResource("BoxMesh_c23ib")
 
 [node name="WallWest" type="Node3D" parent="Navigation" unique_id=44225493]
@@ -136,11 +136,11 @@ see_through = 0.8
 [node name="Stone" type="StaticBody3D" parent="Navigation/WallWest" unique_id=1957684048]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 24)
 
-[node name="@CollisionShape3D@1091" type="CollisionShape3D" parent="Navigation/WallWest/Stone" unique_id=925144722]
+[node name="Collision" type="CollisionShape3D" parent="Navigation/WallWest/Stone" unique_id=925144722]
 shape = SubResource("BoxShape3D_yotid")
 
-[node name="@MeshInstance3D@1092" type="MeshInstance3D" parent="Navigation/WallWest/Stone" unique_id=1302744899]
-material_override = SubResource("StandardMaterial3D_3wc57")
+[node name="Mesh" type="MeshInstance3D" parent="Navigation/WallWest/Stone" unique_id=1302744899]
+material_override = SubResource("StandardMaterial3D_xpebx")
 mesh = SubResource("BoxMesh_lqo1c")
 
 [node name="WallEast" type="Node3D" parent="Navigation" unique_id=372655963]
@@ -150,11 +150,11 @@ see_through = 0.8
 [node name="Stone" type="StaticBody3D" parent="Navigation/WallEast" unique_id=1749101871]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 48, 2, 24)
 
-[node name="@CollisionShape3D@1093" type="CollisionShape3D" parent="Navigation/WallEast/Stone" unique_id=1205119796]
+[node name="Collision" type="CollisionShape3D" parent="Navigation/WallEast/Stone" unique_id=1205119796]
 shape = SubResource("BoxShape3D_nw0jt")
 
-[node name="@MeshInstance3D@1094" type="MeshInstance3D" parent="Navigation/WallEast/Stone" unique_id=1924945818]
-material_override = SubResource("StandardMaterial3D_13yem")
+[node name="Mesh" type="MeshInstance3D" parent="Navigation/WallEast/Stone" unique_id=1924945818]
+material_override = SubResource("StandardMaterial3D_cbfr8")
 mesh = SubResource("BoxMesh_yntdn")
 
 [node name="WallInner1" type="Node3D" parent="Navigation" unique_id=424279663]
@@ -164,11 +164,11 @@ see_through = 0.8
 [node name="Stone" type="StaticBody3D" parent="Navigation/WallInner1" unique_id=1380154371]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16, 2, 28)
 
-[node name="@CollisionShape3D@1095" type="CollisionShape3D" parent="Navigation/WallInner1/Stone" unique_id=1678808602]
+[node name="Collision" type="CollisionShape3D" parent="Navigation/WallInner1/Stone" unique_id=1678808602]
 shape = SubResource("BoxShape3D_wpj34")
 
-[node name="@MeshInstance3D@1096" type="MeshInstance3D" parent="Navigation/WallInner1/Stone" unique_id=833056476]
-material_override = SubResource("StandardMaterial3D_m5me8")
+[node name="Mesh" type="MeshInstance3D" parent="Navigation/WallInner1/Stone" unique_id=833056476]
+material_override = SubResource("StandardMaterial3D_k5hpr")
 mesh = SubResource("BoxMesh_hxjsw")
 
 [node name="WallInner2" type="Node3D" parent="Navigation" unique_id=1829063338]
@@ -178,11 +178,11 @@ see_through = 0.8
 [node name="Stone" type="StaticBody3D" parent="Navigation/WallInner2" unique_id=246535650]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 34, 2, 18)
 
-[node name="@CollisionShape3D@1097" type="CollisionShape3D" parent="Navigation/WallInner2/Stone" unique_id=317862268]
+[node name="Collision" type="CollisionShape3D" parent="Navigation/WallInner2/Stone" unique_id=317862268]
 shape = SubResource("BoxShape3D_xf4ue")
 
-[node name="@MeshInstance3D@1098" type="MeshInstance3D" parent="Navigation/WallInner2/Stone" unique_id=1640498543]
-material_override = SubResource("StandardMaterial3D_x1pq0")
+[node name="Mesh" type="MeshInstance3D" parent="Navigation/WallInner2/Stone" unique_id=1640498543]
+material_override = SubResource("StandardMaterial3D_yx02k")
 mesh = SubResource("BoxMesh_4wm1h")
 
 [node name="WallInner3" type="Node3D" parent="Navigation" unique_id=929767547]
@@ -192,32 +192,38 @@ see_through = 0.8
 [node name="Stone" type="StaticBody3D" parent="Navigation/WallInner3" unique_id=211373270]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 2, 12)
 
-[node name="@CollisionShape3D@1099" type="CollisionShape3D" parent="Navigation/WallInner3/Stone" unique_id=676957166]
+[node name="Collision" type="CollisionShape3D" parent="Navigation/WallInner3/Stone" unique_id=676957166]
 shape = SubResource("BoxShape3D_rdr70")
 
-[node name="@MeshInstance3D@1100" type="MeshInstance3D" parent="Navigation/WallInner3/Stone" unique_id=1586549892]
-material_override = SubResource("StandardMaterial3D_tu4xr")
+[node name="Mesh" type="MeshInstance3D" parent="Navigation/WallInner3/Stone" unique_id=1586549892]
+material_override = SubResource("StandardMaterial3D_buc60")
 mesh = SubResource("BoxMesh_8m3uj")
 
-[node name="@OmniLight3D@1101" type="OmniLight3D" parent="." unique_id=491092259]
+[node name="Tiles" type="GridMap" parent="Navigation" unique_id=1424459282]
+mesh_library = ExtResource("3_84qgr")
+cell_size = Vector3(1, 1, 1)
+cell_center_y = false
+collision_mask = 0
+
+[node name="OmniLight3D" type="OmniLight3D" parent="." unique_id=491092259]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 3, 38)
 light_color = Color(1, 0.6, 0.3, 1)
 light_energy = 2.0
 omni_range = 12.0
 
-[node name="@OmniLight3D@1102" type="OmniLight3D" parent="." unique_id=2059023018]
+[node name="OmniLight3D2" type="OmniLight3D" parent="." unique_id=2059023018]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 40, 3, 36)
 light_color = Color(1, 0.6, 0.3, 1)
 light_energy = 2.0
 omni_range = 12.0
 
-[node name="@OmniLight3D@1103" type="OmniLight3D" parent="." unique_id=2097231541]
+[node name="OmniLight3D3" type="OmniLight3D" parent="." unique_id=2097231541]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 24, 3, 8)
 light_color = Color(1, 0.6, 0.3, 1)
 light_energy = 2.0
 omni_range = 12.0
 
-[node name="@OmniLight3D@1104" type="OmniLight3D" parent="." unique_id=224268370]
+[node name="OmniLight3D4" type="OmniLight3D" parent="." unique_id=224268370]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 42, 3, 8)
 light_color = Color(1, 0.6, 0.3, 1)
 light_energy = 2.0
@@ -248,7 +254,8 @@ leash_radius = 16.0
 power = 8
 
 [node name="Exit" type="Marker3D" parent="." unique_id=613916932]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 24, 0, 44)
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 24, 0, 44)
 script = ExtResource("4_xpebx")
 title = "Saída"
-target_point = Vector3(160, 0, 100)
+link_id = "caverna_velha"
+target_point = Vector3(160, 0, 95.7)

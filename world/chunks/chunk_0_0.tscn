@@ -5,15 +5,15 @@
 [ext_resource type="PackedScene" path="res://assets/props/Barrel.glb" id="3_t5grd"]
 [ext_resource type="PackedScene" path="res://assets/props/Chest.glb" id="4_10agt"]
 [ext_resource type="Script" path="res://world/world_npc.gd" id="5_2772y"]
+[ext_resource type="MeshLibrary" path="res://world/tiles/tiles.meshlib" id="5_y326l"]
 [ext_resource type="PackedScene" path="res://assets/characters/Suit.glb" id="6_f5q74"]
 [ext_resource type="PackedScene" path="res://assets/characters/Worker.glb" id="7_y8j3o"]
 [ext_resource type="PackedScene" path="res://assets/characters/Beach.glb" id="8_t0nbh"]
 [ext_resource type="PackedScene" path="res://assets/characters/King.glb" id="9_ud5yq"]
 
 [sub_resource type="NavigationMesh" id="NavigationMesh_0lbep"]
-vertices = PackedVector3Array(0.5, 0.5, 11, 8.25, 0.5, 11.25, 8.25, 0.5, 9.75, 8.75, 0.5, 9.25, 10, 0.5, 0.5, 0.5, 0.5, 0.5, 10.25, 0.5, 9.25, 18, 0.5, 9.25, 18.25, 0.5, 0.5, 19.75, 0.5, 9.5, 45.25, 0.5, 9.75, 46.75, 0.5, 9.75, 46.5, 0.5, 0.5, 44.75, 0.5, 10.25, 33.5, 0.5, 24.25, 33.75, 0.5, 24.75, 44.75, 0.5, 17.75, 19.75, 0.5, 18.25, 30.75, 0.5, 24.25, 53.5, 0.5, 9.75, 53.75, 0.5, 0.5, 55, 0.5, 9.75, 55.25, 0.5, 11.5, 63.5, 0.5, 11.25, 63.5, 0.5, 0.5, 13.75, 0.5, 18, 14.5, 0.5, 18, 14.75, 0.5, 17.25, 13.5, 0.5, 17.25, 18.25, 0.5, 10.75, 9.75, 0.5, 10.75, 18.25, 0.5, 17.25, 9.75, 0.5, 17.25, 0.5, 0.5, 17.25, 8.25, 0.5, 17, 49.75, 0.5, 17.5, 50.5, 0.5, 17.5, 50.75, 0.5, 16.75, 49.5, 0.5, 16.75, 53.75, 0.5, 11.25, 46.25, 0.5, 11.25, 53.75, 0.5, 16.75, 46.25, 0.5, 16.75, 55.25, 0.5, 16.5, 63.5, 0.5, 16.75, 49.5, 0.5, 18.25, 50.75, 0.5, 18.25, 55, 0.5, 18.25, 33.75, 0.5, 27.25, 44.75, 0.5, 45.25, 55.5, 0.5, 45.25, 55.75, 0.5, 47, 63.5, 0.5, 46.75, 45, 0.5, 18.25, 14.75, 0.5, 18.75, 13.5, 0.5, 18.75, 22, 0.5, 28.5, 8.5, 0.5, 18.75, 0.5, 0.5, 47.5, 8.75, 0.5, 47.75, 8.75, 0.5, 46.25, 9.25, 0.5, 45.75, 22, 0.5, 27.5, 19.25, 0.5, 18.75, 18.75, 0.5, 45.75, 23.75, 0.5, 27, 24, 0.5, 27.5, 30.25, 0.5, 27.25, 30.25, 0.5, 24.5, 22.25, 0.5, 27, 31.25, 1.5, 25.25, 31.25, 1.5, 26.75, 32.75, 1.5, 26.75, 32.75, 1.5, 25.25, 30.5, 0.5, 27.75, 23.75, 0.5, 29, 19.25, 0.5, 46.25, 19.25, 0.5, 48, 44.25, 0.5, 48, 44.25, 0.5, 46, 33.25, 0.5, 27.75, 22.5, 0.5, 29, 49.75, 0.5, 54, 50.5, 0.5, 54, 50.75, 0.5, 53.25, 49.5, 0.5, 53.25, 54.25, 0.5, 46.75, 45.75, 0.5, 46.75, 54.25, 0.5, 53.25, 45.75, 0.5, 53.25, 55.75, 0.5, 53, 63.5, 0.5, 53.25, 13.75, 0.5, 53.5, 14.5, 0.5, 53.5, 14.75, 0.5, 52.75, 13.5, 0.5, 52.75, 17.75, 0.5, 47.25, 10.25, 0.5, 47.25, 17.75, 0.5, 52.75, 10.25, 0.5, 52.75, 0.5, 0.5, 52.75, 8.75, 0.5, 52.5, 19.5, 0.5, 63.5, 44, 0.5, 63.5, 44.25, 0.5, 54.25, 19.25, 0.5, 53.75, 8.75, 0.5, 53.75, 0.5, 0.5, 63.5, 8.5, 0.5, 63.5, 55.75, 0.5, 54.25, 56, 0.5, 63.5, 63.5, 0.5, 63.5, 14.75, 0.5, 54.25, 13.5, 0.5, 54.25, 19, 0.5, 54.25, 9, 0.5, 54.25, 50.75, 0.5, 54.75, 49.5, 0.5, 54.75, 55.5, 0.5, 54.75, 44.5, 0.5, 54.75)
-polygons = [PackedInt32Array(2, 1, 0), PackedInt32Array(2, 0, 3), PackedInt32Array(3, 0, 5), PackedInt32Array(3, 5, 4), PackedInt32Array(4, 6, 3), PackedInt32Array(6, 4, 7), PackedInt32Array(7, 4, 8), PackedInt32Array(9, 7, 8), PackedInt32Array(12, 11, 10), PackedInt32Array(12, 10, 13), PackedInt32Array(15, 14, 16), PackedInt32Array(16, 14, 13), PackedInt32Array(18, 17, 14), PackedInt32Array(14, 17, 9), PackedInt32Array(13, 14, 12), PackedInt32Array(12, 14, 9), PackedInt32Array(12, 9, 8), PackedInt32Array(11, 12, 19), PackedInt32Array(19, 12, 20), PackedInt32Array(22, 21, 23), PackedInt32Array(23, 21, 24), PackedInt32Array(24, 21, 20), PackedInt32Array(21, 19, 20), PackedInt32Array(25, 28, 26), PackedInt32Array(26, 28, 27), PackedInt32Array(27, 28, 29), PackedInt32Array(29, 28, 30), PackedInt32Array(29, 31, 27), PackedInt32Array(28, 32, 30), PackedInt32Array(34, 33, 1), PackedInt32Array(1, 33, 0), PackedInt32Array(35, 38, 36), PackedInt32Array(36, 38, 37), PackedInt32Array(37, 38, 39), PackedInt32Array(39, 38, 40), PackedInt32Array(39, 41, 37), PackedInt32Array(38, 42, 40), PackedInt32Array(22, 23, 43), PackedInt32Array(43, 23, 44), PackedInt32Array(36, 46, 35), PackedInt32Array(35, 46, 45), PackedInt32Array(46, 47, 48), PackedInt32Array(48, 47, 49), PackedInt32Array(49, 47, 50), PackedInt32Array(51, 50, 52), PackedInt32Array(52, 50, 47), PackedInt32Array(52, 47, 43), PackedInt32Array(52, 43, 44), PackedInt32Array(48, 45, 46), PackedInt32Array(15, 16, 53), PackedInt32Array(15, 53, 48), PackedInt32Array(48, 53, 45), PackedInt32Array(26, 54, 25), PackedInt32Array(25, 54, 55), PackedInt32Array(57, 55, 56), PackedInt32Array(33, 34, 57), PackedInt32Array(60, 59, 58), PackedInt32Array(60, 58, 61), PackedInt32Array(61, 58, 56), PackedInt32Array(56, 58, 57), PackedInt32Array(57, 58, 33), PackedInt32Array(62, 56, 63), PackedInt32Array(63, 56, 54), PackedInt32Array(56, 64, 61), PackedInt32Array(55, 54, 56), PackedInt32Array(66, 65, 67), PackedInt32Array(67, 65, 68), PackedInt32Array(69, 62, 63), PackedInt32Array(68, 65, 18), PackedInt32Array(18, 65, 69), PackedInt32Array(18, 69, 63), PackedInt32Array(18, 63, 17), PackedInt32Array(73, 72, 70), PackedInt32Array(70, 72, 71), PackedInt32Array(67, 74, 66), PackedInt32Array(66, 74, 75), PackedInt32Array(76, 75, 77), PackedInt32Array(77, 75, 80), PackedInt32Array(77, 80, 79), PackedInt32Array(77, 79, 78), PackedInt32Array(75, 74, 80), PackedInt32Array(76, 81, 75), PackedInt32Array(48, 49, 80), PackedInt32Array(80, 49, 79), PackedInt32Array(56, 81, 64), PackedInt32Array(64, 81, 76), PackedInt32Array(82, 85, 83), PackedInt32Array(83, 85, 84), PackedInt32Array(84, 85, 86), PackedInt32Array(86, 85, 87), PackedInt32Array(86, 88, 84), PackedInt32Array(85, 89, 87), PackedInt32Array(51, 52, 90), PackedInt32Array(90, 52, 91), PackedInt32Array(92, 95, 93), PackedInt32Array(93, 95, 94), PackedInt32Array(94, 95, 96), PackedInt32Array(96, 95, 97), PackedInt32Array(96, 98, 94), PackedInt32Array(95, 99, 97), PackedInt32Array(101, 100, 59), PackedInt32Array(59, 100, 58), PackedInt32Array(105, 77, 102), PackedInt32Array(102, 77, 103), PackedInt32Array(103, 77, 104), PackedInt32Array(104, 77, 78), PackedInt32Array(101, 106, 100), PackedInt32Array(100, 106, 108), PackedInt32Array(100, 108, 107), PackedInt32Array(90, 91, 109), PackedInt32Array(109, 91, 110), PackedInt32Array(110, 91, 111), PackedInt32Array(93, 112, 92), PackedInt32Array(92, 112, 113), PackedInt32Array(112, 102, 113), PackedInt32Array(113, 102, 108), PackedInt32Array(114, 105, 102), PackedInt32Array(108, 106, 115), PackedInt32Array(112, 114, 102), PackedInt32Array(108, 115, 113), PackedInt32Array(83, 116, 82), PackedInt32Array(82, 116, 117), PackedInt32Array(116, 110, 117), PackedInt32Array(117, 110, 103), PackedInt32Array(118, 109, 110), PackedInt32Array(103, 104, 119), PackedInt32Array(116, 118, 110), PackedInt32Array(103, 119, 117)]
-geometry_parsed_geometry_type = 1
+vertices = PackedVector3Array(0.5, 0.5, 11, 8.25, 0.5, 11.25, 8.25, 0.5, 9.75, 8.75, 0.5, 9.25, 10, 0.5, 0.5, 0.5, 0.5, 0.5, 10.25, 0.5, 9.25, 18, 0.5, 9.25, 18.25, 0.5, 0.5, 19.75, 0.5, 9.5, 45.25, 0.5, 9.75, 46.75, 0.5, 9.75, 46.5, 0.5, 0.5, 44.75, 0.5, 10.25, 33.5, 0.5, 24.25, 33.75, 0.5, 24.75, 44.75, 0.5, 17.75, 19.75, 0.5, 18.25, 30.75, 0.5, 24.25, 53.5, 0.5, 9.75, 53.75, 0.5, 0.5, 55, 0.5, 9.75, 55.25, 0.5, 11.5, 63.5, 0.5, 11.25, 63.5, 0.5, 0.5, 10.5, 4, 11.25, 9, 4, 10, 9, 4, 18, 10.75, 4, 17, 19, 4, 10, 17.5, 4, 11, 17.75, 4, 16.75, 19, 4, 18, 46.75, 4, 11.5, 45.5, 4, 10.5, 45.5, 4, 17.5, 47, 4, 16.75, 53.25, 4, 16.5, 54.5, 4, 17.5, 54.5, 4, 10.5, 53, 4, 11.25, 13.75, 0.5, 18, 14.5, 0.5, 18, 14.75, 0.5, 17.25, 13.5, 0.5, 17.25, 18.25, 0.5, 10.75, 9.75, 0.5, 10.75, 18.25, 0.5, 17.25, 9.75, 0.5, 17.25, 0.5, 0.5, 17.25, 8.25, 0.5, 17, 49.75, 0.5, 17.5, 50.5, 0.5, 17.5, 50.75, 0.5, 16.75, 49.5, 0.5, 16.75, 53.75, 0.5, 11.25, 46.25, 0.5, 11.25, 53.75, 0.5, 16.75, 46.25, 0.5, 16.75, 55.25, 0.5, 16.5, 63.5, 0.5, 16.75, 11.5, 4.75, 12, 11.5, 4.75, 16, 16.5, 4.75, 16, 16.5, 4.75, 12, 47.75, 4.75, 12.25, 47.75, 4.75, 15.75, 52.25, 4.75, 15.75, 52.25, 4.75, 12.25, 49.5, 0.5, 18.25, 50.75, 0.5, 18.25, 55, 0.5, 18.25, 33.75, 0.5, 27.25, 44.75, 0.5, 45.25, 55.5, 0.5, 45.25, 55.75, 0.5, 47, 63.5, 0.5, 46.75, 45, 0.5, 18.25, 14.75, 0.5, 18.75, 13.5, 0.5, 18.75, 22, 0.5, 28.5, 8.5, 0.5, 18.75, 0.5, 0.5, 47.5, 8.75, 0.5, 47.75, 8.75, 0.5, 46.25, 9.25, 0.5, 45.75, 22, 0.5, 27.5, 19.25, 0.5, 18.75, 18.75, 0.5, 45.75, 23.75, 0.5, 27, 24, 0.5, 27.5, 30.25, 0.5, 27.25, 30.25, 0.5, 24.5, 22.25, 0.5, 27, 31.25, 1.5, 25.25, 31.25, 1.5, 26.75, 32.75, 1.5, 26.75, 32.75, 1.5, 25.25, 30.5, 0.5, 27.75, 23.75, 0.5, 29, 19.25, 0.5, 46.25, 19.25, 0.5, 48, 44.25, 0.5, 48, 44.25, 0.5, 46, 33.25, 0.5, 27.75, 22.5, 0.5, 29, 46.5, 4, 47.25, 45, 4, 46, 45, 4, 54, 46.75, 4, 53, 55, 4, 46, 53.5, 4, 47, 53.75, 4, 52.75, 55, 4, 54, 10.75, 4, 47.5, 9.5, 4, 46.5, 9.5, 4, 53.5, 11, 4, 52.75, 17.25, 4, 52.5, 18.5, 4, 53.5, 18.5, 4, 46.5, 17, 4, 47.25, 49.75, 0.5, 54, 50.5, 0.5, 54, 50.75, 0.5, 53.25, 49.5, 0.5, 53.25, 54.25, 0.5, 46.75, 45.75, 0.5, 46.75, 54.25, 0.5, 53.25, 45.75, 0.5, 53.25, 55.75, 0.5, 53, 63.5, 0.5, 53.25, 13.75, 0.5, 53.5, 14.5, 0.5, 53.5, 14.75, 0.5, 52.75, 13.5, 0.5, 52.75, 17.75, 0.5, 47.25, 10.25, 0.5, 47.25, 17.75, 0.5, 52.75, 10.25, 0.5, 52.75, 0.5, 0.5, 52.75, 8.75, 0.5, 52.5, 19.5, 0.5, 63.5, 44, 0.5, 63.5, 44.25, 0.5, 54.25, 19.25, 0.5, 53.75, 47.5, 4.75, 48, 47.5, 4.75, 52, 52.5, 4.75, 52, 52.5, 4.75, 48, 11.75, 4.75, 48.25, 11.75, 4.75, 51.75, 16.25, 4.75, 51.75, 16.25, 4.75, 48.25, 8.75, 0.5, 53.75, 0.5, 0.5, 63.5, 8.5, 0.5, 63.5, 55.75, 0.5, 54.25, 56, 0.5, 63.5, 63.5, 0.5, 63.5, 14.75, 0.5, 54.25, 13.5, 0.5, 54.25, 19, 0.5, 54.25, 9, 0.5, 54.25, 50.75, 0.5, 54.75, 49.5, 0.5, 54.75, 55.5, 0.5, 54.75, 44.5, 0.5, 54.75)
+polygons = [PackedInt32Array(2, 1, 0), PackedInt32Array(2, 0, 3), PackedInt32Array(3, 0, 5), PackedInt32Array(3, 5, 4), PackedInt32Array(4, 6, 3), PackedInt32Array(6, 4, 7), PackedInt32Array(7, 4, 8), PackedInt32Array(9, 7, 8), PackedInt32Array(12, 11, 10), PackedInt32Array(12, 10, 13), PackedInt32Array(15, 14, 16), PackedInt32Array(16, 14, 13), PackedInt32Array(18, 17, 14), PackedInt32Array(14, 17, 9), PackedInt32Array(13, 14, 12), PackedInt32Array(12, 14, 9), PackedInt32Array(12, 9, 8), PackedInt32Array(11, 12, 19), PackedInt32Array(19, 12, 20), PackedInt32Array(22, 21, 23), PackedInt32Array(23, 21, 24), PackedInt32Array(24, 21, 20), PackedInt32Array(21, 19, 20), PackedInt32Array(28, 27, 25), PackedInt32Array(25, 27, 26), PackedInt32Array(30, 29, 31), PackedInt32Array(31, 29, 32), PackedInt32Array(31, 32, 28), PackedInt32Array(28, 32, 27), PackedInt32Array(30, 25, 29), PackedInt32Array(29, 25, 26), PackedInt32Array(36, 35, 33), PackedInt32Array(33, 35, 34), PackedInt32Array(40, 39, 37), PackedInt32Array(37, 39, 38), PackedInt32Array(33, 34, 40), PackedInt32Array(40, 34, 39), PackedInt32Array(37, 38, 36), PackedInt32Array(36, 38, 35), PackedInt32Array(41, 44, 42), PackedInt32Array(42, 44, 43), PackedInt32Array(43, 44, 45), PackedInt32Array(45, 44, 46), PackedInt32Array(45, 47, 43), PackedInt32Array(44, 48, 46), PackedInt32Array(50, 49, 1), PackedInt32Array(1, 49, 0), PackedInt32Array(51, 54, 52), PackedInt32Array(52, 54, 53), PackedInt32Array(53, 54, 55), PackedInt32Array(55, 54, 56), PackedInt32Array(55, 57, 53), PackedInt32Array(54, 58, 56), PackedInt32Array(22, 23, 59), PackedInt32Array(59, 23, 60), PackedInt32Array(64, 63, 61), PackedInt32Array(61, 63, 62), PackedInt32Array(68, 67, 65), PackedInt32Array(65, 67, 66), PackedInt32Array(52, 70, 51), PackedInt32Array(51, 70, 69), PackedInt32Array(70, 71, 72), PackedInt32Array(72, 71, 73), PackedInt32Array(73, 71, 74), PackedInt32Array(75, 74, 76), PackedInt32Array(76, 74, 71), PackedInt32Array(76, 71, 59), PackedInt32Array(76, 59, 60), PackedInt32Array(72, 69, 70), PackedInt32Array(15, 16, 77), PackedInt32Array(15, 77, 72), PackedInt32Array(72, 77, 69), PackedInt32Array(42, 78, 41), PackedInt32Array(41, 78, 79), PackedInt32Array(81, 79, 80), PackedInt32Array(49, 50, 81), PackedInt32Array(84, 83, 82), PackedInt32Array(84, 82, 85), PackedInt32Array(85, 82, 80), PackedInt32Array(80, 82, 81), PackedInt32Array(81, 82, 49), PackedInt32Array(86, 80, 87), PackedInt32Array(87, 80, 78), PackedInt32Array(80, 88, 85), PackedInt32Array(79, 78, 80), PackedInt32Array(90, 89, 91), PackedInt32Array(91, 89, 92), PackedInt32Array(93, 86, 87), PackedInt32Array(92, 89, 18), PackedInt32Array(18, 89, 93), PackedInt32Array(18, 93, 87), PackedInt32Array(18, 87, 17), PackedInt32Array(97, 96, 94), PackedInt32Array(94, 96, 95), PackedInt32Array(91, 98, 90), PackedInt32Array(90, 98, 99), PackedInt32Array(100, 99, 101), PackedInt32Array(101, 99, 104), PackedInt32Array(101, 104, 103), PackedInt32Array(101, 103, 102), PackedInt32Array(99, 98, 104), PackedInt32Array(100, 105, 99), PackedInt32Array(72, 73, 104), PackedInt32Array(104, 73, 103), PackedInt32Array(80, 105, 88), PackedInt32Array(88, 105, 100), PackedInt32Array(109, 108, 106), PackedInt32Array(106, 108, 107), PackedInt32Array(111, 110, 112), PackedInt32Array(112, 110, 113), PackedInt32Array(112, 113, 109), PackedInt32Array(109, 113, 108), PackedInt32Array(111, 106, 110), PackedInt32Array(110, 106, 107), PackedInt32Array(117, 116, 114), PackedInt32Array(114, 116, 115), PackedInt32Array(121, 120, 118), PackedInt32Array(118, 120, 119), PackedInt32Array(114, 115, 121), PackedInt32Array(121, 115, 120), PackedInt32Array(118, 119, 117), PackedInt32Array(117, 119, 116), PackedInt32Array(122, 125, 123), PackedInt32Array(123, 125, 124), PackedInt32Array(124, 125, 126), PackedInt32Array(126, 125, 127), PackedInt32Array(126, 128, 124), PackedInt32Array(125, 129, 127), PackedInt32Array(75, 76, 130), PackedInt32Array(130, 76, 131), PackedInt32Array(132, 135, 133), PackedInt32Array(133, 135, 134), PackedInt32Array(134, 135, 136), PackedInt32Array(136, 135, 137), PackedInt32Array(136, 138, 134), PackedInt32Array(135, 139, 137), PackedInt32Array(141, 140, 83), PackedInt32Array(83, 140, 82), PackedInt32Array(145, 101, 142), PackedInt32Array(142, 101, 143), PackedInt32Array(143, 101, 144), PackedInt32Array(144, 101, 102), PackedInt32Array(149, 148, 146), PackedInt32Array(146, 148, 147), PackedInt32Array(153, 152, 150), PackedInt32Array(150, 152, 151), PackedInt32Array(141, 154, 140), PackedInt32Array(140, 154, 156), PackedInt32Array(140, 156, 155), PackedInt32Array(130, 131, 157), PackedInt32Array(157, 131, 158), PackedInt32Array(158, 131, 159), PackedInt32Array(133, 160, 132), PackedInt32Array(132, 160, 161), PackedInt32Array(160, 142, 161), PackedInt32Array(161, 142, 156), PackedInt32Array(162, 145, 142), PackedInt32Array(156, 154, 163), PackedInt32Array(160, 162, 142), PackedInt32Array(156, 163, 161), PackedInt32Array(123, 164, 122), PackedInt32Array(122, 164, 165), PackedInt32Array(164, 158, 165), PackedInt32Array(165, 158, 143), PackedInt32Array(166, 157, 158), PackedInt32Array(143, 144, 167), PackedInt32Array(164, 166, 158), PackedInt32Array(143, 167, 165)]
 geometry_collision_mask = 1
 agent_height = 2.0
 filter_baking_aabb = AABB(0, -5, 0, 64, 30, 64)
@@ -46,7 +46,7 @@ size = Vector3(0.3, 3.2, 8)
 [sub_resource type="BoxShape3D" id="BoxShape3D_0lrbf"]
 size = Vector3(0.3, 3.2, 8)
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_2ylo1"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_y326l"]
 albedo_color = Color(0.75, 0.68, 0.55, 1)
 
 [sub_resource type="BoxMesh" id="BoxMesh_r1otr"]
@@ -55,7 +55,7 @@ size = Vector3(0.3, 3.2, 8)
 [sub_resource type="BoxShape3D" id="BoxShape3D_86sbv"]
 size = Vector3(4, 3.2, 0.3)
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_aewg0"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_t5grd"]
 albedo_color = Color(0.75, 0.68, 0.55, 1)
 
 [sub_resource type="BoxMesh" id="BoxMesh_cnhu1"]
@@ -64,7 +64,7 @@ size = Vector3(4, 3.2, 0.3)
 [sub_resource type="BoxShape3D" id="BoxShape3D_s6l2a"]
 size = Vector3(4, 3.2, 0.3)
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_xd5h5"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_10agt"]
 albedo_color = Color(0.75, 0.68, 0.55, 1)
 
 [sub_resource type="BoxMesh" id="BoxMesh_0nkr3"]
@@ -73,7 +73,7 @@ size = Vector3(4, 3.2, 0.3)
 [sub_resource type="BoxShape3D" id="BoxShape3D_oeamu"]
 size = Vector3(2, 0.8, 0.3)
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_63e1h"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_2772y"]
 albedo_color = Color(0.75, 0.68, 0.55, 1)
 
 [sub_resource type="BoxMesh" id="BoxMesh_vfcfh"]
@@ -82,7 +82,7 @@ size = Vector3(2, 0.8, 0.3)
 [sub_resource type="BoxShape3D" id="BoxShape3D_xl4y7"]
 size = Vector3(11, 0.5, 9)
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_mo6wq"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_f5q74"]
 albedo_color = Color(0.6, 0.25, 0.18, 1)
 
 [sub_resource type="BoxMesh" id="BoxMesh_4r154"]
@@ -91,7 +91,7 @@ size = Vector3(11, 0.5, 9)
 [sub_resource type="BoxShape3D" id="BoxShape3D_14m0m"]
 size = Vector3(6, 0.6, 4.8)
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_3nijq"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_y8j3o"]
 albedo_color = Color(0.5, 0.2, 0.15, 1)
 
 [sub_resource type="BoxMesh" id="BoxMesh_68aof"]
@@ -118,7 +118,7 @@ size = Vector3(0.3, 3.2, 7)
 [sub_resource type="BoxShape3D" id="BoxShape3D_q861x"]
 size = Vector3(0.3, 3.2, 7)
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_rheya"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_t0nbh"]
 albedo_color = Color(0.75, 0.68, 0.55, 1)
 
 [sub_resource type="BoxMesh" id="BoxMesh_ph1nh"]
@@ -127,7 +127,7 @@ size = Vector3(0.3, 3.2, 7)
 [sub_resource type="BoxShape3D" id="BoxShape3D_mpuvm"]
 size = Vector3(3.5, 3.2, 0.3)
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_6komr"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ud5yq"]
 albedo_color = Color(0.75, 0.68, 0.55, 1)
 
 [sub_resource type="BoxMesh" id="BoxMesh_0kiek"]
@@ -136,7 +136,7 @@ size = Vector3(3.5, 3.2, 0.3)
 [sub_resource type="BoxShape3D" id="BoxShape3D_u05kh"]
 size = Vector3(3.5, 3.2, 0.3)
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_aovih"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_0lbep"]
 albedo_color = Color(0.75, 0.68, 0.55, 1)
 
 [sub_resource type="BoxMesh" id="BoxMesh_wqdwu"]
@@ -145,7 +145,7 @@ size = Vector3(3.5, 3.2, 0.3)
 [sub_resource type="BoxShape3D" id="BoxShape3D_2wek6"]
 size = Vector3(2, 0.8, 0.3)
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_50sjo"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_s4uig"]
 albedo_color = Color(0.75, 0.68, 0.55, 1)
 
 [sub_resource type="BoxMesh" id="BoxMesh_eg8je"]
@@ -154,7 +154,7 @@ size = Vector3(2, 0.8, 0.3)
 [sub_resource type="BoxShape3D" id="BoxShape3D_oq4o0"]
 size = Vector3(10, 0.5, 8)
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_jamw5"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_8ynnr"]
 albedo_color = Color(0.6, 0.25, 0.18, 1)
 
 [sub_resource type="BoxMesh" id="BoxMesh_7rcjf"]
@@ -163,7 +163,7 @@ size = Vector3(10, 0.5, 8)
 [sub_resource type="BoxShape3D" id="BoxShape3D_sq5yo"]
 size = Vector3(5.4, 0.6, 4.2)
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_o5no6"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_1j7j7"]
 albedo_color = Color(0.5, 0.2, 0.15, 1)
 
 [sub_resource type="BoxMesh" id="BoxMesh_fhqjl"]
@@ -187,7 +187,7 @@ size = Vector3(0.3, 3.2, 7)
 [sub_resource type="BoxShape3D" id="BoxShape3D_dn3l4"]
 size = Vector3(0.3, 3.2, 7)
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_tgca8"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_5qdrv"]
 albedo_color = Color(0.75, 0.68, 0.55, 1)
 
 [sub_resource type="BoxMesh" id="BoxMesh_h1unw"]
@@ -196,7 +196,7 @@ size = Vector3(0.3, 3.2, 7)
 [sub_resource type="BoxShape3D" id="BoxShape3D_div1y"]
 size = Vector3(3.5, 3.2, 0.3)
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_q54o3"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_s17pd"]
 albedo_color = Color(0.75, 0.68, 0.55, 1)
 
 [sub_resource type="BoxMesh" id="BoxMesh_q0sta"]
@@ -205,7 +205,7 @@ size = Vector3(3.5, 3.2, 0.3)
 [sub_resource type="BoxShape3D" id="BoxShape3D_3uogg"]
 size = Vector3(3.5, 3.2, 0.3)
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_gxyp3"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_cax8w"]
 albedo_color = Color(0.75, 0.68, 0.55, 1)
 
 [sub_resource type="BoxMesh" id="BoxMesh_c6888"]
@@ -214,7 +214,7 @@ size = Vector3(3.5, 3.2, 0.3)
 [sub_resource type="BoxShape3D" id="BoxShape3D_3o7kn"]
 size = Vector3(2, 0.8, 0.3)
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_dk15y"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_0lrbf"]
 albedo_color = Color(0.75, 0.68, 0.55, 1)
 
 [sub_resource type="BoxMesh" id="BoxMesh_jejw5"]
@@ -223,7 +223,7 @@ size = Vector3(2, 0.8, 0.3)
 [sub_resource type="BoxShape3D" id="BoxShape3D_o1hdb"]
 size = Vector3(10, 0.5, 8)
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_tpwyq"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_2ylo1"]
 albedo_color = Color(0.6, 0.25, 0.18, 1)
 
 [sub_resource type="BoxMesh" id="BoxMesh_ehsxw"]
@@ -232,7 +232,7 @@ size = Vector3(10, 0.5, 8)
 [sub_resource type="BoxShape3D" id="BoxShape3D_115gt"]
 size = Vector3(5.4, 0.6, 4.2)
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_mclr7"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_r1otr"]
 albedo_color = Color(0.5, 0.2, 0.15, 1)
 
 [sub_resource type="BoxMesh" id="BoxMesh_cn8td"]
@@ -256,7 +256,7 @@ size = Vector3(0.3, 3.2, 8)
 [sub_resource type="BoxShape3D" id="BoxShape3D_kg6uo"]
 size = Vector3(0.3, 3.2, 8)
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_wlbih"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_86sbv"]
 albedo_color = Color(0.75, 0.68, 0.55, 1)
 
 [sub_resource type="BoxMesh" id="BoxMesh_l2n4p"]
@@ -265,7 +265,7 @@ size = Vector3(0.3, 3.2, 8)
 [sub_resource type="BoxShape3D" id="BoxShape3D_svia3"]
 size = Vector3(4, 3.2, 0.3)
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_3i6gb"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_aewg0"]
 albedo_color = Color(0.75, 0.68, 0.55, 1)
 
 [sub_resource type="BoxMesh" id="BoxMesh_y8fxd"]
@@ -274,7 +274,7 @@ size = Vector3(4, 3.2, 0.3)
 [sub_resource type="BoxShape3D" id="BoxShape3D_hp5kw"]
 size = Vector3(4, 3.2, 0.3)
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_icpiy"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_cnhu1"]
 albedo_color = Color(0.75, 0.68, 0.55, 1)
 
 [sub_resource type="BoxMesh" id="BoxMesh_spj4e"]
@@ -283,7 +283,7 @@ size = Vector3(4, 3.2, 0.3)
 [sub_resource type="BoxShape3D" id="BoxShape3D_nob24"]
 size = Vector3(2, 0.8, 0.3)
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_hd1d7"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_s6l2a"]
 albedo_color = Color(0.75, 0.68, 0.55, 1)
 
 [sub_resource type="BoxMesh" id="BoxMesh_q1j1i"]
@@ -292,7 +292,7 @@ size = Vector3(2, 0.8, 0.3)
 [sub_resource type="BoxShape3D" id="BoxShape3D_nlseu"]
 size = Vector3(11, 0.5, 9)
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_6m0pt"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_xd5h5"]
 albedo_color = Color(0.6, 0.25, 0.18, 1)
 
 [sub_resource type="BoxMesh" id="BoxMesh_il72c"]
@@ -301,7 +301,7 @@ size = Vector3(11, 0.5, 9)
 [sub_resource type="BoxShape3D" id="BoxShape3D_m7k0j"]
 size = Vector3(6, 0.6, 4.8)
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_5ktlk"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_0nkr3"]
 albedo_color = Color(0.5, 0.2, 0.15, 1)
 
 [sub_resource type="BoxMesh" id="BoxMesh_ymd3u"]
@@ -333,10 +333,10 @@ navigation_mesh = SubResource("NavigationMesh_0lbep")
 [node name="Ground" type="StaticBody3D" parent="Navigation" unique_id=1389150052]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 32, -0.5, 32)
 
-[node name="@CollisionShape3D@416" type="CollisionShape3D" parent="Navigation/Ground" unique_id=402893352]
+[node name="Collision" type="CollisionShape3D" parent="Navigation/Ground" unique_id=402893352]
 shape = SubResource("BoxShape3D_s4uig")
 
-[node name="@MeshInstance3D@417" type="MeshInstance3D" parent="Navigation/Ground" unique_id=856439862]
+[node name="Mesh" type="MeshInstance3D" parent="Navigation/Ground" unique_id=856439862]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
 material_override = SubResource("StandardMaterial3D_ffok1")
 mesh = SubResource("PlaneMesh_8ynnr")
@@ -347,20 +347,20 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, 0, 14)
 [node name="WallBack" type="StaticBody3D" parent="Navigation/House_14_14" unique_id=2089235839]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.6, -4)
 
-[node name="@CollisionShape3D@418" type="CollisionShape3D" parent="Navigation/House_14_14/WallBack" unique_id=648620310]
+[node name="Collision" type="CollisionShape3D" parent="Navigation/House_14_14/WallBack" unique_id=648620310]
 shape = SubResource("BoxShape3D_1j7j7")
 
-[node name="@MeshInstance3D@419" type="MeshInstance3D" parent="Navigation/House_14_14/WallBack" unique_id=2026496877]
+[node name="Mesh" type="MeshInstance3D" parent="Navigation/House_14_14/WallBack" unique_id=2026496877]
 material_override = SubResource("StandardMaterial3D_25cto")
 mesh = SubResource("BoxMesh_5qdrv")
 
 [node name="WallLeft" type="StaticBody3D" parent="Navigation/House_14_14" unique_id=2076674672]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 1.6, 0)
 
-[node name="@CollisionShape3D@420" type="CollisionShape3D" parent="Navigation/House_14_14/WallLeft" unique_id=1585274343]
+[node name="Collision" type="CollisionShape3D" parent="Navigation/House_14_14/WallLeft" unique_id=1585274343]
 shape = SubResource("BoxShape3D_s17pd")
 
-[node name="@MeshInstance3D@421" type="MeshInstance3D" parent="Navigation/House_14_14/WallLeft" unique_id=1244302804]
+[node name="Mesh" type="MeshInstance3D" parent="Navigation/House_14_14/WallLeft" unique_id=1244302804]
 material_override = SubResource("StandardMaterial3D_25cto")
 mesh = SubResource("BoxMesh_cax8w")
 
@@ -373,41 +373,41 @@ inside_fade = 0.65
 [node name="WallRight" type="StaticBody3D" parent="Navigation/House_14_14/FrontWalls" unique_id=75528694]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 1.6, 0)
 
-[node name="@CollisionShape3D@422" type="CollisionShape3D" parent="Navigation/House_14_14/FrontWalls/WallRight" unique_id=962659395]
+[node name="Collision" type="CollisionShape3D" parent="Navigation/House_14_14/FrontWalls/WallRight" unique_id=962659395]
 shape = SubResource("BoxShape3D_0lrbf")
 
-[node name="@MeshInstance3D@423" type="MeshInstance3D" parent="Navigation/House_14_14/FrontWalls/WallRight" unique_id=1191673057]
-material_override = SubResource("StandardMaterial3D_2ylo1")
+[node name="Mesh" type="MeshInstance3D" parent="Navigation/House_14_14/FrontWalls/WallRight" unique_id=1191673057]
+material_override = SubResource("StandardMaterial3D_y326l")
 mesh = SubResource("BoxMesh_r1otr")
 
 [node name="WallFrontL" type="StaticBody3D" parent="Navigation/House_14_14/FrontWalls" unique_id=1604324350]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 1.6, 4)
 
-[node name="@CollisionShape3D@424" type="CollisionShape3D" parent="Navigation/House_14_14/FrontWalls/WallFrontL" unique_id=237305532]
+[node name="Collision" type="CollisionShape3D" parent="Navigation/House_14_14/FrontWalls/WallFrontL" unique_id=237305532]
 shape = SubResource("BoxShape3D_86sbv")
 
-[node name="@MeshInstance3D@425" type="MeshInstance3D" parent="Navigation/House_14_14/FrontWalls/WallFrontL" unique_id=2055874654]
-material_override = SubResource("StandardMaterial3D_aewg0")
+[node name="Mesh" type="MeshInstance3D" parent="Navigation/House_14_14/FrontWalls/WallFrontL" unique_id=2055874654]
+material_override = SubResource("StandardMaterial3D_t5grd")
 mesh = SubResource("BoxMesh_cnhu1")
 
 [node name="WallFrontR" type="StaticBody3D" parent="Navigation/House_14_14/FrontWalls" unique_id=2035108947]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 1.6, 4)
 
-[node name="@CollisionShape3D@426" type="CollisionShape3D" parent="Navigation/House_14_14/FrontWalls/WallFrontR" unique_id=1704995145]
+[node name="Collision" type="CollisionShape3D" parent="Navigation/House_14_14/FrontWalls/WallFrontR" unique_id=1704995145]
 shape = SubResource("BoxShape3D_s6l2a")
 
-[node name="@MeshInstance3D@427" type="MeshInstance3D" parent="Navigation/House_14_14/FrontWalls/WallFrontR" unique_id=160398159]
-material_override = SubResource("StandardMaterial3D_xd5h5")
+[node name="Mesh" type="MeshInstance3D" parent="Navigation/House_14_14/FrontWalls/WallFrontR" unique_id=160398159]
+material_override = SubResource("StandardMaterial3D_10agt")
 mesh = SubResource("BoxMesh_0nkr3")
 
 [node name="Lintel" type="StaticBody3D" parent="Navigation/House_14_14/FrontWalls" unique_id=13979473]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.8, 4)
 
-[node name="@CollisionShape3D@428" type="CollisionShape3D" parent="Navigation/House_14_14/FrontWalls/Lintel" unique_id=1799288336]
+[node name="Collision" type="CollisionShape3D" parent="Navigation/House_14_14/FrontWalls/Lintel" unique_id=1799288336]
 shape = SubResource("BoxShape3D_oeamu")
 
-[node name="@MeshInstance3D@429" type="MeshInstance3D" parent="Navigation/House_14_14/FrontWalls/Lintel" unique_id=287353610]
-material_override = SubResource("StandardMaterial3D_63e1h")
+[node name="Mesh" type="MeshInstance3D" parent="Navigation/House_14_14/FrontWalls/Lintel" unique_id=287353610]
+material_override = SubResource("StandardMaterial3D_2772y")
 mesh = SubResource("BoxMesh_vfcfh")
 
 [node name="Roof" type="Node3D" parent="Navigation/House_14_14" unique_id=446143760]
@@ -420,11 +420,11 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.45, 0)
 collision_layer = 8
 collision_mask = 0
 
-[node name="@CollisionShape3D@430" type="CollisionShape3D" parent="Navigation/House_14_14/Roof/RoofSlab" unique_id=105092235]
+[node name="Collision" type="CollisionShape3D" parent="Navigation/House_14_14/Roof/RoofSlab" unique_id=105092235]
 shape = SubResource("BoxShape3D_xl4y7")
 
-[node name="@MeshInstance3D@431" type="MeshInstance3D" parent="Navigation/House_14_14/Roof/RoofSlab" unique_id=874618851]
-material_override = SubResource("StandardMaterial3D_mo6wq")
+[node name="Mesh" type="MeshInstance3D" parent="Navigation/House_14_14/Roof/RoofSlab" unique_id=874618851]
+material_override = SubResource("StandardMaterial3D_f5q74")
 mesh = SubResource("BoxMesh_4r154")
 
 [node name="RoofTop" type="StaticBody3D" parent="Navigation/House_14_14/Roof" unique_id=1527339996]
@@ -432,14 +432,14 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4, 0)
 collision_layer = 8
 collision_mask = 0
 
-[node name="@CollisionShape3D@432" type="CollisionShape3D" parent="Navigation/House_14_14/Roof/RoofTop" unique_id=968876332]
+[node name="Collision" type="CollisionShape3D" parent="Navigation/House_14_14/Roof/RoofTop" unique_id=968876332]
 shape = SubResource("BoxShape3D_14m0m")
 
-[node name="@MeshInstance3D@433" type="MeshInstance3D" parent="Navigation/House_14_14/Roof/RoofTop" unique_id=1482033781]
-material_override = SubResource("StandardMaterial3D_3nijq")
+[node name="Mesh" type="MeshInstance3D" parent="Navigation/House_14_14/Roof/RoofTop" unique_id=1482033781]
+material_override = SubResource("StandardMaterial3D_y8j3o")
 mesh = SubResource("BoxMesh_68aof")
 
-[node name="@MeshInstance3D@434" type="MeshInstance3D" parent="Navigation/House_14_14" unique_id=991639283]
+[node name="Mesh" type="MeshInstance3D" parent="Navigation/House_14_14" unique_id=991639283]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.02, 0)
 material_override = SubResource("StandardMaterial3D_v5epx")
 mesh = SubResource("PlaneMesh_2rhxj")
@@ -450,20 +450,20 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 50, 0, 14)
 [node name="WallBack" type="StaticBody3D" parent="Navigation/House_50_14" unique_id=946607223]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.6, -3.5)
 
-[node name="@CollisionShape3D@435" type="CollisionShape3D" parent="Navigation/House_50_14/WallBack" unique_id=1025281993]
+[node name="Collision" type="CollisionShape3D" parent="Navigation/House_50_14/WallBack" unique_id=1025281993]
 shape = SubResource("BoxShape3D_a1aji")
 
-[node name="@MeshInstance3D@436" type="MeshInstance3D" parent="Navigation/House_50_14/WallBack" unique_id=755322574]
+[node name="Mesh" type="MeshInstance3D" parent="Navigation/House_50_14/WallBack" unique_id=755322574]
 material_override = SubResource("StandardMaterial3D_25cto")
 mesh = SubResource("BoxMesh_h5tfs")
 
 [node name="WallLeft" type="StaticBody3D" parent="Navigation/House_50_14" unique_id=1688912678]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.5, 1.6, 0)
 
-[node name="@CollisionShape3D@437" type="CollisionShape3D" parent="Navigation/House_50_14/WallLeft" unique_id=1264700092]
+[node name="Collision" type="CollisionShape3D" parent="Navigation/House_50_14/WallLeft" unique_id=1264700092]
 shape = SubResource("BoxShape3D_tst6q")
 
-[node name="@MeshInstance3D@438" type="MeshInstance3D" parent="Navigation/House_50_14/WallLeft" unique_id=250320817]
+[node name="Mesh" type="MeshInstance3D" parent="Navigation/House_50_14/WallLeft" unique_id=250320817]
 material_override = SubResource("StandardMaterial3D_25cto")
 mesh = SubResource("BoxMesh_6mv5i")
 
@@ -476,41 +476,41 @@ inside_fade = 0.65
 [node name="WallRight" type="StaticBody3D" parent="Navigation/House_50_14/FrontWalls" unique_id=516305548]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.5, 1.6, 0)
 
-[node name="@CollisionShape3D@439" type="CollisionShape3D" parent="Navigation/House_50_14/FrontWalls/WallRight" unique_id=1277597441]
+[node name="Collision" type="CollisionShape3D" parent="Navigation/House_50_14/FrontWalls/WallRight" unique_id=1277597441]
 shape = SubResource("BoxShape3D_q861x")
 
-[node name="@MeshInstance3D@440" type="MeshInstance3D" parent="Navigation/House_50_14/FrontWalls/WallRight" unique_id=1560230482]
-material_override = SubResource("StandardMaterial3D_rheya")
+[node name="Mesh" type="MeshInstance3D" parent="Navigation/House_50_14/FrontWalls/WallRight" unique_id=1560230482]
+material_override = SubResource("StandardMaterial3D_t0nbh")
 mesh = SubResource("BoxMesh_ph1nh")
 
 [node name="WallFrontL" type="StaticBody3D" parent="Navigation/House_50_14/FrontWalls" unique_id=159151724]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.75, 1.6, 3.5)
 
-[node name="@CollisionShape3D@441" type="CollisionShape3D" parent="Navigation/House_50_14/FrontWalls/WallFrontL" unique_id=1432553063]
+[node name="Collision" type="CollisionShape3D" parent="Navigation/House_50_14/FrontWalls/WallFrontL" unique_id=1432553063]
 shape = SubResource("BoxShape3D_mpuvm")
 
-[node name="@MeshInstance3D@442" type="MeshInstance3D" parent="Navigation/House_50_14/FrontWalls/WallFrontL" unique_id=168351265]
-material_override = SubResource("StandardMaterial3D_6komr")
+[node name="Mesh" type="MeshInstance3D" parent="Navigation/House_50_14/FrontWalls/WallFrontL" unique_id=168351265]
+material_override = SubResource("StandardMaterial3D_ud5yq")
 mesh = SubResource("BoxMesh_0kiek")
 
 [node name="WallFrontR" type="StaticBody3D" parent="Navigation/House_50_14/FrontWalls" unique_id=322004590]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.75, 1.6, 3.5)
 
-[node name="@CollisionShape3D@443" type="CollisionShape3D" parent="Navigation/House_50_14/FrontWalls/WallFrontR" unique_id=1372431516]
+[node name="Collision" type="CollisionShape3D" parent="Navigation/House_50_14/FrontWalls/WallFrontR" unique_id=1372431516]
 shape = SubResource("BoxShape3D_u05kh")
 
-[node name="@MeshInstance3D@444" type="MeshInstance3D" parent="Navigation/House_50_14/FrontWalls/WallFrontR" unique_id=317054461]
-material_override = SubResource("StandardMaterial3D_aovih")
+[node name="Mesh" type="MeshInstance3D" parent="Navigation/House_50_14/FrontWalls/WallFrontR" unique_id=317054461]
+material_override = SubResource("StandardMaterial3D_0lbep")
 mesh = SubResource("BoxMesh_wqdwu")
 
 [node name="Lintel" type="StaticBody3D" parent="Navigation/House_50_14/FrontWalls" unique_id=1398172320]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.8, 3.5)
 
-[node name="@CollisionShape3D@445" type="CollisionShape3D" parent="Navigation/House_50_14/FrontWalls/Lintel" unique_id=1018440717]
+[node name="Collision" type="CollisionShape3D" parent="Navigation/House_50_14/FrontWalls/Lintel" unique_id=1018440717]
 shape = SubResource("BoxShape3D_2wek6")
 
-[node name="@MeshInstance3D@446" type="MeshInstance3D" parent="Navigation/House_50_14/FrontWalls/Lintel" unique_id=1538466667]
-material_override = SubResource("StandardMaterial3D_50sjo")
+[node name="Mesh" type="MeshInstance3D" parent="Navigation/House_50_14/FrontWalls/Lintel" unique_id=1538466667]
+material_override = SubResource("StandardMaterial3D_s4uig")
 mesh = SubResource("BoxMesh_eg8je")
 
 [node name="Roof" type="Node3D" parent="Navigation/House_50_14" unique_id=406918318]
@@ -523,11 +523,11 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.45, 0)
 collision_layer = 8
 collision_mask = 0
 
-[node name="@CollisionShape3D@447" type="CollisionShape3D" parent="Navigation/House_50_14/Roof/RoofSlab" unique_id=1041432152]
+[node name="Collision" type="CollisionShape3D" parent="Navigation/House_50_14/Roof/RoofSlab" unique_id=1041432152]
 shape = SubResource("BoxShape3D_oq4o0")
 
-[node name="@MeshInstance3D@448" type="MeshInstance3D" parent="Navigation/House_50_14/Roof/RoofSlab" unique_id=769398273]
-material_override = SubResource("StandardMaterial3D_jamw5")
+[node name="Mesh" type="MeshInstance3D" parent="Navigation/House_50_14/Roof/RoofSlab" unique_id=769398273]
+material_override = SubResource("StandardMaterial3D_8ynnr")
 mesh = SubResource("BoxMesh_7rcjf")
 
 [node name="RoofTop" type="StaticBody3D" parent="Navigation/House_50_14/Roof" unique_id=708757125]
@@ -535,14 +535,14 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4, 0)
 collision_layer = 8
 collision_mask = 0
 
-[node name="@CollisionShape3D@449" type="CollisionShape3D" parent="Navigation/House_50_14/Roof/RoofTop" unique_id=1887705545]
+[node name="Collision" type="CollisionShape3D" parent="Navigation/House_50_14/Roof/RoofTop" unique_id=1887705545]
 shape = SubResource("BoxShape3D_sq5yo")
 
-[node name="@MeshInstance3D@450" type="MeshInstance3D" parent="Navigation/House_50_14/Roof/RoofTop" unique_id=118520808]
-material_override = SubResource("StandardMaterial3D_o5no6")
+[node name="Mesh" type="MeshInstance3D" parent="Navigation/House_50_14/Roof/RoofTop" unique_id=118520808]
+material_override = SubResource("StandardMaterial3D_1j7j7")
 mesh = SubResource("BoxMesh_fhqjl")
 
-[node name="@MeshInstance3D@451" type="MeshInstance3D" parent="Navigation/House_50_14" unique_id=1758610340]
+[node name="Mesh" type="MeshInstance3D" parent="Navigation/House_50_14" unique_id=1758610340]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.02, 0)
 material_override = SubResource("StandardMaterial3D_v5epx")
 mesh = SubResource("PlaneMesh_7nqcj")
@@ -553,20 +553,20 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, 0, 50)
 [node name="WallBack" type="StaticBody3D" parent="Navigation/House_14_50" unique_id=1259089782]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.6, -3.5)
 
-[node name="@CollisionShape3D@452" type="CollisionShape3D" parent="Navigation/House_14_50/WallBack" unique_id=383897349]
+[node name="Collision" type="CollisionShape3D" parent="Navigation/House_14_50/WallBack" unique_id=383897349]
 shape = SubResource("BoxShape3D_4behg")
 
-[node name="@MeshInstance3D@453" type="MeshInstance3D" parent="Navigation/House_14_50/WallBack" unique_id=186309136]
+[node name="Mesh" type="MeshInstance3D" parent="Navigation/House_14_50/WallBack" unique_id=186309136]
 material_override = SubResource("StandardMaterial3D_25cto")
 mesh = SubResource("BoxMesh_8ud7e")
 
 [node name="WallLeft" type="StaticBody3D" parent="Navigation/House_14_50" unique_id=947414115]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.5, 1.6, 0)
 
-[node name="@CollisionShape3D@454" type="CollisionShape3D" parent="Navigation/House_14_50/WallLeft" unique_id=1200120660]
+[node name="Collision" type="CollisionShape3D" parent="Navigation/House_14_50/WallLeft" unique_id=1200120660]
 shape = SubResource("BoxShape3D_sxejp")
 
-[node name="@MeshInstance3D@455" type="MeshInstance3D" parent="Navigation/House_14_50/WallLeft" unique_id=399547177]
+[node name="Mesh" type="MeshInstance3D" parent="Navigation/House_14_50/WallLeft" unique_id=399547177]
 material_override = SubResource("StandardMaterial3D_25cto")
 mesh = SubResource("BoxMesh_xx4ee")
 
@@ -579,41 +579,41 @@ inside_fade = 0.65
 [node name="WallRight" type="StaticBody3D" parent="Navigation/House_14_50/FrontWalls" unique_id=1518429815]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.5, 1.6, 0)
 
-[node name="@CollisionShape3D@456" type="CollisionShape3D" parent="Navigation/House_14_50/FrontWalls/WallRight" unique_id=328940788]
+[node name="Collision" type="CollisionShape3D" parent="Navigation/House_14_50/FrontWalls/WallRight" unique_id=328940788]
 shape = SubResource("BoxShape3D_dn3l4")
 
-[node name="@MeshInstance3D@457" type="MeshInstance3D" parent="Navigation/House_14_50/FrontWalls/WallRight" unique_id=1528631831]
-material_override = SubResource("StandardMaterial3D_tgca8")
+[node name="Mesh" type="MeshInstance3D" parent="Navigation/House_14_50/FrontWalls/WallRight" unique_id=1528631831]
+material_override = SubResource("StandardMaterial3D_5qdrv")
 mesh = SubResource("BoxMesh_h1unw")
 
 [node name="WallFrontL" type="StaticBody3D" parent="Navigation/House_14_50/FrontWalls" unique_id=347696314]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.75, 1.6, 3.5)
 
-[node name="@CollisionShape3D@458" type="CollisionShape3D" parent="Navigation/House_14_50/FrontWalls/WallFrontL" unique_id=9034954]
+[node name="Collision" type="CollisionShape3D" parent="Navigation/House_14_50/FrontWalls/WallFrontL" unique_id=9034954]
 shape = SubResource("BoxShape3D_div1y")
 
-[node name="@MeshInstance3D@459" type="MeshInstance3D" parent="Navigation/House_14_50/FrontWalls/WallFrontL" unique_id=939370751]
-material_override = SubResource("StandardMaterial3D_q54o3")
+[node name="Mesh" type="MeshInstance3D" parent="Navigation/House_14_50/FrontWalls/WallFrontL" unique_id=939370751]
+material_override = SubResource("StandardMaterial3D_s17pd")
 mesh = SubResource("BoxMesh_q0sta")
 
 [node name="WallFrontR" type="StaticBody3D" parent="Navigation/House_14_50/FrontWalls" unique_id=1797545917]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.75, 1.6, 3.5)
 
-[node name="@CollisionShape3D@460" type="CollisionShape3D" parent="Navigation/House_14_50/FrontWalls/WallFrontR" unique_id=793011399]
+[node name="Collision" type="CollisionShape3D" parent="Navigation/House_14_50/FrontWalls/WallFrontR" unique_id=793011399]
 shape = SubResource("BoxShape3D_3uogg")
 
-[node name="@MeshInstance3D@461" type="MeshInstance3D" parent="Navigation/House_14_50/FrontWalls/WallFrontR" unique_id=2075487109]
-material_override = SubResource("StandardMaterial3D_gxyp3")
+[node name="Mesh" type="MeshInstance3D" parent="Navigation/House_14_50/FrontWalls/WallFrontR" unique_id=2075487109]
+material_override = SubResource("StandardMaterial3D_cax8w")
 mesh = SubResource("BoxMesh_c6888")
 
 [node name="Lintel" type="StaticBody3D" parent="Navigation/House_14_50/FrontWalls" unique_id=981032223]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.8, 3.5)
 
-[node name="@CollisionShape3D@462" type="CollisionShape3D" parent="Navigation/House_14_50/FrontWalls/Lintel" unique_id=389573136]
+[node name="Collision" type="CollisionShape3D" parent="Navigation/House_14_50/FrontWalls/Lintel" unique_id=389573136]
 shape = SubResource("BoxShape3D_3o7kn")
 
-[node name="@MeshInstance3D@463" type="MeshInstance3D" parent="Navigation/House_14_50/FrontWalls/Lintel" unique_id=1243595443]
-material_override = SubResource("StandardMaterial3D_dk15y")
+[node name="Mesh" type="MeshInstance3D" parent="Navigation/House_14_50/FrontWalls/Lintel" unique_id=1243595443]
+material_override = SubResource("StandardMaterial3D_0lrbf")
 mesh = SubResource("BoxMesh_jejw5")
 
 [node name="Roof" type="Node3D" parent="Navigation/House_14_50" unique_id=851417930]
@@ -626,11 +626,11 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.45, 0)
 collision_layer = 8
 collision_mask = 0
 
-[node name="@CollisionShape3D@464" type="CollisionShape3D" parent="Navigation/House_14_50/Roof/RoofSlab" unique_id=749555682]
+[node name="Collision" type="CollisionShape3D" parent="Navigation/House_14_50/Roof/RoofSlab" unique_id=749555682]
 shape = SubResource("BoxShape3D_o1hdb")
 
-[node name="@MeshInstance3D@465" type="MeshInstance3D" parent="Navigation/House_14_50/Roof/RoofSlab" unique_id=2063213613]
-material_override = SubResource("StandardMaterial3D_tpwyq")
+[node name="Mesh" type="MeshInstance3D" parent="Navigation/House_14_50/Roof/RoofSlab" unique_id=2063213613]
+material_override = SubResource("StandardMaterial3D_2ylo1")
 mesh = SubResource("BoxMesh_ehsxw")
 
 [node name="RoofTop" type="StaticBody3D" parent="Navigation/House_14_50/Roof" unique_id=2058911045]
@@ -638,14 +638,14 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4, 0)
 collision_layer = 8
 collision_mask = 0
 
-[node name="@CollisionShape3D@466" type="CollisionShape3D" parent="Navigation/House_14_50/Roof/RoofTop" unique_id=1165875375]
+[node name="Collision" type="CollisionShape3D" parent="Navigation/House_14_50/Roof/RoofTop" unique_id=1165875375]
 shape = SubResource("BoxShape3D_115gt")
 
-[node name="@MeshInstance3D@467" type="MeshInstance3D" parent="Navigation/House_14_50/Roof/RoofTop" unique_id=872073946]
-material_override = SubResource("StandardMaterial3D_mclr7")
+[node name="Mesh" type="MeshInstance3D" parent="Navigation/House_14_50/Roof/RoofTop" unique_id=872073946]
+material_override = SubResource("StandardMaterial3D_r1otr")
 mesh = SubResource("BoxMesh_cn8td")
 
-[node name="@MeshInstance3D@468" type="MeshInstance3D" parent="Navigation/House_14_50" unique_id=1735997789]
+[node name="Mesh" type="MeshInstance3D" parent="Navigation/House_14_50" unique_id=1735997789]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.02, 0)
 material_override = SubResource("StandardMaterial3D_v5epx")
 mesh = SubResource("PlaneMesh_55yx2")
@@ -656,20 +656,20 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 50, 0, 50)
 [node name="WallBack" type="StaticBody3D" parent="Navigation/House_50_50" unique_id=1989992607]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.6, -4)
 
-[node name="@CollisionShape3D@469" type="CollisionShape3D" parent="Navigation/House_50_50/WallBack" unique_id=706461232]
+[node name="Collision" type="CollisionShape3D" parent="Navigation/House_50_50/WallBack" unique_id=706461232]
 shape = SubResource("BoxShape3D_al0sg")
 
-[node name="@MeshInstance3D@470" type="MeshInstance3D" parent="Navigation/House_50_50/WallBack" unique_id=1171660473]
+[node name="Mesh" type="MeshInstance3D" parent="Navigation/House_50_50/WallBack" unique_id=1171660473]
 material_override = SubResource("StandardMaterial3D_25cto")
 mesh = SubResource("BoxMesh_6xa1y")
 
 [node name="WallLeft" type="StaticBody3D" parent="Navigation/House_50_50" unique_id=2016701964]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 1.6, 0)
 
-[node name="@CollisionShape3D@471" type="CollisionShape3D" parent="Navigation/House_50_50/WallLeft" unique_id=1543696597]
+[node name="Collision" type="CollisionShape3D" parent="Navigation/House_50_50/WallLeft" unique_id=1543696597]
 shape = SubResource("BoxShape3D_pi0s0")
 
-[node name="@MeshInstance3D@472" type="MeshInstance3D" parent="Navigation/House_50_50/WallLeft" unique_id=2015185807]
+[node name="Mesh" type="MeshInstance3D" parent="Navigation/House_50_50/WallLeft" unique_id=2015185807]
 material_override = SubResource("StandardMaterial3D_25cto")
 mesh = SubResource("BoxMesh_p3ygk")
 
@@ -682,41 +682,41 @@ inside_fade = 0.65
 [node name="WallRight" type="StaticBody3D" parent="Navigation/House_50_50/FrontWalls" unique_id=1498847629]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 1.6, 0)
 
-[node name="@CollisionShape3D@473" type="CollisionShape3D" parent="Navigation/House_50_50/FrontWalls/WallRight" unique_id=436286756]
+[node name="Collision" type="CollisionShape3D" parent="Navigation/House_50_50/FrontWalls/WallRight" unique_id=436286756]
 shape = SubResource("BoxShape3D_kg6uo")
 
-[node name="@MeshInstance3D@474" type="MeshInstance3D" parent="Navigation/House_50_50/FrontWalls/WallRight" unique_id=36763840]
-material_override = SubResource("StandardMaterial3D_wlbih")
+[node name="Mesh" type="MeshInstance3D" parent="Navigation/House_50_50/FrontWalls/WallRight" unique_id=36763840]
+material_override = SubResource("StandardMaterial3D_86sbv")
 mesh = SubResource("BoxMesh_l2n4p")
 
 [node name="WallFrontL" type="StaticBody3D" parent="Navigation/House_50_50/FrontWalls" unique_id=989971543]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 1.6, 4)
 
-[node name="@CollisionShape3D@475" type="CollisionShape3D" parent="Navigation/House_50_50/FrontWalls/WallFrontL" unique_id=1440594597]
+[node name="Collision" type="CollisionShape3D" parent="Navigation/House_50_50/FrontWalls/WallFrontL" unique_id=1440594597]
 shape = SubResource("BoxShape3D_svia3")
 
-[node name="@MeshInstance3D@476" type="MeshInstance3D" parent="Navigation/House_50_50/FrontWalls/WallFrontL" unique_id=224985293]
-material_override = SubResource("StandardMaterial3D_3i6gb")
+[node name="Mesh" type="MeshInstance3D" parent="Navigation/House_50_50/FrontWalls/WallFrontL" unique_id=224985293]
+material_override = SubResource("StandardMaterial3D_aewg0")
 mesh = SubResource("BoxMesh_y8fxd")
 
 [node name="WallFrontR" type="StaticBody3D" parent="Navigation/House_50_50/FrontWalls" unique_id=1534936900]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 1.6, 4)
 
-[node name="@CollisionShape3D@477" type="CollisionShape3D" parent="Navigation/House_50_50/FrontWalls/WallFrontR" unique_id=1395312371]
+[node name="Collision" type="CollisionShape3D" parent="Navigation/House_50_50/FrontWalls/WallFrontR" unique_id=1395312371]
 shape = SubResource("BoxShape3D_hp5kw")
 
-[node name="@MeshInstance3D@478" type="MeshInstance3D" parent="Navigation/House_50_50/FrontWalls/WallFrontR" unique_id=1384787712]
-material_override = SubResource("StandardMaterial3D_icpiy")
+[node name="Mesh" type="MeshInstance3D" parent="Navigation/House_50_50/FrontWalls/WallFrontR" unique_id=1384787712]
+material_override = SubResource("StandardMaterial3D_cnhu1")
 mesh = SubResource("BoxMesh_spj4e")
 
 [node name="Lintel" type="StaticBody3D" parent="Navigation/House_50_50/FrontWalls" unique_id=975938518]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.8, 4)
 
-[node name="@CollisionShape3D@479" type="CollisionShape3D" parent="Navigation/House_50_50/FrontWalls/Lintel" unique_id=1494563496]
+[node name="Collision" type="CollisionShape3D" parent="Navigation/House_50_50/FrontWalls/Lintel" unique_id=1494563496]
 shape = SubResource("BoxShape3D_nob24")
 
-[node name="@MeshInstance3D@480" type="MeshInstance3D" parent="Navigation/House_50_50/FrontWalls/Lintel" unique_id=1058164197]
-material_override = SubResource("StandardMaterial3D_hd1d7")
+[node name="Mesh" type="MeshInstance3D" parent="Navigation/House_50_50/FrontWalls/Lintel" unique_id=1058164197]
+material_override = SubResource("StandardMaterial3D_s6l2a")
 mesh = SubResource("BoxMesh_q1j1i")
 
 [node name="Roof" type="Node3D" parent="Navigation/House_50_50" unique_id=2084789932]
@@ -729,11 +729,11 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.45, 0)
 collision_layer = 8
 collision_mask = 0
 
-[node name="@CollisionShape3D@481" type="CollisionShape3D" parent="Navigation/House_50_50/Roof/RoofSlab" unique_id=608273802]
+[node name="Collision" type="CollisionShape3D" parent="Navigation/House_50_50/Roof/RoofSlab" unique_id=608273802]
 shape = SubResource("BoxShape3D_nlseu")
 
-[node name="@MeshInstance3D@482" type="MeshInstance3D" parent="Navigation/House_50_50/Roof/RoofSlab" unique_id=241378852]
-material_override = SubResource("StandardMaterial3D_6m0pt")
+[node name="Mesh" type="MeshInstance3D" parent="Navigation/House_50_50/Roof/RoofSlab" unique_id=241378852]
+material_override = SubResource("StandardMaterial3D_xd5h5")
 mesh = SubResource("BoxMesh_il72c")
 
 [node name="RoofTop" type="StaticBody3D" parent="Navigation/House_50_50/Roof" unique_id=459664423]
@@ -741,14 +741,14 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4, 0)
 collision_layer = 8
 collision_mask = 0
 
-[node name="@CollisionShape3D@483" type="CollisionShape3D" parent="Navigation/House_50_50/Roof/RoofTop" unique_id=733007639]
+[node name="Collision" type="CollisionShape3D" parent="Navigation/House_50_50/Roof/RoofTop" unique_id=733007639]
 shape = SubResource("BoxShape3D_m7k0j")
 
-[node name="@MeshInstance3D@484" type="MeshInstance3D" parent="Navigation/House_50_50/Roof/RoofTop" unique_id=1755843395]
-material_override = SubResource("StandardMaterial3D_5ktlk")
+[node name="Mesh" type="MeshInstance3D" parent="Navigation/House_50_50/Roof/RoofTop" unique_id=1755843395]
+material_override = SubResource("StandardMaterial3D_0nkr3")
 mesh = SubResource("BoxMesh_ymd3u")
 
-[node name="@MeshInstance3D@485" type="MeshInstance3D" parent="Navigation/House_50_50" unique_id=150405257]
+[node name="Mesh" type="MeshInstance3D" parent="Navigation/House_50_50" unique_id=150405257]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.02, 0)
 material_override = SubResource("StandardMaterial3D_v5epx")
 mesh = SubResource("PlaneMesh_jx4nn")
@@ -756,30 +756,36 @@ mesh = SubResource("PlaneMesh_jx4nn")
 [node name="Well" type="StaticBody3D" parent="Navigation" unique_id=909752596]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 32, 0.5, 26)
 
-[node name="@CollisionShape3D@486" type="CollisionShape3D" parent="Navigation/Well" unique_id=296653086]
+[node name="Collision" type="CollisionShape3D" parent="Navigation/Well" unique_id=296653086]
 shape = SubResource("BoxShape3D_1rgty")
 
-[node name="@MeshInstance3D@487" type="MeshInstance3D" parent="Navigation/Well" unique_id=285196880]
+[node name="Mesh" type="MeshInstance3D" parent="Navigation/Well" unique_id=285196880]
 material_override = SubResource("StandardMaterial3D_myw2o")
 mesh = SubResource("BoxMesh_yrb42")
 
 [node name="Barrel_23_28" type="StaticBody3D" parent="Navigation" unique_id=1352200620]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 23, 0, 28)
 
-[node name="Barrel2" type="Node3D" parent="Navigation/Barrel_23_28" unique_id=1285413497 instance=ExtResource("3_t5grd")]
+[node name="Barrel2" parent="Navigation/Barrel_23_28" unique_id=1285413497 instance=ExtResource("3_t5grd")]
 
-[node name="@CollisionShape3D@488" type="CollisionShape3D" parent="Navigation/Barrel_23_28" unique_id=1638901985]
+[node name="Collision" type="CollisionShape3D" parent="Navigation/Barrel_23_28" unique_id=1638901985]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.1920929e-07, 0.57419896, -1.7881393e-07)
 shape = SubResource("BoxShape3D_o5o0c")
 
 [node name="Chest_41_28" type="StaticBody3D" parent="Navigation" unique_id=1649283063]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 41, 0, 28)
 
-[node name="Chest2" type="Node3D" parent="Navigation/Chest_41_28" unique_id=2090341348 instance=ExtResource("4_10agt")]
+[node name="Chest2" parent="Navigation/Chest_41_28" unique_id=2090341348 instance=ExtResource("4_10agt")]
 
-[node name="@CollisionShape3D@489" type="CollisionShape3D" parent="Navigation/Chest_41_28" unique_id=507379485]
+[node name="Collision" type="CollisionShape3D" parent="Navigation/Chest_41_28" unique_id=507379485]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.20628282, -2.9802322e-08)
 shape = SubResource("BoxShape3D_byblc")
+
+[node name="Tiles" type="GridMap" parent="Navigation" unique_id=1685549340]
+mesh_library = ExtResource("5_y326l")
+cell_size = Vector3(1, 1, 1)
+cell_center_y = false
+collision_mask = 0
 
 [node name="Npc_Sr_Gouveia" type="Node3D" parent="." unique_id=1417754578]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, 0, 12.5)

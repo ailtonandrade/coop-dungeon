@@ -8,6 +8,9 @@ extends Marker3D
 const ENTER_TIME := 1.2
 
 @export var title := "Entrada"
+## Par de entradas (porta de fora e de dentro) tem o mesmo id. O editor de mapa usa isso
+## para acertar `target_point` de cada uma para a frente da outra ("Sincronizar entradas").
+@export var link_id := ""
 ## Para onde leva (posição no mundo; interiores ficam longe do mapa de fora).
 @export var target_point := Vector3.ZERO
 @export var radius := 1.8

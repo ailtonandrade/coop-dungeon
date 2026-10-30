@@ -3,6 +3,9 @@ extends Node3D
 ## de partida (antes de alguém nascer) e libera a entrada dos jogadores.
 ## Os blocos em si vêm do WorldMap pelo WorldStreamer.
 
+## Arquivo que o editor de mapa escreve para "Jogar a partir daqui".
+const DEBUG_SPAWN_FILE := "user://debug_spawn.json"
+
 @export var world_map: WorldMap
 
 @onready var _streamer: WorldStreamer = $WorldStreamer
@@ -12,12 +15,23 @@ extends Node3D
 func _ready() -> void:
 	_build_environment()
 	_streamer.world_map = world_map
-	_players.spawn_position = world_map.spawn_point
-	_streamer.load_now(world_map.spawn_point)
+	_players.spawn_position = _debug_spawn_point(world_map.spawn_point)
+	_streamer.load_now(_players.spawn_position)
 	# Mundo pronto: libera entrar no jogo e avisa o host (se for cliente).
 	InputService.joining_enabled = true
 	NetService.notify_level_ready()
 	InputService.join_last_device()
+
+
+## "Jogar a partir daqui" do editor de mapa: começa no bloco escolhido (só rodando pelo editor).
+func _debug_spawn_point(default: Vector3) -> Vector3:
+	if not OS.has_feature("editor") or not FileAccess.file_exists(DEBUG_SPAWN_FILE):
+		return default
+	var data: Variant = JSON.parse_string(FileAccess.get_file_as_string(DEBUG_SPAWN_FILE))
+	DirAccess.remove_absolute(DEBUG_SPAWN_FILE)
+	if data is Array and data.size() == 3:
+		return Vector3(data[0], data[1], data[2])
+	return default
 
 
 func _build_environment() -> void:

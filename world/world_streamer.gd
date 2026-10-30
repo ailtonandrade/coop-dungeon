@@ -5,6 +5,9 @@ extends Node3D
 ## - Cliente: só em volta dos jogadores desta máquina (o resto ele não precisa desenhar).
 ## Interiores (masmorras) carregam quando alguém está dentro deles.
 ##
+## Borda do mapa: lado de bloco sem vizinho ganha uma parede invisível alta ao carregar.
+## Assim os blocos não guardam borda nenhuma, e o mapa cresce só criando blocos novos ao lado.
+##
 ## Garantia: o bloco onde um jogador está fica pronto antes da física rodar nele.
 ## O primeiro carregamento e o destino de um teleporte são carregados na hora (load_now);
 ## os vizinhos chegam em segundo plano antes de alguém andar até eles.
@@ -16,6 +19,7 @@ signal chunk_unloaded(key: String)
 const LOAD_RADIUS := 1
 ## Só descarrega quando passa disso (folga para não carregar e descarregar na borda).
 const UNLOAD_RADIUS := 2
+const EDGE_WALL_HEIGHT := 6.0
 
 @export var world_map: WorldMap
 
@@ -175,9 +179,35 @@ func _spawn(key: String, scene: PackedScene) -> void:
 	chunk.name = "Chunk_" + key.replace(",", "_").replace(":", "_")
 	# Posição antes de entrar na cena: o que nasce no bloco já nasce no lugar certo.
 	chunk.position = _path_and_origin(key)[1]
+	if not key.begins_with("i:"):
+		_add_edge_walls(chunk, key)
 	add_child(chunk)
 	_loaded[key] = chunk
 	chunk_loaded.emit(key)
+
+
+func _add_edge_walls(chunk: Node3D, key: String) -> void:
+	var parts := key.split(",")
+	var coords := Vector2i(int(parts[0]), int(parts[1]))
+	var size := world_map.chunk_size
+	var sides := {
+		Vector2i(-1, 0): [Vector3(-0.5, 0, size / 2), Vector3(1, 0, size)],
+		Vector2i(1, 0): [Vector3(size + 0.5, 0, size / 2), Vector3(1, 0, size)],
+		Vector2i(0, -1): [Vector3(size / 2, 0, -0.5), Vector3(size, 0, 1)],
+		Vector2i(0, 1): [Vector3(size / 2, 0, size + 0.5), Vector3(size, 0, 1)],
+	}
+	for side: Vector2i in sides:
+		if world_map.chunks.has(coords + side):
+			continue
+		var shape := BoxShape3D.new()
+		shape.size = sides[side][1] + Vector3(0, EDGE_WALL_HEIGHT, 0)
+		var collision := CollisionShape3D.new()
+		collision.shape = shape
+		var wall := StaticBody3D.new()
+		wall.name = "MapEdge_%d_%d" % [side.x, side.y]
+		wall.position = sides[side][0] + Vector3(0, EDGE_WALL_HEIGHT / 2, 0)
+		wall.add_child(collision)
+		chunk.add_child(wall)
 
 
 func _unload(key: String) -> void:

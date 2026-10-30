@@ -25,7 +25,12 @@ world/       mundo aberto: WorldMap e RegionDef (dados), WorldStreamer (carrega 
              CreatureSpawner, Entrance, WorldNpc, FadeOccluder + CameraOcclusion (o que tapa o herói),
              world.tscn (cena principal do jogo), chunks/ e interiors/ (cenas dos blocos), textures/
 levels/      arena de combate (usada nos testes de combate)
-tools/       ferramentas de criação (gerador da região de teste)
+tools/       scripts de uma vez só: build_tiles (peças de pintura), build_prefabs (peças prontas),
+             migrate_map, paint_demo_ruin e build_test_world (gerou a região de teste inicial;
+             não é o fluxo de criação: o mapa se edita à mão no editor)
+addons/map_editor/  editor de mapa: painel "Mapa do Mundo" (world_map_dock, map_grid_view)
+             e MapTools (a lógica: criar bloco/masmorra, ligar e sincronizar entradas, validar,
+             assar navegação), usado pelo painel e pelos testes
 ui/          menu principal, HUD, inventário, minimapa
 platform/    tudo que muda por plataforma: identidade (PlatformService), save (SaveBackend)
 assets/      modelos (provisórios: Quaternius, CC0)
@@ -33,8 +38,8 @@ tests/       testes automáticos (sem tela) e o teste de rede com host + cliente
 docs/        GDD.md (design) e este arquivo
 ```
 
-Planejadas: `addons/map_editor/` (editor de mapa dentro do Godot, ver abaixo), `services/`
-(telas de comerciante, ferreiro, encantador) e `quests/`.
+Planejadas: `services/` (telas de comerciante, ferreiro, encantador) e `quests/`.
+Como usar o editor de mapa: [`EDITOR_DE_MAPA.md`](EDITOR_DE_MAPA.md).
 
 ## Regras
 
@@ -79,23 +84,18 @@ Planejadas: `addons/map_editor/` (editor de mapa dentro do Godot, ver abaixo), `
 4. Comportamento diferente (voar, cuspir fogo, fugir) entra como um tipo de IA novo,
    reaproveitando navegação, aviso de ataque (fica vermelho) e replicação.
 
-### Uma área nova do mapa (bloco)
-1. Crie a cena do bloco em `world/chunks/` (copie um bloco parecido). Conteúdo em coordenadas
-   locais de 0 a 64 m; o chão e tudo que é sólido ficam dentro do nó `Navigation`.
-2. Coisas que tapam o herói (árvore, parede da frente, telhado) vão dentro de um `FadeOccluder`;
-   telhado de casa leva `zone` (o interior) para sumir quando alguém entra.
-3. Criaturas: um `CreatureSpawner` (tipos, quantidade, perseguição, limite, poder, reaparecimento).
-4. NPCs de serviço: um `WorldNpc` no lugar fixo dele.
-5. No `world/test_world.tres` (inspetor): `chunks[Vector2i(x, z)]` = caminho da cena e
-   `chunk_regions[Vector2i(x, z)]` = id da região.
-6. Asse a navegação do bloco (selecione `Navigation` > Bake NavigationMesh).
-
-### Uma masmorra / interior
-1. Cena em `world/interiors/`, com origem própria longe do mapa (ex.: x = 4000).
-2. Registre em `interiors` do WorldMap: caminho, origem, tamanho, região.
-3. Uma `Entrance` no mapa apontando para dentro e uma `Entrance` de saída apontando para fora.
-   Quem joga na mesma tela entra junto; jogadores de outras máquinas ficam onde estão.
-4. Estado que precisa lembrar (baú aberto, chefe morto) vai no save do mundo do host.
+### Uma área nova do mapa, masmorra ou entrada
+Pelo painel **Mapa do Mundo** (ver [`EDITOR_DE_MAPA.md`](EDITOR_DE_MAPA.md)): criar bloco, pintar
+na grade, inserir peças prontas, criar masmorra, ligar e sincronizar entradas, validar e assar.
+Por baixo:
+- Bloco: cena com conteúdo de 0 a 64 m; o chão, a grade de pintura (`Tiles`, um GridMap) e tudo
+  que é sólido ficam dentro de `Navigation`. Registrado em `chunks`/`chunk_regions` do WorldMap.
+- Navegação lê malhas + colisões (o Godot não lê as colisões do GridMap na navegação).
+- Interior: cena com origem própria longe do mapa, registrada em `interiors`.
+- Entrada: par com o mesmo `link_id`; o destino de cada uma é a frente (+Z) da outra.
+- Estado que precisa lembrar (baú aberto, chefe morto) vai no save do mundo do host.
+- Peça de pintura nova: acrescente em `tools/build_tiles.gd` e rode (ids existentes não mudam).
+- Peça pronta nova: cena em `world/prefabs/` (aparece sozinha no painel).
 
 ### Uma região
 1. Um `RegionDef` em `regions` do WorldMap: id, nome, perigo (= poder base do loot), segura ou não, cor.
@@ -121,6 +121,7 @@ Planejadas: `addons/map_editor/` (editor de mapa dentro do Godot, ver abaixo), `
 godot --headless --fixed-fps 60 --path coop-dungeon -s tests/smoke_test.gd    # jogo local
 godot --headless --path coop-dungeon -s tests/inventory_test.gd                # regras do inventário
 godot --headless --fixed-fps 60 --path coop-dungeon -s tests/world_test.gd     # mundo aberto
+godot --headless --path coop-dungeon -s tests/map_tools_test.gd                # editor de mapa
 GODOT=godot coop-dungeon/tests/run_net_test.sh                                 # online: host + cliente
 ```
 

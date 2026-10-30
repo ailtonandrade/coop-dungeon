@@ -55,7 +55,8 @@ Cada jogador do sofá abre o seu (Back / I) e navega com o próprio controle ao 
 
 O jogo abre no mundo aberto (`world/world.tscn`): região de teste com a Vila de Pedra no centro,
 planície, bosque, colinas e a Caverna Velha (fique na entrada para o grupo entrar junto).
-Os blocos do mapa ficam em `world/chunks/` e se editam no Godot; ver `docs/ARCHITECTURE.md`.
+Os blocos do mapa ficam em `world/chunks/` e se editam no Godot com o painel **Mapa do Mundo**
+(pintar chão e paredes, peças prontas, masmorras, entradas, validar): ver `docs/EDITOR_DE_MAPA.md`.
 
 ## Testes automáticos
 
@@ -75,6 +76,12 @@ Mundo aberto (carregamento, criaturas, telhado, masmorra, pausa):
 
 ```bash
 godot --headless --fixed-fps 60 --path coop-dungeon -s tests/world_test.gd
+```
+
+Editor de mapa (criar bloco, pintar, masmorra, entradas, validar):
+
+```bash
+godot --headless --path coop-dungeon -s tests/map_tools_test.gd
 ```
 
 Online de ponta a ponta (sobe um host e um cliente na mesma máquina):

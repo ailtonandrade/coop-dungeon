@@ -1,0 +1,9 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://world/world_npc.gd" id="1_kj7wk"]
+[ext_resource type="PackedScene" path="res://assets/characters/Suit.glb" id="2_dgywo"]
+
+[node name="Npc" type="Node3D" unique_id=416365960]
+script = ExtResource("1_kj7wk")
+service = 3
+model = ExtResource("2_dgywo")

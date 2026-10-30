@@ -113,7 +113,7 @@ qual masmorra dá qual loot, qual região é perigosa para o nível dele.
 ### Ferramentas para criar o mapa (estilo Remere's Map Editor)
 
 O mapa é único, fixo e cresce a cada atualização. A criação é à mão, dentro do editor do Godot,
-com estas ferramentas (a construir, M7.5):
+com estas ferramentas (M7.5, guia em [`EDITOR_DE_MAPA.md`](EDITOR_DE_MAPA.md)):
 - **Pintar em grade:** chão, paredes, cercas e peças em células de 1 m com `GridMap` e uma
   biblioteca de peças (MeshLibrary): escolhe a peça na paleta e pinta com o mouse, como no RME.
   Andares (para cavernas, torres) são camadas de altura.
@@ -302,7 +302,7 @@ Estrutura de pastas, regras e como estender cada parte: ver [`ARCHITECTURE.md`](
 | M5 | Save local `world` / `player` ligado ao jogo | serviço ✅ |
 | M6 | **Base do online**: host/entrar por IP, 2 máquinas + sofá, inimigos e dano pelo host | ✅ + menu de mundos e busca na rede local |
 | M7 | **Mundo aberto (base)**: região de teste em blocos com carregamento por grupo, 1 entrada de masmorra, recorte de telhado | ✅ 4x4 blocos, vila, 3 regiões, caverna |
-| M7.5 | **Editor de mapa** (estilo Remere's): pintar chão e paredes em grade, paleta de peças, mapa geral, ligar entradas, validar | |
+| M7.5 | **Editor de mapa** (estilo Remere's): pintar chão e paredes em grade, paleta de peças, mapa geral, ligar entradas, validar | ✅ painel Mapa do Mundo, ver EDITOR_DE_MAPA.md |
 | M8 | Loot e progressão sincronizados no online | ✅ inventário estilo Tibia, loot estilo MU, equipamento no boneco, mira twin-stick |
 | M9 | **Cidade e serviços**: comerciante, refino e encantamento | |
 

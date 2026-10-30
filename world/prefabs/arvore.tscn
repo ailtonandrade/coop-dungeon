@@ -1,0 +1,47 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://world/fade_occluder.gd" id="1_vpg12"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_cnooy"]
+size = Vector3(0.45, 2.4, 0.45)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_w43vm"]
+albedo_color = Color(0.4, 0.27, 0.16, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_8wrdp"]
+size = Vector3(0.45, 2.4, 0.45)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_fxhdr"]
+size = Vector3(2, 1.6, 2)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_fc2tr"]
+albedo_color = Color(0.16, 0.43, 0.16, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_b44no"]
+size = Vector3(2, 1.6, 2)
+
+[node name="Arvore" type="Node3D" unique_id=910156703]
+script = ExtResource("1_vpg12")
+see_through = 0.6
+
+[node name="Trunk" type="StaticBody3D" parent="." unique_id=187260410]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, 0)
+
+[node name="Collision" type="CollisionShape3D" parent="Trunk" unique_id=604096671]
+shape = SubResource("BoxShape3D_cnooy")
+
+[node name="Mesh" type="MeshInstance3D" parent="Trunk" unique_id=904810714]
+material_override = SubResource("StandardMaterial3D_w43vm")
+mesh = SubResource("BoxMesh_8wrdp")
+
+[node name="Crown" type="StaticBody3D" parent="." unique_id=1449014841]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.3, 0)
+collision_layer = 8
+collision_mask = 0
+
+[node name="Collision" type="CollisionShape3D" parent="Crown" unique_id=202309277]
+shape = SubResource("BoxShape3D_fxhdr")
+
+[node name="Mesh" type="MeshInstance3D" parent="Crown" unique_id=918240701]
+material_override = SubResource("StandardMaterial3D_fc2tr")
+mesh = SubResource("BoxMesh_b44no")

@@ -1,0 +1,11 @@
+[gd_resource type="ShaderMaterial" format=3]
+
+[ext_resource type="Shader" path="res://world/tiles/wall_cutout.gdshader" id="1_rmjuq"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_rmjuq")
+shader_parameter/albedo = Color(0.3, 0.28, 0.3, 1)
+shader_parameter/occlusion_players = null
+shader_parameter/cutout_radius = null
+shader_parameter/aspect = null

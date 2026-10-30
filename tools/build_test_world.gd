@@ -93,6 +93,7 @@ func _new_chunk(ground: Array) -> Node3D:
 	_own(nav, root)
 	var body := _static(nav, root, "Ground", Vector3(CHUNK / 2, -0.5, CHUNK / 2), Vector3(CHUNK, 1, CHUNK), Color.WHITE, false)
 	var mesh := MeshInstance3D.new()
+	mesh.name = "Mesh"
 	var plane := PlaneMesh.new()
 	plane.size = Vector2(CHUNK, CHUNK)
 	mesh.mesh = plane
@@ -151,6 +152,7 @@ func _house(nav: Node3D, root: Node3D, center: Vector3, size: Vector2, npc_servi
 	ridge.collision_layer = GameConfig.LAYER_OCCLUDER
 	ridge.collision_mask = 0
 	var floor_mesh := MeshInstance3D.new()
+	floor_mesh.name = "Floor"
 	var floor_plane := PlaneMesh.new()
 	floor_plane.size = size - Vector2(0.4, 0.4)
 	floor_mesh.mesh = floor_plane
@@ -333,6 +335,7 @@ func _static(parent: Node3D, root: Node3D, node_name: String, center: Vector3, s
 	var shape := BoxShape3D.new()
 	shape.size = size
 	var collision := CollisionShape3D.new()
+	collision.name = "Collision"
 	collision.shape = shape
 	body.add_child(collision)
 	_own(collision, root)
@@ -340,6 +343,7 @@ func _static(parent: Node3D, root: Node3D, node_name: String, center: Vector3, s
 		var box := BoxMesh.new()
 		box.size = size
 		var mesh := MeshInstance3D.new()
+		mesh.name = "Mesh"
 		mesh.mesh = box
 		mesh.material_override = _material(color)
 		body.add_child(mesh)
@@ -362,6 +366,7 @@ func _prop(nav: Node3D, root: Node3D, path: String, spot: Vector3, rotation_deg:
 		var shape := BoxShape3D.new()
 		shape.size = bounds.size
 		var collision := CollisionShape3D.new()
+		collision.name = "Collision"
 		collision.shape = shape
 		collision.position = bounds.get_center()
 		body.add_child(collision)

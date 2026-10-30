@@ -1,3 +1,4 @@
+@tool
 class_name WorldMap
 extends Resource
 ## O mapa do mundo: quais blocos existem, a região de cada um, os interiores (masmorras)

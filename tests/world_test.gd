@@ -114,6 +114,17 @@ func _process(_delta: float) -> bool:
 		11 * SECOND + 9:
 			_key(KEY_J, false)
 			_check(_player(0).state == 2, "pausa fechada: J volta a atacar")
+		13 * SECOND:
+			# Borda do mapa (posta pelo jogo, não pelos blocos): empurrar para fora não passa.
+			_teleport_group(Vector3(-62, 0, 32))
+		13 * SECOND + 30:
+			_axis(JOY_AXIS_LEFT_X, -1.0)
+			_axis(JOY_AXIS_LEFT_Y, -1.0)
+		15 * SECOND:
+			_axis(JOY_AXIS_LEFT_X, 0.0)
+			_axis(JOY_AXIS_LEFT_Y, 0.0)
+			var p2 := _player(1)
+			_check(p2.global_position.x > -64.3 and p2.is_on_floor(), "borda do mapa segura o jogador (x = %.1f)" % p2.global_position.x)
 			print("MUNDO: ", "FALHOU" if _failed else "OK")
 			quit(1 if _failed else 0)
 	return false
@@ -163,6 +174,14 @@ func _key(code: Key, down: bool) -> void:
 	event.physical_keycode = code
 	event.keycode = code
 	event.pressed = down
+	Input.parse_input_event(event)
+
+
+func _axis(axis: JoyAxis, value: float) -> void:
+	var event := InputEventJoypadMotion.new()
+	event.device = 0
+	event.axis = axis
+	event.axis_value = value
 	Input.parse_input_event(event)
 
 
