@@ -18,17 +18,17 @@ enum State { CHASE, WINDUP, RECOVER, STAGGER, DEAD }
 
 const STATS := {
 	Kind.MELEE: {
-		"model": "res://assets/characters/Punk.glb", "tint": Color(0.3, 0.9, 0.2, 0.3), "scale": 1.1,
+		"id": "punk", "model": "res://assets/characters/Punk.glb", "tint": Color(0.3, 0.9, 0.2, 0.3), "scale": 1.1,
 		"hp": 30.0, "speed": 3.4, "attack_range": 1.6, "windup": 0.5, "recover": 0.8,
 		"damage": 12.0, "knockback": 6.0, "attack": "punch", "anims": AnimSets.HUMANOID,
 	},
 	Kind.RANGED: {
-		"model": "res://assets/characters/Casual_Hoodie.glb", "tint": Color(0.7, 0.3, 1.0, 0.3), "scale": 1.0,
+		"id": "atirador", "model": "res://assets/characters/Casual_Hoodie.glb", "tint": Color(0.7, 0.3, 1.0, 0.3), "scale": 1.0,
 		"hp": 20.0, "speed": 3.0, "attack_range": 10.0, "windup": 0.7, "recover": 1.6,
 		"damage": 10.0, "knockback": 3.0, "attack": "shoot", "anims": AnimSets.HUMANOID,
 	},
 	Kind.CORRUPTED: {
-		"model": "res://assets/characters/Casual_2.glb", "tint": Color(0.9, 0.15, 0.1, 0.35), "scale": 1.05,
+		"id": "corrompido", "model": "res://assets/characters/Casual_2.glb", "tint": Color(0.9, 0.15, 0.1, 0.35), "scale": 1.05,
 		"hp": 22.0, "speed": 5.0, "attack_range": 1.5, "windup": 0.3, "recover": 0.5,
 		"damage": 9.0, "knockback": 4.0, "attack": "punch", "anims": AnimSets.HUMANOID,
 		"chip": Color(1.0, 0.1, 0.05),
@@ -309,7 +309,7 @@ func _find_target() -> Player:
 func _on_died() -> void:
 	_become_dead()
 	_animator.play("death", 0.0, true)
-	Loot.roll_drops(self, power + randi_range(0, 1))
+	Loot.roll_drops(self, power + randi_range(0, 1), _stats.id)
 	died.emit(self)
 	get_tree().create_timer(1.5).timeout.connect(queue_free)
 

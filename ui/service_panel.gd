@@ -88,7 +88,7 @@ func _build_rows() -> Array[Dictionary]:
 	var inventory := player.inventory
 	match _tabs()[_tab]:
 		"Comprar":
-			for i in npc.shop_items.size():
+			for i in npc.stock().size():
 				var item := npc.shop_item(i)
 				if item.is_empty():
 					continue

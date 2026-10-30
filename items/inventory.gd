@@ -297,7 +297,7 @@ static func _sanitize(item: Dictionary) -> Dictionary:
 				enchants[enchant_id] = clampi(int(source_enchants[enchant_id]), 1, ItemDB.MAX_ENCHANT_LEVEL)
 	if not enchants.is_empty():
 		clean["enchants"] = enchants
-	var capacity: int = ItemDB.DEFS[clean.id].get("capacity", 0)
+	var capacity: int = ItemDB.def(clean).get("capacity", 0)
 	if capacity > 0:
 		var contents := []
 		contents.resize(capacity)

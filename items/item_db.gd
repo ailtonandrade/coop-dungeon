@@ -10,30 +10,10 @@ extends RefCounted
 ##   valor = base x raridade x (1 + 8% por poder acima de 1) x (1 + 10% por nível de refino)
 ## e os encantamentos somam por cima (cada um num atributo, por nível).
 
-const DEFS := {
-	"dagger": {"name": "Estilete de ferro", "slot": "melee", "price": 20, "damage": 8.0, "look": "dagger"},
-	"sword": {"name": "Facão de serra", "slot": "melee", "price": 35, "damage": 10.0, "look": "sword"},
-	"axe": {"name": "Machado de bombeiro", "slot": "melee", "price": 50, "damage": 13.0, "look": "axe"},
-	"hammer": {"name": "Martelo hidráulico", "slot": "melee", "price": 65, "damage": 15.0, "look": "hammer"},
-	"bow": {"name": "Besta de pregos", "slot": "ranged", "price": 30, "damage": 8.0, "look": "bow"},
-	"longbow": {"name": "Rifle de rebites", "slot": "ranged", "price": 50, "damage": 11.0, "look": "longbow"},
-	"crossbow": {"name": "Lança-pregos", "slot": "ranged", "price": 70, "damage": 14.0, "look": "crossbow"},
-	"leather_hood": {"name": "Capuz de lona", "slot": "head", "price": 15, "armor": 3.0, "look": "hood", "color": Color(0.5, 0.33, 0.2)},
-	"iron_helmet": {"name": "Capacete de solda", "slot": "head", "price": 40, "armor": 6.0, "look": "helmet", "color": Color(0.68, 0.7, 0.74)},
-	"leather_vest": {"name": "Colete de pneu", "slot": "chest", "price": 25, "armor": 5.0, "look": "vest", "color": Color(0.5, 0.33, 0.2)},
-	"chainmail": {"name": "Colete de arame", "slot": "chest", "price": 55, "armor": 9.0, "look": "vest", "color": Color(0.55, 0.57, 0.6)},
-	"plate_armor": {"name": "Placas de sucata", "slot": "chest", "price": 90, "armor": 13.0, "look": "plate", "color": Color(0.8, 0.82, 0.86)},
-	"leather_pants": {"name": "Calça de lona", "slot": "legs", "price": 15, "armor": 3.0, "look": "legs", "color": Color(0.45, 0.3, 0.18)},
-	"iron_greaves": {"name": "Caneleiras de lata", "slot": "legs", "price": 40, "armor": 6.0, "look": "legs", "color": Color(0.68, 0.7, 0.74)},
-	"leather_boots": {"name": "Botina gasta", "slot": "feet", "price": 12, "armor": 2.0, "look": "boots", "color": Color(0.4, 0.26, 0.15)},
-	"iron_boots": {"name": "Botas de bico de aço", "slot": "feet", "price": 30, "armor": 4.0, "look": "boots", "color": Color(0.68, 0.7, 0.74)},
-	"life_amulet": {"name": "Marca-passo pirata", "slot": "amulet", "price": 80, "hp": 25.0, "look": "amulet", "color": Color(0.9, 0.2, 0.3)},
-	"power_ring": {"name": "Anel de pistão", "slot": "ring", "price": 80, "damage_pct": 10.0, "look": "ring", "color": Color(1.0, 0.8, 0.2)},
-	"pouch": {"name": "Bolsa de ferramentas", "slot": "bag", "price": 20, "capacity": 6, "look": "pouch", "color": Color(0.55, 0.38, 0.22)},
-	"backpack": {"name": "Mochila de lona", "slot": "bag", "price": 45, "capacity": 12, "look": "backpack", "color": Color(0.45, 0.3, 0.18)},
-	"big_backpack": {"name": "Mochilão de camelô", "slot": "bag", "price": 90, "capacity": 20, "look": "backpack", "color": Color(0.32, 0.36, 0.22)},
-	"gold": {"name": "Parafusos", "slot": "", "price": 1, "look": "coins", "color": Color(1.0, 0.82, 0.25)},
-}
+## Fichas dos itens: um arquivo ItemDef por item nesta pasta (painel "Itens" do editor).
+const DEFS_DIR := "res://items/defs/"
+## Moedas no chão: item interno, fora das fichas.
+const GOLD := {"name": "Parafusos", "slot": "", "price": 1, "look": "coins", "color": Color(1.0, 0.82, 0.25)}
 
 const RARITIES := {
 	"common": {"name": "Sucata", "color": Color(0.78, 0.78, 0.78), "mult": 1.0},
@@ -79,18 +59,117 @@ const SLOT_NAMES := {
 	"ranged": "À distância", "ring": "Anel", "legs": "Pernas", "feet": "Pés",
 }
 
-## Itens que podem cair dos inimigos (bolsas incluídas).
-const DROP_POOL := [
-	"dagger", "sword", "axe", "hammer", "bow", "longbow", "crossbow",
-	"leather_hood", "iron_helmet", "leather_vest", "chainmail", "plate_armor",
-	"leather_pants", "iron_greaves", "leather_boots", "iron_boots",
-	"life_amulet", "power_ring", "pouch", "backpack", "big_backpack",
-]
+## Onde fica a lista de pastas lidas (os testes acrescentam a pasta deles). Guardada no Engine
+## e não numa variável estática: ler uma ficha recém-criada pode recompilar este script, o que
+## zera as variáveis estáticas.
+const DIRS_META := "item_defs_dirs"
+
+static var _defs := {}  # id -> Dictionary (formato do jogo)
+static var _sources := {}  # id -> ItemDef
+
+
+## Troca as pastas lidas e relê (os testes usam para acrescentar a pasta deles).
+static func use_dirs(dirs: PackedStringArray) -> void:
+	Engine.set_meta(DIRS_META, dirs)
+	reload()
+
+
+static func defs_dirs() -> PackedStringArray:
+	return Engine.get_meta(DIRS_META, PackedStringArray([DEFS_DIR]))
+
+
+## Todas as fichas, já no formato do jogo (lidas na primeira vez).
+static func catalog() -> Dictionary:
+	if _defs.is_empty():
+		reload()
+	return _defs
+
+
+## Relê as fichas (o painel chama depois de salvar).
+static func reload() -> void:
+	_defs = {"gold": GOLD}
+	_sources = {}
+	for dir in defs_dirs():
+		if not DirAccess.dir_exists_absolute(dir):
+			continue
+		# Lista direto do disco (a lista do ResourceLoader guarda cache e não vê ficha recém-criada).
+		# No jogo exportado as fichas aparecem como "x.tres.remap".
+		for entry in DirAccess.get_files_at(dir):
+			var file := entry.trim_suffix(".remap")
+			if not (file.ends_with(".tres") or file.ends_with(".res")):
+				continue
+			# Carga normal (com cache): o painel edita e salva a própria instância do cache.
+			var source := load(dir.path_join(file)) as ItemDef
+			if source and not source.id.is_empty():
+				_defs[source.id] = source.to_dict()
+				_sources[source.id] = source
+
+
+static func has(id: String) -> bool:
+	return catalog().has(id)
+
+
+## Ficha original (ItemDef) de um item, ou null.
+static func source(id: String) -> ItemDef:
+	catalog()
+	return _sources.get(id)
+
+
+## Ids das fichas em ordem alfabética (sem as moedas).
+static func ids() -> Array:
+	catalog()
+	var result := _sources.keys()
+	result.sort()
+	return result
+
+
+## Itens do sorteio geral de loot (qualquer criatura).
+static func drop_pool() -> Array:
+	return ids().filter(func(id: String) -> bool: return _sources[id].random_loot)
+
+
+## Regras de loot de uma criatura: [[id, ItemDrop], ...].
+static func creature_drops(creature: String) -> Array:
+	var result := []
+	for id: String in ids():
+		for rule: ItemDrop in _sources[id].drops:
+			if rule and rule.creature == creature:
+				result.append([id, rule])
+	return result
+
+
+## Itens que as fichas dizem ser vendidos pela loja `shop`.
+static func sold_by(shop: String) -> PackedStringArray:
+	var result := PackedStringArray()
+	for id: String in ids():
+		if _sources[id].sold_by.has(shop):
+			result.append(id)
+	return result
+
+
+## Resumo das fichas (entra na impressão digital do online: todos com os mesmos itens).
+static func fingerprint() -> String:
+	var parts := PackedStringArray()
+	for id: String in ids():
+		var entry: Dictionary = catalog()[id].duplicate()
+		for key in ["model", "icon"]:
+			if entry.has(key):
+				entry[key] = (entry[key] as Resource).resource_path
+		var keys := entry.keys()
+		keys.sort()
+		parts.append("%s{%s}" % [id, ",".join(keys.map(func(k: String) -> String: return "%s=%s" % [k, var_to_str(entry[k])]))])
+		for rule: ItemDrop in _sources[id].drops:
+			if rule:
+				parts.append(rule.summary())
+		parts.append(",".join(_sources[id].sold_by))
+	return "\n".join(parts).sha256_text()
+
+
 
 
 static func make(id: String, power := 1, rarity := "common") -> Dictionary:
 	var item := {"id": id, "uid": randi(), "power": power, "rarity": rarity}
-	var capacity: int = DEFS[id].get("capacity", 0)
+	var capacity: int = catalog()[id].get("capacity", 0)
 	if capacity > 0:
 		var contents := []
 		contents.resize(capacity)
@@ -98,11 +177,18 @@ static func make(id: String, power := 1, rarity := "common") -> Dictionary:
 	return item
 
 
-## Item aleatório para loot: quanto maior o poder, melhor; raridade por sorteio.
-static func random_drop(power: int) -> Dictionary:
+## Raridade sorteada do loot: quase sempre Sucata, às vezes Remendado, raramente Protótipo.
+static func random_rarity() -> String:
 	var roll := randf()
-	var rarity := "unique" if roll < 0.05 else ("rare" if roll < 0.25 else "common")
-	return make(DROP_POOL.pick_random(), maxi(power, 1), rarity)
+	return "unique" if roll < 0.05 else ("rare" if roll < 0.25 else "common")
+
+
+## Item aleatório do sorteio geral: quanto maior o poder, melhor. Vazio se não há nenhum.
+static func random_drop(power: int) -> Dictionary:
+	var pool := drop_pool()
+	if pool.is_empty():
+		return {}
+	return make(pool.pick_random(), maxi(power, 1), random_rarity())
 
 
 static func starter_kit() -> Dictionary:
@@ -118,11 +204,11 @@ static func starter_kit() -> Dictionary:
 
 
 static func def(item: Dictionary) -> Dictionary:
-	return DEFS.get(item.get("id", ""), {})
+	return catalog().get(item.get("id", ""), {})
 
 
 static func is_valid(item: Variant) -> bool:
-	return item is Dictionary and DEFS.has(item.get("id", ""))
+	return item is Dictionary and catalog().has(item.get("id", ""))
 
 
 static func is_container(item: Variant) -> bool:

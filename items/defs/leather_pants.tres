@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="ItemDef" format=3]
+
+[ext_resource type="Script" path="res://items/item_drop.gd" id="1_gsdwh"]
+[ext_resource type="Script" path="res://items/item_def.gd" id="2_utejo"]
+
+[resource]
+script = ExtResource("2_utejo")
+id = "leather_pants"
+display_name = "Calça de lona"
+slot = "legs"
+look = "legs"
+color = Color(0.45, 0.3, 0.18, 1)
+price = 15
+damage = 0.0
+armor = 3.0
+hp = 0.0
+damage_pct = 0.0
+lifesteal_pct = 0.0
+move_speed_pct = 0.0
+capacity = 0
+sold_by = Array[String]([])
+random_loot = true
+drops = Array[ExtResource("1_gsdwh")]([])
+model_scale = 1.0
+ground_scale = 1.0
+custom_mount = false
+mount_bone = "Wrist.R"
+mount_position = Vector3(0, 0, 0)
+mount_rotation = Vector3(0, 0, 0)

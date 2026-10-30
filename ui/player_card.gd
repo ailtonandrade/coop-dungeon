@@ -151,8 +151,7 @@ func _draw_hotbar() -> void:
 		var content: Variant = entry[1]
 		var icon_rect := rect.grow(-6)
 		if content is Dictionary:
-			var def := ItemDB.def(content)
-			ItemIcon.draw_glyph(self, def.get("look", ""), icon_rect, def.get("color", Color(0.8, 0.82, 0.86)), 1.0)
+			ItemIcon.draw_item(self, content, icon_rect)
 			draw_rect(rect.grow(-1), Color(ItemDB.rarity_color(content), 0.6), false, 1.5)
 		elif content == "potion":
 			_draw_flask(icon_rect)

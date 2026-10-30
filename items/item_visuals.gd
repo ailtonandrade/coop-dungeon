@@ -1,6 +1,7 @@
 class_name ItemVisuals
 extends RefCounted
-## Peças visuais dos itens, montadas com blocos (provisórias, trocáveis por modelos .glb).
+## Peças visuais dos itens: o modelo 3D da ficha (ItemDef.model) ou, sem ele, um modelo
+## provisório de blocos pelo tipo (look).
 ## O mesmo modelo serve para o item no chão (loot) e preso no esqueleto do herói.
 ## Peito, pernas e pés pintam as próprias malhas do personagem (encaixa em qualquer modelo);
 ## elmo, ombreiras, armas, amuleto e bolsas são peças presas nos ossos.
@@ -41,6 +42,13 @@ static func build(item: Dictionary) -> Node3D:
 	var color: Color = def.get("color", METAL)
 	var shine := ItemDB.rarity_color(item) if item.get("rarity", "common") != "common" else Color.BLACK
 	var root := Node3D.new()
+	if def.get("model") is PackedScene:
+		var model: Node3D = def.model.instantiate()
+		model.scale = Vector3.ONE * float(def.get("model_scale", 1.0))
+		root.add_child(model)
+		if shine != Color.BLACK:
+			_glow(model, shine)
+		return root
 	match look:
 		"sword":
 			_box(root, Vector3(0.07, 0.72, 0.02), Vector3(0, 0.5, 0), METAL, shine)
@@ -113,14 +121,15 @@ static func dress(model: Node, visual: Array) -> void:
 			mesh.visible = false
 	var paints := {}  # parte do corpo -> material
 	for entry: Dictionary in visual:
-		if not ItemDB.DEFS.has(entry.get("id", "")):
+		if not ItemDB.has(entry.get("id", "")):
 			continue
-		var def: Dictionary = ItemDB.DEFS[entry.id]
+		var def := ItemDB.def(entry)
 		var look: String = def.get("look", "")
-		if PAINTS.has(look):
+		# Peça com modelo próprio não pinta o corpo: a peça é o visual.
+		if PAINTS.has(look) and not def.has("model"):
 			paints[PAINTS[look]] = _paint_material(def.get("color", METAL), entry)
-		if MOUNTS.has(look):
-			var mount: Array = MOUNTS[look]
+		var mount := mount_of(def)
+		if not mount.is_empty():
 			_attach(skeleton, pose, mount[0], build(entry), mount[1], mount[2])
 	for mesh: MeshInstance3D in skeleton.find_children("*", "MeshInstance3D", false, false):
 		var part := ""
@@ -129,6 +138,32 @@ static func dress(model: Node, visual: Array) -> void:
 				part = key
 		if part:
 			mesh.material_overlay = paints.get(part)
+
+
+## Encaixe no corpo [osso, posição, rotação]: o da ficha, se ligado, senão o padrão do tipo.
+## Vazio = não vai preso no corpo (só pinta, ou nem aparece, como anel).
+static func mount_of(def: Dictionary) -> Array:
+	if def.has("mount"):
+		return def.mount
+	var look: String = def.get("look", "")
+	if MOUNTS.has(look) and not (def.has("model") and PAINTS.has(look) and look != "plate"):
+		return MOUNTS[look]
+	# Modelo próprio de peito/pernas/pés sem encaixe: vai no osso principal da parte.
+	if def.has("model") and PAINTS.has(look):
+		return {"vest": ["Chest", Vector3(0, 0, 0.02), Vector3.ZERO], "legs": ["Hips", Vector3(0, -0.2, 0), Vector3.ZERO],
+				"boots": ["Foot.R", Vector3.ZERO, Vector3.ZERO]}[look]
+	return []
+
+
+## Brilho da raridade por cima dos materiais do modelo.
+static func _glow(root: Node, color: Color) -> void:
+	var material := StandardMaterial3D.new()
+	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	material.blend_mode = BaseMaterial3D.BLEND_MODE_ADD
+	material.albedo_color = Color(color, 0.18)
+	for mesh: MeshInstance3D in root.find_children("*", "MeshInstance3D", true, false):
+		mesh.material_overlay = material
 
 
 static func _paint_material(color: Color, entry: Dictionary) -> StandardMaterial3D:

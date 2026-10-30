@@ -29,9 +29,7 @@ func _draw() -> void:
 		draw_polygon(PackedVector2Array([Vector2(3, size.y * 0.5), Vector2(size.x - 3, size.y * 0.5), size - Vector2(3, 3), Vector2(3, size.y - 3)]),
 				PackedColorArray([Color(glow, 0.0), Color(glow, 0.0), glow, glow]))
 	if item != null:
-		var look: String = ItemDB.def(item).get("look", "")
-		var tint: Color = ItemDB.def(item).get("color", Color(0.8, 0.82, 0.86))
-		draw_glyph(self, look, rect.grow(-9), tint, 0.4 if lifted else 1.0)
+		draw_item(self, item, rect.grow(-7), 0.4 if lifted else 1.0)
 		draw_string_outline(get_theme_default_font(), Vector2(4, size.y - 5), str(item.get("power", 1)),
 				HORIZONTAL_ALIGNMENT_RIGHT, size.x - 8, 15, 4, Color.BLACK)
 		draw_string(get_theme_default_font(), Vector2(4, size.y - 5), str(item.get("power", 1)),
@@ -40,6 +38,16 @@ func _draw() -> void:
 		draw_glyph(self, placeholder, rect.grow(-12), Color(1, 1, 1, 0.12), 1.0)
 	if selected:
 		draw_rect(rect.grow(-2), cursor_color, false, 4.0)
+
+
+## Ícone de um item em `r`: o ícone da ficha, se tiver, senão o desenho do tipo.
+static func draw_item(canvas: CanvasItem, item: Dictionary, r: Rect2, alpha := 1.0) -> void:
+	var def := ItemDB.def(item)
+	var icon: Variant = def.get("icon")
+	if icon is Texture2D:
+		canvas.draw_texture_rect(icon, r, false, Color(1, 1, 1, alpha))
+		return
+	draw_glyph(canvas, def.get("look", ""), r.grow(-2), def.get("color", Color(0.8, 0.82, 0.86)), alpha)
 
 
 ## Desenho simples de cada tipo, dentro de `r`.

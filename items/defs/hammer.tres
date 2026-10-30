@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="ItemDef" format=3]
+
+[ext_resource type="Script" path="res://items/item_drop.gd" id="1_qc0ih"]
+[ext_resource type="Script" path="res://items/item_def.gd" id="2_gs8ua"]
+
+[resource]
+script = ExtResource("2_gs8ua")
+id = "hammer"
+display_name = "Martelo hidráulico"
+slot = "melee"
+look = "hammer"
+color = Color(0.72, 0.74, 0.78, 1)
+price = 65
+damage = 15.0
+armor = 0.0
+hp = 0.0
+damage_pct = 0.0
+lifesteal_pct = 0.0
+move_speed_pct = 0.0
+capacity = 0
+sold_by = Array[String]([])
+random_loot = true
+drops = Array[ExtResource("1_qc0ih")]([])
+model_scale = 1.0
+ground_scale = 1.0
+custom_mount = false
+mount_bone = "Wrist.R"
+mount_position = Vector3(0, 0, 0)
+mount_rotation = Vector3(0, 0, 0)

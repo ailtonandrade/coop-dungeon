@@ -19,7 +19,9 @@ characters/  o que todo personagem usa
 player/      o herói (movimento, mira, combate, inventário) e a cena dele
 enemies/     criaturas (IA, ataques) e o gerador de ondas da arena de teste
 combat/      Health, Combat (golpes em leque, mira assistida, efeitos), Projectile
-items/       ItemDB (catálogo), Inventory (regras estilo Tibia), ItemVisuals (peças no boneco), Loot
+items/       ItemDB (lê as fichas), ItemDef/ItemDrop (ficha do item e regra de loot), Inventory
+             (regras estilo Tibia), ItemVisuals (peças no boneco), Loot
+items/defs/  uma ficha por item (.tres), editadas no painel "Itens"
 camera/      câmera compartilhada (enquadra os jogadores da máquina, projeta a mira do mouse)
 world/       mundo aberto: WorldMap e RegionDef (dados), WorldStreamer (carrega blocos),
              CreatureSpawner, Entrance, WorldNpc, Services (regras dos serviços da cidade),
@@ -29,6 +31,8 @@ levels/      arena de combate (usada nos testes de combate)
 tools/       scripts de uma vez só: build_ui_skin (texturas e tema da interface), build_tiles (peças de pintura), build_prefabs (peças prontas),
              migrate_map, paint_demo_ruin e build_test_world (gerou a região de teste inicial;
              não é o fluxo de criação: o mapa se edita à mão no editor)
+addons/item_editor/ painel "Itens": fichas, modelos 3D, encaixe com prévia, ícone, lojas e loot
+             (lógica testável em item_tools.gd). Ver [`EDITOR_DE_ITENS.md`](EDITOR_DE_ITENS.md)
 addons/map_editor/  editor de mapa: painel "Mapa do Mundo" (world_map_dock, map_grid_view)
              e MapTools (a lógica: criar bloco/masmorra, ligar e sincronizar entradas, validar,
              assar navegação), usado pelo painel e pelos testes
@@ -76,19 +80,20 @@ Como usar o editor de mapa: [`EDITOR_DE_MAPA.md`](EDITOR_DE_MAPA.md).
 ## Como acrescentar
 
 ### Um item novo
-1. Uma linha em `ItemDB.DEFS`: nome, casa (`slot`), atributos (`damage`, `armor`, `hp`,
-   `damage_pct`, `capacity` para bolsas) e o desenho (`look`).
-2. Se quiser que caia de criaturas, ponha o id em `ItemDB.DROP_POOL`.
-3. Desenho novo: um caso em `ItemVisuals.build` (peça 3D), `ItemVisuals.MOUNTS` (osso onde vai)
-   e `ItemIcon.draw_glyph` (ícone). Peito/pernas/pés pintam o modelo (`ItemVisuals.PAINTS`).
-4. Trocar por modelo .glb de verdade: `ItemVisuals.build` passa a instanciar o .glb; o resto não muda.
+Pelo painel **Itens** do editor (ver [`EDITOR_DE_ITENS.md`](EDITOR_DE_ITENS.md)): Novo, importar o
+modelo, ajustar atributos, lojas, loot e encaixe no Inspector, gerar o ícone. Por baixo:
+- A ficha é um `ItemDef` em `items/defs/<id>.tres`; o `ItemDB` lê todas e entrega o Dictionary de
+  sempre (`ItemDB.def`). O item no save e na rede continua só com o id.
+- Desenho provisório novo (sem modelo): um caso em `ItemVisuals.build`, `ItemVisuals.MOUNTS`,
+  `ItemIcon.draw_glyph` e o nome em `ItemDef.LOOKS`.
 
 ### Uma criatura nova (cachorro, rato, dragão...)
 1. Modelo em `assets/creatures/<nome>/` (1 unidade = 1 m, pé na origem, olhando para +Z).
 2. Mapa de animações em `AnimSets` (ex.: `QUADRUPED`): para cada ação, os clipes do modelo
    em ordem de preferência. Ações que a IA usa: `idle`, `move`, o ataque dela, `hit`, `death`.
 3. Ficha da criatura (hoje `Enemy.STATS`; vai virar um arquivo de dados por criatura):
-   modelo, mapa de animações, vida, velocidade, alcance, ataque, dano.
+   id, modelo, mapa de animações, vida, velocidade, alcance, ataque, dano. O id vai também em
+   `GameConfig.CREATURES` para aparecer nas regras de loot das fichas de item.
 4. Comportamento diferente (voar, cuspir fogo, fugir) entra como um tipo de IA novo,
    reaproveitando navegação, aviso de ataque (fica vermelho) e replicação.
 
@@ -152,6 +157,7 @@ godot --headless --path coop-dungeon -s tests/inventory_test.gd                #
 godot --headless --fixed-fps 60 --path coop-dungeon -s tests/world_test.gd     # mundo aberto
 godot --headless --path coop-dungeon -s tests/map_tools_test.gd                # editor de mapa
 godot --headless --fixed-fps 60 --path coop-dungeon -s tests/services_test.gd  # serviços da cidade
+godot --headless --path coop-dungeon -s tests/item_tools_test.gd               # fichas de item e painel Itens
 GODOT=godot coop-dungeon/tests/run_net_test.sh                                 # online: host + cliente, e mapa adulterado recusado
 ```
 

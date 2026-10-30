@@ -24,6 +24,8 @@ const TALK_RANGE := 2.6
 	"leather_pants", "leather_boots", "pouch", "backpack",
 ])
 @export var shop_power := 2
+## Nome da loja nas fichas de item ("vendido por"); vazio = usa o nome do NPC.
+@export var shop_id := ""
 
 var _label: Label3D
 var _title := ""
@@ -44,11 +46,30 @@ static func nearest(tree: SceneTree, position: Vector3, wanted_service := -1, re
 	return best
 
 
+func shop_key() -> String:
+	return shop_id if shop_id else npc_name
+
+
+## Estoque do comerciante: o que está no NPC (Inspector) mais o que as fichas de item dizem
+## que esta loja vende.
+func stock() -> PackedStringArray:
+	var result := PackedStringArray()
+	for id in shop_items:
+		if ItemDB.has(id) and not result.has(id):
+			result.append(id)
+	if not shop_key().is_empty():
+		for id in ItemDB.sold_by(shop_key()):
+			if not result.has(id):
+				result.append(id)
+	return result
+
+
 ## Item `index` do estoque do comerciante (novo a cada compra).
 func shop_item(index: int) -> Dictionary:
-	if index < 0 or index >= shop_items.size() or not ItemDB.DEFS.has(shop_items[index]):
+	var items := stock()
+	if index < 0 or index >= items.size():
 		return {}
-	return ItemDB.make(shop_items[index], shop_power)
+	return ItemDB.make(items[index], shop_power)
 
 
 func _ready() -> void:

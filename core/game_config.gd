@@ -93,6 +93,14 @@ const REVIVE_TIME := 2.0
 const REVIVE_HP := 0.5
 const WIPE_RESTART_TIME := 3.0
 
+## Criaturas (id -> nome no editor), para as regras de loot das fichas de item.
+## O id é o "id" da criatura em Enemy.STATS.
+const CREATURES := {
+	"punk": "Bandido de cano",
+	"atirador": "Atirador de pregos",
+	"corrompido": "Corrompido",
+}
+
 const PLAYER_COLORS: Array[Color] = [
 	Color(0.25, 0.55, 1.0),
 	Color(1.0, 0.35, 0.3),

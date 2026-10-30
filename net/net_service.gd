@@ -26,8 +26,8 @@ var port := DEFAULT_PORT
 ## Última mensagem para o menu mostrar (ex.: por que a conexão caiu).
 var last_message := ""
 
-## Impressão digital do mapa desta instalação (MapIntegrity). Calculada uma vez, na primeira
-## vez que abre ou entra num mundo online.
+## Impressão digital do conteúdo desta instalação: o mapa (MapIntegrity) e as fichas de item
+## (ItemDB). Calculada uma vez, na primeira vez que abre ou entra num mundo online.
 var map_fingerprint := ""
 
 var _ready_peers: Array[int] = []
@@ -243,7 +243,7 @@ func _rpc_hello(version: String, peer_name: String, fingerprint: String) -> void
 	if version != GAME_VERSION:
 		_reject(peer, "Versão diferente do jogo (host: %s, você: %s)." % [GAME_VERSION, version])
 	elif fingerprint != map_fingerprint:
-		_reject(peer, "O seu mapa é diferente do mapa do host (arquivos do jogo alterados ou atualização diferente).")
+		_reject(peer, "O seu mapa ou os seus itens são diferentes dos do host (arquivos do jogo alterados ou atualização diferente).")
 	elif player_count() >= GameConfig.MAX_PLAYERS:
 		_reject(peer, "O mundo está cheio (%d jogadores)." % GameConfig.MAX_PLAYERS)
 	else:
@@ -308,7 +308,7 @@ func _rpc_input(slot: int, move: Vector2, aim: Vector2, down: int, counts: Packe
 
 func _ensure_fingerprint() -> void:
 	if map_fingerprint.is_empty():
-		map_fingerprint = MapIntegrity.fingerprint(load(GameConfig.WORLD_MAP))
+		map_fingerprint = (MapIntegrity.fingerprint(load(GameConfig.WORLD_MAP)) + ItemDB.fingerprint()).sha256_text()
 
 
 func _advert() -> Dictionary:

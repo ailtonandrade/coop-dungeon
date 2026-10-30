@@ -24,15 +24,32 @@ static func drop(source: Node, p_item: Dictionary, pos: Vector3) -> void:
 
 
 ## Host: o que uma criatura deixa ao morrer (zero, um ou mais itens espalhados).
-static func roll_drops(source: Node3D, power: int) -> void:
+## `creature` é o id dela (GameConfig.CREATURES), para as regras de loot das fichas.
+static func roll_drops(source: Node3D, power: int, creature := "") -> void:
+	for item in roll_items(power, creature):
+		var scatter := Vector3(randf_range(-1.2, 1.2), 0.0, randf_range(-1.2, 1.2))
+		drop(source, item, Combat.flat(source.global_position) + scatter)
+
+
+## Sorteia o loot (sem largar no chão): moedas, o sorteio geral e as regras das fichas
+## para esta criatura.
+static func roll_items(power: int, creature := "") -> Array[Dictionary]:
+	var items: Array[Dictionary] = []
 	if randf() < GOLD_CHANCE:
-		var amount := maxi(1, power) * randi_range(GOLD_PER_POWER.x, GOLD_PER_POWER.y)
-		drop(source, ItemDB.make_gold(amount), Combat.flat(source.global_position) + Vector3(randf_range(-0.8, 0.8), 0, randf_range(-0.8, 0.8)))
+		items.append(ItemDB.make_gold(maxi(1, power) * randi_range(GOLD_PER_POWER.x, GOLD_PER_POWER.y)))
 	for chance: float in DROP_CHANCES:
 		if randf() >= chance:
 			break
-		var scatter := Vector3(randf_range(-1.2, 1.2), 0.0, randf_range(-1.2, 1.2))
-		drop(source, ItemDB.random_drop(power), Combat.flat(source.global_position) + scatter)
+		var item := ItemDB.random_drop(power)
+		if not item.is_empty():
+			items.append(item)
+	for entry: Array in ItemDB.creature_drops(creature):
+		var rule: ItemDrop = entry[1]
+		if randf() * 100.0 >= rule.chance:
+			continue
+		for i in rule.roll_count():
+			items.append(ItemDB.make(entry[0], maxi(power + rule.power_bonus, 1), rule.roll_rarity()))
+	return items
 
 
 ## Host: o loot mais perto de `position` dentro do alcance de pegar, ou null.
@@ -55,9 +72,9 @@ static func build(data: Dictionary) -> Loot:
 
 func _ready() -> void:
 	add_to_group("loot")
-	var color: Color = ItemDB.DEFS.gold.color if item.get("id") == "gold" else ItemDB.rarity_color(item)
+	var color: Color = ItemDB.GOLD.color if item.get("id") == "gold" else ItemDB.rarity_color(item)
 	_visual = ItemVisuals.build(item)
-	_visual.scale = Vector3.ONE * 1.6
+	_visual.scale = Vector3.ONE * 1.6 * float(ItemDB.def(item).get("ground_scale", 1.0))
 	add_child(_visual)
 
 	# Facho de luz na cor da raridade, para achar no meio da luta.
