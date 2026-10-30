@@ -12,7 +12,8 @@ core/        serviços do jogo inteiro e regras de grupo
              PlayerManager (vagas P1-P4, corda do sofá), GameConfig (números do jogo)
 net/         sessão online e replicação
              NetService (offline/host/cliente), NetReplicator (entidades e estado),
-             LanDiscovery (busca de mundos na rede local)
+             LanDiscovery (busca de mundos na rede local), InternetAccess (UPnP abre a porta
+             sozinho, código do mundo, aviso de CGNAT). Ver [`JOGAR_ONLINE.md`](JOGAR_ONLINE.md)
 characters/  o que todo personagem usa
              CharacterAnimator (toca AÇÕES), AnimSets (ação -> clipe por tipo de corpo),
              ProceduralAnims (pulo/queda/escalada montados por código para o esqueleto humano)
@@ -171,6 +172,7 @@ godot --headless --path coop-dungeon -s tests/item_tools_test.gd               #
 godot --headless --fixed-fps 60 --path coop-dungeon -s tests/container_test.gd # baús com saque
 godot --headless --fixed-fps 60 --path coop-dungeon -s tests/camera_test.gd    # câmera atrás do herói
 godot --headless --fixed-fps 60 --path coop-dungeon -s tests/progress_test.gd  # nível, XP, chip pirata, sons e números
+godot --headless --path coop-dungeon -s tests/internet_test.gd                 # código do mundo, UPnP sem roteador
 GODOT=godot coop-dungeon/tests/run_net_test.sh                                 # online: host + cliente, e mapa adulterado recusado
 ```
 

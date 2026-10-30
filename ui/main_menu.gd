@@ -239,14 +239,15 @@ func _build_browse() -> Control:
 	_found_box = _vbox()
 	_found_box.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	scroll.add_child(_found_box)
-	box.add_child(_label("Ou entre direto pelo IP do host:", 22))
+	box.add_child(_label("Ou entre pelo código do mundo (ou IP) que o host passar:", 20))
 	var row := HBoxContainer.new()
 	_ip_edit = LineEdit.new()
-	_ip_edit.placeholder_text = "ex.: 192.168.0.10"
+	_ip_edit.placeholder_text = "ex.: K7Q2-9XM  ou  192.168.0.10"
 	_ip_edit.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_style_input(_ip_edit)
 	row.add_child(_ip_edit)
-	_button(row, "Entrar", func() -> void: _join(_ip_edit.text.strip_edges(), NetService.DEFAULT_PORT))
+	_button(row, "Entrar", _join_typed)
+	_ip_edit.text_submitted.connect(func(_t: String) -> void: _join_typed())
 	box.add_child(row)
 	_button(box, "Voltar", func() -> void: _show("main"))
 	return box
@@ -272,6 +273,15 @@ func _create_world() -> void:
 func _play(world: Dictionary) -> void:
 	if NetService.play_world(world) != OK:
 		_status.text = NetService.last_message
+
+
+## Código do mundo, "IP" ou "IP:porta".
+func _join_typed() -> void:
+	var target := InternetAccess.parse_address(_ip_edit.text)
+	if target.is_empty():
+		_status.text = "Código ou IP inválido. O código tem 7 letras/números (ex.: K7Q2-9XM)."
+		return
+	_join(target[0], target[1])
 
 
 func _join(address: String, port: int) -> void:

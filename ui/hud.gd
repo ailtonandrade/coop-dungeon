@@ -27,6 +27,8 @@ var _net_chip: PanelContainer
 var _pause: Control
 var _pause_info: Label
 var _resume_button: Button
+var _copy_button: Button
+var _shown_internet_state := -1
 var _minimap_button: Button
 var _camera_button: Button
 var _inventories := {}  # slot local -> InventoryPanel
@@ -102,6 +104,9 @@ func _ready() -> void:
 
 
 func _process(_delta: float) -> void:
+	if _pause.visible and NetService.internet and NetService.internet.state != _shown_internet_state:
+		_shown_internet_state = NetService.internet.state
+		_update_pause_info()
 	var players := {}
 	for player: Player in get_tree().get_nodes_in_group("players"):
 		players[player.index] = player
@@ -253,8 +258,13 @@ func _connection_text() -> String:
 		NetService.Mode.HOST:
 			var addresses := NetService.local_addresses()
 			var ip := addresses[0] if not addresses.is_empty() else "?"
-			return "%s · online (host) · IP %s:%d · %d/%d" % [world_name, ip, NetService.port,
-					NetService.player_count(), GameConfig.MAX_PLAYERS]
+			var internet := NetService.internet
+			var reach := "rede local: IP %s" % ip
+			if internet and not internet.code.is_empty():
+				reach = "código %s" % internet.code
+			elif internet and internet.state == InternetAccess.State.CHECKING:
+				reach = "abrindo para a internet..."
+			return "%s · online (host) · %s · %d/%d" % [world_name, reach, NetService.player_count(), GameConfig.MAX_PLAYERS]
 		NetService.Mode.CLIENT:
 			return "%s · online · %d/%d" % [world_name, NetService.player_count(), GameConfig.MAX_PLAYERS]
 	return "%s · offline" % world_name if world_name else ""
@@ -291,6 +301,11 @@ func _build_pause_menu() -> void:
 	_pause_info.autowrap_mode = TextServer.AUTOWRAP_WORD
 	box.add_child(_pause_info)
 	_resume_button = _make_button(box, "Continuar", _toggle_pause)
+	_copy_button = _make_button(box, "", func() -> void:
+		if NetService.internet:
+			DisplayServer.clipboard_set(NetService.internet.code)
+			_copy_button.text = "Copiado! Mande para o amigo: %s" % NetService.internet.code)
+	_copy_button.visible = false
 	_camera_button = _make_button(box, "", Settings.toggle_camera_mode)
 	_minimap_button = _make_button(box, "", Settings.toggle_minimap_mode)
 	Settings.changed.connect(_update_minimap_button)
@@ -326,12 +341,21 @@ func _toggle_pause() -> void:
 	InputService.screen_menu_open = _pause.visible
 	if not _pause.visible:
 		return
+	_update_pause_info()
+	_resume_button.grab_focus()
+
+
+func _update_pause_info() -> void:
 	var lines := PackedStringArray([_connection_text()])
+	var internet := NetService.internet
 	if NetService.mode == NetService.Mode.HOST:
 		lines.append("Amigos na mesma rede veem este mundo em \"Buscar mundos\".")
-		lines.append("Pela internet: passe o IP e libere a porta %d (UDP) no roteador." % NetService.port)
+		if internet:
+			lines.append(internet.describe())
 	_pause_info.text = "\n".join(lines)
-	_resume_button.grab_focus()
+	_copy_button.visible = internet != null and not internet.code.is_empty()
+	if _copy_button.visible:
+		_copy_button.text = "Copiar código do mundo (%s)" % internet.code
 
 
 ## Linha de volume (controle: esquerda/direita mudam quando ela está em foco).

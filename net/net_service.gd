@@ -35,6 +35,8 @@ var _peer_names := {}
 var _remote_inputs := {}  # "peer:slot" -> PlayerInput
 var _press_counts := {}   # cliente: slot local -> PackedByteArray
 var _discovery: LanDiscovery
+## Host com mundo aberto/privado: acesso pela internet (UPnP, código do mundo, CGNAT).
+var internet: InternetAccess
 
 
 func _ready() -> void:
@@ -98,6 +100,9 @@ func play_world(info: Dictionary) -> Error:
 		return err
 	multiplayer.multiplayer_peer = peer
 	mode = Mode.HOST
+	internet = InternetAccess.new()
+	add_child(internet)
+	internet.start(port)
 	if info.get("visibility") == "open":
 		_discovery = LanDiscovery.new()
 		add_child(_discovery)
@@ -126,6 +131,10 @@ func leave_session(message := "") -> void:
 	if _discovery:
 		_discovery.queue_free()
 		_discovery = null
+	if internet:
+		internet.stop()
+		internet.queue_free()
+		internet = null
 	if multiplayer.multiplayer_peer and not multiplayer.multiplayer_peer is OfflineMultiplayerPeer:
 		multiplayer.multiplayer_peer.close()
 	multiplayer.multiplayer_peer = OfflineMultiplayerPeer.new()
