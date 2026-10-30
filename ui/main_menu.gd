@@ -182,8 +182,6 @@ func _build_logo() -> Control:
 	timer.timeout.connect(glitch)
 	stack.add_child(timer)
 
-	var tagline := UiSkin.label("FERRO-VELHO  ·  CHIP QUEIMADO  ·  GAMBIARRA", 18, UiSkin.NEON, "Bold", 4)
-	box.add_child(tagline)
 	var line := ColorRect.new()
 	line.color = UiSkin.BRASS
 	line.custom_minimum_size = Vector2(0, 2)
