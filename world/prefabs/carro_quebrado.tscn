@@ -1,0 +1,20 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://world/fade_occluder.gd" id="1_taova"]
+[ext_resource type="PackedScene" path="res://assets/props/Vehicle_Pickup.glb" id="2_10d1b"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_7iv8h"]
+size = Vector3(2.312174, 1.8484453, 5.180382)
+
+[node name="CarroQuebrado" type="Node3D" unique_id=1842033940]
+script = ExtResource("1_taova")
+see_through = 0.55
+
+[node name="Modelo" type="Node3D" parent="." unique_id=149986857 instance=ExtResource("2_10d1b")]
+
+[node name="Solido" type="StaticBody3D" parent="." unique_id=1527566450]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.5762787e-07, 0.91828686, 0.1028955)
+collision_layer = 9
+
+[node name="Collision" type="CollisionShape3D" parent="Solido" unique_id=378785832]
+shape = SubResource("BoxShape3D_7iv8h")

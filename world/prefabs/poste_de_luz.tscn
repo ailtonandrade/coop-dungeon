@@ -1,0 +1,23 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://assets/props/StreetLights.glb" id="1_05aas"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_tx5s8"]
+size = Vector3(0.21600002, 3.96, 0.21600002)
+
+[node name="PosteDeLuz" type="Node3D" unique_id=489237900]
+
+[node name="Modelo" type="Node3D" parent="." unique_id=949199449 instance=ExtResource("1_05aas")]
+transform = Transform3D(0.6, 0, 0, 0, 0.6, 0, 0, 0, 0.6, 0, 0, 0)
+
+[node name="Solido" type="StaticBody3D" parent="." unique_id=26651807]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.98, 0)
+
+[node name="Collision" type="CollisionShape3D" parent="Solido" unique_id=1614700288]
+shape = SubResource("BoxShape3D_tx5s8")
+
+[node name="Luz" type="OmniLight3D" parent="." unique_id=769944276]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.6000001, 1.5)
+light_color = Color(1, 0.78, 0.45, 1)
+light_energy = 2.2
+omni_range = 11.0

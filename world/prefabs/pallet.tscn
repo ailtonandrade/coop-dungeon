@@ -1,0 +1,7 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://assets/props/Pallet.glb" id="1_ajqb5"]
+
+[node name="Pallet" type="Node3D" unique_id=974226428]
+
+[node name="Modelo" type="Node3D" parent="." unique_id=807508658 instance=ExtResource("1_ajqb5")]

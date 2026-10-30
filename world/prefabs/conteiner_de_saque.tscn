@@ -1,0 +1,21 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://world/loot_container.gd" id="1_fwp2d"]
+[ext_resource type="PackedScene" path="res://assets/props/Container_Red.glb" id="2_apc75"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_r1ud4"]
+size = Vector3(5.7079926, 2.6034606, 2.559406)
+
+[node name="ConteinerDeSaque" type="Node3D" unique_id=623926320]
+script = ExtResource("1_fwp2d")
+title = "Contêiner"
+model = ExtResource("2_apc75")
+open_range = 3.6
+gold = 60
+random_items = 4
+
+[node name="Solido" type="StaticBody3D" parent="." unique_id=1113713943]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.023858547, 1.2922927, 0.0065416098)
+
+[node name="Collision" type="CollisionShape3D" parent="Solido" unique_id=570424777]
+shape = SubResource("BoxShape3D_r1ud4")

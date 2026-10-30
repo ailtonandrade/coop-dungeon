@@ -1,0 +1,59 @@
+[gd_scene format=3]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_kcn8p"]
+albedo_color = Color(0.41660944, 0.3361418, 0.15508956, 1)
+
+[sub_resource type="SphereMesh" id="SphereMesh_0vk3i"]
+radius = 0.36749688
+height = 0.587995
+radial_segments = 10
+rings = 5
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_v36ks"]
+albedo_color = Color(0.45675254, 0.38182184, 0.21322781, 1)
+
+[sub_resource type="SphereMesh" id="SphereMesh_j738o"]
+radius = 0.556875
+height = 0.891
+radial_segments = 10
+rings = 5
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_d13cp"]
+albedo_color = Color(0.43558016, 0.35772917, 0.18256441, 1)
+
+[sub_resource type="SphereMesh" id="SphereMesh_h1npp"]
+radius = 0.37094554
+height = 0.5935129
+radial_segments = 10
+rings = 5
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_3v5gq"]
+albedo_color = Color(0.38297734, 0.29787078, 0.106381, 1)
+
+[sub_resource type="SphereMesh" id="SphereMesh_jda85"]
+radius = 0.4032434
+height = 0.6451894
+radial_segments = 10
+rings = 5
+
+[node name="ArbustoSeco" type="Node3D" unique_id=400113510]
+
+[node name="Folhas0" type="MeshInstance3D" parent="." unique_id=1541708338]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.03876984, 0.22049813, -0.3079707)
+material_override = SubResource("StandardMaterial3D_kcn8p")
+mesh = SubResource("SphereMesh_0vk3i")
+
+[node name="Folhas1" type="MeshInstance3D" parent="." unique_id=999551299]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.029660821, 0.33412498, 0.34546864)
+material_override = SubResource("StandardMaterial3D_v36ks")
+mesh = SubResource("SphereMesh_j738o")
+
+[node name="Folhas2" type="MeshInstance3D" parent="." unique_id=984489852]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.4173929, 0.22256732, -0.12174237)
+material_override = SubResource("StandardMaterial3D_d13cp")
+mesh = SubResource("SphereMesh_h1npp")
+
+[node name="Folhas3" type="MeshInstance3D" parent="." unique_id=2123893083]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.03865406, 0.24194604, 0.25481546)
+material_override = SubResource("StandardMaterial3D_3v5gq")
+mesh = SubResource("SphereMesh_jda85")

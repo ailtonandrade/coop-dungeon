@@ -653,8 +653,14 @@ func apply_inventory_command(command: String, args: Array) -> void:
 ## Pega do chão o item mais perto (qualquer um do time pode pegar; quem pegar primeiro leva).
 func _pick_up() -> void:
 	var loot := Loot.nearest(get_tree(), global_position)
-	if loot and give_item(loot.item):
-		loot.queue_free()
+	if loot:
+		if give_item(loot.item):
+			loot.queue_free()
+		return
+	# Sem loot perto: abre o baú/contêiner que estiver ao alcance.
+	var container := LootContainer.nearest(get_tree(), global_position)
+	if container:
+		container.open_by(self)
 
 
 ## Host: guarda o item na mochila. Retorna false se não couber.

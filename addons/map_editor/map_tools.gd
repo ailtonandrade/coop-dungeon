@@ -223,6 +223,31 @@ static func validate(map: WorldMap) -> Array[Dictionary]:
 		root.free()
 	if not has_merchant:
 		issues.append(_issue("aviso", "nenhum comerciante no mapa", ""))
+	for line in container_issues(map):
+		issues.append(line)
+	return issues
+
+
+## Baús/contêineres: id único no mapa inteiro (é o que fica salvo) e não vazio.
+static func container_issues(map: WorldMap) -> Array[Dictionary]:
+	var issues: Array[Dictionary] = []
+	var seen := {}
+	for path: String in scenes_of(map):
+		var root := open_scene(path)
+		for node in root.find_children("*", "Node3D", true, false):
+			if not node is LootContainer:
+				continue
+			var container := node as LootContainer
+			var where := "%s: %s '%s'" % [path.get_file(), container.title, container.name]
+			if container.container_id.is_empty():
+				issues.append(_issue("erro", "%s sem id (abra e salve o bloco)" % where, path))
+			elif seen.has(container.container_id):
+				issues.append(_issue("erro", "%s tem o mesmo id que %s (troque o id de um deles)" % [where, seen[container.container_id]], path))
+			else:
+				seen[container.container_id] = where
+			if container.contents.is_empty() and container.gold <= 0 and container.random_items <= 0:
+				issues.append(_issue("aviso", "%s está vazio" % where, path))
+		root.free()
 	return issues
 
 

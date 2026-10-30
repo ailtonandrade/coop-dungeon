@@ -1,0 +1,7 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://assets/props/TrashBag_1.glb" id="1_shu30"]
+
+[node name="SacoDeLixo" type="Node3D" unique_id=434006224]
+
+[node name="Modelo" type="Node3D" parent="." unique_id=1951171846 instance=ExtResource("1_shu30")]

@@ -24,7 +24,8 @@ items/       ItemDB (lê as fichas), ItemDef/ItemDrop (ficha do item e regra de 
 items/defs/  uma ficha por item (.tres), editadas no painel "Itens"
 camera/      câmera compartilhada (enquadra os jogadores da máquina, projeta a mira do mouse)
 world/       mundo aberto: WorldMap e RegionDef (dados), WorldStreamer (carrega blocos),
-             CreatureSpawner, Entrance, WorldNpc, Services (regras dos serviços da cidade),
+             CreatureSpawner, Entrance, WorldNpc, LootContainer + ContainerItem (baús com
+             saque), Services (regras dos serviços da cidade),
              FadeOccluder + CameraOcclusion (o que tapa o herói),
              world.tscn (cena principal do jogo), chunks/ e interiors/ (cenas dos blocos), textures/
 levels/      arena de combate (usada nos testes de combate)
@@ -106,7 +107,8 @@ Por baixo:
 - Navegação lê malhas + colisões (o Godot não lê as colisões do GridMap na navegação).
 - Interior: cena com origem própria longe do mapa, registrada em `interiors`.
 - Entrada: par com o mesmo `link_id`; o destino de cada uma é a frente (+Z) da outra.
-- Estado que precisa lembrar (baú aberto, chefe morto) vai no save do mundo do host.
+- Estado que precisa lembrar (baú aberto, chefe morto) vai no save do mundo do host
+  (`NetService.world`; os baús em `world.containers`, avisados aos convidados por RPC).
 - Peça de pintura nova: acrescente em `tools/build_tiles.gd` e rode (ids existentes não mudam).
 - Peça pronta nova: cena em `world/prefabs/` (aparece sozinha no painel).
 
@@ -158,6 +160,7 @@ godot --headless --fixed-fps 60 --path coop-dungeon -s tests/world_test.gd     #
 godot --headless --path coop-dungeon -s tests/map_tools_test.gd                # editor de mapa
 godot --headless --fixed-fps 60 --path coop-dungeon -s tests/services_test.gd  # serviços da cidade
 godot --headless --path coop-dungeon -s tests/item_tools_test.gd               # fichas de item e painel Itens
+godot --headless --fixed-fps 60 --path coop-dungeon -s tests/container_test.gd # baús com saque
 GODOT=godot coop-dungeon/tests/run_net_test.sh                                 # online: host + cliente, e mapa adulterado recusado
 ```
 

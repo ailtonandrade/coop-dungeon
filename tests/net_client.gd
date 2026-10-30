@@ -82,6 +82,12 @@ func _process(_delta: float) -> bool:
 			if int(_me.inventory.gold) < 500:
 				_check(true, "comprei do comerciante pela rede (sobrou %d moedas)" % _me.inventory.gold)
 				_t0 = _now()
+				_step = 12
+		12:
+			# O host abre o baú da vila com o meu jogador: o aviso chega aqui.
+			if net.world.get("containers", {}).has("vila_bau_inicial"):
+				_check(true, "baú que meu jogador abriu ficou aberto aqui também")
+				_t0 = _now()
 				_step = 8
 		8:
 			# O host leva meu jogador para longe: carrego só em volta dele e solto a vila.

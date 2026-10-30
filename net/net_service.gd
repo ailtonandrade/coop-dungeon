@@ -178,6 +178,31 @@ func display_name(peer: int, slot: int) -> String:
 	return base if slot == 0 else "%s (%d)" % [base, slot + 1]
 
 
+## Host: um baú/contêiner (LootContainer) foi aberto. Guarda no mundo (salva na hora) e avisa
+## os convidados, que atualizam o visual.
+func set_container_opened(container_id: String) -> void:
+	var now := Time.get_unix_time_from_system()
+	_apply_container(container_id, now)
+	if not world.is_empty():
+		SaveService.save_world(world)
+	if mode == Mode.HOST:
+		_rpc_container_opened.rpc(container_id, now)
+
+
+func _apply_container(container_id: String, opened_at: float) -> void:
+	var states: Dictionary = world.get("containers", {})
+	states[container_id] = opened_at
+	world["containers"] = states
+	for container: Node in get_tree().get_nodes_in_group("containers"):
+		if container.container_id == container_id:
+			container.refresh()
+
+
+@rpc("authority", "call_remote", "reliable")
+func _rpc_container_opened(container_id: String, opened_at: float) -> void:
+	_apply_container(container_id, opened_at)
+
+
 ## Comando da tela de inventário de um jogador deste cliente, para o host executar.
 func send_inventory_command(player: Node, command: String, args: Array) -> void:
 	if player.has_meta("net_id"):

@@ -1,0 +1,25 @@
+[gd_scene format=3]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_4w43y"]
+albedo_color = Color(0.33, 0.27, 0.19, 1)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_u754j"]
+top_radius = 2.0
+bottom_radius = 5.0
+height = 1.5
+radial_segments = 20
+rings = 1
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_ixfyo"]
+points = PackedVector3Array(0, -0.75, -5, -1.5456147, -0.75, -4.7552857, -0.61863756, 0.75, -1.9028974, 0, 0.75, -2.000783, 1.5446358, -0.75, -4.7552857, -2.9395068, -0.75, -4.0456147, -1.175607, 0.75, -1.6180501, 0.6176586, 0.75, -1.9028974, 2.9385276, -0.75, -4.0456147, -4.0456147, -0.75, -2.9395068, -1.6180501, 0.75, -1.175607, 1.1746283, 0.75, -1.6180501, 4.044636, -0.75, -2.9395068, -4.7552857, -0.75, -1.5456147, -1.9028974, 0.75, -0.61863756, 1.6170712, 0.75, -1.175607, 4.754307, -0.75, -1.5456147, 1.9019184, 0.75, -0.61863756, -5, -0.75, 0, -2.000783, 0.75, 0, 5, -0.75, 0, 1.999804, 0.75, 0, -4.7552857, -0.75, 1.5446358, -1.9028974, 0.75, 0.6176586, 1.9019184, 0.75, 0.6176586, 4.754307, -0.75, 1.5446358, -4.0456147, -0.75, 2.9385276, -1.6180501, 0.75, 1.1746283, 4.044636, -0.75, 2.9385276, 1.6170712, 0.75, 1.1746283, -2.9395068, -0.75, 4.044636, -1.175607, 0.75, 1.6170712, 2.9385276, -0.75, 4.044636, 1.1746283, 0.75, 1.6170712, -1.5456147, -0.75, 4.754307, -0.61863756, 0.75, 1.9019184, 1.5446358, -0.75, 4.754307, 0.6176586, 0.75, 1.9019184, 0, -0.75, 5, 0, 0.75, 1.999804)
+
+[node name="Barranco" type="StaticBody3D" unique_id=1028257400]
+
+[node name="Mesh" type="MeshInstance3D" parent="." unique_id=1516970542]
+transform = Transform3D(2.2, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.75, 0)
+material_override = SubResource("StandardMaterial3D_4w43y")
+mesh = SubResource("CylinderMesh_u754j")
+
+[node name="Collision" type="CollisionShape3D" parent="." unique_id=1790825384]
+transform = Transform3D(2.2, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.75, 0)
+shape = SubResource("ConvexPolygonShape3D_ixfyo")

@@ -1,0 +1,20 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://world/fade_occluder.gd" id="1_n7atg"]
+[ext_resource type="PackedScene" path="res://assets/props/Container_Red.glb" id="2_gm5rb"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_bf22k"]
+size = Vector3(5.7079926, 2.6034606, 2.559406)
+
+[node name="Conteiner" type="Node3D" unique_id=1648330344]
+script = ExtResource("1_n7atg")
+see_through = 0.55
+
+[node name="Modelo" type="Node3D" parent="." unique_id=1306752387 instance=ExtResource("2_gm5rb")]
+
+[node name="Solido" type="StaticBody3D" parent="." unique_id=1065978607]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.023858547, 1.2922927, 0.0065416098)
+collision_layer = 9
+
+[node name="Collision" type="CollisionShape3D" parent="Solido" unique_id=509119710]
+shape = SubResource("BoxShape3D_bf22k")

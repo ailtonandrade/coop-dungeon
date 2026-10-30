@@ -1,0 +1,20 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://world/loot_container.gd" id="1_kj287"]
+[ext_resource type="PackedScene" path="res://assets/props/Chest.glb" id="2_rlxy3"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_ec6sm"]
+size = Vector3(1.087349, 0.69048834, 0.8210146)
+
+[node name="Bau" type="Node3D" unique_id=520809380]
+script = ExtResource("1_kj287")
+model = ExtResource("2_rlxy3")
+model_scale = 1.7
+gold = 25
+random_items = 2
+
+[node name="Solido" type="StaticBody3D" parent="." unique_id=1632737234]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.3506808, -5.066395e-08)
+
+[node name="Collision" type="CollisionShape3D" parent="Solido" unique_id=294330388]
+shape = SubResource("BoxShape3D_ec6sm")

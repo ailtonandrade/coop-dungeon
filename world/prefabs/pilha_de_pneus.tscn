@@ -1,0 +1,16 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://assets/props/Wheels_Stack.glb" id="1_x3fef"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_wnl88"]
+size = Vector3(0.6575685, 0.6113768, 0.5718691)
+
+[node name="PilhaDePneus" type="Node3D" unique_id=1839906980]
+
+[node name="Modelo" type="Node3D" parent="." unique_id=1397646404 instance=ExtResource("1_x3fef")]
+
+[node name="Solido" type="StaticBody3D" parent="." unique_id=312769625]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.021125346, 0.30568764, -0.0012611747)
+
+[node name="Collision" type="CollisionShape3D" parent="Solido" unique_id=598447123]
+shape = SubResource("BoxShape3D_wnl88")

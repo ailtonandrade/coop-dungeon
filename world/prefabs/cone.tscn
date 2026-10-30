@@ -1,0 +1,7 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://assets/props/TrafficCone_1.glb" id="1_we804"]
+
+[node name="Cone" type="Node3D" unique_id=1373439743]
+
+[node name="Modelo" type="Node3D" parent="." unique_id=771914065 instance=ExtResource("1_we804")]

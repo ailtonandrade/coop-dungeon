@@ -22,7 +22,12 @@ var _interiors: ItemList
 var _interior_id: LineEdit
 var _link_id: LineEdit
 var _prefabs: ItemList
+var _stamp_button: Button
+var _vary: CheckBox
 var _report: RichTextLabel
+
+## Modo carimbo: cada clique na vista 3D coloca a peça escolhida ali (o plugin repassa o clique).
+var stamping := false
 
 
 func _ready() -> void:
@@ -79,10 +84,22 @@ func _ready() -> void:
 
 	_header(box, "Peças prontas")
 	_prefabs = ItemList.new()
-	_prefabs.custom_minimum_size = Vector2(0, 140)
+	_prefabs.custom_minimum_size = Vector2(0, 220)
+	_prefabs.max_columns = 0
+	_prefabs.same_column_width = true
+	_prefabs.fixed_column_width = 84
+	_prefabs.icon_mode = ItemList.ICON_MODE_TOP
+	_prefabs.fixed_icon_size = Vector2i(64, 64)
 	_prefabs.item_activated.connect(func(_i: int) -> void: _insert_prefab())
 	box.add_child(_prefabs)
-	_button(box, "Inserir na cena aberta (centro da vista)", _insert_prefab)
+	_stamp_button = _button(box, "Colocar clicando na vista (carimbo)", func() -> void: set_stamping(not stamping))
+	_stamp_button.toggle_mode = true
+	_stamp_button.tooltip_text = "Cada clique esquerdo na vista 3D coloca a peça escolhida no chão (ou em cima do que estiver lá). Clique direito ou este botão de novo para parar."
+	_vary = CheckBox.new()
+	_vary.text = "Variar giro e tamanho (mato, pedras, lixo)"
+	_vary.button_pressed = true
+	box.add_child(_vary)
+	_button(box, "Inserir no centro da vista", _insert_prefab)
 
 	_header(box, "Manutenção")
 	_button(box, "Validar mapa", _validate)
@@ -112,8 +129,11 @@ func _load_map() -> void:
 	_prefabs.clear()
 	for file in ResourceLoader.list_directory(PREFAB_DIR):
 		if file.ends_with(".tscn"):
-			_prefabs.add_item(file.get_basename().replace("_", " "))
-			_prefabs.set_item_metadata(_prefabs.item_count - 1, PREFAB_DIR.path_join(file))
+			var index := _prefabs.add_item(file.get_basename().replace("_", " "))
+			var path := PREFAB_DIR.path_join(file)
+			_prefabs.set_item_metadata(index, path)
+			_prefabs.set_item_tooltip(index, path)
+			EditorInterface.get_resource_previewer().queue_resource_preview(path, self, "_on_prefab_preview", index)
 	_on_cell_selected(_grid.selected)
 
 
@@ -214,16 +234,67 @@ func _sync_entrances() -> void:
 
 ## Peças prontas
 
-func _insert_prefab() -> void:
-	var picked := _prefabs.get_selected_items()
+func _on_prefab_preview(_path: String, preview: Texture2D, _thumbnail: Texture2D, index: int) -> void:
+	if preview and index < _prefabs.item_count:
+		_prefabs.set_item_icon(index, preview)
+
+
+func set_stamping(on: bool) -> void:
 	var root := EditorInterface.get_edited_scene_root()
-	if picked.is_empty() or root == null:
+	if on and (root == null or _prefabs.get_selected_items().is_empty()):
+		_say("[color=orange]Abra um bloco e escolha uma peça para carimbar.[/color]")
+		on = false
+	stamping = on
+	_stamp_button.set_pressed_no_signal(on)
+	_stamp_button.text = "Parar de carimbar (clique direito)" if on else "Colocar clicando na vista (carimbo)"
+	if on:
+		# O editor só repassa os cliques da vista para o plugin com algo selecionado.
+		EditorInterface.get_selection().clear()
+		EditorInterface.get_selection().add_node(root)
+		_say("Carimbo ligado: clique na vista 3D para colocar \"%s\"." % _prefabs.get_item_text(_prefabs.get_selected_items()[0]))
+
+
+## Carimbo: coloca a peça escolhida onde o clique bate (no que tiver colisão, ou no chão y = 0).
+func stamp_at(camera: Camera3D, screen_point: Vector2) -> void:
+	var root := EditorInterface.get_edited_scene_root() as Node3D
+	if root == null or _prefabs.get_selected_items().is_empty():
+		set_stamping(false)
+		return
+	var from := camera.project_ray_origin(screen_point)
+	var direction := camera.project_ray_normal(screen_point)
+	var point: Variant = null
+	var space := camera.get_world_3d().direct_space_state
+	if space:
+		var hit := space.intersect_ray(PhysicsRayQueryParameters3D.create(from, from + direction * 500.0))
+		if not hit.is_empty():
+			point = hit.position
+	if point == null:
+		point = Plane(Vector3.UP, root.global_position.y).intersects_ray(from, direction)
+	if point == null:
+		return
+	var local: Vector3 = root.global_transform.affine_inverse() * point
+	_place_prefab(root, local.snapped(Vector3(0.1, 0.05, 0.1)), _vary.button_pressed)
+
+
+func _insert_prefab() -> void:
+	var root := EditorInterface.get_edited_scene_root() as Node3D
+	if _prefabs.get_selected_items().is_empty() or root == null:
 		_say("[color=orange]Abra um bloco e escolha uma peça.[/color]")
 		return
+	_place_prefab(root, _view_center_on_ground(root), false)
+
+
+func _place_prefab(root: Node3D, position: Vector3, vary: bool) -> void:
+	var picked := _prefabs.get_selected_items()
 	var instance: Node3D = (load(_prefabs.get_item_metadata(picked[0])) as PackedScene).instantiate()
 	# Sólidos entram na navegação das criaturas; NPCs e geradores podem ficar fora, mas não atrapalha.
 	var parent: Node = root.get_node_or_null("Navigation") if root.has_node("Navigation") else root
-	instance.position = _view_center_on_ground(root)
+	instance.position = position
+	if vary:
+		instance.rotation.y = randf() * TAU
+		# NPC, baú, gerador e entrada não mudam de tamanho.
+		if not (instance is WorldNpc or instance is LootContainer or instance is Entrance or instance.get("respawn_time") != null):
+			instance.scale = Vector3.ONE * randf_range(0.85, 1.2)
 	var undo := plugin.get_undo_redo()
 	undo.create_action("Inserir peça pronta")
 	undo.add_do_method(parent, "add_child", instance, true)
@@ -233,6 +304,8 @@ func _insert_prefab() -> void:
 	undo.commit_action()
 	EditorInterface.get_selection().clear()
 	EditorInterface.get_selection().add_node(instance)
+	if not stamping:
+		_say("Peça colocada. Depois de arrumar o bloco: Ctrl+S e \"Assar navegação de tudo\" (para as criaturas desviarem).")
 
 
 ## Ponto do chão (y = 0) no centro da vista 3D do editor, em coordenadas da cena, em metros inteiros.

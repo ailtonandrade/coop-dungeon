@@ -1,0 +1,7 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://assets/props/CinderBlock.glb" id="1_ew1vc"]
+
+[node name="BlocoDeConcreto" type="Node3D" unique_id=1346475286]
+
+[node name="Modelo" type="Node3D" parent="." unique_id=424004158 instance=ExtResource("1_ew1vc")]

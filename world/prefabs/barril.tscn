@@ -1,0 +1,16 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://assets/props/Barrel.glb" id="1_6u5kh"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_jojdl"]
+size = Vector3(0.7041178, 1.1449082, 0.70411783)
+
+[node name="Barril" type="Node3D" unique_id=1030842332]
+
+[node name="Modelo" type="Node3D" parent="." unique_id=1285413497 instance=ExtResource("1_6u5kh")]
+
+[node name="Solido" type="StaticBody3D" parent="." unique_id=2096541743]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.1920929e-07, 0.57419896, -1.7881393e-07)
+
+[node name="Collision" type="CollisionShape3D" parent="Solido" unique_id=47035822]
+shape = SubResource("BoxShape3D_jojdl")

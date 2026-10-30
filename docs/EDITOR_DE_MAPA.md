@@ -27,13 +27,55 @@ editor do Godot, com o painel **Mapa do Mundo** (lado direito, embaixo do Inspec
 
 ## Peças prontas
 
-Na lista **Peças prontas** (casas, árvore, rochas, boca de caverna, poço, gerador de criaturas,
-NPCs de serviço), escolha uma e clique em **Inserir na cena aberta**: ela entra no centro da vista 3D.
-Depois mova e gire como qualquer nó (Ctrl+Z desfaz).
+A lista **Peças prontas** mostra as peças em grade (com miniatura):
+- **Construções:** casas, poço, boca de caverna.
+- **Natureza e relevo:** árvore, rochas, arbusto, arbusto seco (dá para atravessar o mato),
+  morro baixo, morro alto e barranco (com rampa suave: dá para subir andando).
+- **Sucata de rua:** poste de luz (acende), carro quebrado, contêiner, pilha de pneus, barril,
+  cone, saco de lixo, pallet, bloco de concreto, barreira.
+- **Com saque:** baú de saque e contêiner de saque.
+- **Jogo:** gerador de criaturas, NPCs de serviço.
+
+Dois jeitos de colocar:
+- **Colocar clicando na vista (carimbo):** escolha a peça, ligue o botão e clique na vista 3D:
+  cada clique põe uma peça ali (no chão ou em cima do que tiver colisão). Com **Variar giro e
+  tamanho** ligado, cada uma sai girada e com tamanho um pouco diferente (bom para mato, pedras e
+  lixo; NPC, baú e gerador só giram). Clique direito, Esc ou o botão de novo param o carimbo.
+- **Inserir no centro da vista:** uma peça no meio da vista 3D.
+
+Depois mova e gire como qualquer nó (Ctrl+Z desfaz). Ao terminar o bloco: Ctrl+S e
+**Assar navegação de tudo**, para as criaturas desviarem das peças novas.
 - As peças são cenas em `world/prefabs`: mudar uma muda todos os lugares que a usam.
+  Peça nova: salve uma cena lá dentro e ela aparece na lista.
 - **Gerador de criaturas:** no Inspector, escolha tipos, quantidade, alcance de perseguição,
   limite da casa, poder do loot e tempo de reaparecimento. Nunca em área segura.
-- **NPC:** escolha o serviço (comerciante, ferreiro, encantador, banco) e o nome.
+- **NPC:** escolha o serviço (comerciante, ferreiro, encantador, banco) e o nome. Comerciante:
+  o campo **Shop Id** é o nome da loja nas fichas de item (vazio = o nome do NPC).
+
+### Baú e contêiner de saque
+
+Coloque um **baú de saque** (ou contêiner de saque) e, no Inspector:
+- **Title:** o nome que aparece em cima ("Baú do Ferro-Velho").
+- **Contents:** os itens fixos. Clique em *Add Element*, depois em *Novo ContainerItem*, e
+  escolha o item (lista com todos os itens do jogo), a quantidade, o poder (0 = o perigo da
+  região), a raridade (sorteada ou fixa) e a chance (%).
+- **Gold:** parafusos. **Random Items:** quantos itens extras sortear do loot geral da região.
+- **Refill Minutes:** 0 = abre uma vez por mundo; senão, enche de novo depois desse tempo.
+- **Open Range:** de que distância abre (contêiner grande precisa de mais).
+- **Model / Model Scale:** troque o modelo (qualquer .glb) e o tamanho.
+
+No jogo, perto dele aparece "[LB / F] abrir": os itens saltam para o chão em volta e o time
+todo vê e pega, como o loot das criaturas. Aberto, ele fica escuro. Quem abriu fica salvo no
+mundo do host (vale para todos os jogadores da sala e continua depois de fechar o jogo).
+- **Container ID:** identificador único (é o que fica salvo). O editor preenche sozinho, e uma
+  cópia com Ctrl+D ganha id novo. **Validar mapa** avisa id repetido e baú vazio.
+
+### Relevo (morros, declives)
+
+Por enquanto o relevo é feito com peças: **morros** e **barranco** (peças prontas) e, na grade
+de pintura, **blocos empilháveis** e **rampa** (Q/E sobem o andar). Pincel de esculpir terreno
+(subir/descer o chão com tamanho e força) não faz parte do editor: se um dia precisar de terreno
+ondulado de verdade, o caminho é o plugin gratuito **Terrain3D** dentro de cada bloco.
 
 ## Masmorras e entradas
 

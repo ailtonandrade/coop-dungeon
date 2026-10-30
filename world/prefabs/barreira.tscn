@@ -1,0 +1,16 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://assets/props/PlasticBarrier.glb" id="1_yq10k"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_apcty"]
+size = Vector3(1.0353422, 0.59954715, 0.333892)
+
+[node name="Barreira" type="Node3D" unique_id=1149794984]
+
+[node name="Modelo" type="Node3D" parent="." unique_id=804128688 instance=ExtResource("1_yq10k")]
+
+[node name="Solido" type="StaticBody3D" parent="." unique_id=1949165882]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.29977354, -1.4901161e-08)
+
+[node name="Collision" type="CollisionShape3D" parent="Solido" unique_id=1995060118]
+shape = SubResource("BoxShape3D_apcty")
