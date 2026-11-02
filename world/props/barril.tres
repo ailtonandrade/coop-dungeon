@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="PropDef" format=3]
+
+[ext_resource type="PackedScene" path="res://assets/props/Barrel.glb" id="1_gi5vk"]
+[ext_resource type="Script" path="res://props/prop_def.gd" id="2_7x12x"]
+
+[resource]
+script = ExtResource("2_7x12x")
+id = "barril"
+display_name = "Barril"
+model = ExtResource("1_gi5vk")
+kind = "fisico"
+mass = 25.0

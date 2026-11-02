@@ -1,7 +1,19 @@
 [gd_scene format=3]
 
+[ext_resource type="Script" path="res://props/physics_prop.gd" id="1_45p4x"]
 [ext_resource type="PackedScene" path="res://assets/props/TrafficCone_1.glb" id="1_we804"]
 
-[node name="Cone" type="Node3D" unique_id=1373439743]
+[sub_resource type="BoxShape3D" id="BoxShape3D_4pq46"]
+size = Vector3(0.5216267, 0.673276, 0.5216267)
+
+[node name="Cone" type="RigidBody3D" unique_id=2106682788]
+mass = 3.0
+script = ExtResource("1_45p4x")
+metadata/prop_def = "res://world/props/cone.tres"
 
 [node name="Modelo" type="Node3D" parent="." unique_id=771914065 instance=ExtResource("1_we804")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.016543375, 0)
+
+[node name="Collision" type="CollisionShape3D" parent="." unique_id=457005295]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.336638, 0)
+shape = SubResource("BoxShape3D_4pq46")

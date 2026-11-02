@@ -1,7 +1,19 @@
 [gd_scene format=3]
 
 [ext_resource type="PackedScene" path="res://assets/props/Pallet.glb" id="1_ajqb5"]
+[ext_resource type="Script" path="res://props/physics_prop.gd" id="1_pwnqb"]
 
-[node name="Pallet" type="Node3D" unique_id=974226428]
+[sub_resource type="BoxShape3D" id="BoxShape3D_16xme"]
+size = Vector3(0.892535, 0.14004704, 1.2169636)
+
+[node name="Pallet" type="RigidBody3D" unique_id=2006070596]
+mass = 15.0
+script = ExtResource("1_pwnqb")
+metadata/prop_def = "res://world/props/pallet.tres"
 
 [node name="Modelo" type="Node3D" parent="." unique_id=807508658 instance=ExtResource("1_ajqb5")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.009804308, -0.0022616237, 0)
+
+[node name="Collision" type="CollisionShape3D" parent="." unique_id=1518731884]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.07002352, 0)
+shape = SubResource("BoxShape3D_16xme")

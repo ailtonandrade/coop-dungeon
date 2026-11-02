@@ -279,10 +279,28 @@ func _physics_process(delta: float) -> void:
 	else:
 		velocity.y -= GameConfig.GRAVITY * delta
 	move_and_slide()
+	_push_props(delta)
 
 	if state != State.DOWNED:
 		var target_basis := Basis.looking_at(_facing)
 		basis = basis.slerp(target_basis, minf(GameConfig.PLAYER_TURN_SPEED * delta, 1.0)).orthonormalized()
+
+
+## Empurra peças físicas (cone, barril...) em que o herói esbarra andando. Só o host simula.
+func _push_props(delta: float) -> void:
+	if not multiplayer.is_server():
+		return
+	for i in get_slide_collision_count():
+		var collision := get_slide_collision(i)
+		var body := collision.get_collider() as RigidBody3D
+		if body == null or body.freeze:
+			continue
+		var push := -collision.get_normal()
+		push.y = 0.0
+		if push.length_squared() < 0.01:
+			continue
+		body.apply_impulse(push.normalized() * GameConfig.PUSH_IMPULSE * delta * (GameConfig.SPRINT_FACTOR if is_sprinting() else 1.0),
+				collision.get_position() - body.global_position)
 
 
 func _input_dir() -> Vector3:

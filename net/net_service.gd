@@ -272,7 +272,27 @@ func _remove_player(peer: int, slot: int) -> void:
 		manager.remove_player(peer, slot)
 
 
+## Host: peças físicas que se mexeram desde o último envio (caminho -> posição).
+var _prop_batch := {}
+
+
+## Host: manda a posição desta peça física para os convidados no próximo envio.
+func queue_prop_state(prop: Node3D) -> void:
+	_prop_batch[str(prop.get_path())] = prop.global_transform
+
+
+@rpc("authority", "call_remote", "unreliable_ordered")
+func _rpc_props(batch: Dictionary) -> void:
+	for path: String in batch:
+		var prop := get_node_or_null(path)
+		if prop and prop.has_method("apply_remote"):
+			prop.apply_remote(batch[path])
+
+
 func _physics_process(_delta: float) -> void:
+	if mode == Mode.HOST and not _prop_batch.is_empty():
+		_rpc_props.rpc(_prop_batch)
+		_prop_batch = {}
 	if mode != Mode.CLIENT or multiplayer.multiplayer_peer.get_connection_status() != MultiplayerPeer.CONNECTION_CONNECTED:
 		return
 	for slot in InputService.active_slots():

@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="PropDef" format=3]
+
+[ext_resource type="PackedScene" path="res://assets/props/TrafficCone_1.glb" id="1_jxp8j"]
+[ext_resource type="Script" path="res://props/prop_def.gd" id="2_kvyx7"]
+
+[resource]
+script = ExtResource("2_kvyx7")
+id = "cone"
+display_name = "Cone"
+model = ExtResource("1_jxp8j")
+kind = "fisico"
+mass = 3.0

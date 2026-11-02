@@ -22,6 +22,10 @@ var _interiors: ItemList
 var _interior_id: LineEdit
 var _link_id: LineEdit
 var _prefabs: ItemList
+var _preview: SubViewportContainer
+var _ficha: ConfirmationDialog
+var _file_dialog: EditorFileDialog
+var _pending_import := ""
 var _stamp_button: Button
 var _vary: CheckBox
 var _report: RichTextLabel
@@ -91,7 +95,24 @@ func _ready() -> void:
 	_prefabs.icon_mode = ItemList.ICON_MODE_TOP
 	_prefabs.fixed_icon_size = Vector2i(64, 64)
 	_prefabs.item_activated.connect(func(_i: int) -> void: _insert_prefab())
+	_prefabs.item_selected.connect(func(i: int) -> void: _preview.show_scene(_prefabs.get_item_metadata(i)))
 	box.add_child(_prefabs)
+	_preview = preload("res://addons/map_editor/prop_preview.gd").new()
+	box.add_child(_preview)
+	var prop_row := HBoxContainer.new()
+	box.add_child(prop_row)
+	_button(prop_row, "Importar objeto 3D…", _ask_import)
+	_button(prop_row, "Ficha da peça…", _open_ficha)
+	_ficha = preload("res://addons/map_editor/prop_ficha.gd").new()
+	_ficha.saved.connect(_on_ficha_saved)
+	add_child(_ficha)
+	_file_dialog = EditorFileDialog.new()
+	_file_dialog.file_mode = EditorFileDialog.FILE_MODE_OPEN_FILE
+	_file_dialog.access = EditorFileDialog.ACCESS_FILESYSTEM
+	_file_dialog.title = "Escolha um modelo 3D (.obj, .glb, .gltf, .fbx)"
+	_file_dialog.add_filter("*.obj, *.glb, *.gltf, *.fbx", "Modelos 3D")
+	_file_dialog.file_selected.connect(_import_model)
+	add_child(_file_dialog)
 	_stamp_button = _button(box, "Colocar clicando na vista (carimbo)", func() -> void: set_stamping(not stamping))
 	_stamp_button.toggle_mode = true
 	_stamp_button.tooltip_text = "Cada clique esquerdo na vista 3D coloca a peça escolhida no chão (ou em cima do que estiver lá). Clique direito ou este botão de novo para parar."
@@ -126,15 +147,23 @@ func _load_map() -> void:
 	_interiors.clear()
 	for id: String in _map.interiors:
 		_interiors.add_item(id)
-	_prefabs.clear()
-	for file in ResourceLoader.list_directory(PREFAB_DIR):
-		if file.ends_with(".tscn"):
-			var index := _prefabs.add_item(file.get_basename().replace("_", " "))
-			var path := PREFAB_DIR.path_join(file)
-			_prefabs.set_item_metadata(index, path)
-			_prefabs.set_item_tooltip(index, path)
-			EditorInterface.get_resource_previewer().queue_resource_preview(path, self, "_on_prefab_preview", index)
+	_refresh_prefabs()
 	_on_cell_selected(_grid.selected)
+
+
+func _refresh_prefabs(select_path := "") -> void:
+	_prefabs.clear()
+	for entry: Dictionary in PropBuilder.catalog():
+		var label: String = entry.name
+		if entry.kind:
+			label += "\n(%s)" % {"fixo": "fixo", "conteiner": "contêiner", "fisico": "físico", "atravessavel": "enfeite"}[entry.kind]
+		var index := _prefabs.add_item(label)
+		_prefabs.set_item_metadata(index, entry.path)
+		_prefabs.set_item_tooltip(index, "%s\n%s" % [entry.path, entry.def.kind_name() if entry.def else "peça montada à mão"])
+		EditorInterface.get_resource_previewer().queue_resource_preview(entry.path, self, "_on_prefab_preview", index)
+		if entry.path == select_path:
+			_prefabs.select(index)
+			_preview.show_scene(entry.path)
 
 
 func _save_map() -> void:
@@ -237,6 +266,79 @@ func _sync_entrances() -> void:
 func _on_prefab_preview(_path: String, preview: Texture2D, _thumbnail: Texture2D, index: int) -> void:
 	if preview and index < _prefabs.item_count:
 		_prefabs.set_item_icon(index, preview)
+
+
+## Objetos 3D próprios
+
+func _ask_import() -> void:
+	_file_dialog.popup_file_dialog()
+
+
+## Traz o modelo para dentro do projeto (com .mtl/texturas/.bin ao lado), espera o Godot
+## importar e abre a ficha.
+func _import_model(file: String) -> void:
+	var res_path := ProjectSettings.localize_path(file)
+	if not res_path.begins_with("res://"):
+		res_path = PropImport.copy_into_project(file)
+		if res_path.is_empty():
+			_say("[color=red]Não deu para copiar o modelo para dentro do projeto.[/color]")
+			return
+	_pending_import = res_path
+	_say("Importando %s..." % res_path.get_file())
+	EditorInterface.get_resource_filesystem().scan()
+	_wait_import()
+
+
+func _wait_import(tries := 0) -> void:
+	if _pending_import.is_empty():
+		return
+	var model: Resource = load(_pending_import) if ResourceLoader.exists(_pending_import) else null
+	if model == null:
+		if tries > 60:
+			_say("[color=red]O Godot não conseguiu importar %s.[/color]" % _pending_import.get_file())
+			_pending_import = ""
+			return
+		get_tree().create_timer(0.5).timeout.connect(_wait_import.bind(tries + 1))
+		return
+	var stem := _pending_import.get_file().get_basename()
+	_pending_import = ""
+	var def := PropDef.new()
+	def.model = model
+	def.display_name = stem.replace("_", " ")
+	def.id = PropImport.free_id(PropBuilder.id_from(stem))
+	def.scale = PropImport.suggest_scale(def)
+	_ficha.edit(def)
+	_say("Modelo importado. Preencha a ficha e salve: a peça aparece na lista.")
+
+
+func _open_ficha() -> void:
+	var picked := _prefabs.get_selected_items()
+	if picked.is_empty():
+		_say("[color=orange]Escolha uma peça na lista.[/color]")
+		return
+	var path: String = _prefabs.get_item_metadata(picked[0])
+	var def := PropImport.def_for_prefab(path)
+	if def == null:
+		_say("[color=orange]Esta peça é montada por partes (casa, árvore, NPC...): não tem ficha. Fichas valem para peças de um modelo só.[/color]")
+		return
+	_ficha.edit(def)
+
+
+func _on_ficha_saved(prefab_path: String) -> void:
+	if prefab_path.is_empty():
+		_say("[color=red]Não deu para salvar a peça (falta nome ou modelo).[/color]")
+		return
+	EditorInterface.get_resource_filesystem().scan()
+	_reload_open_scenes_using(prefab_path)
+	_refresh_prefabs(prefab_path)
+	_say("Peça salva: %s. Já dá para carimbar no mapa (e no modo construtor do jogo)." % prefab_path)
+
+
+## Cenas abertas que usam a peça recarregam para mostrar a versão nova.
+func _reload_open_scenes_using(prefab_path: String) -> void:
+	for path in EditorInterface.get_open_scenes():
+		if FileAccess.file_exists(path) and FileAccess.get_file_as_string(path).contains(prefab_path):
+			EditorInterface.reload_scene_from_path(path)
 
 
 func set_stamping(on: bool) -> void:

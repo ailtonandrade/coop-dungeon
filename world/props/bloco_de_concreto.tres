@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="PropDef" format=3]
+
+[ext_resource type="PackedScene" path="res://assets/props/CinderBlock.glb" id="1_6o3v6"]
+[ext_resource type="Script" path="res://props/prop_def.gd" id="2_bo2iu"]
+
+[resource]
+script = ExtResource("2_bo2iu")
+id = "bloco_de_concreto"
+display_name = "Bloco de concreto"
+model = ExtResource("1_6o3v6")
+kind = "fisico"
+mass = 12.0

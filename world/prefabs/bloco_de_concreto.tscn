@@ -1,7 +1,19 @@
 [gd_scene format=3]
 
 [ext_resource type="PackedScene" path="res://assets/props/CinderBlock.glb" id="1_ew1vc"]
+[ext_resource type="Script" path="res://props/physics_prop.gd" id="1_or0lu"]
 
-[node name="BlocoDeConcreto" type="Node3D" unique_id=1346475286]
+[sub_resource type="BoxShape3D" id="BoxShape3D_tjxfs"]
+size = Vector3(0.47155374, 0.22737953, 0.21452652)
+
+[node name="BlocoDeConcreto" type="RigidBody3D" unique_id=396086734]
+mass = 12.0
+script = ExtResource("1_or0lu")
+metadata/prop_def = "res://world/props/bloco_de_concreto.tres"
 
 [node name="Modelo" type="Node3D" parent="." unique_id=424004158 instance=ExtResource("1_ew1vc")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.0032515824, -7.450581e-09)
+
+[node name="Collision" type="CollisionShape3D" parent="." unique_id=1997794328]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.113689765, 0)
+shape = SubResource("BoxShape3D_tjxfs")

@@ -46,6 +46,8 @@ addons/item_editor/ painel "Itens": fichas, modelos 3D, encaixe com prévia, íc
 addons/map_editor/  editor de mapa: painel "Mapa do Mundo" (world_map_dock, map_grid_view)
              e MapTools (a lógica: criar bloco/masmorra, ligar e sincronizar entradas, validar,
              assar navegação), usado pelo painel e pelos testes
+props/       fichas de peças do cenário (PropDef), montagem da peça pronta (PropBuilder) e
+             peça física (PhysicsProp, simulada pelo host)
 ui/          menu principal (com a vila 3D ao fundo: MenuBackdrop), HUD (PlayerCard, RegionBanner),
              inventário, Chip pirata (ChipPanel), Habilidades (SkillsPanel), escolha de personagem (CharacterSelect, com
              CharacterPreview), ChatBox (chat do mundo), configurações (SettingsPanel, no menu e na pausa), tela de serviço
@@ -184,6 +186,7 @@ godot --headless --fixed-fps 60 --path coop-dungeon -s tests/character_test.gd #
 godot --headless --path coop-dungeon -s tests/voice_test.gd                    # voz: codificação, rádio, volumes, distância
 godot --headless --fixed-fps 60 --path coop-dungeon -s tests/chat_test.gd      # chat: Enter, digitar sem acionar o jogo, rápidas
 godot --headless --fixed-fps 60 --path coop-dungeon -s tests/skill_test.gd     # habilidades: treino pelo uso, efeitos, janela
+godot --headless --fixed-fps 60 --path coop-dungeon -s tests/props_test.gd     # fichas de peças: tipos, base no chão, física cai e para
 GODOT=godot coop-dungeon/tests/run_net_test.sh                                 # online: host + cliente (voz e chat), mapa adulterado e senha
 ```
 

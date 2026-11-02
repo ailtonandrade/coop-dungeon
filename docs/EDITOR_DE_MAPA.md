@@ -46,10 +46,32 @@ Dois jeitos de colocar:
   a peça cai no chão um pouco à frente da câmera, ainda na tela. (A câmera do editor gira em volta
   de um ponto fixo: girar e dar zoom não mudam o centro; andar com botão direito + WASD muda.)
 
-Depois mova e gire como qualquer nó (Ctrl+Z desfaz). Ao terminar o bloco: Ctrl+S e
-**Assar navegação de tudo**, para as criaturas desviarem das peças novas.
+Depois mova e gire como qualquer nó (Ctrl+Z desfaz). Ao terminar o bloco: Ctrl+S. A navegação
+das criaturas o jogo calcula sozinho ao carregar cada bloco (não fica salva na cena, então não
+aparece mais a "película" azul por cima do cenário; cenas antigas: botão **Tirar a película azul**).
+- Escolhendo uma peça na lista, a **prévia 3D** embaixo dela mostra o modelo girando.
 - As peças são cenas em `world/prefabs`: mudar uma muda todos os lugares que a usam.
-  Peça nova: salve uma cena lá dentro e ela aparece na lista.
+
+### Objetos 3D próprios (.obj, .glb, .gltf, .fbx)
+
+**Importar objeto 3D…** abre o seletor de arquivos (pode ser fora do projeto: o modelo é copiado
+para `assets/props/importados/<nome>/` junto com o que ele usa, como .mtl e texturas do .obj ou
+.bin do .gltf). O Godot importa e abre a **ficha da peça**:
+- **Nome**, **Tamanho** e **Giro** do modelo (modelo exportado em centímetros já vem com
+  tamanho 0,01 sugerido). A base fica sempre no chão.
+- **Tipo:**
+  - **Fixo:** sólido, ninguém mexe (postes, muros, carcaças pesadas).
+  - **Contêiner:** abre e solta itens (nome ao abrir, parafusos, itens sorteados; itens fixos e
+    reabastecer no Inspector depois de colocar).
+  - **Físico:** cai, rola e os heróis empurram (peso em kg). No online o host simula e os
+    convidados acompanham.
+  - **Atravessável:** só enfeite, sem colisão (mato, papel no chão).
+
+**Salvar peça** grava a ficha em `world/props/<id>.tres` e gera a peça pronta em
+`world/prefabs/<id>.tscn`. **Ficha da peça…** abre a ficha da peça escolhida para mudar (a peça é
+gerada de novo e todos os lugares do mapa que a usam mudam junto). Cone, barril, saco de lixo,
+pilha de pneus, pallet e bloco de concreto já vêm como **físicos**. Peças montadas por partes
+(casas, árvores, NPCs) não têm ficha.
 - **Gerador de criaturas:** no Inspector, escolha tipos, quantidade, alcance de perseguição,
   limite da casa, poder do loot e tempo de reaparecimento. Nunca em área segura.
 - **NPC:** escolha o serviço (comerciante, ferreiro, encantador, banco) e o nome. Comerciante:

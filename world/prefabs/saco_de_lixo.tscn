@@ -1,7 +1,19 @@
 [gd_scene format=3]
 
+[ext_resource type="Script" path="res://props/physics_prop.gd" id="1_fwmua"]
 [ext_resource type="PackedScene" path="res://assets/props/TrashBag_1.glb" id="1_shu30"]
 
-[node name="SacoDeLixo" type="Node3D" unique_id=434006224]
+[sub_resource type="BoxShape3D" id="BoxShape3D_owr1w"]
+size = Vector3(0.49687687, 0.5637116, 0.5033354)
+
+[node name="SacoDeLixo" type="RigidBody3D" unique_id=1904514721]
+mass = 4.0
+script = ExtResource("1_fwmua")
+metadata/prop_def = "res://world/props/saco_de_lixo.tres"
 
 [node name="Modelo" type="Node3D" parent="." unique_id=1951171846 instance=ExtResource("1_shu30")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0005773455, 0.0114400415, -0.0008429587)
+
+[node name="Collision" type="CollisionShape3D" parent="." unique_id=62137706]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.2818558, 0)
+shape = SubResource("BoxShape3D_owr1w")
