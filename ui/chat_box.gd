@@ -108,10 +108,10 @@ func close() -> void:
 func _submit(text: String) -> void:
 	var player := _player(_typing_slot)
 	# Comando secreto do dono do jogo: liga/desliga o modo construtor, sem ir para o chat.
-	if player and GodMode.is_command(text) and GodMode.allowed():
-		var god := GodMode.of(self)
-		if god:
-			god.toggle(player.slot)
+	# (O modo construtor só existe no projeto; no jogo exportado o grupo fica vazio.)
+	var god := get_tree().get_first_node_in_group("god_mode")
+	if player and god and god.is_command(text) and god.allowed():
+		god.toggle(player.slot)
 		close()
 		return
 	if player and not Chat.clean_text(text).is_empty():

@@ -49,7 +49,7 @@ var slot := 0
 ## Posição na sala (P1 a P4): define cor e modelo.
 var index := 0
 var display_name := ""
-## Modo construtor (GodMode): anda, mas não luta e as criaturas ignoram.
+## Modo construtor (world/god_mode.gd): anda, mas não luta e as criaturas ignoram.
 var building := false
 ## Inventário: no host é o de verdade; no dono é a cópia que ele recebe; nos outros fica vazio.
 var inventory := Inventory.new()

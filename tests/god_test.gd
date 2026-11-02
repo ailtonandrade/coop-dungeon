@@ -101,18 +101,19 @@ func _process(_delta: float) -> bool:
 ## Gravação direto na cena do bloco (rodando pelo editor), numa cópia da cena.
 func _test_scene_files() -> void:
 	var edits: Script = load("res://world/world_edits.gd")
+	var writer: Script = load("res://world/map_writer.gd")
 	var copy := "user://test_god_chunk.tscn"
 	var packed: PackedScene = load("res://world/chunks/chunk_0_0.tscn")
 	ResourceSaver.save(packed, copy)
 	var entry := {"id": "god_teste_1", "key": "0,0", "prefab": "res://world/prefabs/barril.tscn",
 			"xform": edits.pack_xform(Transform3D(Basis.IDENTITY, Vector3(5, 0, 7)))}
-	_check(edits.save_to_scene(copy, entry), "grava a peça na cena do bloco")
+	_check(writer.save_to_scene(copy, entry), "grava a peça na cena do bloco")
 	var root: Node = (ResourceLoader.load(copy, "", ResourceLoader.CACHE_MODE_IGNORE) as PackedScene).instantiate()
 	var node: Node3D = root.get_node("Navigation").get_node_or_null("god_teste_1")
 	_check(node != null and node.scene_file_path.ends_with("barril.tscn") and node.position.is_equal_approx(Vector3(5, 0, 7)), "a cena do bloco tem a peça no lugar")
 	_check(root.get_node("Navigation").navigation_mesh.get_polygon_count() == 0, "sem malha de navegação salva junto")
 	root.free()
-	_check(edits.remove_from_scene(copy, "god_teste_1"), "tira a peça da cena do bloco")
+	_check(writer.remove_from_scene(copy, "god_teste_1"), "tira a peça da cena do bloco")
 	root = (ResourceLoader.load(copy, "", ResourceLoader.CACHE_MODE_IGNORE) as PackedScene).instantiate()
 	_check(root.get_node("Navigation").get_node_or_null("god_teste_1") == null, "a cena do bloco ficou sem a peça")
 	root.free()

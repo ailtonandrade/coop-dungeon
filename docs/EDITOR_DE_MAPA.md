@@ -133,8 +133,12 @@ ondulado de verdade, o caminho é o plugin gratuito **Terrain3D** dentro de cada
 ## Modo construtor (dentro do jogo) — só o dono do jogo
 
 Ferramenta sua para montar o mapa andando por ele, como num editor de pista. **Jogadores não
-têm acesso:** só existe rodando o projeto pelo **editor do Godot** (o jogo exportado nunca tem),
-e não aparece em menu nenhum. Também não funciona entrando no mundo de outra pessoa.
+têm acesso:** o código do modo construtor (`world/god_mode.gd`) e o que grava nas cenas do mapa
+(`world/map_writer.gd`) **nem vão no jogo exportado** (estão no filtro de exclusão dos presets de
+exportação), e o mundo só carrega o modo construtor se o arquivo existir e se estiver rodando
+pelo **editor do Godot**. Não aparece em menu nenhum e não funciona entrando no mundo de outra
+pessoa. (O que vai no jogo exportado é só `world/world_edits.gd`, que mostra as peças que você
+já colocou, inclusive para amigos conectados no seu mundo.)
 
 **Entrar e sair:** abra o chat (Enter) e digite **/construir**. Digite de novo para sair. O
 comando não vai para o chat da sala; o aviso "Modo construtor ligado" só aparece na sua tela.

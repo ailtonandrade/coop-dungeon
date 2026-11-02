@@ -19,7 +19,7 @@ func _ready() -> void:
 	# O que já existe nasce de uma vez ao carregar (loot, criaturas): sem barulho junto.
 	Sound.quiet_for(1.5)
 	_build_environment()
-	add_child(GodMode.new())
+	_add_god_mode()
 	_streamer.world_map = world_map
 	_players.spawn_position = _debug_spawn_point(world_map.spawn_point)
 	_streamer.load_now(_players.spawn_position)
@@ -27,6 +27,16 @@ func _ready() -> void:
 	InputService.joining_enabled = true
 	NetService.notify_level_ready()
 	InputService.join_last_device()
+
+
+## Modo construtor do dono do jogo: só rodando pelo editor do Godot. O arquivo nem vai no jogo
+## exportado (filtro de exportação), por isso é carregado pelo caminho, se existir.
+const GOD_MODE := "res://world/god_mode.gd"
+
+
+func _add_god_mode() -> void:
+	if OS.has_feature("editor") and ResourceLoader.exists(GOD_MODE):
+		add_child((load(GOD_MODE) as Script).new())
 
 
 ## "Jogar a partir daqui" do editor de mapa: começa no bloco escolhido (só rodando pelo editor).

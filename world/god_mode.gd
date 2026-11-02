@@ -1,9 +1,9 @@
-class_name GodMode
 extends Node
 ## Modo construtor: ferramenta do DONO DO JOGO para montar o mapa andando por ele e carimbando
 ## peças prontas, como no editor de mapa, só que de dentro do jogo. Jogadores não têm acesso:
-## só existe rodando o projeto pelo editor do Godot (o jogo exportado nunca tem) e não aparece
-## em menu nenhum. Liga e desliga digitando COMMAND no chat (a mensagem não vai para a sala).
+## este arquivo nem vai no jogo exportado (filtro de exportação; o mundo só carrega se ele
+## existir e se estiver rodando pelo editor do Godot), sem class_name para ninguém citar, e não
+## aparece em menu nenhum. Liga e desliga digitando COMMAND no chat (a mensagem não vai para a sala).
 ## Peça física cai de DROP_HEIGHT, rola e, quando para, fica gravada ali, direto na cena do
 ## bloco (WorldEdits).
 ##
@@ -15,6 +15,8 @@ extends Node
 
 ## O que digitar no chat para entrar e sair.
 const COMMAND := "/construir"
+
+const MapWriter := preload("res://world/map_writer.gd")
 
 const DROP_HEIGHT := 1.5
 const AHEAD := 2.5
@@ -51,7 +53,8 @@ var _loot_lines: Array = []  # [[item, quantidade]...]
 var _loot_gold_value := 0
 
 
-static func of(node: Node) -> GodMode:
+## O modo construtor da cena, ou null (no jogo exportado ele nem existe).
+static func of(node: Node) -> Node:
 	return node.get_tree().get_first_node_in_group("god_mode") if node.is_inside_tree() else null
 
 
@@ -190,7 +193,7 @@ func remove_piece(id: String) -> bool:
 			continue
 		var key: String = streamer.chunk_at(node.global_position)[1]
 		if WorldEdits.saves_in_map_files():
-			WorldEdits.remove_from_scene(streamer.scene_path_of(key), id)
+			MapWriter.remove_from_scene(streamer.scene_path_of(key), id)
 		node.queue_free()
 		WorldStreamer.bake_navigation.call_deferred(chunk, true)
 		removed = true
@@ -213,7 +216,7 @@ func _finalize(node: Node3D, key: String) -> void:
 		"prefab": node.scene_file_path,
 		"xform": WorldEdits.pack_xform(chunk.global_transform.affine_inverse() * node.global_transform),
 	}
-	var in_file := WorldEdits.saves_in_map_files() and WorldEdits.save_to_scene(streamer.scene_path_of(key), entry)
+	var in_file := WorldEdits.saves_in_map_files() and MapWriter.save_to_scene(streamer.scene_path_of(key), entry)
 	NetService.add_world_edit(entry, in_file)
 	_undo.append(entry.id)
 	WorldStreamer.bake_navigation(chunk, true)
@@ -401,7 +404,7 @@ func close_loot_editor() -> void:
 	WorldEdits.apply_loot(_loot_target, entry)
 	var streamer := WorldStreamer.of(self)
 	if WorldEdits.saves_in_map_files() and NetService.session_edits.has(entry) and streamer:
-		WorldEdits.save_loot_to_scene(streamer.scene_path_of(String(entry.key)), entry)
+		MapWriter.save_loot_to_scene(streamer.scene_path_of(String(entry.key)), entry)
 	else:
 		NetService.world_edit_changed(entry)
 	Sound.play("ui_confirm")

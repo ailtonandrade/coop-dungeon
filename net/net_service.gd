@@ -273,7 +273,7 @@ func _remove_player(peer: int, slot: int) -> void:
 		manager.remove_player(peer, slot)
 
 
-## Modo construtor (GodMode / WorldEdits)
+## Modo construtor (world/god_mode.gd, só no projeto) e peças dele (WorldEdits)
 
 ## Peças do construtor gravadas nos arquivos do mapa nesta sessão (host rodando pelo editor),
 ## ou recebidas do host (convidado). As do save do mundo ficam em world["placed"].
