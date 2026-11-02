@@ -10,7 +10,7 @@ signal device_changed(slot: int, device: int)
 const KEYBOARD := -1
 const NO_DEVICE := -2
 
-enum Action { MELEE, DODGE, RANGED, POTION, ARTIFACT, PAUSE, JUMP, INVENTORY, PICKUP }
+enum Action { MELEE, DODGE, RANGED, POTION, ARTIFACT, PAUSE, JUMP, INVENTORY, PICKUP, SPRINT }
 
 const JOY_BUTTONS := {
 	Action.MELEE: JOY_BUTTON_X,
@@ -21,6 +21,8 @@ const JOY_BUTTONS := {
 	Action.PAUSE: JOY_BUTTON_START,
 	Action.INVENTORY: JOY_BUTTON_BACK,
 	Action.PICKUP: JOY_BUTTON_LEFT_SHOULDER,
+	# LB: segurar corre; apertar perto de item/NPC também pega/fala (PICKUP).
+	Action.SPRINT: JOY_BUTTON_LEFT_SHOULDER,
 }
 ## Teclado + mouse: botão esquerdo ataca, direito mira e atira.
 const MOUSE_BUTTONS := {
@@ -33,7 +35,8 @@ const JOY_TRIGGERS := {
 const KEYS := {
 	Action.MELEE: KEY_J,
 	Action.JUMP: KEY_SPACE,
-	Action.DODGE: KEY_SHIFT,
+	Action.DODGE: KEY_C,
+	Action.SPRINT: KEY_SHIFT,
 	Action.RANGED: KEY_K,
 	Action.POTION: KEY_E,
 	Action.ARTIFACT: KEY_Q,
@@ -66,6 +69,8 @@ var view_yaw_deg := GameConfig.CAMERA_YAW_DEG
 ## enquanto ataca ou atira; o analógico direito / o mouse giram a câmera.
 var behind_view := false
 var view_forward := Vector3.FORWARD
+## Câmera atrás do herói: quanto a mira sobe (+) ou desce (-), em radianos (0 = reto).
+var view_pitch := 0.0
 
 var _devices: Array[int] = []
 ## Onde está o herói de cada slot (a mira do mouse sai dele).
@@ -234,6 +239,13 @@ func raw_just_pressed(slot: int, action: Action) -> bool:
 	return raw_pressed(slot, action) and _prev[slot] & (1 << action) == 0
 
 
+## "Voltar/fechar" nos menus: B no controle; no teclado, Shift (como sempre foi) ou C.
+func back_just_pressed(slot: int) -> bool:
+	if raw_just_pressed(slot, Action.DODGE):
+		return true
+	return _devices[slot] == KEYBOARD and raw_just_pressed(slot, Action.SPRINT)
+
+
 func join_last_device() -> void:
 	if not joining_enabled:
 		return
@@ -284,8 +296,8 @@ func device_of(slot: int) -> int:
 
 
 ## Mira (twin-stick) já no chão do mundo: Vector2(x, z) de comprimento 1, ou zero se não mira.
-## Controle: analógico direito. Teclado: o mouse, enquanto está em uso (mexido há pouco ou
-## com um botão apertado); parado por um tempo, o herói volta a olhar para onde anda.
+## Controle: analógico direito. Teclado: o mouse, só com um botão dele apertado (atacando ou
+## atirando); fora disso o herói olha para onde anda.
 func get_aim(slot: int) -> Vector2:
 	if is_blocked(slot):
 		return Vector2.ZERO
@@ -296,9 +308,9 @@ func get_aim(slot: int) -> Vector2:
 		return Vector2.ZERO
 	var device := _devices[slot]
 	if device == KEYBOARD:
+		# Só olha para o mouse enquanto ataca/atira com ele; soltou, olha para onde anda (WASD).
 		var mouse_down := Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT) or Input.is_mouse_button_pressed(MOUSE_BUTTON_RIGHT)
-		var mouse_recent := Time.get_ticks_msec() / 1000.0 - _mouse_moved_at < GameConfig.MOUSE_AIM_TIMEOUT
-		if not (mouse_down or mouse_recent) or not aim_projector.is_valid() or not is_inside_tree():
+		if not mouse_down or not aim_projector.is_valid() or not is_inside_tree():
 			return Vector2.ZERO
 		var anchor := _aim_anchor[slot]
 		var point: Vector3 = aim_projector.call(_mouse_position, anchor.y + 1.0)
@@ -311,6 +323,13 @@ func get_aim(slot: int) -> Vector2:
 		var world := Vector3(stick.x, 0.0, stick.y).rotated(Vector3.UP, deg_to_rad(GameConfig.CAMERA_YAW_DEG))
 		return Vector2(world.x, world.z).normalized()
 	return Vector2.ZERO
+
+
+## Inclinação da mira: só na câmera atrás do herói dá para mirar para cima e para baixo. Na
+## isométrica não dá, então vale PlayerInput.AIM_FLAT: o tiro acerta o que estiver na mesma
+## reta no chão, seja rasteiro, alto ou voando.
+func get_aim_pitch(_slot: int) -> float:
+	return view_pitch if behind_view else PlayerInput.AIM_FLAT
 
 
 func set_aim_anchor(slot: int, world_position: Vector3) -> void:

@@ -31,6 +31,8 @@ const MANTLE_TIME := 0.4
 
 # Rolada (esquiva)
 const DODGE_SPEED := 8.0
+## Correr (segurando Shift/LB): multiplica a velocidade de andar.
+const SPRINT_FACTOR := 1.6
 const DODGE_TIME := 0.4
 const DODGE_COOLDOWN := 1.0
 

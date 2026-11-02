@@ -14,15 +14,23 @@ var _life := LIFETIME
 var _from := Vector3.ZERO
 var _from_player := false
 var _shooter := -1
+## Tiro da câmera isométrica: acerta quem estiver embaixo ou em cima da reta dele no chão
+## (de COLUMN_BELOW abaixo até COLUMN_ABOVE acima), não só na altura exata do tiro.
+var _column := false
+var _target_group := "enemies"
+
+const COLUMN_RADIUS := 0.55
+const COLUMN_BELOW := 1.6
+const COLUMN_ABOVE := 4.0
 
 
 ## Dispara (só o host chama). `shooter` é qualquer nó dentro da fase.
 static func fire(shooter: Node, from: Vector3, direction: Vector3, speed: float, p_damage: float,
-		target_layer: int, color: Color, size := Vector3(0.1, 0.1, 0.7)) -> void:
+		target_layer: int, color: Color, size := Vector3(0.1, 0.1, 0.7), column := false) -> void:
 	NetReplicator.of(shooter).spawn("projectile", {
 		"shooter": shooter.get_meta("net_id", -1),
 		"from": from, "velocity": direction.normalized() * speed, "damage": p_damage,
-		"target_layer": target_layer, "color": color, "size": size,
+		"target_layer": target_layer, "color": color, "size": size, "column": column,
 	})
 
 
@@ -35,6 +43,8 @@ static func build(data: Dictionary) -> Projectile:
 	projectile.collision_mask = GameConfig.LAYER_SOLID | int(data.target_layer)
 	projectile._from_player = int(data.target_layer) & GameConfig.LAYER_ENEMIES != 0
 	projectile._shooter = int(data.get("shooter", -1))
+	projectile._column = bool(data.get("column", false))
+	projectile._target_group = "enemies" if projectile._from_player else "players"
 	var color: Color = data.color
 
 	var sphere := SphereShape3D.new()
@@ -66,13 +76,40 @@ func _ready() -> void:
 
 
 func _physics_process(delta: float) -> void:
+	var before := global_position
 	global_position += velocity * delta
+	if _column and multiplayer.is_server():
+		var hit := _column_hit(before, global_position)
+		if hit:
+			_on_body_entered(hit)
+			return
 	_life -= delta
 	if _life <= 0.0 and multiplayer.is_server():
 		queue_free()
 
 
+## Alvo cuja posição no chão passa perto do trecho percorrido neste quadro, em qualquer altura
+## dentro da coluna.
+func _column_hit(from: Vector3, to: Vector3) -> Node3D:
+	var a := Vector2(from.x, from.z)
+	var b := Vector2(to.x, to.z)
+	for node in get_tree().get_nodes_in_group(_target_group):
+		var target := node as Node3D
+		if target == null or not target.has_method("take_hit") or not target.call("is_targetable"):
+			continue
+		var height := target.global_position.y - to.y
+		if height < -COLUMN_BELOW - 1.0 or height > COLUMN_ABOVE:
+			continue
+		var point := Vector2(target.global_position.x, target.global_position.z)
+		var closest := Geometry2D.get_closest_point_to_segment(point, a, b)
+		if closest.distance_to(point) <= COLUMN_RADIUS:
+			return target
+	return null
+
+
 func _on_body_entered(body: Node3D) -> void:
+	if is_queued_for_deletion():
+		return
 	if not multiplayer.is_server():
 		visible = false
 		return

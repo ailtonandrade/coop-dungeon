@@ -235,7 +235,7 @@ func _physics_process(delta: float) -> void:
 		return
 	if InputService.raw_just_pressed(slot, InputService.Action.JUMP) or InputService.raw_just_pressed(slot, InputService.Action.PAUSE):
 		_accept()
-	elif InputService.raw_just_pressed(slot, InputService.Action.DODGE):
+	elif InputService.back_just_pressed(slot):
 		_back()
 	elif _creating and InputService.raw_just_pressed(slot, InputService.Action.POTION):
 		_draft.chip_color = wrapi(int(_draft.chip_color) + 1, 0, Characters.CHIP_COLORS.size())

@@ -10,6 +10,10 @@ extends RefCounted
 var move := Vector2.ZERO
 ## Mira no chão do mundo (x, z), comprimento 1, ou zero se não está mirando.
 var aim := Vector2.ZERO
+## Inclinação da mira (radianos, + para cima) na câmera atrás do herói; AIM_FLAT na isométrica.
+var aim_pitch := AIM_FLAT
+
+const AIM_FLAT := -100.0
 
 var _local_slot := -1
 var _down := 0
@@ -29,6 +33,7 @@ func begin_tick() -> void:
 	if _local_slot >= 0:
 		move = InputService.get_world_move(_local_slot)
 		aim = InputService.get_aim(_local_slot)
+		aim_pitch = InputService.get_aim_pitch(_local_slot)
 		_down = InputService.get_down_mask(_local_slot)
 		_edges |= InputService.get_pressed_mask(_local_slot)
 	_tick_edges = _edges
@@ -41,8 +46,9 @@ func defer() -> void:
 	_tick_edges = 0
 
 
-func apply_remote(p_move: Vector2, p_aim: Vector2, down: int, counts: PackedByteArray) -> void:
+func apply_remote(p_move: Vector2, p_aim: Vector2, down: int, counts: PackedByteArray, p_pitch := AIM_FLAT) -> void:
 	move = p_move.limit_length(1.0)
+	aim_pitch = p_pitch if p_pitch == AIM_FLAT else clampf(p_pitch, -1.5, 1.5)
 	aim = p_aim.normalized() if p_aim.length_squared() > 0.01 else Vector2.ZERO
 	_down = down
 	if _counts.size() == counts.size():

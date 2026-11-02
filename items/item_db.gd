@@ -25,6 +25,7 @@ const RARITIES := {
 const STATS := {
 	"damage": "Dano", "armor": "Armadura", "hp": "Vida", "damage_pct": "% de dano",
 	"lifesteal_pct": "% de roubo de vida", "move_speed_pct": "% de velocidade", "capacity": "Espaços",
+	"potion_heal_pct": "% de cura da poção", "potion_cd_pct": "% menos recarga da poção",
 }
 
 ## Refino (ferreiro): até +9. Chance de dar certo ao ir para cada nível (índice = nível atual).
@@ -44,6 +45,7 @@ const ENCHANTS := {
 	"protetor": {"name": "Blindagem", "slots": ["head", "chest", "legs", "feet"], "stat": "armor", "per_level": 3.0},
 	"robusto": {"name": "Reforço", "slots": ["chest", "legs", "amulet"], "stat": "hp", "per_level": 12.0},
 	"agil": {"name": "Servo-motor", "slots": ["feet", "legs"], "stat": "move_speed_pct", "per_level": 5.0},
+	"injetor": {"name": "Injetor", "slots": ["amulet", "chest"], "stat": "potion_heal_pct", "per_level": 10.0},
 }
 
 ## Venda ao sucateiro: esta fração do valor.
@@ -186,17 +188,18 @@ static func make(id: String, power := 1, rarity := "common") -> Dictionary:
 
 
 ## Raridade sorteada do loot: quase sempre Sucata, às vezes Remendado, raramente Protótipo.
-static func random_rarity() -> String:
+## `boost` multiplica a chance de Remendado e Protótipo (generosidade do loot).
+static func random_rarity(boost := 1.0) -> String:
 	var roll := randf()
-	return "unique" if roll < 0.05 else ("rare" if roll < 0.25 else "common")
+	return "unique" if roll < 0.05 * boost else ("rare" if roll < 0.25 * boost else "common")
 
 
 ## Item aleatório do sorteio geral: quanto maior o poder, melhor. Vazio se não há nenhum.
-static func random_drop(power: int) -> Dictionary:
+static func random_drop(power: int, rarity_boost := 1.0) -> Dictionary:
 	var pool := drop_pool()
 	if pool.is_empty():
 		return {}
-	return make(pool.pick_random(), maxi(power, 1), random_rarity())
+	return make(pool.pick_random(), maxi(power, 1), random_rarity(rarity_boost))
 
 
 static func starter_kit() -> Dictionary:

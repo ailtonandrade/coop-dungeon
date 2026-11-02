@@ -325,7 +325,7 @@ func _update_normal(delta: float, dir: Vector3) -> Vector3:
 	if _input.just_pressed(InputService.Action.PICKUP):
 		_pick_up()
 
-	var target := dir * move_speed() * _strafe_factor(dir)
+	var target := dir * move_speed() * _strafe_factor(dir) * (GameConfig.SPRINT_FACTOR if is_sprinting() else 1.0)
 	_move = _move.move_toward(target, GameConfig.PLAYER_ACCEL * delta)
 	if not grounded:
 		if not _animator.is_playing("jump"):
@@ -607,10 +607,16 @@ func _shoot_arrow() -> void:
 		_facing = Combat.flat(aim.global_position - global_position).normalized()
 	var from := global_position + Vector3.UP * 1.1 + _facing * 0.6
 	var dir := _facing
-	if aim:
-		dir = (aim.global_position + Vector3.UP * 1.0 - from).normalized()
+	# Isométrica: não dá para mirar para cima/baixo, então o tiro sai reto e acerta qualquer
+	# criatura na mesma reta (rasteira, alta ou voando). Atrás do herói: vai para onde mira.
+	var flat_aim := _input.aim_pitch == PlayerInput.AIM_FLAT
+	if not flat_aim:
+		dir = (_facing * cos(_input.aim_pitch) + Vector3.UP * sin(_input.aim_pitch)).normalized()
+	if aim and not (aimed and not flat_aim):
+		dir = Combat.flat(aim.global_position - from).normalized() if flat_aim \
+				else (aim.global_position + Vector3.UP * 1.0 - from).normalized()
 	Projectile.fire(self, from, dir, GameConfig.ARROW_SPEED, ranged_damage(),
-			GameConfig.LAYER_ENEMIES, Color(1.0, 0.95, 0.7))
+			GameConfig.LAYER_ENEMIES, Color(1.0, 0.95, 0.7), Vector3(0.1, 0.1, 0.7), flat_aim)
 	# Parado, o corpo todo atira; andando, as pernas continuam correndo (Run_Shoot e direções).
 	_shoot_pose = SHOOT_POSE_TIME
 	if Combat.flat(_move).length() < 0.5 and is_on_floor():
@@ -622,8 +628,8 @@ func _drink_potion() -> void:
 	if potion_cooldown > 0.0 or health.hp >= health.max_hp:
 		return
 	var before := health.hp
-	health.heal(health.max_hp * GameConfig.POTION_HEAL)
-	potion_cooldown = GameConfig.POTION_COOLDOWN * cooldown_factor()
+	health.heal(health.max_hp * potion_heal_fraction())
+	potion_cooldown = potion_cooldown_total()
 	_fx("fx_heal", [health.hp - before])
 	train("vigor", (health.hp - before) / 8.0)
 
@@ -715,12 +721,30 @@ func damage_factor() -> float:
 
 
 ## Multiplicador das recargas (rolar, tiro, poção) pelo chip Reflexo turbinado.
+## Fração da vida máxima que a poção cura (chip Seringa turbinada, itens e mod Injetor).
+func potion_heal_fraction() -> float:
+	return GameConfig.POTION_HEAL * (1.0 + (inventory.total("potion_heal_pct") + progress.bonus("potion_heal_pct")) / 100.0)
+
+
+## Recarga da poção (Reflexo turbinado, chip Bomba de adrenalina e itens; no máximo -60%).
+func potion_cooldown_total() -> float:
+	var cut := minf(inventory.total("potion_cd_pct") + progress.bonus("potion_cd_pct"), 60.0)
+	return GameConfig.POTION_COOLDOWN * cooldown_factor() * (1.0 - cut / 100.0)
+
+
 func cooldown_factor() -> float:
 	return 1.0 - minf(progress.bonus("cooldown_pct"), 50.0) / 100.0
 
 
 func armor() -> float:
 	return inventory.total("armor") + progress.skill_bonus("resiliencia")
+
+
+## Correndo: segurando Shift/LB, andando, sem mirar (atacar ou atirar corta a corrida).
+func is_sprinting() -> bool:
+	return state == State.NORMAL and _input != null and _input.is_pressed(InputService.Action.SPRINT) \
+			and _input.move.length_squared() > 0.04 and _aim_dir == Vector3.ZERO \
+			and not _input.is_pressed(InputService.Action.RANGED)
 
 
 func move_speed() -> float:
@@ -883,14 +907,7 @@ func fx_dress(visual: Array) -> void:
 func fx_toast(text: String, color: Color, sound := "") -> void:
 	if sound:
 		Sound.play(sound, global_position + Vector3.UP * 1.0)
-	var label := Label3D.new()
-	label.text = text
-	label.modulate = color
-	label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
-	label.no_depth_test = true
-	label.font_size = 40
-	label.outline_size = 10
-	label.layers = 2
+	var label := WorldText.make(text, 22, color, true)
 	add_child(label)
 	label.position = Vector3.UP * 2.9
 	var tween := label.create_tween()

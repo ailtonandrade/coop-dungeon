@@ -20,13 +20,7 @@ var _label: Label3D
 
 
 func _ready() -> void:
-	_label = Label3D.new()
-	_label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
-	_label.no_depth_test = true
-	_label.font_size = 34
-	_label.outline_size = 10
-	_label.modulate = Color(1.0, 0.85, 0.5)
-	_label.layers = 2
+	_label = WorldText.make("", 22, Color(1.0, 0.85, 0.5))
 	_label.position.y = 3.0
 	add_child(_label)
 	_label.text = title

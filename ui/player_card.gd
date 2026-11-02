@@ -193,7 +193,7 @@ func _draw_hotbar() -> void:
 	var entries := [
 		["X", player.equipped("melee"), 0.0, 0.0],
 		["RT", player.equipped("ranged"), 0.0, 0.0],
-		["Y", "potion", player.potion_cooldown, GameConfig.POTION_COOLDOWN * player.cooldown_factor()],
+		["Y", "potion", player.potion_cooldown, player.potion_cooldown_total()],
 		["B", "dodge", player.dodge_cooldown_left(), GameConfig.DODGE_COOLDOWN * player.cooldown_factor()],
 	]
 	var x := BAR.position.x

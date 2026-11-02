@@ -18,6 +18,8 @@ const CHIPS := {
 	"braco": {"name": "Braço hidráulico", "text": "+%s%% de dano", "per": 5.0, "stat": "damage_pct"},
 	"reflexo": {"name": "Reflexo turbinado", "text": "-%s%% nas recargas (rolar, tiro, poção)", "per": 4.0, "stat": "cooldown_pct"},
 	"motor": {"name": "Motor nas pernas", "text": "+%s%% de velocidade", "per": 2.5, "stat": "speed_pct"},
+	"seringa": {"name": "Seringa turbinada", "text": "+%s%% de cura da poção", "per": 8.0, "stat": "potion_heal_pct"},
+	"adrenalina": {"name": "Bomba de adrenalina", "text": "-%s%% na recarga da poção", "per": 5.0, "stat": "potion_cd_pct"},
 }
 ## Habilidades estilo Tibia: sobem com o uso, começando em SKILL_START. Armas sobem acertando
 ## com aquele tipo; Vigor com o dano aguentado e a vida recuperada; Resiliência com cada golpe

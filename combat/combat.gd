@@ -6,11 +6,14 @@ extends RefCounted
 
 ## Corpos da camada `mask` dentro de um leque de `arc_deg` graus à frente de `attacker`.
 static func query_arc(attacker: Node3D, forward: Vector3, radius: float, arc_deg: float, mask: int) -> Array[Node3D]:
-	var shape := SphereShape3D.new()
+	# Cilindro alto (do chão até ~4 m): acerta criatura rasteira, alta ou voando baixo na
+	# frente, já que na câmera isométrica não dá para mirar para cima ou para baixo.
+	var shape := CylinderShape3D.new()
 	shape.radius = radius
+	shape.height = 4.5
 	var params := PhysicsShapeQueryParameters3D.new()
 	params.shape = shape
-	params.transform = Transform3D(Basis.IDENTITY, attacker.global_position + Vector3.UP * 0.9)
+	params.transform = Transform3D(Basis.IDENTITY, attacker.global_position + Vector3.UP * 1.6)
 	params.collision_mask = mask
 	var min_dot := cos(deg_to_rad(arc_deg / 2.0))
 	var hits: Array[Node3D] = []

@@ -6,12 +6,13 @@ extends CanvasLayer
 ## O visual vem do tema do projeto e do UiSkin (ui/skin/).
 
 const CONTROLS := [
-	["Mirar", "analógico direito", "mouse"],
+	["Mirar", "analógico direito", "mouse (segurando o clique)"],
 	["Câmera atrás: girar", "analógico direito", "mouse"],
 	["Atacar", "X (segure = combo)", "clique esquerdo / J"],
 	["Atirar", "RT", "clique direito / K"],
 	["Pular / escalar", "A", "Espaço"],
-	["Rolar", "B", "Shift"],
+	["Correr", "LB (segure)", "Shift (segure)"],
+	["Rolar", "B", "C"],
 	["Poção", "Y", "E"],
 	["Artefato", "RB", "Q"],
 	["Pegar / falar", "LB", "F"],
@@ -32,6 +33,7 @@ var _pause_info: Label
 var _resume_button: Button
 var _copy_button: Button
 var _password_row: Control
+var _loot_button: Button
 var _pause_pages := {}
 var _pause_tabs := {}
 var _pause_page := "Jogo"
@@ -429,6 +431,11 @@ func _build_pause_menu() -> void:
 			_copy_button.text = "Copiado! Mande para o amigo: %s" % NetService.internet.code)
 	_copy_button.visible = false
 	_password_row = _build_password_row(game)
+	_loot_button = _make_button(game, "", func() -> void:
+		var order: Array = Loot.GENEROSITY_ORDER
+		var now := String(NetService.world.get("loot", "normal"))
+		NetService.set_loot_generosity(order[(order.find(now) + 1) % order.size()])
+		_update_pause_info())
 	_make_button(game, "Sair para o menu", func() -> void: NetService.leave_session())
 	pages["Jogo"] = game
 
@@ -512,6 +519,9 @@ func _update_pause_info() -> void:
 		if internet:
 			lines.append(internet.describe())
 	_password_row.visible = NetService.mode == NetService.Mode.HOST
+	# Quem manda no mundo (host, ou o sofá offline) escolhe a generosidade do loot.
+	_loot_button.visible = NetService.mode != NetService.Mode.CLIENT
+	_loot_button.text = "Loot: %s (criaturas e baús)" % Loot.GENEROSITY.get(String(NetService.world.get("loot", "normal")), Loot.GENEROSITY.normal).name
 	if NetService.mode == NetService.Mode.HOST:
 		lines.append("Mundo com senha." if NetService.has_password() else "Mundo sem senha: quem tiver o código ou o IP entra.")
 	_pause_info.text = "\n".join(lines)

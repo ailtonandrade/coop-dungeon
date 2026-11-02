@@ -16,18 +16,10 @@ static func damage_number(source: Node3D, position: Vector3, amount: float, kind
 	var scene := _scene(source)
 	if scene == null or amount <= 0.0:
 		return
-	var label := Label3D.new()
-	label.text = ("+%d" if kind == "heal" else "%d") % maxi(roundi(amount), 1)
-	label.modulate = NUMBER_COLORS.get(kind, Color.WHITE)
+	var label := WorldText.make(("+%d" if kind == "heal" else "%d") % maxi(roundi(amount), 1),
+			30.0 if kind == "heavy" else 23.0, NUMBER_COLORS.get(kind, Color.WHITE), true)
 	label.outline_modulate = Color(0.05, 0.03, 0.03)
-	label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
-	label.no_depth_test = true
-	label.fixed_size = true
-	label.pixel_size = 0.0011
 	label.font = UiSkin.title_font()
-	label.font_size = 52 if kind == "heavy" else 38
-	label.outline_size = 14
-	label.layers = 2
 	label.render_priority = 10
 	scene.add_child(label)
 	label.global_position = position + Vector3(randf_range(-0.35, 0.35), 0.0, randf_range(-0.2, 0.2))
@@ -141,18 +133,9 @@ static func level_up(source: Node3D, position: Vector3, new_level: int, color: C
 	tween.tween_property(material, "albedo_color:a", 0.0, 0.9)
 	tween.tween_callback(pillar.queue_free)
 	sparks(source, position + Vector3.UP * 0.3, color.lightened(0.4), 30, 6.0)
-	var label := Label3D.new()
-	label.text = "NÍVEL %d" % new_level
-	label.modulate = Color(1.0, 0.85, 0.35)
+	var label := WorldText.make("NÍVEL %d" % new_level, 34, Color(1.0, 0.85, 0.35), true)
 	label.outline_modulate = Color(0.05, 0.03, 0.03)
-	label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
-	label.no_depth_test = true
-	label.fixed_size = true
-	label.pixel_size = 0.0011
 	label.font = UiSkin.title_font()
-	label.font_size = 54
-	label.outline_size = 16
-	label.layers = 2
 	label.render_priority = 10
 	scene.add_child(label)
 	label.global_position = position + Vector3.UP * 2.4

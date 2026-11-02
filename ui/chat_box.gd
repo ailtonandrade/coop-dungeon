@@ -134,7 +134,7 @@ func _physics_process(_delta: float) -> void:
 				Chat.send(player, Chat.QUICK[_quick_cursor])
 				Sound.play("ui_confirm")
 			close()
-		elif InputService.raw_just_pressed(_quick_slot, InputService.Action.DODGE):
+		elif InputService.back_just_pressed(_quick_slot):
 			close()
 	# Mensagens somem sozinhas com o chat fechado.
 	if not is_open() and Engine.get_process_frames() % 30 == 0:

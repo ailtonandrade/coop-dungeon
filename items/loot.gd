@@ -12,6 +12,16 @@ const DROP_CHANCES := [0.55, 0.3, 0.12]
 const GOLD_CHANCE := 0.85
 const GOLD_PER_POWER := Vector2i(3, 8)
 
+## Generosidade do loot, escolhida pelo host (fica no save do mundo, chave "loot"):
+## chance de cada item cair, moedas e chance de raridade boa.
+const GENEROSITY := {
+	"escasso": {"name": "Escasso", "chance": 0.6, "gold": 0.7, "rarity": 0.7},
+	"normal": {"name": "Normal", "chance": 1.0, "gold": 1.0, "rarity": 1.0},
+	"generoso": {"name": "Generoso", "chance": 1.5, "gold": 1.5, "rarity": 1.4},
+	"farto": {"name": "Chuva de loot", "chance": 2.2, "gold": 2.2, "rarity": 2.0},
+}
+const GENEROSITY_ORDER := ["escasso", "normal", "generoso", "farto"]
+
 var item: Dictionary
 
 var _life := LIFETIME
@@ -35,21 +45,27 @@ static func roll_drops(source: Node3D, power: int, creature := "") -> void:
 ## para esta criatura.
 static func roll_items(power: int, creature := "") -> Array[Dictionary]:
 	var items: Array[Dictionary] = []
+	var rules := generosity()
 	if randf() < GOLD_CHANCE:
-		items.append(ItemDB.make_gold(maxi(1, power) * randi_range(GOLD_PER_POWER.x, GOLD_PER_POWER.y)))
+		items.append(ItemDB.make_gold(roundi(maxi(1, power) * randi_range(GOLD_PER_POWER.x, GOLD_PER_POWER.y) * rules.gold)))
 	for chance: float in DROP_CHANCES:
-		if randf() >= chance:
+		if randf() >= minf(chance * rules.chance, 0.95):
 			break
-		var item := ItemDB.random_drop(power)
+		var item := ItemDB.random_drop(power, rules.rarity)
 		if not item.is_empty():
 			items.append(item)
 	for entry: Array in ItemDB.creature_drops(creature):
 		var rule: ItemDrop = entry[1]
-		if randf() * 100.0 >= rule.chance:
+		if randf() * 100.0 >= rule.chance * rules.chance:
 			continue
 		for i in rule.roll_count():
 			items.append(ItemDB.make(entry[0], maxi(power + rule.power_bonus, 1), rule.roll_rarity()))
 	return items
+
+
+## Regras de generosidade do mundo aberto agora (o host decide; offline também vale).
+static func generosity() -> Dictionary:
+	return GENEROSITY.get(String(NetService.world.get("loot", "normal")), GENEROSITY.normal)
 
 
 ## Host: o loot mais perto de `position` dentro do alcance de pegar, ou null.
@@ -96,15 +112,8 @@ func _ready() -> void:
 	add_child(beam)
 
 	# Nome no chão na cor da raridade (como no MU).
-	var label := Label3D.new()
-	label.text = ItemDB.display_name(item) if item.get("id") == "gold" \
-			else "%s · poder %d" % [ItemDB.display_name(item), int(item.get("power", 1))]
-	label.modulate = color
-	label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
-	label.no_depth_test = true
-	label.font_size = 30
-	label.outline_size = 8
-	label.layers = 2
+	var label := WorldText.make(ItemDB.display_name(item) if item.get("id") == "gold" \
+			else "%s · poder %d" % [ItemDB.display_name(item), int(item.get("power", 1))], 17, color)
 	label.position.y = 1.2
 	add_child(label)
 

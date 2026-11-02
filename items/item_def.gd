@@ -14,7 +14,8 @@ const LOOKS := ["sword", "dagger", "axe", "hammer", "bow", "longbow", "crossbow"
 const BONES := ["Wrist.R", "Wrist.L", "LowerArm.R", "LowerArm.L", "UpperArm.R", "UpperArm.L",
 		"Shoulder.R", "Shoulder.L", "Head", "Neck", "Chest", "Torso", "Abdomen", "Hips",
 		"UpperLeg.R", "UpperLeg.L", "LowerLeg.R", "LowerLeg.L", "Foot.R", "Foot.L"]
-const STAT_FIELDS := ["damage", "armor", "hp", "damage_pct", "lifesteal_pct", "move_speed_pct", "capacity"]
+const STAT_FIELDS := ["damage", "armor", "hp", "damage_pct", "lifesteal_pct", "move_speed_pct", "capacity",
+		"potion_heal_pct", "potion_cd_pct"]
 
 ## Lojas que existem no mapa (o painel preenche ao abrir), para a lista de "vendido por".
 ## Guardada no Engine (variável estática zera quando o script recompila).
@@ -47,6 +48,9 @@ static func set_known_shops(shops: PackedStringArray) -> void:
 @export var damage_pct := 0.0
 @export var lifesteal_pct := 0.0
 @export var move_speed_pct := 0.0
+## Poção: mais cura (%) e menos recarga (%).
+@export var potion_heal_pct := 0.0
+@export var potion_cd_pct := 0.0
 ## Bolsas: quantas casas.
 @export_range(0, 40) var capacity := 0
 

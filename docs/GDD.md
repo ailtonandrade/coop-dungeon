@@ -241,13 +241,14 @@ Segue o centro dos jogadores da máquina, como a câmera principal.
 | Ação | Controle | Teclado |
 |---|---|---|
 | Mover | Analógico esquerdo | WASD |
-| Mirar (anda de costas/lado olhando a mira) | Analógico direito | Mouse (segurando um botão) |
+| Mirar (anda de costas/lado olhando a mira) | Analógico direito | Mouse (só segurando um clique) |
 | Corpo a corpo | X | J ou botão esquerdo do mouse |
 | À distância (dá pra atirar andando) | RT | K ou botão direito do mouse |
 | Pular / escalar | A | Espaço |
-| Rolar | B | Shift |
+| Correr (segurar) | LB | Shift |
+| Rolar | B | C |
 | Poção | Y | E |
-| Pegar item do chão / falar com NPC | LB | F |
+| Pegar item do chão / falar com NPC | LB (apertar perto) | F |
 | Inventário | Back | I |
 | Artefato | RB | Q |
 | Menu | Start | Esc |
@@ -257,8 +258,8 @@ Segue o centro dos jogadores da máquina, como a câmera principal.
 **Mira (twin-stick):** com o analógico direito (ou mouse), o herói olha para a mira e anda
 para qualquer lado: de frente, de lado e de costas (mais devagar de costas). Atirando andando,
 as pernas continuam correndo. Sem mirar, o golpe e a flecha corrigem sozinhos para o inimigo mais perto.
-No teclado, o herói olha para o cursor enquanto o mouse está em uso (mexido nos últimos 3 s ou
-com botão apertado); parado, volta a olhar para onde anda.
+No teclado, o herói só olha para o cursor enquanto um clique está apertado (atacando ou
+atirando); soltou, volta a olhar para onde anda.
 
 **Segurar para atacar:** segurando o ataque corpo a corpo, o combo continua sozinho, com uma
 pausa de 0,25 s entre um combo completo e o próximo. Segurando o tiro, atira sem parar
@@ -364,3 +365,16 @@ Além do nível (XP das criaturas) e dos chips piratas, cada personagem tem habi
 - Curva exponencial como no Tibia (cada nível pede ~10% mais uso), até 120. Subir avisa no chat
   ("Nina avançou em Lâminas (15)") e sobre o herói. Janela **Habilidades** na roda do
   inventário (RB/Q: Inventário -> Chip pirata -> Habilidades).
+
+
+## Ajustes do host e da poção
+
+- **Generosidade do loot** (pausa > Jogo, só host ou sofá offline): Escasso, Normal, Generoso ou
+  Chuva de loot. Muda a chance de cada item cair (criaturas e baús), as moedas e a chance de
+  Remendado/Protótipo. Fica salvo no mundo.
+- **Poção:** cura 40% da vida a cada 15 s. Melhora com os chips *Seringa turbinada* (+8% de cura
+  por ponto) e *Bomba de adrenalina* (-5% de recarga por ponto), com itens que tragam esses
+  atributos e com o mod *Injetor* (amuleto/peito). A recarga cai no máximo 60%.
+- **Mira e altura:** na câmera isométrica não dá para mirar para cima/baixo, então tiros e golpes
+  acertam o que estiver na mesma reta no chão, seja rasteiro, alto ou voando baixo (até ~4 m).
+  Na câmera atrás do herói, o tiro vai para onde a câmera aponta (para cima e para baixo).

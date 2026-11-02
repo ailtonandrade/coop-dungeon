@@ -12,6 +12,8 @@ extends Camera3D
 const SHAKE_DECAY := 2.5
 const SNAP_DISTANCE := 25.0
 const SHAKE_MAX_OFFSET := 0.6
+## Inclinação da câmera atrás do herói em que a mira sai reta (a câmera começa assim).
+const BEHIND_PITCH_LEVEL := -0.3
 
 var _focus := Vector3.ZERO
 var _distance := GameConfig.CAMERA_DIST_MIN
@@ -139,6 +141,8 @@ func _follow_behind(delta: float) -> void:
 	_place_listener(global_position)
 	InputService.view_yaw_deg = rad_to_deg(_yaw)
 	InputService.view_forward = -Vector3(look.z.x, 0.0, look.z.z).normalized()
+	# A câmera olha um pouco para baixo para ver o herói: essa inclinação é a mira "reta".
+	InputService.view_pitch = _pitch - BEHIND_PITCH_LEVEL
 	InputService.set_aim_anchor(slot, _behind_player.global_position)
 
 

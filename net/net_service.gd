@@ -98,6 +98,13 @@ func set_world_password(text: String) -> void:
 		SaveService.save_world(world)
 
 
+## Host: generosidade do loot deste mundo (Loot.GENEROSITY) e salva.
+func set_loot_generosity(level: String) -> void:
+	world["loot"] = level
+	if is_host() and not world.is_empty():
+		SaveService.save_world(world)
+
+
 ## Abrir mundo
 
 ## O navegador (versão Web, usada para testar no Xbox pelo Edge) não tem a rede do jogo:
@@ -277,7 +284,7 @@ func _physics_process(_delta: float) -> void:
 				counts[action] = (counts[action] + 1) % 256
 		_press_counts[slot] = counts
 		_rpc_input.rpc_id(1, slot, InputService.get_world_move(slot), InputService.get_aim(slot),
-				InputService.get_down_mask(slot), counts)
+				InputService.get_down_mask(slot), counts, InputService.get_aim_pitch(slot))
 
 
 ## Conversa cliente <-> host
@@ -374,10 +381,10 @@ func _rpc_request_leave(slot: int) -> void:
 
 
 @rpc("any_peer", "call_remote", "unreliable_ordered")
-func _rpc_input(slot: int, move: Vector2, aim: Vector2, down: int, counts: PackedByteArray) -> void:
+func _rpc_input(slot: int, move: Vector2, aim: Vector2, down: int, counts: PackedByteArray, pitch: float) -> void:
 	var peer := multiplayer.get_remote_sender_id()
 	if _ready_peers.has(peer):
-		remote_input(peer, slot).apply_remote(move, aim, down, counts)
+		remote_input(peer, slot).apply_remote(move, aim, down, counts, pitch)
 
 
 func _ensure_fingerprint() -> void:

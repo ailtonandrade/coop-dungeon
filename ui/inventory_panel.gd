@@ -204,7 +204,7 @@ func _physics_process(delta: float) -> void:
 	elif InputService.raw_just_pressed(slot, InputService.Action.ARTIFACT):
 		Sound.play("ui_confirm")
 		switch_requested.emit()
-	elif InputService.raw_just_pressed(slot, InputService.Action.DODGE) \
+	elif InputService.back_just_pressed(slot) \
 			or InputService.raw_just_pressed(slot, InputService.Action.PAUSE):
 		_back()
 

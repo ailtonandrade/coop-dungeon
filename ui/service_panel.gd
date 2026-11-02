@@ -215,7 +215,7 @@ func _physics_process(delta: float) -> void:
 	_last_dir = dir
 	if InputService.raw_just_pressed(slot, InputService.Action.JUMP):
 		_confirm()
-	elif InputService.raw_just_pressed(slot, InputService.Action.DODGE) \
+	elif InputService.back_just_pressed(slot) \
 			or InputService.raw_just_pressed(slot, InputService.Action.PAUSE) \
 			or InputService.raw_just_pressed(slot, InputService.Action.INVENTORY):
 		_back()

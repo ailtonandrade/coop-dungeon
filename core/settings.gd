@@ -84,10 +84,20 @@ func set_ui_scale(value: float) -> void:
 	changed.emit()
 
 
+## A interface é desenhada para 1920x1080 e encolhe junto com a janela; numa janela pequena
+## (1280x720) os textos ficavam minúsculos. Abaixo desta fração do tamanho de 1080p, compensa.
+const UI_MIN_WINDOW_SCALE := 0.9
+
+
 ## Aplica o tamanho da interface na janela (tudo que é 2D cresce junto, na mesma proporção).
 func apply_ui_scale() -> void:
-	if is_inside_tree():
-		get_tree().root.content_scale_factor = ui_scale
+	if not is_inside_tree():
+		return
+	var root := get_tree().root
+	if not root.size_changed.is_connected(apply_ui_scale):
+		root.size_changed.connect(apply_ui_scale)
+	var window_scale := root.size.y / 1080.0 if root.size.y > 0 else 1.0
+	root.content_scale_factor = ui_scale * maxf(1.0, UI_MIN_WINDOW_SCALE / window_scale)
 
 
 ## Muda uma opção de voz ("voice_mode", "mic_device", "radio_voice"...) e salva.

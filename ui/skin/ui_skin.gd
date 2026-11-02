@@ -56,11 +56,15 @@ static func chip() -> StyleBox:
 	return box
 
 
+const MIN_FONT := 14
+
+
 static func label(text: String, size: int, color := TEXT, weight := "SemiBold", outline := 6) -> Label:
 	var result := Label.new()
 	result.text = text
 	result.add_theme_font_override("font", font(weight))
-	result.add_theme_font_size_override("font_size", size)
+	# Nada abaixo de 14 px: em janela menor que 1080p o texto ainda encolhe junto.
+	result.add_theme_font_size_override("font_size", maxi(size, MIN_FONT))
 	result.add_theme_color_override("font_color", color)
 	result.add_theme_constant_override("outline_size", outline)
 	return result

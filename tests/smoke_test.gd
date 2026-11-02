@@ -140,15 +140,27 @@ func _process(_delta: float) -> bool:
 			_shooter = get_first_node_in_group("net_replicator").spawn("enemy", {"kind": 1, "pos": p1.global_position + Vector3(2.5, 0, 0)})
 		9 * SECOND + 20:
 			_check(_shooter._animator.current == "move_back", "atirador recua de costas, olhando para o alvo (%s)" % _shooter._animator.current)
-			# Mouse mexido para a direita do P1 na tela: ele olha para o cursor.
+			# Mouse mexido para a direita do P1 na tela: só vira segurando um clique.
 			var p1 := _player(0)
 			var camera: Camera3D = current_scene.get_viewport().get_camera_3d()
 			var motion := InputEventMouseMotion.new()
 			motion.position = camera.unproject_position(p1.global_position + Vector3(5, 0, 0))
 			Input.parse_input_event(motion)
+		9 * SECOND + 30:
+			var p1 := _player(0)
+			_check(p1._facing.dot(Vector3.RIGHT) < 0.9, "mouse só mexido: P1 não vira para o cursor")
+			var click := InputEventMouseButton.new()
+			click.button_index = MOUSE_BUTTON_RIGHT
+			click.pressed = true
+			click.position = current_scene.get_viewport().get_camera_3d().unproject_position(p1.global_position + Vector3(5, 0, 0))
+			Input.parse_input_event(click)
 		9 * SECOND + 40:
 			var p1 := _player(0)
-			_check(p1._facing.dot(Vector3.RIGHT) > 0.9, "mouse: P1 olha para o cursor (%.2f)" % p1._facing.dot(Vector3.RIGHT))
+			_check(p1._facing.dot(Vector3.RIGHT) > 0.9, "segurando o clique: P1 olha para o cursor (%.2f)" % p1._facing.dot(Vector3.RIGHT))
+			var release := InputEventMouseButton.new()
+			release.button_index = MOUSE_BUTTON_RIGHT
+			release.pressed = false
+			Input.parse_input_event(release)
 		12 * SECOND:
 			var hurt := get_nodes_in_group("players").filter(func(p: Node) -> bool: return p.health.hp < p.health.max_hp)
 			_check(not hurt.is_empty(), "inimigos chegaram e bateram nos jogadores parados")

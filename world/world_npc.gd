@@ -82,14 +82,7 @@ func _ready() -> void:
 		pivot.add_child(body)
 		CharacterAnimator.new(body, AnimSets.HUMANOID).play("idle")
 	_title = "%s\n%s" % [npc_name, SERVICE_NAMES[service]] if npc_name else SERVICE_NAMES[service]
-	_label = Label3D.new()
-	_label.text = _title
-	_label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
-	_label.no_depth_test = true
-	_label.font_size = 30
-	_label.outline_size = 8
-	_label.modulate = Color(0.75, 1.0, 0.75)
-	_label.layers = 2
+	_label = WorldText.make(_title, 20, Color(0.75, 1.0, 0.75))
 	_label.position.y = 2.5
 	add_child(_label)
 

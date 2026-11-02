@@ -49,13 +49,7 @@ func _ready() -> void:
 		return
 	add_to_group("containers")
 	_build_visual()
-	_label = Label3D.new()
-	_label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
-	_label.no_depth_test = true
-	_label.font_size = 26
-	_label.outline_size = 8
-	_label.modulate = Color(1.0, 0.85, 0.4)
-	_label.layers = 2
+	_label = WorldText.make("", 17, Color(1.0, 0.85, 0.4))
 	_label.position.y = 1.6
 	add_child(_label)
 	refresh()
@@ -119,19 +113,20 @@ func open_by(player: Node3D) -> bool:
 ## sorteios extras.
 func roll_contents(region_power: int) -> Array[Dictionary]:
 	var items: Array[Dictionary] = []
+	var rules: Dictionary = load("res://items/loot.gd").generosity()
 	for line: ContainerItem in contents:
-		if line == null or not ItemDB.has(line.item_id) or randf() * 100.0 >= line.chance:
+		if line == null or not ItemDB.has(line.item_id) or randf() * 100.0 >= line.chance * rules.chance:
 			continue
 		var power := line.power if line.power > 0 else region_power
 		for i in line.count:
 			var rarity := ItemDB.random_rarity() if line.rarity == "random" else line.rarity
 			items.append(ItemDB.make(line.item_id, maxi(power, 1), rarity))
 	for i in random_items:
-		var extra := ItemDB.random_drop(region_power)
+		var extra := ItemDB.random_drop(region_power, rules.rarity)
 		if not extra.is_empty():
 			items.append(extra)
 	if gold > 0:
-		items.append(ItemDB.make_gold(gold))
+		items.append(ItemDB.make_gold(roundi(gold * rules.gold)))
 	return items
 
 

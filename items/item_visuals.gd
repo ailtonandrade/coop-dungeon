@@ -24,8 +24,9 @@ const MOUNTS := {
 	"bow": ["Wrist.L", Vector3(0.0, -0.06, 0.02), Vector3(0, 0, 0)],
 	"longbow": ["Wrist.L", Vector3(0.0, -0.06, 0.02), Vector3(0, 0, 0)],
 	"crossbow": ["Wrist.L", Vector3(0.0, -0.08, 0.06), Vector3(0, 0, 0)],
-	"hood": ["Head", Vector3(0.0, 0.15, 0.05), Vector3.ZERO],
-	"helmet": ["Head", Vector3(0.0, 0.16, 0.05), Vector3.ZERO],
+	# Na pose de referência (Idle) o alto do crânio fica ~0,2 m acima do osso Head.
+	"hood": ["Head", Vector3(0.0, 0.17, -0.01), Vector3.ZERO],
+	"helmet": ["Head", Vector3(0.0, 0.17, -0.01), Vector3.ZERO],
 	"plate": ["Chest", Vector3(0.0, 0.06, 0.03), Vector3.ZERO],
 	"amulet": ["Neck", Vector3(0.0, -0.1, 0.13), Vector3.ZERO],
 	"pouch": ["Hips", Vector3(0.2, -0.02, 0.0), Vector3.ZERO],
@@ -75,12 +76,13 @@ static func build(item: Dictionary) -> Node3D:
 		"crossbow":
 			_box(root, Vector3(0.07, 0.07, 0.55), Vector3(0, 0, 0.12), WOOD)
 			_box(root, Vector3(0.6, 0.05, 0.05), Vector3(0, 0, 0.32), METAL.darkened(0.2), shine)
+		# Capuz e capacete por cima do crânio, sem cobrir o rosto (frente = +Z).
 		"hood":
-			_box(root, Vector3(0.27, 0.19, 0.31), Vector3.ZERO, color, shine)
-			_box(root, Vector3(0.27, 0.16, 0.04), Vector3(0, -0.12, -0.14), color.darkened(0.15))
+			_box(root, Vector3(0.23, 0.1, 0.26), Vector3.ZERO, color, shine)
+			_box(root, Vector3(0.23, 0.17, 0.035), Vector3(0, -0.11, -0.12), color.darkened(0.15))
 		"helmet":
-			_box(root, Vector3(0.27, 0.2, 0.31), Vector3.ZERO, color, shine)
-			_box(root, Vector3(0.29, 0.04, 0.33), Vector3(0, -0.08, 0), color.darkened(0.15))
+			_box(root, Vector3(0.24, 0.11, 0.27), Vector3.ZERO, color, shine)
+			_box(root, Vector3(0.27, 0.025, 0.3), Vector3(0, -0.05, 0.01), color.darkened(0.15))
 		"vest":
 			_box(root, Vector3(0.31, 0.36, 0.21), Vector3.ZERO, color, shine)
 		"plate":
@@ -138,7 +140,11 @@ static func dress(model: Node, visual: Array) -> void:
 			continue
 		var mount := mount_of(def)
 		if not mount.is_empty():
-			_attach(skeleton, pose, mount[0], build(entry), mount[1], mount[2])
+			var piece := build(entry)
+			# Chapéu importado sem encaixe próprio na ficha: cabe na cabeça, apoiado no topo.
+			if def.get("slot", "") == "head" and def.has("model") and not def.has("mount"):
+				_fit_on_head(piece)
+			_attach(skeleton, pose, mount[0], piece, mount[1], mount[2])
 	for mesh: MeshInstance3D in skeleton.find_children("*", "MeshInstance3D", false, false):
 		if mesh.has_meta(ATTACH_META):
 			continue
@@ -186,6 +192,41 @@ static func _wear(skeleton: Skeleton3D, def: Dictionary, entry: Dictionary) -> v
 		if shine != Color.BLACK:
 			_glow(worn, shine)
 	source.free()
+
+
+## Maior medida que um chapéu importado pode ter na cabeça (metros).
+const HEAD_FIT := 0.32
+
+
+## Encolhe (ou aumenta) o modelo para caber em HEAD_FIT e põe a base dele no ponto de encaixe.
+static func _fit_on_head(piece: Node3D) -> void:
+	var box := AABB()
+	var first := true
+	for mesh: MeshInstance3D in piece.find_children("*", "MeshInstance3D", true, false):
+		var local := _transform_to(piece, mesh) * mesh.get_aabb()
+		box = local if first else box.merge(local)
+		first = false
+	var biggest := maxf(box.size.x, maxf(box.size.y, box.size.z))
+	if first or biggest <= 0.0001:
+		return
+	var factor := HEAD_FIT / biggest
+	var holder := Node3D.new()
+	for child in piece.get_children():
+		piece.remove_child(child)
+		holder.add_child(child)
+	holder.scale = Vector3.ONE * factor
+	holder.position = -Vector3(box.get_center().x, box.position.y + box.size.y * 0.25, box.get_center().z) * factor
+	piece.add_child(holder)
+
+
+static func _transform_to(ancestor: Node3D, node: Node3D) -> Transform3D:
+	var xform := Transform3D.IDENTITY
+	var current: Node = node
+	while current and current != ancestor:
+		if current is Node3D:
+			xform = (current as Node3D).transform * xform
+		current = current.get_parent()
+	return xform
 
 
 ## Brilho da raridade por cima dos materiais do modelo.
