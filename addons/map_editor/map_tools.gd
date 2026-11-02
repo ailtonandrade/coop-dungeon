@@ -146,15 +146,23 @@ static func sync_entrances(map: WorldMap) -> PackedStringArray:
 
 ## Navegação e manutenção
 
-## Recalcula a navegação das criaturas de uma cena (bloco ou interior) e salva.
-static func bake_scene(path: String, host: Node) -> int:
+## A navegação das criaturas é calculada pelo jogo ao carregar cada bloco (WorldStreamer).
+## Isto tira a malha que ficou salva numa cena antiga (a "película" azul no editor).
+## Retorna true se havia malha salva.
+static func clear_baked(path: String) -> bool:
 	var root := open_scene(path)
 	var nav := root.get_node_or_null("Navigation") as NavigationRegion3D
-	if nav and nav.navigation_mesh:
-		nav.navigation_mesh.geometry_parsed_geometry_type = NavigationMesh.PARSED_GEOMETRY_BOTH
-	var polygons := _bake(root, host)
-	save_scene(root, path, null)
-	return polygons
+	var had := nav != null and nav.navigation_mesh != null and nav.navigation_mesh.get_polygon_count() > 0
+	if had:
+		save_scene(root, path, null)
+	else:
+		root.free()
+	return had
+
+
+## Calcula a navegação na cena aberta só para conferir (testes); não fica salva.
+static func bake_preview(root: Node3D, host: Node) -> int:
+	return _bake(root, host)
 
 
 ## Prepara um bloco antigo para a pintura: tira as bordas fixas (agora o jogo cuida disso) e
@@ -253,8 +261,8 @@ static func container_issues(map: WorldMap) -> Array[Dictionary]:
 
 static func _check_scene(root: Node, path: String, size: Vector2, region: RegionDef, issues: Array[Dictionary]) -> void:
 	var nav := root.get_node_or_null("Navigation") as NavigationRegion3D
-	if nav == null or nav.navigation_mesh == null or nav.navigation_mesh.get_polygon_count() == 0:
-		issues.append(_issue("erro", "%s: navegação não calculada (Assar navegação)" % path.get_file(), path))
+	if nav == null or nav.navigation_mesh == null:
+		issues.append(_issue("erro", "%s: sem o nó Navigation (as criaturas não acham caminho)" % path.get_file(), path))
 	for node in root.find_children("*", "Marker3D", true, false):
 		if node.get("respawn_time") == null:
 			continue
@@ -312,10 +320,12 @@ static func open_scene(path: String) -> Node3D:
 	return scene.instantiate(PackedScene.GEN_EDIT_STATE_INSTANCE)
 
 
-## Salva a cena (recalculando a navegação se `host` for dado) e libera os nós.
-static func save_scene(root: Node3D, path: String, host: Node) -> Error:
-	if host:
-		_bake(root, host)
+## Salva a cena e libera os nós. A malha de navegação nunca vai junto: o jogo calcula ao
+## carregar o bloco. (`host` ficou por compatibilidade.)
+static func save_scene(root: Node3D, path: String, _host: Node) -> Error:
+	var nav := root.get_node_or_null("Navigation") as NavigationRegion3D
+	if nav and nav.navigation_mesh:
+		nav.navigation_mesh.clear()
 	var packed := PackedScene.new()
 	var err := packed.pack(root)
 	if err == OK:
@@ -410,9 +420,9 @@ static func _bake(root: Node3D, host: Node) -> int:
 	if nav == null or nav.navigation_mesh == null:
 		return 0
 	host.add_child(root)
-	nav.bake_navigation_mesh(false)
+	var polygons := WorldStreamer.bake_navigation_now(nav)
 	host.remove_child(root)
-	return nav.navigation_mesh.get_polygon_count()
+	return polygons
 
 
 static func _entrances(root: Node) -> Array:

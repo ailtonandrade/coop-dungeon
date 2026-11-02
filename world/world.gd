@@ -68,6 +68,6 @@ func _build_environment() -> void:
 	sun.rotation_degrees = Vector3(-60.0, 30.0, 0.0)
 	sun.light_color = Color(1.0, 0.9, 0.78)
 	sun.light_energy = 0.85
-	sun.shadow_enabled = true
-	sun.directional_shadow_max_distance = 60.0
+	sun.add_to_group("sun")
+	Graphics.apply_sun(sun, Settings.graphics_quality)
 	add_child(sun)

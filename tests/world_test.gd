@@ -45,6 +45,8 @@ func _process(_delta: float) -> bool:
 			_check(get_nodes_in_group("npcs").size() == 4, "4 NPCs de serviço na vila (%d)" % get_nodes_in_group("npcs").size())
 			_check(not get_nodes_in_group("enemies").is_empty(), "criaturas nasceram nos blocos vizinhos (%d)" % get_nodes_in_group("enemies").size())
 			_check(_no_enemy_in_town(), "nenhuma criatura nasceu dentro da vila")
+			var nav: Node = streamer.get_child(0).get_node_or_null("Navigation")
+			_check(nav != null and nav.navigation_mesh.get_polygon_count() > 0, "navegação das criaturas calculada ao carregar o bloco")
 		SECOND + 1:
 			# Dentro da casa do banco: o telhado dela some, o das outras não.
 			_teleport_group(Vector3(14, 0, 15.5))

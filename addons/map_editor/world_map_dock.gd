@@ -103,7 +103,7 @@ func _ready() -> void:
 
 	_header(box, "Manutenção")
 	_button(box, "Validar mapa", _validate)
-	_button(box, "Assar navegação de tudo", _bake_all)
+	_button(box, "Tirar a película azul (navegação salva)", _clear_baked_all)
 	_report = RichTextLabel.new()
 	_report.bbcode_enabled = true
 	_report.fit_content = true
@@ -319,7 +319,7 @@ func _place_prefab(root: Node3D, position: Vector3, vary: bool, yaw := 0.0) -> v
 	EditorInterface.get_selection().clear()
 	EditorInterface.get_selection().add_node(instance)
 	if not stamping:
-		_say("Peça colocada em (%.1f, %.1f, %.1f). Depois de arrumar o bloco: Ctrl+S e \"Assar navegação de tudo\" (para as criaturas desviarem)." % [position.x, position.y, position.z])
+		_say("Peça colocada em (%.1f, %.1f, %.1f). Depois de arrumar o bloco: Ctrl+S (a navegação das criaturas o jogo calcula sozinho)." % [position.x, position.y, position.z])
 
 
 ## Até onde o centro da vista vale; mais longe que isso (ou olhando para o céu), a peça cai no
@@ -363,13 +363,16 @@ func _validate() -> void:
 	_say("\n".join(lines))
 
 
-func _bake_all() -> void:
+## O jogo calcula a navegação das criaturas ao carregar cada bloco; malha salva na cena só
+## deixa a película azul por cima no editor.
+func _clear_baked_all() -> void:
 	EditorInterface.save_all_scenes()
-	var lines := PackedStringArray()
+	var cleared := 0
 	for path: String in MapTools.scenes_of(_map):
-		lines.append("%s: %d polígonos" % [path.get_file(), MapTools.bake_scene(path, self)])
+		if MapTools.clear_baked(path):
+			cleared += 1
 	_reload_open_scenes()
-	_say("Navegação recalculada:\n" + "\n".join(lines))
+	_say("Navegação salva tirada de %d cena(s). O jogo calcula sozinho ao carregar cada bloco." % cleared)
 
 
 ## Jogar

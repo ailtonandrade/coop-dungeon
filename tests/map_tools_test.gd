@@ -34,7 +34,8 @@ func _run() -> void:
 	var chunk_path: String = tools.create_chunk(map, map_path, Vector2i(3, 0), "planicie", root)
 	_check(FileAccess.file_exists(chunk_path) and map.chunks.has(Vector2i(3, 0)), "bloco novo criado e registrado")
 	var scene: Node3D = tools.open_scene(chunk_path)
-	var empty_polygons: int = scene.get_node("Navigation").navigation_mesh.get_polygon_count()
+	_check(scene.get_node("Navigation").navigation_mesh.get_polygon_count() == 0, "a malha de navegação não fica salva na cena (sem película no editor)")
+	var empty_polygons: int = tools.bake_preview(scene, root)
 	_check(empty_polygons > 0, "navegação do bloco novo calculada (%d)" % empty_polygons)
 	_check(scene.get_node("Navigation/Tiles") is GridMap, "bloco novo tem grade de pintura")
 
@@ -51,7 +52,7 @@ func _run() -> void:
 		tiles.set_cell_item(Vector3i(40, 0, z), 10, tiles.get_orthogonal_index_from_basis(Basis(Vector3.UP, PI / 2)))
 	tools.save_scene(scene, chunk_path, root)
 	scene = tools.open_scene(chunk_path)
-	var walled_polygons: int = scene.get_node("Navigation").navigation_mesh.get_polygon_count()
+	var walled_polygons: int = tools.bake_preview(scene, root)
 	_check(walled_polygons != empty_polygons, "paredes pintadas mudam a navegação (%d -> %d polígonos)" % [empty_polygons, walled_polygons])
 	_check(not _nav_has_point_near(scene.get_node("Navigation").navigation_mesh, Vector3(25, 0, 20), 0.3), "criaturas não andam por dentro do muro pintado")
 	scene.free()

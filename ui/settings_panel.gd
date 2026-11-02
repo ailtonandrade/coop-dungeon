@@ -5,6 +5,7 @@ extends VBoxContainer
 
 var _camera_button: Button
 var _minimap_button: Button
+var _graphics_button: Button
 
 
 func _ready() -> void:
@@ -19,12 +20,14 @@ func _ready() -> void:
 	_slider("Sensibilidade da câmera atrás", 0.3, 3.0, 0.1, Settings.look_sensitivity, Settings.set_look_sensitivity,
 			func(v: float) -> String: return "%.1fx" % v)
 	_minimap_button = _button(Settings.toggle_minimap_mode)
+	_graphics_button = _button(Settings.cycle_graphics_quality)
 	Settings.changed.connect(_update_texts)
 	_update_texts()
 
 
 func _update_texts() -> void:
 	_camera_button.text = "Câmera: atrás do herói (só 1 jogador na tela)" if Settings.camera_mode == "behind" else "Câmera: de cima (isométrica)"
+	_graphics_button.text = "Gráficos: %s" % Graphics.LABELS[Settings.graphics_quality]
 	_minimap_button.text = "Minimapa: %s" % ("rotativo (gira com o herói)" if Settings.minimap_mode == "rotating" else "fixo (norte pra cima)")
 
 

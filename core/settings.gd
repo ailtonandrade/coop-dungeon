@@ -12,6 +12,8 @@ var minimap_mode := "fixed"
 var camera_mode := "iso"
 ## Sensibilidade da câmera atrás do herói (mouse e analógico).
 var look_sensitivity := 1.0
+## Qualidade gráfica: "baixa", "media" ou "alta" (Graphics).
+var graphics_quality := "media"
 ## Tamanho da interface (textos, menus, HUD): 1.0 = normal.
 var ui_scale := 1.0
 ## Personagem ativo (escolhido no menu): é com ele que o primeiro jogador entra no mundo.
@@ -41,6 +43,8 @@ var sfx_volume := 0.9
 func _ready() -> void:
 	_load()
 	apply_ui_scale.call_deferred()
+	get_tree().node_added.connect(func(node: Node) -> void: Graphics.on_node_added(node, graphics_quality))
+	(func() -> void: Graphics.apply(get_tree(), graphics_quality)).call_deferred()
 
 
 func _load() -> void:
@@ -50,6 +54,9 @@ func _load() -> void:
 		camera_mode = config.get_value("camera", "mode", camera_mode)
 		look_sensitivity = config.get_value("camera", "look_sensitivity", look_sensitivity)
 		ui_scale = config.get_value("display", "ui_scale", ui_scale)
+		graphics_quality = config.get_value("display", "graphics", graphics_quality)
+		if not Graphics.LEVELS.has(graphics_quality):
+			graphics_quality = "media"
 		for key in ["voice_mode", "mic_device", "mic_threshold", "radio_voice", "voice_volume", "voice_proximity",
 				"voice_peer_volume", "voice_peer_muted"]:
 			set(key, config.get_value("voice", key, get(key)))
@@ -123,6 +130,14 @@ func set_volume(which: String, value: float) -> void:
 	changed.emit()
 
 
+## Passa para a próxima qualidade gráfica (baixa → média → alta → baixa) e aplica na hora.
+func cycle_graphics_quality() -> void:
+	graphics_quality = Graphics.LEVELS[(Graphics.LEVELS.find(graphics_quality) + 1) % Graphics.LEVELS.size()]
+	Graphics.apply(get_tree(), graphics_quality)
+	_save()
+	changed.emit()
+
+
 func toggle_camera_mode() -> void:
 	camera_mode = "behind" if camera_mode == "iso" else "iso"
 	_save()
@@ -135,6 +150,7 @@ func _save() -> void:
 	config.set_value("camera", "mode", camera_mode)
 	config.set_value("camera", "look_sensitivity", look_sensitivity)
 	config.set_value("display", "ui_scale", ui_scale)
+	config.set_value("display", "graphics", graphics_quality)
 	for key in ["voice_mode", "mic_device", "mic_threshold", "radio_voice", "voice_volume", "voice_proximity",
 			"voice_peer_volume", "voice_peer_muted"]:
 		config.set_value("voice", key, get(key))

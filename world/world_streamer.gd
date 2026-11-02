@@ -183,7 +183,70 @@ func _spawn(key: String, scene: PackedScene) -> void:
 		_add_edge_walls(chunk, key)
 	add_child(chunk)
 	_loaded[key] = chunk
+	bake_navigation(chunk)
 	chunk_loaded.emit(key)
+
+
+## Navegação das criaturas: calculada aqui, ao carregar o bloco (a leitura das peças é rápida;
+## o cálculo roda em outra thread). Assim o mapa não guarda a malha (sem a "película" azul no
+## editor) e o que for colocado no jogo (modo construtor) entra é só recalcular.
+## `force`: recalcula mesmo se já tiver (mudou alguma peça).
+static func bake_navigation(chunk: Node, force := false) -> void:
+	var nav := chunk.get_node_or_null("Navigation") as NavigationRegion3D
+	if nav == null or nav.navigation_mesh == null or nav.has_meta("baking"):
+		return
+	if not force and nav.navigation_mesh.get_polygon_count() > 0:
+		return
+	nav.set_meta("baking", true)
+	var nav_mesh := nav.navigation_mesh
+	NavigationServer3D.bake_from_source_geometry_data_async(nav_mesh, navigation_source(nav), func() -> void:
+		if is_instance_valid(nav):
+			nav.remove_meta("baking")
+			nav.set_deferred("navigation_mesh", nav_mesh))
+
+
+## Calcula na hora, na mesma thread (editor de mapa e testes).
+static func bake_navigation_now(nav: NavigationRegion3D) -> int:
+	NavigationServer3D.bake_from_source_geometry_data(nav.navigation_mesh, navigation_source(nav))
+	return nav.navigation_mesh.get_polygon_count()
+
+
+## O que bloqueia as criaturas: só as colisões do mundo (bem mais rápido que ler as malhas, que
+## teriam de voltar da placa de vídeo; telhado e enfeites atravessáveis ficam de fora) mais as
+## paredes pintadas na grade, que o Godot não entrega como colisão para a navegação.
+static func navigation_source(nav: NavigationRegion3D) -> NavigationMeshSourceGeometryData3D:
+	var nav_mesh := nav.navigation_mesh
+	nav_mesh.geometry_parsed_geometry_type = NavigationMesh.PARSED_GEOMETRY_STATIC_COLLIDERS
+	nav_mesh.geometry_collision_mask = GameConfig.LAYER_WORLD
+	var source := NavigationMeshSourceGeometryData3D.new()
+	NavigationServer3D.parse_source_geometry_data(nav_mesh, source, nav)
+	var to_nav := nav.global_transform.affine_inverse()
+	for grid: GridMap in nav.find_children("*", "GridMap", true, false):
+		if grid.mesh_library == null:
+			continue
+		var faces_of := {}
+		for cell in grid.get_used_cells():
+			var item := grid.get_cell_item(cell)
+			if not faces_of.has(item):
+				faces_of[item] = _item_faces(grid.mesh_library, item)
+			if faces_of[item].is_empty():
+				continue
+			var cell_xform := Transform3D(grid.get_cell_item_basis(cell), grid.map_to_local(cell))
+			source.add_faces(faces_of[item], to_nav * grid.global_transform * cell_xform)
+	return source
+
+
+static func _item_faces(library: MeshLibrary, item: int) -> PackedVector3Array:
+	var faces := PackedVector3Array()
+	var shapes := library.get_item_shapes(item)
+	for i in range(0, shapes.size() - 1, 2):
+		var shape := shapes[i] as Shape3D
+		if shape == null:
+			continue
+		var xform: Transform3D = shapes[i + 1]
+		for v in shape.get_debug_mesh().get_faces():
+			faces.append(xform * v)
+	return faces
 
 
 func _add_edge_walls(chunk: Node3D, key: String) -> void:

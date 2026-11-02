@@ -46,7 +46,8 @@ func _ready() -> void:
 	moon.rotation_degrees = Vector3(-50.0, -40.0, 0.0)
 	moon.light_color = Color(0.6, 0.65, 1.0)
 	moon.light_energy = 0.55
-	moon.shadow_enabled = true
+	moon.add_to_group("sun")
+	Graphics.apply_sun(moon, Settings.graphics_quality)
 	add_child(moon)
 
 	# Pontos de neon espalhados pela vila.
