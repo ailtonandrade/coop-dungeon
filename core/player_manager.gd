@@ -131,7 +131,7 @@ func _physics_process(delta: float) -> void:
 		return
 	_check_wipe(delta)
 	for player: Player in _players.values():
-		if not player.is_targetable():
+		if player.is_downed():
 			continue
 		var nearest := _nearest_screen_mate(player)
 		if player.global_position.y < GameConfig.KILL_Y:
@@ -141,7 +141,7 @@ func _physics_process(delta: float) -> void:
 
 
 func _check_wipe(delta: float) -> void:
-	if _players.is_empty() or _players.values().any(func(p: Player) -> bool: return p.is_targetable()):
+	if _players.is_empty() or _players.values().any(func(p: Player) -> bool: return not p.is_downed()):
 		_wipe_timer = 0.0
 		return
 	_wipe_timer += delta
@@ -160,7 +160,7 @@ func _nearest_screen_mate(player: Player) -> Player:
 	var nearest: Player = null
 	var best := INF
 	for other: Player in _players.values():
-		if other == player or other.owner_peer != player.owner_peer or not other.is_targetable():
+		if other == player or other.owner_peer != player.owner_peer or other.is_downed():
 			continue
 		var d := player.global_position.distance_squared_to(other.global_position)
 		if d < best:

@@ -114,6 +114,8 @@ func _process(_delta: float) -> bool:
 			# O host abre o baú da vila com o meu jogador: o aviso chega aqui.
 			if net.world.get("containers", {}).has("vila_bau_inicial"):
 				_check(true, "baú que meu jogador abriu ficou aberto aqui também")
+				var built := root.find_children("god_*", "", true, false)
+				_check(built.size() == 1 and built[0].scene_file_path.ends_with("barreira.tscn"), "vejo a barreira que o host colocou pelo modo construtor")
 				_t0 = _now()
 				_step = 8
 		8:

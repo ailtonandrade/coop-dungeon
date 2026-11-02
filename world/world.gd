@@ -19,6 +19,7 @@ func _ready() -> void:
 	# O que já existe nasce de uma vez ao carregar (loot, criaturas): sem barulho junto.
 	Sound.quiet_for(1.5)
 	_build_environment()
+	add_child(GodMode.new())
 	_streamer.world_map = world_map
 	_players.spawn_position = _debug_spawn_point(world_map.spawn_point)
 	_streamer.load_now(_players.spawn_position)

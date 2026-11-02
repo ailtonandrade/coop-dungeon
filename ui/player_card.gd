@@ -55,7 +55,7 @@ func _draw() -> void:
 	draw_polyline(_closed(UiSkin.chamfer_points(plate, 14)), Color(UiSkin.BRASS, 0.55), 1.5)
 	draw_line(plate.position + Vector2(14, 0), Vector2(plate.end.x, plate.position.y), color, 3.0)
 
-	var downed := not player.is_targetable()
+	var downed := player.is_downed()
 	var f := UiSkin.font("Bold")
 	var name_text := player.display_name
 	draw_string_outline(f, Vector2(BAR.position.x, 30), name_text, HORIZONTAL_ALIGNMENT_LEFT, BAR.size.x - 80, 19, 6, UiSkin.INK)

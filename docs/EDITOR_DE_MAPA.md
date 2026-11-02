@@ -128,3 +128,33 @@ ondulado de verdade, o caminho é o plugin gratuito **Terrain3D** dentro de cada
   ao lado, a passagem abre sozinha.
 - O que deve ficar transparente quando tapa o herói (árvore, parede de casa) vai dentro de um
   `FadeOccluder` (as peças prontas já vêm assim); paredes pintadas fazem isso sozinhas.
+
+
+## Modo construtor (dentro do jogo)
+
+Para montar o mapa andando por ele, como num editor de pista: o **dono do mundo** (host, ou o
+sofá offline) liga com **G** (ou pausa > **Modo construtor**). O herói continua andando (e
+correndo), não luta e as criaturas o ignoram. Embaixo aparece o seletor de peças e, no mundo, o
+**fantasma** translúcido da peça onde ela vai cair.
+
+| | Teclado e mouse | Controle |
+|---|---|---|
+| Colocar | clique esquerdo (no cursor) | X (à frente do herói) |
+| Trocar peça | Q / E ou rodinha | direcional ◀ ▶ |
+| Girar 45° | R (Shift+R volta) | Y |
+| Desfazer a última | Z | B |
+| Apagar peça do construtor no cursor | Delete | — |
+| Conteúdo do contêiner no cursor | F | RB |
+| Sair | G | pausa > Sair do modo construtor |
+
+- Peça **física** (cone, barril, pneus...) nasce 1,5 m acima, cai, rola e, quando para, fica
+  gravada exatamente onde parou. As outras gravam na hora.
+- **Contêiner** colocado pelo construtor: F/RB abre a lista de itens (clique duplo / A põe; na
+  lista "Dentro", clique duplo tira um) e os botões de parafusos.
+- **Onde grava:** rodando pelo **editor do Godot**, a peça vai direto na cena do bloco
+  (`world/chunks/...`), como se fosse colocada no editor de mapa: entra no mapa oficial e aparece
+  no editor (peças com nome `god_...`). No **jogo exportado**, vai para o save daquele mundo.
+- **Online:** os convidados veem cada peça assim que ela é gravada (e quem entrar depois também).
+  Quem tem uma versão antiga do mapa precisa da versão nova do jogo depois que você grava peças
+  nos arquivos (o mapa muda e o jogo confere).
+- Peças novas importadas no editor de mapa (Importar objeto 3D) aparecem no seletor.

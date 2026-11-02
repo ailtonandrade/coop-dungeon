@@ -183,6 +183,8 @@ func _spawn(key: String, scene: PackedScene) -> void:
 		_add_edge_walls(chunk, key)
 	add_child(chunk)
 	_loaded[key] = chunk
+	for entry: Dictionary in NetService.edits_for(key):
+		WorldEdits.spawn(chunk, entry)
 	bake_navigation(chunk)
 	chunk_loaded.emit(key)
 
@@ -199,10 +201,13 @@ static func bake_navigation(chunk: Node, force := false) -> void:
 		return
 	nav.set_meta("baking", true)
 	var nav_mesh := nav.navigation_mesh
+	# Referência fraca: o bloco pode descarregar antes do cálculo terminar.
+	var nav_ref: WeakRef = weakref(nav)
 	NavigationServer3D.bake_from_source_geometry_data_async(nav_mesh, navigation_source(nav), func() -> void:
-		if is_instance_valid(nav):
-			nav.remove_meta("baking")
-			nav.set_deferred("navigation_mesh", nav_mesh))
+		var region: NavigationRegion3D = nav_ref.get_ref()
+		if region:
+			region.remove_meta("baking")
+			region.set_deferred("navigation_mesh", nav_mesh))
 
 
 ## Calcula na hora, na mesma thread (editor de mapa e testes).
@@ -271,6 +276,32 @@ func _add_edge_walls(chunk: Node3D, key: String) -> void:
 		wall.position = sides[side][0] + Vector3(0, EDGE_WALL_HEIGHT / 2, 0)
 		wall.add_child(collision)
 		chunk.add_child(wall)
+
+
+## Peça do modo construtor: entra no bloco se ele estiver carregado (senão, entra quando carregar).
+func apply_edit(entry: Dictionary) -> void:
+	var chunk: Node3D = _loaded.get(String(entry.get("key", "")))
+	if chunk and WorldEdits.spawn(chunk, entry):
+		bake_navigation(chunk, true)
+
+
+func remove_edit(id: String) -> void:
+	for chunk: Node3D in _loaded.values():
+		var node := WorldEdits.parent_in(chunk).get_node_or_null(NodePath(id))
+		if node:
+			node.queue_free()
+			bake_navigation.call_deferred(chunk, true)
+
+
+## Bloco (carregado) que contém o ponto, e a chave dele. [null, ""] se não estiver carregado.
+func chunk_at(position: Vector3) -> Array:
+	var key := _key_at(position)
+	return [_loaded.get(key), key]
+
+
+## Arquivo da cena do bloco.
+func scene_path_of(key: String) -> String:
+	return _path_and_origin(key)[0]
 
 
 func _unload(key: String) -> void:

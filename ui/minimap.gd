@@ -88,7 +88,7 @@ func _draw_markers() -> void:
 	for player: Player in get_tree().get_nodes_in_group("players"):
 		var point := _to_map(player.global_position).clamp(inner.position, inner.end)
 		var color := GameConfig.PLAYER_COLORS[player.index]
-		if not player.is_targetable():
+		if player.is_downed():
 			_markers.draw_arc(point, 7.0, 0.0, TAU, 16, color, 2.0)
 			continue
 		var forward := _direction_on_map(-player.global_basis.z)

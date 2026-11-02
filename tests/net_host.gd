@@ -37,6 +37,15 @@ func _process(_delta: float) -> bool:
 				root.get_node("Chat").send(_local_player(), "Chegou o host!")
 				# Parafusos do host: só ele (e o sofá dele) pode ver.
 				_local_player().inventory.add_gold(777)
+				# Modo construtor: o host põe uma barreira na vila; o convidado tem que ver.
+				Engine.set_meta("world_edits_to_save", true)
+				var god := get_first_node_in_group("god_mode")
+				god.start(0)
+				for i in god._catalog.size():
+					if String(god._catalog[i].path).ends_with("/barreira.tscn"):
+						god._index = i
+				_check(god.place_at(Vector3(20, 0, 25)) != null, "host colocou uma barreira pelo modo construtor")
+				god.stop()
 				_remote_x = _remote.global_position.x
 				_t0 = _now()
 				_step = 2

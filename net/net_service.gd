@@ -176,6 +176,7 @@ func leave_session(message := "") -> void:
 	_peer_names.clear()
 	_remote_inputs.clear()
 	_press_counts.clear()
+	session_edits.clear()
 	Chat.clear()
 	InputService.reset()
 	_go_to(MENU_SCENE)
@@ -270,6 +271,87 @@ func _remove_player(peer: int, slot: int) -> void:
 	var manager := get_tree().get_first_node_in_group("player_manager")
 	if manager:
 		manager.remove_player(peer, slot)
+
+
+## Modo construtor (GodMode / WorldEdits)
+
+## Peças do construtor gravadas nos arquivos do mapa nesta sessão (host rodando pelo editor),
+## ou recebidas do host (convidado). As do save do mundo ficam em world["placed"].
+var session_edits: Array = []
+
+
+## Peças do construtor que o bloco `key` tem que ganhar ao carregar nesta máquina.
+func edits_for(key: String) -> Array:
+	var list: Array = world.get("placed", []).duplicate()
+	if mode == Mode.CLIENT:
+		list.append_array(session_edits)
+	return list.filter(func(entry: Dictionary) -> bool: return entry.get("key", "") == key)
+
+
+## Host: guarda uma peça nova do construtor e manda para os convidados.
+## `in_file`: já foi gravada na cena do bloco (rodando pelo editor).
+func add_world_edit(entry: Dictionary, in_file: bool) -> void:
+	if in_file:
+		session_edits.append(entry)
+	else:
+		var placed: Array = world.get("placed", [])
+		placed.append(entry)
+		world["placed"] = placed
+		if not world.is_empty():
+			SaveService.save_world(world)
+	if is_online():
+		_rpc_edit_add.rpc(entry)
+
+
+## Host: registro de uma peça do construtor (do save do mundo ou desta sessão), ou {}.
+func world_edit(id: String) -> Dictionary:
+	for entry: Dictionary in world.get("placed", []) + session_edits:
+		if entry.get("id", "") == id:
+			return entry
+	return {}
+
+
+## Host: o registro mudou (conteúdo do contêiner): salva o mundo se ele mora no save.
+func world_edit_changed(entry: Dictionary) -> void:
+	if (world.get("placed", []) as Array).has(entry):
+		SaveService.save_world(world)
+
+
+## Host: tira uma peça do construtor (desfazer) e avisa os convidados.
+func remove_world_edit(id: String) -> void:
+	session_edits = session_edits.filter(func(entry: Dictionary) -> bool: return entry.id != id)
+	if world.has("placed"):
+		world["placed"] = (world.placed as Array).filter(func(entry: Dictionary) -> bool: return entry.id != id)
+		SaveService.save_world(world)
+	if is_online():
+		_rpc_edit_remove.rpc(id)
+
+
+@rpc("authority", "call_remote", "reliable")
+func _rpc_edit_add(entry: Dictionary) -> void:
+	session_edits.append(entry)
+	var streamer := get_tree().get_first_node_in_group("world_streamer")
+	if streamer:
+		streamer.apply_edit(entry)
+
+
+@rpc("authority", "call_remote", "reliable")
+func _rpc_edit_remove(id: String) -> void:
+	session_edits = session_edits.filter(func(entry: Dictionary) -> bool: return entry.id != id)
+	if world.has("placed"):
+		world["placed"] = (world.placed as Array).filter(func(entry: Dictionary) -> bool: return entry.id != id)
+	var streamer := get_tree().get_first_node_in_group("world_streamer")
+	if streamer:
+		streamer.remove_edit(id)
+
+
+@rpc("authority", "call_remote", "reliable")
+func _rpc_edits_session(list: Array) -> void:
+	session_edits = list
+	var streamer := get_tree().get_first_node_in_group("world_streamer")
+	if streamer:
+		for entry: Dictionary in list:
+			streamer.apply_edit(entry)
 
 
 ## Host: peças físicas que se mexeram desde o último envio (caminho -> posição).
@@ -377,6 +459,10 @@ func _rpc_client_ready() -> void:
 	if not _ready_peers.has(peer):
 		_ready_peers.append(peer)
 		peer_ready.emit(peer)
+		# Peças do modo construtor gravadas nos arquivos do mapa nesta sessão: o convidado ainda
+		# não tem (as do save do mundo já foram junto com o mundo).
+		if not session_edits.is_empty():
+			_rpc_edits_session.rpc_id(peer, session_edits)
 
 
 @rpc("any_peer", "call_remote", "reliable")

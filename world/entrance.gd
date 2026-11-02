@@ -41,7 +41,7 @@ func _physics_process(delta: float) -> void:
 		return
 	var standing := {}
 	for player: Player in get_tree().get_nodes_in_group("players"):
-		if player.is_targetable() and Combat.flat(player.global_position - global_position).length() <= radius:
+		if not player.is_downed() and Combat.flat(player.global_position - global_position).length() <= radius:
 			standing[player.owner_peer] = true
 	for peer: int in _progress.keys():
 		if not standing.has(peer):

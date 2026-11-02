@@ -49,6 +49,8 @@ var slot := 0
 ## Posição na sala (P1 a P4): define cor e modelo.
 var index := 0
 var display_name := ""
+## Modo construtor (GodMode): anda, mas não luta e as criaturas ignoram.
+var building := false
 ## Inventário: no host é o de verdade; no dono é a cópia que ele recebe; nos outros fica vazio.
 var inventory := Inventory.new()
 var progress := Progression.new()
@@ -150,8 +152,14 @@ func _ready() -> void:
 		_send_inventory.call_deferred()
 
 
+## Criaturas podem mirar neste herói (não está caído nem construindo).
 func is_targetable() -> bool:
-	return state != State.DOWNED
+	return state != State.DOWNED and not building
+
+
+## Está caído esperando reviver (construindo não conta como caído).
+func is_downed() -> bool:
+	return state == State.DOWNED
 
 
 func is_dodging() -> bool:
@@ -328,6 +336,11 @@ func _update_normal(delta: float, dir: Vector3) -> Vector3:
 	# No ar, empurrando contra uma borda alcançável: escala.
 	if not grounded and moving and _try_mantle():
 		return Vector3.ZERO
+	if building:
+		var walk := dir * move_speed() * (GameConfig.SPRINT_FACTOR if is_sprinting() else 1.0)
+		_move = _move.move_toward(walk, GameConfig.PLAYER_ACCEL * delta)
+		_animator.play(_locomotion_anim(false))
+		return _move
 	if grounded and _try_dodge():
 		return _update_dodge(0.0)
 	# Apertar ataca; segurar continua atacando (depois da pausa curta entre combos).
@@ -376,7 +389,7 @@ func _locomotion_anim(aiming: bool) -> String:
 ## Jogadores online, em outras máquinas, não têm esse limite.
 func _apply_leash(desired: Vector3) -> Vector3:
 	for other: Player in get_tree().get_nodes_in_group("players"):
-		if other == self or other.owner_peer != owner_peer or not other.is_targetable():
+		if other == self or other.owner_peer != owner_peer or other.is_downed():
 			continue
 		var offset := Combat.flat(global_position - other.global_position)
 		var distance := offset.length()
@@ -664,7 +677,7 @@ func _on_died() -> void:
 ## Caído: um companheiro de pé por perto vai enchendo a barra de reviver.
 func _update_downed(delta: float) -> void:
 	for other: Player in get_tree().get_nodes_in_group("players"):
-		if other != self and other.is_targetable() \
+		if other != self and not other.is_downed() \
 				and other.global_position.distance_to(global_position) <= GameConfig.REVIVE_RADIUS:
 			revive_progress += delta / GameConfig.REVIVE_TIME
 			break
