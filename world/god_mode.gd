@@ -1,15 +1,20 @@
 class_name GodMode
 extends Node
-## Modo construtor: o dono do mundo (host, ou o sofá offline) anda pelo mapa com o herói e
-## carimba peças prontas onde quiser, como no editor de mapa, só que de dentro do jogo.
-## Peça física cai de DROP_HEIGHT, rola e, quando para, fica gravada ali. Cada peça vai para
-## a cena do bloco (rodando pelo editor) ou para o save do mundo (jogo exportado): WorldEdits.
+## Modo construtor: ferramenta do DONO DO JOGO para montar o mapa andando por ele e carimbando
+## peças prontas, como no editor de mapa, só que de dentro do jogo. Jogadores não têm acesso:
+## só existe rodando o projeto pelo editor do Godot (o jogo exportado nunca tem) e não aparece
+## em menu nenhum. Liga e desliga digitando COMMAND no chat (a mensagem não vai para a sala).
+## Peça física cai de DROP_HEIGHT, rola e, quando para, fica gravada ali, direto na cena do
+## bloco (WorldEdits).
 ##
-## Teclado e mouse: G liga/desliga · clique esquerdo coloca no cursor · Q/E ou rodinha troca a
-## peça · R gira 45° (Shift+R volta) · Z desfaz a última · Delete apaga a peça do construtor
-## no cursor · F edita o conteúdo do contêiner no cursor.
-## Controle (liga/desliga pela pausa): X coloca à frente · direcional ◀ ▶ troca · Y gira ·
-## B desfaz · RB edita o contêiner à frente.
+## Teclado e mouse: clique esquerdo coloca no cursor · Q/E ou rodinha troca a peça · R gira 45°
+## (Shift+R volta) · Z desfaz a última · Delete apaga a peça do construtor no cursor · F edita o
+## conteúdo do contêiner no cursor.
+## Controle: X coloca à frente · direcional ◀ ▶ troca · Y gira · B desfaz · RB edita o
+## contêiner à frente.
+
+## O que digitar no chat para entrar e sair.
+const COMMAND := "/construir"
 
 const DROP_HEIGHT := 1.5
 const AHEAD := 2.5
@@ -59,9 +64,13 @@ func _ready() -> void:
 	_build_hud()
 
 
-## Quem pode construir nesta máquina: o host (ou o sofá offline).
+## Só o dono do jogo: rodando pelo editor do Godot, mandando no mundo (sozinho, sofá ou host).
 static func allowed() -> bool:
-	return NetService.mode != NetService.Mode.CLIENT
+	return OS.has_feature("editor") and NetService.mode != NetService.Mode.CLIENT
+
+
+static func is_command(text: String) -> bool:
+	return text.strip_edges().to_lower() == COMMAND
 
 
 func toggle(p_slot: int) -> void:
@@ -82,7 +91,7 @@ func start(p_slot: int) -> void:
 	_rebuild_ghost()
 	_hud.visible = true
 	_refresh_hud()
-	Chat.system("Modo construtor ligado.")
+	Chat.local_note("Modo construtor ligado (%s de novo para sair)." % COMMAND)
 
 
 func stop() -> void:
@@ -98,7 +107,7 @@ func stop() -> void:
 		_ghost.queue_free()
 		_ghost = null
 	_hud.visible = false
-	Chat.system("Modo construtor desligado.")
+	Chat.local_note("Modo construtor desligado.")
 
 
 ## Peça escolhida agora ({path, name, kind, def}).
@@ -256,11 +265,6 @@ func _update_target(player: Node3D) -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if event is InputEventKey and event.pressed and not event.echo and event.physical_keycode == KEY_G:
-		if active or allowed():
-			toggle(slot if active else _keyboard_slot())
-			get_viewport().set_input_as_handled()
-		return
 	if not active or InputService.device_of(slot) != InputService.KEYBOARD or InputService.screen_menu_open or _loot_panel.visible:
 		return
 	if event is InputEventMouseButton and event.pressed:
@@ -461,14 +465,6 @@ func _input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 
 
-func _keyboard_slot() -> int:
-	for candidate in InputService.active_slots():
-		if InputService.device_of(candidate) == InputService.KEYBOARD:
-			return candidate
-	var slots := InputService.active_slots()
-	return slots[0] if not slots.is_empty() else -1
-
-
 func _player_of(p_slot: int) -> Player:
 	for player: Player in get_tree().get_nodes_in_group("players"):
 		if player.is_local() and player.slot == p_slot:
@@ -556,9 +552,6 @@ func _refresh_hud() -> void:
 	_piece.text = "◀ %s   [ %s ]   %s ▶" % [before, entry.name, after]
 	_title.text = "MODO CONSTRUTOR · %s · %d/%d" % [kind_text, _index + 1, _catalog.size()]
 	var keyboard := InputService.device_of(slot) == InputService.KEYBOARD
-	_hint.text = ("Clique coloca · Q/E ou rodinha troca · R gira · Z desfaz · Delete apaga · F conteúdo do contêiner · G sai" if keyboard
-			else "X coloca · ◀ ▶ troca · Y gira · B desfaz · RB conteúdo do contêiner · pausa > Modo construtor sai")
-	if WorldEdits.saves_in_map_files():
-		_hint.text += "\nGrava direto nas cenas dos blocos (mapa oficial)."
-	else:
-		_hint.text += "\nGrava no save deste mundo."
+	_hint.text = ("Clique coloca · Q/E ou rodinha troca · R gira · Z desfaz · Delete apaga · F conteúdo do contêiner · %s no chat sai" % COMMAND if keyboard
+			else "X coloca · ◀ ▶ troca · Y gira · B desfaz · RB conteúdo do contêiner · %s no chat sai" % COMMAND)
+	_hint.text += "\nGrava direto nas cenas dos blocos (mapa oficial)."

@@ -130,12 +130,17 @@ ondulado de verdade, o caminho é o plugin gratuito **Terrain3D** dentro de cada
   `FadeOccluder` (as peças prontas já vêm assim); paredes pintadas fazem isso sozinhas.
 
 
-## Modo construtor (dentro do jogo)
+## Modo construtor (dentro do jogo) — só o dono do jogo
 
-Para montar o mapa andando por ele, como num editor de pista: o **dono do mundo** (host, ou o
-sofá offline) liga com **G** (ou pausa > **Modo construtor**). O herói continua andando (e
-correndo), não luta e as criaturas o ignoram. Embaixo aparece o seletor de peças e, no mundo, o
-**fantasma** translúcido da peça onde ela vai cair.
+Ferramenta sua para montar o mapa andando por ele, como num editor de pista. **Jogadores não
+têm acesso:** só existe rodando o projeto pelo **editor do Godot** (o jogo exportado nunca tem),
+e não aparece em menu nenhum. Também não funciona entrando no mundo de outra pessoa.
+
+**Entrar e sair:** abra o chat (Enter) e digite **/construir**. Digite de novo para sair. O
+comando não vai para o chat da sala; o aviso "Modo construtor ligado" só aparece na sua tela.
+
+O herói continua andando (e correndo), não luta e as criaturas o ignoram. Embaixo aparece o
+seletor de peças e, no mundo, o **fantasma** translúcido da peça onde ela vai cair.
 
 | | Teclado e mouse | Controle |
 |---|---|---|
@@ -145,16 +150,13 @@ correndo), não luta e as criaturas o ignoram. Embaixo aparece o seletor de peç
 | Desfazer a última | Z | B |
 | Apagar peça do construtor no cursor | Delete | — |
 | Conteúdo do contêiner no cursor | F | RB |
-| Sair | G | pausa > Sair do modo construtor |
 
 - Peça **física** (cone, barril, pneus...) nasce 1,5 m acima, cai, rola e, quando para, fica
   gravada exatamente onde parou. As outras gravam na hora.
 - **Contêiner** colocado pelo construtor: F/RB abre a lista de itens (clique duplo / A põe; na
   lista "Dentro", clique duplo tira um) e os botões de parafusos.
-- **Onde grava:** rodando pelo **editor do Godot**, a peça vai direto na cena do bloco
-  (`world/chunks/...`), como se fosse colocada no editor de mapa: entra no mapa oficial e aparece
-  no editor (peças com nome `god_...`). No **jogo exportado**, vai para o save daquele mundo.
-- **Online:** os convidados veem cada peça assim que ela é gravada (e quem entrar depois também).
-  Quem tem uma versão antiga do mapa precisa da versão nova do jogo depois que você grava peças
-  nos arquivos (o mapa muda e o jogo confere).
+- **Grava direto na cena do bloco** (`world/chunks/...`), como se a peça fosse colocada no
+  editor de mapa: entra no mapa oficial e aparece no editor (peças com nome `god_...`).
+- Se tiver amigos conectados no seu mundo enquanto constrói, eles veem cada peça na hora. Quem
+  tiver o mapa antigo precisa da versão nova do jogo depois (o mapa muda e o jogo confere).
 - Peças novas importadas no editor de mapa (Importar objeto 3D) aparecem no seletor.

@@ -34,7 +34,6 @@ var _resume_button: Button
 var _copy_button: Button
 var _password_row: Control
 var _loot_button: Button
-var _god_button: Button
 var _pause_pages := {}
 var _pause_tabs := {}
 var _pause_page := "Jogo"
@@ -432,12 +431,6 @@ func _build_pause_menu() -> void:
 			_copy_button.text = "Copiado! Mande para o amigo: %s" % NetService.internet.code)
 	_copy_button.visible = false
 	_password_row = _build_password_row(game)
-	_god_button = _make_button(game, "", func() -> void:
-		var god := GodMode.of(self)
-		var slots := InputService.active_slots()
-		if god and not slots.is_empty():
-			god.toggle(god.slot if god.active else slots[0])
-			_toggle_pause())
 	_loot_button = _make_button(game, "", func() -> void:
 		var order: Array = Loot.GENEROSITY_ORDER
 		var now := String(NetService.world.get("loot", "normal"))
@@ -528,10 +521,6 @@ func _update_pause_info() -> void:
 	_password_row.visible = NetService.mode == NetService.Mode.HOST
 	# Quem manda no mundo (host, ou o sofá offline) escolhe a generosidade do loot.
 	_loot_button.visible = NetService.mode != NetService.Mode.CLIENT
-	var god := GodMode.of(self)
-	_god_button.visible = GodMode.allowed() and god != null
-	if god:
-		_god_button.text = "Sair do modo construtor" if god.active else "Modo construtor (colocar peças no mapa · G)"
 	_loot_button.text = "Loot: %s (criaturas e baús)" % Loot.GENEROSITY.get(String(NetService.world.get("loot", "normal")), Loot.GENEROSITY.normal).name
 	if NetService.mode == NetService.Mode.HOST:
 		lines.append("Mundo com senha." if NetService.has_password() else "Mundo sem senha: quem tiver o código ou o IP entra.")

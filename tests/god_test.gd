@@ -29,9 +29,14 @@ func _process(_delta: float) -> bool:
 		SECOND:
 			_god = get_first_node_in_group("god_mode")
 			_check(_god != null, "mundo tem o modo construtor")
-			_god.start(0)
+			_command()
 			_start = _player().global_position
-			_check(_god.active and _player().building, "ligou para o P1 (host/offline)")
+			_check(_god.active and _player().building, "comando /construir no chat liga o modo construtor")
+			var chat: Array = root.get_node("Chat").history.map(func(m: Dictionary) -> String: return m.text)
+			_check(not chat.has("/construir") and not chat.any(func(t: String) -> bool: return t.contains("construir") and not t.begins_with("Modo construtor")),
+					"o comando não aparece no chat da sala")
+			_check(get_first_node_in_group("hud").find_children("*", "Button", true, false).all(func(b: Button) -> bool: return not b.text.to_lower().contains("construtor")),
+					"nenhum botão de modo construtor nos menus")
 			_check(not _player().is_targetable(), "construindo: criaturas ignoram o herói")
 			_check(_god._ghost != null and _god._ghost.get_child_count() > 0, "fantasma da peça aparece")
 			_select("cone.tscn")
@@ -80,8 +85,13 @@ func _process(_delta: float) -> bool:
 			var chunk: Node = streamer.chunk_at(streamer._path_and_origin(key)[1] + Vector3(1, 0, 1))[0]
 			var again: Node = chunk.get_node("Navigation").get_node_or_null(NodePath(_placed()[0].id)) if chunk else null
 			_check(again != null, "bloco recarregado traz o cone de volta")
-			_god.stop()
-			_check(not _god.active and _player().is_targetable(), "desligou: herói volta a lutar")
+			_command()
+			_check(not _god.active and _player().is_targetable(), "/construir de novo desliga: herói volta a lutar")
+			# Convidado (cliente) nunca tem: nem pelo comando.
+			var net := root.get_node("NetService")
+			net.mode = 2  # Mode.CLIENT
+			_check(not _god.allowed(), "convidado não tem acesso ao modo construtor")
+			net.mode = 0
 			_test_scene_files()
 			print("CONSTRUTOR: " + ("FALHOU" if _failed else "OK"))
 			quit(1 if _failed else 0)
@@ -107,6 +117,13 @@ func _test_scene_files() -> void:
 	_check(root.get_node("Navigation").get_node_or_null("god_teste_1") == null, "a cena do bloco ficou sem a peça")
 	root.free()
 	DirAccess.remove_absolute(ProjectSettings.globalize_path(copy))
+
+
+## Digita o comando no chat como o jogador do teclado.
+func _command() -> void:
+	var chat_box: Node = get_first_node_in_group("hud")._chat
+	chat_box.open_typing(0)
+	chat_box._submit("/construir")
 
 
 func _select(file: String) -> void:

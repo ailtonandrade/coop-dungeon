@@ -107,6 +107,13 @@ func close() -> void:
 
 func _submit(text: String) -> void:
 	var player := _player(_typing_slot)
+	# Comando secreto do dono do jogo: liga/desliga o modo construtor, sem ir para o chat.
+	if player and GodMode.is_command(text) and GodMode.allowed():
+		var god := GodMode.of(self)
+		if god:
+			god.toggle(player.slot)
+		close()
+		return
 	if player and not Chat.clean_text(text).is_empty():
 		Chat.send(player, text)
 		Sound.play("ui_confirm")

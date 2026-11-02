@@ -40,6 +40,11 @@ func send(player: Node, text: String) -> void:
 		_rpc_send.rpc_id(1, player.get_meta("net_id", -1), clean)
 
 
+## Aviso só nesta tela (não vai para a sala).
+func local_note(text: String) -> void:
+	_add("", -1, text, "system")
+
+
 ## Aviso do sistema para a sala toda (só o host espalha; offline, só aqui).
 func system(text: String) -> void:
 	if NetService.is_online() and NetService.is_host():
