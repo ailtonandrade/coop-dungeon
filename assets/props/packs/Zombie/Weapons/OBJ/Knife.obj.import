@@ -1,0 +1,25 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://cdhe5d3d7v50d"
+path="res://.godot/imported/Knife.obj-56942ba734391b1f3edd08da0e3f0822.mesh"
+
+[deps]
+
+files=["res://.godot/imported/Knife.obj-56942ba734391b1f3edd08da0e3f0822.mesh"]
+
+source_file="res://assets/props/packs/Zombie/Weapons/OBJ/Knife.obj"
+dest_files=["res://.godot/imported/Knife.obj-56942ba734391b1f3edd08da0e3f0822.mesh", "res://.godot/imported/Knife.obj-56942ba734391b1f3edd08da0e3f0822.mesh"]
+
+[params]
+
+generate_tangents=true
+generate_lods=true
+generate_shadow_mesh=true
+generate_lightmap_uv2=false
+generate_lightmap_uv2_texel_size=0.2
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+force_disable_mesh_compression=false

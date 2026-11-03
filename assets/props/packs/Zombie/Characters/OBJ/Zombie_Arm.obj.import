@@ -1,0 +1,25 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://dej475uuihvm4"
+path="res://.godot/imported/Zombie_Arm.obj-eb519af85b2386c925eb104621d3eefa.mesh"
+
+[deps]
+
+files=["res://.godot/imported/Zombie_Arm.obj-eb519af85b2386c925eb104621d3eefa.mesh"]
+
+source_file="res://assets/props/packs/Zombie/Characters/OBJ/Zombie_Arm.obj"
+dest_files=["res://.godot/imported/Zombie_Arm.obj-eb519af85b2386c925eb104621d3eefa.mesh", "res://.godot/imported/Zombie_Arm.obj-eb519af85b2386c925eb104621d3eefa.mesh"]
+
+[params]
+
+generate_tangents=true
+generate_lods=true
+generate_shadow_mesh=true
+generate_lightmap_uv2=false
+generate_lightmap_uv2_texel_size=0.2
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+force_disable_mesh_compression=false

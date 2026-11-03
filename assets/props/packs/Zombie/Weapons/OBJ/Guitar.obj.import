@@ -1,0 +1,25 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://hgfj1y65l84t"
+path="res://.godot/imported/Guitar.obj-f91224b9de042bcd592181dbed04ab6d.mesh"
+
+[deps]
+
+files=["res://.godot/imported/Guitar.obj-f91224b9de042bcd592181dbed04ab6d.mesh"]
+
+source_file="res://assets/props/packs/Zombie/Weapons/OBJ/Guitar.obj"
+dest_files=["res://.godot/imported/Guitar.obj-f91224b9de042bcd592181dbed04ab6d.mesh", "res://.godot/imported/Guitar.obj-f91224b9de042bcd592181dbed04ab6d.mesh"]
+
+[params]
+
+generate_tangents=true
+generate_lods=true
+generate_shadow_mesh=true
+generate_lightmap_uv2=false
+generate_lightmap_uv2_texel_size=0.2
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+force_disable_mesh_compression=false

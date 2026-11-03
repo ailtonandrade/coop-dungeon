@@ -1,0 +1,25 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://bb568beaii5ek"
+path="res://.godot/imported/Vehicle_Sports_Armored.obj-04d527dfe15f2871b762d9d3fc1c58bb.mesh"
+
+[deps]
+
+files=["res://.godot/imported/Vehicle_Sports_Armored.obj-04d527dfe15f2871b762d9d3fc1c58bb.mesh"]
+
+source_file="res://assets/props/packs/Zombie/Vehicles/OBJ/Vehicle_Sports_Armored.obj"
+dest_files=["res://.godot/imported/Vehicle_Sports_Armored.obj-04d527dfe15f2871b762d9d3fc1c58bb.mesh", "res://.godot/imported/Vehicle_Sports_Armored.obj-04d527dfe15f2871b762d9d3fc1c58bb.mesh"]
+
+[params]
+
+generate_tangents=true
+generate_lods=true
+generate_shadow_mesh=true
+generate_lightmap_uv2=false
+generate_lightmap_uv2_texel_size=0.2
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+force_disable_mesh_compression=false

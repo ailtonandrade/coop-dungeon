@@ -1,0 +1,25 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://dgrg5hc1f6kns"
+path="res://.godot/imported/TrafficCone_1.obj-6e33a9ed54dd59c87046b1eae5f1e425.mesh"
+
+[deps]
+
+files=["res://.godot/imported/TrafficCone_1.obj-6e33a9ed54dd59c87046b1eae5f1e425.mesh"]
+
+source_file="res://assets/props/packs/Zombie/Environment/OBJ/TrafficCone_1.obj"
+dest_files=["res://.godot/imported/TrafficCone_1.obj-6e33a9ed54dd59c87046b1eae5f1e425.mesh", "res://.godot/imported/TrafficCone_1.obj-6e33a9ed54dd59c87046b1eae5f1e425.mesh"]
+
+[params]
+
+generate_tangents=true
+generate_lods=true
+generate_shadow_mesh=true
+generate_lightmap_uv2=false
+generate_lightmap_uv2_texel_size=0.2
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+force_disable_mesh_compression=false

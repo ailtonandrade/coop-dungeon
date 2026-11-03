@@ -1,0 +1,25 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://62lh1t5agk5o"
+path="res://.godot/imported/WoodenBat_Barbed.obj-cb5f51b5347cadea3a651f328985d19a.mesh"
+
+[deps]
+
+files=["res://.godot/imported/WoodenBat_Barbed.obj-cb5f51b5347cadea3a651f328985d19a.mesh"]
+
+source_file="res://assets/props/packs/Zombie/Weapons/OBJ/WoodenBat_Barbed.obj"
+dest_files=["res://.godot/imported/WoodenBat_Barbed.obj-cb5f51b5347cadea3a651f328985d19a.mesh", "res://.godot/imported/WoodenBat_Barbed.obj-cb5f51b5347cadea3a651f328985d19a.mesh"]
+
+[params]
+
+generate_tangents=true
+generate_lods=true
+generate_shadow_mesh=true
+generate_lightmap_uv2=false
+generate_lightmap_uv2_texel_size=0.2
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+force_disable_mesh_compression=false
