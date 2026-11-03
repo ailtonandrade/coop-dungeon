@@ -99,6 +99,36 @@ func save_character_progress(character_id: String, inventory: Dictionary, progre
 	return _write(_character_prefix() + character_id, data)
 
 
+## Onde o personagem estava: último mundo em que jogou e a posição dele em cada mundo (para o
+## "Continuar" do menu levar de volta e o herói aparecer onde parou).
+func save_character_place(character_id: String, world_id: String, position: Vector3) -> bool:
+	var data := load_character(character_id)
+	if data.is_empty() or world_id.is_empty():
+		return false
+	var places: Dictionary = data.get("places", {})
+	places[world_id] = [snappedf(position.x, 0.01), snappedf(position.y, 0.01), snappedf(position.z, 0.01)]
+	data["places"] = places
+	data["last_world"] = world_id
+	return _write(_character_prefix() + character_id, data)
+
+
+## Posição salva do personagem nesse mundo, ou null.
+func character_place(character_id: String, world_id: String) -> Variant:
+	var spot: Variant = load_character(character_id).get("places", {}).get(world_id)
+	return Vector3(spot[0], spot[1], spot[2]) if spot is Array and spot.size() == 3 else null
+
+
+## O mundo (do save) em que o personagem jogou por último, ou {} se não tem ou foi apagado.
+func last_world_of(character_id: String) -> Dictionary:
+	var world_id := str(load_character(character_id).get("last_world", ""))
+	if world_id.is_empty():
+		return {}
+	for world in list_worlds():
+		if str(world.get("id", "")) == world_id:
+			return world
+	return {}
+
+
 func delete_character(character_id: String) -> bool:
 	return _backend.delete(_character_prefix() + character_id)
 

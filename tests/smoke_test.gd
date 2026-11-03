@@ -141,7 +141,9 @@ func _process(_delta: float) -> bool:
 		9 * SECOND + 20:
 			_check(_shooter._animator.current == "move_back", "atirador recua de costas, olhando para o alvo (%s)" % _shooter._animator.current)
 			# Mouse mexido para a direita do P1 na tela: só vira segurando um clique.
+			# (Começa olhando para a esquerda: o atirador ao lado pode ter feito ele virar antes.)
 			var p1 := _player(0)
+			p1._facing = Vector3.LEFT
 			var camera: Camera3D = current_scene.get_viewport().get_camera_3d()
 			var motion := InputEventMouseMotion.new()
 			motion.position = camera.unproject_position(p1.global_position + Vector3(5, 0, 0))

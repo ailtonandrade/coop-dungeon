@@ -22,7 +22,7 @@ func _ready() -> void:
 	_build_environment()
 	_add_god_mode()
 	_streamer.world_map = world_map
-	_players.spawn_position = _debug_spawn_point(world_map.spawn_point)
+	_players.spawn_position = _debug_spawn_point(_saved_spot(world_map.spawn_point))
 	_streamer.load_now(_players.spawn_position)
 	# Mundo pronto: libera entrar no jogo e avisa o host (se for cliente).
 	InputService.joining_enabled = true
@@ -38,6 +38,41 @@ const GOD_MODE := "res://world/god_mode.gd"
 func _add_god_mode() -> void:
 	if OS.has_feature("editor") and ResourceLoader.exists(GOD_MODE):
 		add_child((load(GOD_MODE) as Script).new())
+
+
+## Quem manda no mundo (host ou sofá offline) volta onde o personagem ativo parou neste mundo.
+func _saved_spot(default: Vector3) -> Vector3:
+	if NetService.mode == NetService.Mode.CLIENT or not NetService.world.has("id"):
+		return default
+	var spot: Variant = SaveService.character_place(Settings.active_character, str(NetService.world.id))
+	return spot if spot is Vector3 and spot.y > GameConfig.KILL_Y + 2.0 else default
+
+
+## Guarda onde cada herói desta máquina está (último mundo e posição) de tempos em tempos e ao
+## sair do mundo: é o que o "Continuar" do menu usa.
+const PLACE_SAVE_INTERVAL := 10.0
+var _place_timer := 0.0
+
+
+func _process(delta: float) -> void:
+	_place_timer += delta
+	if _place_timer >= PLACE_SAVE_INTERVAL:
+		_place_timer = 0.0
+		save_places()
+
+
+func _exit_tree() -> void:
+	save_places()
+
+
+func save_places() -> void:
+	var world_id := str(NetService.world.get("id", ""))
+	if world_id.is_empty():
+		return
+	for player: Player in get_tree().get_nodes_in_group("players") if is_inside_tree() else []:
+		if player.is_local() and not player.character_id.is_empty() and not player.is_downed() \
+				and player.global_position.y > GameConfig.KILL_Y + 2.0:
+			SaveService.save_character_place(player.character_id, world_id, player.global_position)
 
 
 ## "Jogar a partir daqui" do editor de mapa: começa no bloco escolhido (só rodando pelo editor).

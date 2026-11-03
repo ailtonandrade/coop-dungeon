@@ -34,6 +34,7 @@ var _active_card: PanelContainer
 var _active_preview: CharacterPreview
 var _active_name: Label
 var _active_info: Label
+var _continue_button: Button
 
 
 func _ready() -> void:
@@ -92,7 +93,11 @@ func _show(screen_name: String) -> void:
 			_start_browse()
 		"characters":
 			_refresh_characters()
-	_focus_first(_screens[screen_name])
+	# Na tela principal, com mundo para continuar, o "Continuar" já vem marcado (A entra direto).
+	if screen_name == "main" and _continue_button and _continue_button.visible:
+		_continue_button.grab_focus.call_deferred()
+	else:
+		_focus_first(_screens[screen_name])
 
 
 ## Personagem ativo: é com ele que você entra no mundo (troca na tela Personagens).
@@ -119,6 +124,13 @@ func _build_active_card() -> void:
 	_active_info = UiSkin.label("", 15, UiSkin.TEXT, "SemiBold", 3)
 	_active_info.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	box.add_child(_active_info)
+	# Continuar: volta para o último mundo deste personagem, onde ele parou.
+	_continue_button = _button(box, "", func() -> void:
+		var last := SaveService.last_world_of(Settings.active_character)
+		if not last.is_empty():
+			_play(last))
+	_continue_button.alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_continue_button.add_theme_color_override("font_color", UiSkin.NEON)
 	var change := _button(box, "Trocar personagem", func() -> void: _show("characters"))
 	change.alignment = HORIZONTAL_ALIGNMENT_CENTER
 
@@ -137,6 +149,9 @@ func _refresh_active_card() -> void:
 	_active_preview.show_character(active)
 	_active_name.text = active.name.to_upper()
 	_active_info.text = Txt.t("Nível %d · %s · chip %s") % [Characters.level_of(active), Txt.t(Characters.MODELS[active.model]), Txt.t(Characters.CHIP_COLOR_NAMES[active.chip_color])]
+	var last := SaveService.last_world_of(active.id)
+	_continue_button.visible = not last.is_empty()
+	_continue_button.text = Txt.t("Continuar · %s") % str(last.get("name", "")) if not last.is_empty() else ""
 
 
 ## Visual
