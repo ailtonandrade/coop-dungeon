@@ -1,19 +1,19 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://btj6q3x5dqghc"]
 
 [ext_resource type="Texture2D" path="res://world/textures/ground_4d453d_615447.res" id="1_y326l"]
-[ext_resource type="Script" path="res://world/fade_occluder.gd" id="2_y326l"]
-[ext_resource type="PackedScene" path="res://assets/props/Barrel.glb" id="3_t5grd"]
-[ext_resource type="PackedScene" path="res://assets/props/Chest.glb" id="4_10agt"]
-[ext_resource type="Script" path="res://world/world_npc.gd" id="5_2772y"]
+[ext_resource type="Script" uid="uid://bbyjjd26mkvij" path="res://world/fade_occluder.gd" id="2_y326l"]
+[ext_resource type="PackedScene" uid="uid://cykmgapidtwdp" path="res://assets/props/Barrel.glb" id="3_t5grd"]
+[ext_resource type="PackedScene" uid="uid://cjysy3ae2mnrl" path="res://assets/props/Chest.glb" id="4_10agt"]
+[ext_resource type="Script" uid="uid://c0oc2dd2qakp7" path="res://world/world_npc.gd" id="5_2772y"]
 [ext_resource type="MeshLibrary" path="res://world/tiles/tiles.meshlib" id="5_y326l"]
-[ext_resource type="PackedScene" path="res://assets/characters/Suit.glb" id="6_f5q74"]
+[ext_resource type="PackedScene" uid="uid://dpmlqyss4405t" path="res://assets/characters/Suit.glb" id="6_f5q74"]
 [ext_resource type="PackedScene" path="res://world/prefabs/bau_de_saque.tscn" id="6_s4uig"]
-[ext_resource type="Script" path="res://world/container_item.gd" id="7_ffok1"]
-[ext_resource type="PackedScene" path="res://assets/characters/Worker.glb" id="7_y8j3o"]
+[ext_resource type="Script" uid="uid://b6ij75nosxtdt" path="res://world/container_item.gd" id="7_ffok1"]
+[ext_resource type="PackedScene" uid="uid://dmy2roidhlikd" path="res://assets/characters/Worker.glb" id="7_y8j3o"]
 [ext_resource type="PackedScene" path="res://world/prefabs/poste_de_luz.tscn" id="8_8ynnr"]
-[ext_resource type="PackedScene" path="res://assets/characters/Beach.glb" id="8_t0nbh"]
+[ext_resource type="PackedScene" uid="uid://dt1dftory4r1p" path="res://assets/characters/Beach.glb" id="8_t0nbh"]
 [ext_resource type="PackedScene" path="res://world/prefabs/carro_quebrado.tscn" id="9_1j7j7"]
-[ext_resource type="PackedScene" path="res://assets/characters/King.glb" id="9_ud5yq"]
+[ext_resource type="PackedScene" uid="uid://biycfshaiffwe" path="res://assets/characters/King.glb" id="9_ud5yq"]
 [ext_resource type="PackedScene" path="res://world/prefabs/pilha_de_pneus.tscn" id="10_25cto"]
 [ext_resource type="PackedScene" path="res://world/prefabs/barril.tscn" id="11_5qdrv"]
 [ext_resource type="PackedScene" path="res://world/prefabs/saco_de_lixo.tscn" id="12_s17pd"]
@@ -856,9 +856,6 @@ transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 29, 
 
 [node name="PosteDeLuz4" parent="Navigation" unique_id=1537466516 instance=ExtResource("8_8ynnr")]
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 36, 0, 45)
-
-[node name="CarroQuebrado" parent="Navigation" unique_id=1842033940 instance=ExtResource("9_1j7j7")]
-transform = Transform3D(0.34202015, 0, 0.9396926, 0, 1, 0, -0.9396926, 0, 0.34202015, 18, 0, 47)
 
 [node name="PilhaDePneus" parent="Navigation" unique_id=1839906980 instance=ExtResource("10_25cto")]
 transform = Transform3D(0.9659258, 0, 0.25881904, 0, 1, 0, -0.25881904, 0, 0.9659258, 21, 0, 50)

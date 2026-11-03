@@ -1,7 +1,7 @@
-[gd_resource type="Resource" script_class="WorldMap" format=3]
+[gd_resource type="Resource" script_class="WorldMap" format=3 uid="uid://0uni68dkx5k3"]
 
-[ext_resource type="Script" path="res://world/region_def.gd" id="1_nc368"]
-[ext_resource type="Script" path="res://world/world_map.gd" id="2_4j5ft"]
+[ext_resource type="Script" uid="uid://cqpv8odsd0lyq" path="res://world/region_def.gd" id="1_nc368"]
+[ext_resource type="Script" uid="uid://bb05vuyrm0kye" path="res://world/world_map.gd" id="2_4j5ft"]
 
 [sub_resource type="Resource" id="Resource_5aubx"]
 script = ExtResource("1_nc368")
