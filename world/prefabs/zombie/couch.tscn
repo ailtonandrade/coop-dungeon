@@ -1,0 +1,16 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://assets/props/packs/Zombie/Environment/glTF/Couch.gltf" id="1_3b285"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_kwatj"]
+size = Vector3(3.0131774, 1.2440493, 1.213589)
+
+[node name="Couch" type="StaticBody3D" unique_id=1271515319]
+metadata/prop_def = "res://world/props/couch.tres"
+
+[node name="Modelo" type="Node3D" parent="." unique_id=1036743395 instance=ExtResource("1_3b285")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.861023e-06, -0.0032467134, 0.16540039)
+
+[node name="Collision" type="CollisionShape3D" parent="." unique_id=579340074]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.62202466, 0)
+shape = SubResource("BoxShape3D_kwatj")

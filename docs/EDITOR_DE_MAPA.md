@@ -179,7 +179,7 @@ só para o dono do jogo, rodando pelo editor; os amigos conectados veem a mesma 
 
 **Chuva:** vem e vai sozinha (trechos de 3 a 8 minutos, ~1 em cada 3 com chuva). `/chuva` no chat
 liga ou desliga na hora. Chovendo: gotas e respingos em volta dos heróis, som de chuva, chão
-molhado brilhando nas luzes, poças maiores com ondinhas e o céu mais fechado. Dentro de
+molhado brilhando nas luzes e o céu mais fechado. Dentro de
 casa/caverna a chuva some e o som fica abafado. Amigos conectados veem a mesma chuva.
 
 O herói continua andando (e correndo), não luta e as criaturas o ignoram. Embaixo aparece o
@@ -222,10 +222,11 @@ o chão, para barraca na rua) e o alcance/força da luz. A prévia atualiza no e
 De noite o neon brilha forte e pinta a parede e o chão na cor dele; de dia fica mais fraco. Os da
 vila (COFRE, BAR, LANCHES, OFICINA, MERCADO, MODS) foram postos por `tools/letreiros_vila.gd`.
 
-## Poça d'água
+## Capricho da vila (toldos, mesas de bar, caixotes, bancas)
 
-Peça `world/prefabs/poca_dagua.tscn`: espelho d'água no chão com borda irregular (cada poça sai
-com um formato, pela posição). Escale e gire no editor para mudar o tamanho. Ela pega a cor do
-letreiro de neon mais perto (mais forte de noite) e reflete o céu da hora; nas qualidades média
-e alta o reflexo de tela espelha o neon e as luzes de verdade. Com chuva, cresce e ganha ondinhas.
-As da vila foram postas por `tools/pocas_vila.gd`; o material vem de `tools/build_poca.gd`.
+Peças novas em `world/prefabs/`: **toldo** (listrado, preso na parede; no Inspector: as duas
+cores, largura, quanto avança e a largura das listras), **mesa_de_bar** (mesa de plástico de
+boteco com cadeiras e garrafas), **caixotes** (pilha com engradado de cerveja) e **banca** (de
+camelô, com mercadoria e radinho). Do pack vieram o sofá velho, o ar-condicionado, os pneus, os
+canos e o vaso. As da vila estão no grupo **Capricho** do bloco (`tools/capricho_vila.gd`, que só
+acrescenta o que faltar): arraste no editor ou mova/apague pelo `/construir`.

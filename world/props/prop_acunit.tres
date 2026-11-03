@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="PropDef" format=3]
+
+[ext_resource type="PackedScene" path="res://assets/props/packs/DownTown/Prop_ACUnit.gltf" id="1_uxnco"]
+[ext_resource type="Script" path="res://props/prop_def.gd" id="2_dp22c"]
+
+[resource]
+script = ExtResource("2_dp22c")
+id = "prop_acunit"
+display_name = "Prop ACUnit"
+model = ExtResource("1_uxnco")

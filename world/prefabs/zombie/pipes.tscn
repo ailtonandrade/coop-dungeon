@@ -1,0 +1,16 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://assets/props/packs/Zombie/Environment/glTF/Pipes.gltf" id="1_1ifr4"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_f3gk1"]
+size = Vector3(0.74818575, 0.67134714, 3.3553395)
+
+[node name="Pipes" type="StaticBody3D" unique_id=1202284672]
+metadata/prop_def = "res://world/props/pipes.tres"
+
+[node name="Modelo" type="Node3D" parent="." unique_id=343571178 instance=ExtResource("1_1ifr4")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.7149916e-05, -0.004825473, 0)
+
+[node name="Collision" type="CollisionShape3D" parent="." unique_id=1297268217]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.33567357, 0)
+shape = SubResource("BoxShape3D_f3gk1")

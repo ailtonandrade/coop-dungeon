@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="PropDef" format=3]
+
+[ext_resource type="PackedScene" path="res://assets/props/packs/DownTown/Prop_Planter_Single.gltf" id="1_k03a8"]
+[ext_resource type="Script" path="res://props/prop_def.gd" id="2_ellg6"]
+
+[resource]
+script = ExtResource("2_ellg6")
+id = "prop_planter_single"
+display_name = "Prop Planter Single"
+model = ExtResource("1_k03a8")

@@ -1,0 +1,16 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://assets/props/packs/Zombie/Environment/glTF/Wheels_Stack.gltf" id="1_3nr1t"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_i42yq"]
+size = Vector3(0.6575685, 0.6113768, 0.5718691)
+
+[node name="WheelsStack" type="StaticBody3D" unique_id=1979899228]
+metadata/prop_def = "res://world/props/wheels_stack.tres"
+
+[node name="Modelo" type="Node3D" parent="." unique_id=1553155568 instance=ExtResource("1_3nr1t")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.021125346, 7.83728e-07, 0.0012611747)
+
+[node name="Collision" type="CollisionShape3D" parent="." unique_id=1429956584]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.3056884, 0)
+shape = SubResource("BoxShape3D_i42yq")
