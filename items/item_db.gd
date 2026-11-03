@@ -318,7 +318,7 @@ static func describe(item: Dictionary) -> PackedStringArray:
 	for key: String in STATS:
 		var amount := stat(item, key)
 		if amount != 0.0:
-			lines.append("%s: %s" % [STATS[key], str(amount)])
+			lines.append("%s: %s" % [Txt.t(STATS[key]), str(amount)])
 	var enchants: Dictionary = item.get("enchants", {})
 	for enchant_id: String in enchants:
 		lines.append("%s %d" % [ENCHANTS.get(enchant_id, {}).get("name", enchant_id), int(enchants[enchant_id])])

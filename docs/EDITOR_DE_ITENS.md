@@ -96,3 +96,13 @@ põe a de corpo a corpo na mão e guarda a outra; atirar faz o contrário. A gua
 - Modelos de personagem que já vêm com arma (o Swat e o Suit trazem uma pistola) têm essa arma
   escondida: quem decide a arma é o equipamento.
 - Coldre novo: acrescente em `HOLSTERS` e na lista do campo `holster` do `ItemDef`.
+
+
+## Ícone no inventário
+
+Item com **modelo 3D** usa no inventário (e na barra do cartão, na loja...) uma **foto do próprio
+modelo**, tirada pelo jogo na primeira vez que o ícone aparece (`ui/icon_studio.gd`), com o
+tamanho, o giro e a posição da ficha. Assim o ícone é sempre igual ao item no chão e na mão,
+mesmo depois de ajustar o modelo, e não precisa apertar "Gerar ícone". Se quiser um ícone
+desenhado à mão, ponha a imagem no campo Icon da ficha (fora de `items/icons/`): ele passa na
+frente da foto.

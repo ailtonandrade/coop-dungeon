@@ -40,9 +40,25 @@ func _draw() -> void:
 		draw_rect(rect.grow(-2), cursor_color, false, 4.0)
 
 
-## Ícone de um item em `r`: o ícone da ficha, se tiver, senão o desenho do tipo.
+## Ícone de um item em `r`: com modelo 3D, a foto dele (IconStudio, igual ao chão e à mão);
+## senão o ícone da ficha, se tiver; senão o desenho do tipo.
 static func draw_item(canvas: CanvasItem, item: Dictionary, r: Rect2, alpha := 1.0) -> void:
 	var def := ItemDB.def(item)
+	if IconStudio.uses_photo(def):
+		var photo := IconStudio.icon_for(str(item.get("id", "")))
+		if photo:
+			canvas.draw_texture_rect(photo, r, false, Color(1, 1, 1, alpha))
+			return
+		# Foto ainda saindo: redesenha quando ficar pronta (uma espera por casa).
+		var studio := IconStudio.instance()
+		if studio and canvas.is_inside_tree() and not canvas.has_meta("waiting_icon"):
+			canvas.set_meta("waiting_icon", true)
+			var target: WeakRef = weakref(canvas)
+			studio.icon_ready.connect(func(_id: String) -> void:
+				var alive: CanvasItem = target.get_ref()
+				if alive:
+					alive.remove_meta("waiting_icon")
+					alive.queue_redraw(), CONNECT_ONE_SHOT)
 	var icon: Variant = def.get("icon")
 	if icon is Texture2D:
 		canvas.draw_texture_rect(icon, r, false, Color(1, 1, 1, alpha))
