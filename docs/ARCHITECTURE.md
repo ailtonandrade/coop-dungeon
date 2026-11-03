@@ -46,6 +46,7 @@ addons/item_editor/ painel "Itens": fichas, modelos 3D, encaixe com prévia, íc
 addons/map_editor/  editor de mapa: painel "Mapa do Mundo" (world_map_dock, map_grid_view)
              e MapTools (a lógica: criar bloco/masmorra, ligar e sincronizar entradas, validar,
              assar navegação), usado pelo painel e pelos testes
+locale/      traduções (textos.csv: chave em português, coluna por idioma); ver docs/TRADUCAO.md
 props/       fichas de peças do cenário (PropDef), montagem da peça pronta (PropBuilder) e
              peça física (PhysicsProp, simulada pelo host)
 ui/          menu principal (com a vila 3D ao fundo: MenuBackdrop), HUD (PlayerCard, RegionBanner),

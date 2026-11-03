@@ -36,7 +36,7 @@ func _ready() -> void:
 	if devices.is_empty():
 		devices = PackedStringArray(["Default"])
 	for device in devices:
-		_devices.add_item("Microfone: %s" % ("padrão do sistema" if device == "Default" else device))
+		_devices.add_item(Txt.t("Microfone: %s") % (Txt.t("padrão do sistema") if device == "Default" else device))
 		_devices.set_item_metadata(_devices.item_count - 1, device)
 		if device == Settings.mic_device:
 			_devices.select(_devices.item_count - 1)
@@ -47,7 +47,7 @@ func _ready() -> void:
 	_modes.custom_minimum_size = Vector2(0, 44)
 	_modes.add_theme_font_size_override("font_size", 16)
 	for entry: Array in MODES:
-		_modes.add_item("Voz: %s" % entry[1])
+		_modes.add_item(Txt.t("Voz: %s") % Txt.t(entry[1]))
 		if entry[0] == Settings.voice_mode:
 			_modes.select(_modes.item_count - 1)
 	_modes.item_selected.connect(func(index: int) -> void: Settings.set_voice("voice_mode", MODES[index][0]))

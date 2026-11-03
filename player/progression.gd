@@ -150,7 +150,7 @@ func skill_bonus(id: String) -> float:
 
 static func skill_text(id: String, level: int) -> String:
 	var info: Dictionary = SKILLS[id]
-	return String(info.text) % str(snappedf((level - SKILL_START) * float(info.per), 0.1))
+	return Txt.t(info.text) % str(snappedf((level - SKILL_START) * float(info.per), 0.1))
 
 
 ## Bônus somado de chips e níveis: "hp_pct", "hp_flat", "damage_pct", "cooldown_pct", "speed_pct".
@@ -170,7 +170,7 @@ func bonus(stat: String) -> float:
 ## Texto do efeito de um chip com `points` pontos (0 = sem efeito ainda).
 static func chip_text(id: String, points: int) -> String:
 	var info: Dictionary = CHIPS[id]
-	return String(info.text) % str(snappedf(points * float(info.per), 0.1))
+	return Txt.t(info.text) % str(snappedf(points * float(info.per), 0.1))
 
 
 func to_dict() -> Dictionary:

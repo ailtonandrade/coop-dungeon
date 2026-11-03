@@ -105,7 +105,7 @@ func peer_label(peer: int) -> String:
 	for player in get_tree().get_nodes_in_group("players"):
 		if player.owner_peer == peer:
 			names.append(player.display_name)
-	return " + ".join(names) if not names.is_empty() else "Jogador %d" % peer
+	return " + ".join(names) if not names.is_empty() else Txt.t("Jogador %d") % peer
 
 
 ## Chave das preferências por pessoa (o nome do primeiro personagem dela).

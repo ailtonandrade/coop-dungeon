@@ -45,7 +45,7 @@ func _build() -> void:
 	column.add_theme_constant_override("separation", 8)
 	add_child(column)
 	var color := GameConfig.PLAYER_COLORS[player.index]
-	column.add_child(UiSkin.label("P%d %s · chip pirata" % [player.index + 1, player.display_name], 20, color, "Bold", 4))
+	column.add_child(UiSkin.label(Txt.t("P%d %s · chip pirata") % [player.index + 1, player.display_name], 20, color, "Bold", 4))
 	_header = UiSkin.label("", 16, UiSkin.AMBER, "SemiBold", 3)
 	column.add_child(_header)
 	for id: String in Progression.CHIPS:
@@ -66,12 +66,12 @@ func _refresh() -> void:
 		return
 	var progress := player.progress
 	var next := Progression.xp_to_next(progress.level)
-	_header.text = "Nível %d · XP %d/%d · pontos para instalar: %d" % [progress.level, progress.xp, next, progress.points_free()]
+	_header.text = Txt.t("Nível %d · XP %d/%d · pontos para instalar: %d") % [progress.level, progress.xp, next, progress.points_free()]
 	var id: String = Progression.CHIPS.keys()[_cursor]
 	var points := progress.chip_level(id)
-	var now := Progression.chip_text(id, points) if points > 0 else "nada ainda"
-	var after := Progression.chip_text(id, points + 1) if points < Progression.MAX_CHIP else "no máximo"
-	_details.text = "%s: %s → %s" % [Progression.CHIPS[id].name, now, after]
+	var now := Progression.chip_text(id, points) if points > 0 else Txt.t("nada ainda")
+	var after := Progression.chip_text(id, points + 1) if points < Progression.MAX_CHIP else Txt.t("no máximo")
+	_details.text = "%s: %s → %s" % [Txt.t(Progression.CHIPS[id].name), now, after]
 	for row in _rows:
 		row.queue_redraw()
 
@@ -85,7 +85,7 @@ func _draw_row(row: Control, id: String) -> void:
 		row.draw_rect(rect.grow(-2), GameConfig.PLAYER_COLORS[player.index], false, 3.0)
 	var f := UiSkin.font("Bold")
 	var points := player.progress.chip_level(id)
-	row.draw_string(f, Vector2(14, 22), Progression.CHIPS[id].name, HORIZONTAL_ALIGNMENT_LEFT, -1, 17, UiSkin.TEXT)
+	row.draw_string(f, Vector2(14, 22), Txt.t(Progression.CHIPS[id].name), HORIZONTAL_ALIGNMENT_LEFT, -1, 17, UiSkin.TEXT)
 	var effect := Progression.chip_text(id, points) if points > 0 else "—"
 	row.draw_string(UiSkin.font("Regular"), Vector2(14, 41), effect, HORIZONTAL_ALIGNMENT_LEFT, 230, 13, UiSkin.DIM)
 	# Barrinhas do nível do chip (1 a 10), acesas em neon.

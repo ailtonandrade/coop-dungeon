@@ -81,7 +81,7 @@ func _ready() -> void:
 		add_child(pivot)
 		pivot.add_child(body)
 		CharacterAnimator.new(body, AnimSets.HUMANOID).play("idle")
-	_title = "%s\n%s" % [npc_name, SERVICE_NAMES[service]] if npc_name else SERVICE_NAMES[service]
+	_title = "%s\n%s" % [npc_name, Txt.t(SERVICE_NAMES[service])] if npc_name else Txt.t(SERVICE_NAMES[service])
 	_label = WorldText.make(_title, 20, Color(0.75, 1.0, 0.75))
 	_label.position.y = 2.5
 	add_child(_label)
@@ -96,7 +96,7 @@ func _process(_delta: float) -> void:
 			if Vector2(offset.x, offset.z).length() <= TALK_RANGE:
 				near = true
 				break
-	_label.text = _title + ("\n[LB / F] falar" if near else "")
+	_label.text = _title + (Txt.t("\n[LB / F] falar") if near else "")
 	# Puxa assunto sozinho quando o grupo chega perto depois de descobrir algo (uma vez).
 	if near:
 		var line: DialogueLine = Lore.approach_line(npc_name)
@@ -107,7 +107,7 @@ func _process(_delta: float) -> void:
 
 ## Balão de fala acima da cabeça por uns segundos (só nesta tela).
 func say(text: String) -> void:
-	var bubble := WorldText.make("“%s”" % text, 17, Color(1.0, 0.95, 0.8), true)
+	var bubble := WorldText.make("“%s”" % Txt.t(text), 17, Color(1.0, 0.95, 0.8), true)
 	bubble.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	bubble.width = 900.0
 	bubble.position.y = 3.2

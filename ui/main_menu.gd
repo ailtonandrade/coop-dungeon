@@ -136,7 +136,7 @@ func _refresh_active_card() -> void:
 		Settings.set_active_character(active.id)
 	_active_preview.show_character(active)
 	_active_name.text = active.name.to_upper()
-	_active_info.text = "Nível %d · %s · chip %s" % [Characters.level_of(active), Characters.MODELS[active.model], Characters.CHIP_COLOR_NAMES[active.chip_color]]
+	_active_info.text = Txt.t("Nível %d · %s · chip %s") % [Characters.level_of(active), Txt.t(Characters.MODELS[active.model]), Txt.t(Characters.CHIP_COLOR_NAMES[active.chip_color])]
 
 
 ## Visual
@@ -192,7 +192,7 @@ func _build_overlay() -> void:
 	place.call()
 	get_viewport().size_changed.connect(place)
 
-	var version := UiSkin.label("v%s · protótipo" % NetService.GAME_VERSION, 14, UiSkin.DIM, "Regular", 3)
+	var version := UiSkin.label(Txt.t("v%s · protótipo") % NetService.GAME_VERSION, 14, UiSkin.DIM, "Regular", 3)
 	version.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_LEFT)
 	version.grow_vertical = Control.GROW_DIRECTION_BEGIN
 	version.offset_left = 24
@@ -287,7 +287,7 @@ func _build_characters() -> Control:
 	editor.add_child(_char_name)
 	_char_model = OptionButton.new()
 	for model: String in Characters.MODELS:
-		_char_model.add_item(Characters.MODELS[model])
+		_char_model.add_item(Txt.t(Characters.MODELS[model]))
 	_char_model.custom_minimum_size = Vector2(0, 48)
 	_char_model.item_selected.connect(func(index: int) -> void: _edit_character("model", Characters.MODELS.keys()[index]))
 	editor.add_child(_char_model)
@@ -297,7 +297,7 @@ func _build_characters() -> Control:
 	for i in Characters.CHIP_COLORS.size():
 		var swatch := Button.new()
 		swatch.custom_minimum_size = Vector2(44, 40)
-		swatch.tooltip_text = "Chip %s" % Characters.CHIP_COLOR_NAMES[i]
+		swatch.tooltip_text = Txt.t("Chip %s") % Txt.t(Characters.CHIP_COLOR_NAMES[i])
 		var style := StyleBoxFlat.new()
 		style.bg_color = Characters.CHIP_COLORS[i]
 		style.set_corner_radius_all(4)
@@ -329,12 +329,12 @@ func _refresh_characters(select_id := "") -> void:
 		select_id = Settings.active_character
 	for character in characters:
 		var active: bool = character.id == Settings.active_character
-		var text := "%s%s  ·  nível %d" % ["▶ " if active else "", character.name, Characters.level_of(character)]
+		var text := Txt.t("%s%s  ·  nível %d") % ["▶ " if active else "", character.name, Characters.level_of(character)]
 		_button(_char_list, text, _select_character.bind(character.id))
 		if character.id == select_id or (select_id.is_empty() and _editing.is_empty()):
 			_editing = character
 	if characters.size() < Characters.MAX:
-		_button(_char_list, "+ Novo personagem (%d/%d)" % [characters.size(), Characters.MAX], func() -> void:
+		_button(_char_list, Txt.t("+ Novo personagem (%d/%d)") % [characters.size(), Characters.MAX], func() -> void:
 			var created := Characters.create()
 			SaveService.save_character(created)
 			Settings.set_active_character(created.id)
@@ -359,7 +359,7 @@ func _show_editing() -> void:
 		return
 	_char_name.text = _editing.name
 	_char_model.select(Characters.MODELS.keys().find(_editing.model))
-	_char_info.text = "%s · chip %s · nível %d · ▶ é com ele que você entra no mundo" % [Characters.MODELS[_editing.model], Characters.CHIP_COLOR_NAMES[_editing.chip_color], Characters.level_of(_editing)]
+	_char_info.text = Txt.t("%s · chip %s · nível %d · ▶ é com ele que você entra no mundo") % [Txt.t(Characters.MODELS[_editing.model]), Txt.t(Characters.CHIP_COLOR_NAMES[_editing.chip_color]), Characters.level_of(_editing)]
 	_char_delete.text = "Apagar"
 
 
@@ -370,7 +370,7 @@ func _edit_character(field: String, value: Variant) -> void:
 	SaveService.save_character(_editing)
 	_editing = SaveService.load_character(_editing.id)
 	_char_preview.show_character(_editing)
-	_char_info.text = "%s · chip %s · nível %d" % [Characters.MODELS[_editing.model], Characters.CHIP_COLOR_NAMES[_editing.chip_color], Characters.level_of(_editing)]
+	_char_info.text = Txt.t("%s · chip %s · nível %d") % [Txt.t(Characters.MODELS[_editing.model]), Txt.t(Characters.CHIP_COLOR_NAMES[_editing.chip_color]), Characters.level_of(_editing)]
 
 
 ## Apagar pede confirmação (o personagem leva junto inventário e nível).
@@ -408,7 +408,7 @@ func _build_create() -> Control:
 	box.add_child(_label("Novo mundo", 34))
 	_name_edit = LineEdit.new()
 	_name_edit.placeholder_text = "Nome do mundo"
-	_name_edit.text = "Mundo de %s" % NetService.player_name
+	_name_edit.text = Txt.t("Mundo de %s") % NetService.player_name
 	_style_input(_name_edit)
 	box.add_child(_name_edit)
 	_seed_edit = LineEdit.new()
@@ -487,7 +487,7 @@ func _build_browse() -> Control:
 func _create_world() -> void:
 	var world_name := _name_edit.text.strip_edges()
 	if world_name.is_empty():
-		world_name = "Mundo de %s" % NetService.player_name
+		world_name = Txt.t("Mundo de %s") % NetService.player_name
 	var seed_text := _seed_edit.text.strip_edges()
 	var world_seed := randi()
 	if seed_text.is_valid_int():
@@ -558,7 +558,7 @@ func _start_browse() -> void:
 	_discovery = LanDiscovery.new()
 	add_child(_discovery)
 	if _discovery.start_listening() != OK:
-		_status.text = "Não deu pra buscar na rede local (porta %d ocupada?). Use o IP." % LanDiscovery.PORT
+		_status.text = Txt.t("Não deu pra buscar na rede local (porta %d ocupada?). Use o IP.") % LanDiscovery.PORT
 	_discovery.worlds_changed.connect(_refresh_found)
 	_refresh_found()
 
@@ -572,13 +572,13 @@ func _refresh_found() -> void:
 	for info: Dictionary in _discovery.worlds.values():
 		var full := int(info.players) >= int(info.max)
 		var other_version: bool = info.get("version") != NetService.GAME_VERSION
-		var text := "%s  ·  de %s  ·  %d/%d" % [info.name, info.host, int(info.players), int(info.max)]
+		var text := Txt.t("%s  ·  de %s  ·  %d/%d") % [info.name, info.host, int(info.players), int(info.max)]
 		if info.get("locked", false):
 			text += "  ·  com senha"
 		if full:
 			text += "  ·  cheio"
 		elif other_version:
-			text += "  ·  versão %s" % info.version
+			text += Txt.t("  ·  versão %s") % info.version
 		var button := _button(_found_box, text, _join.bind(str(info.address), int(info.port)))
 		button.disabled = full or other_version
 

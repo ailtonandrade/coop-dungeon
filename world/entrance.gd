@@ -40,7 +40,7 @@ func _ready() -> void:
 
 func _physics_process(delta: float) -> void:
 	var locked := not Lore.knows_all(requires)
-	_label.text = title + ("\n(trancado)" if locked else "")
+	_label.text = Txt.t(title) + (Txt.t("\n(trancado)") if locked else "")
 	if not multiplayer.is_server() or locked:
 		return
 	var standing := {}

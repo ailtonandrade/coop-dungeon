@@ -234,7 +234,7 @@ static func display_name(item: Dictionary) -> String:
 	if item.get("id") == "gold":
 		return money(int(item.get("amount", 0)))
 	var refine := int(item.get("refine", 0))
-	return def(item).get("name", "?") + (" +%d" % refine if refine > 0 else "")
+	return Txt.t(def(item).get("name", "?")) + (" +%d" % refine if refine > 0 else "")
 
 
 static func rarity_color(item: Dictionary) -> Color:
@@ -242,7 +242,7 @@ static func rarity_color(item: Dictionary) -> Color:
 
 
 static func rarity_name(item: Dictionary) -> String:
-	return RARITIES.get(item.get("rarity", "common"), RARITIES.common).name
+	return Txt.t(RARITIES.get(item.get("rarity", "common"), RARITIES.common).name)
 
 
 static func stat(item: Dictionary, key: String) -> float:
@@ -327,7 +327,7 @@ static func describe(item: Dictionary) -> PackedStringArray:
 
 ## "37 parafusos"
 static func money(amount: int) -> String:
-	return "%d %s" % [amount, CURRENCY]
+	return "%d %s" % [amount, Txt.t(CURRENCY)]
 
 
 static func make_gold(amount: int) -> Dictionary:

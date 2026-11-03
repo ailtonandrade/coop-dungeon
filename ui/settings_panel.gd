@@ -6,11 +6,13 @@ extends VBoxContainer
 var _camera_button: Button
 var _minimap_button: Button
 var _graphics_button: Button
+var _language_button: Button
 
 
 func _ready() -> void:
 	add_theme_constant_override("separation", 10)
 	add_child(UiSkin.label("CONFIGURAÇÕES", 22, UiSkin.NEON, "Bold"))
+	_language_button = _button(Settings.cycle_language)
 	_slider("Tamanho dos textos e menus", Settings.UI_SCALE_MIN, Settings.UI_SCALE_MAX, 0.05, Settings.ui_scale,
 			Settings.set_ui_scale, func(v: float) -> String: return "%d%%" % roundi(v * 100.0))
 	_slider("Volume geral", 0.0, 1.0, 0.05, Settings.master_volume, func(v: float) -> void: Settings.set_volume("master", v), _percent)
@@ -28,8 +30,10 @@ func _ready() -> void:
 
 func _update_texts() -> void:
 	_camera_button.text = "Câmera: atrás do herói (só 1 jogador na tela)" if Settings.camera_mode == "behind" else "Câmera: de cima (isométrica)"
-	_graphics_button.text = "Gráficos: %s" % Graphics.LABELS[Settings.graphics_quality]
-	_minimap_button.text = "Minimapa: %s" % ("rotativo (gira com o herói)" if Settings.minimap_mode == "rotating" else "fixo (norte pra cima)")
+	# O nome de cada idioma fica sempre na língua dele (quem não entende a atual acha a sua).
+	_language_button.text = "%s: %s" % [Txt.t("Idioma"), Txt.LANGUAGES[Settings.current_language()]]
+	_graphics_button.text = Txt.t("Gráficos: %s") % Txt.t(Graphics.LABELS[Settings.graphics_quality])
+	_minimap_button.text = Txt.t("Minimapa: %s") % (Txt.t("rotativo (gira com o herói)") if Settings.minimap_mode == "rotating" else Txt.t("fixo (norte pra cima)"))
 
 
 func first_focus() -> Control:

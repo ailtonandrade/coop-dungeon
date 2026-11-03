@@ -96,7 +96,7 @@ func start(p_slot: int) -> void:
 	_rebuild_ghost()
 	_hud.visible = true
 	_refresh_hud()
-	Chat.local_note("Modo construtor ligado (%s de novo para sair)." % COMMAND)
+	Chat.local_note(Txt.t("Modo construtor ligado (%s de novo para sair).") % COMMAND)
 
 
 func stop() -> void:
@@ -458,8 +458,8 @@ func close_loot_editor() -> void:
 func _refresh_loot() -> void:
 	_loot_inside.clear()
 	for pair: Array in _loot_lines:
-		_loot_inside.add_item("%dx %s" % [pair[1], ItemDB.display_name({"id": pair[0]})])
-	_loot_gold.text = "Parafusos: %d" % _loot_gold_value
+		_loot_inside.add_item(Txt.t("%dx %s") % [pair[1], ItemDB.display_name({"id": pair[0]})])
+	_loot_gold.text = Txt.t("Parafusos: %d") % _loot_gold_value
 
 
 func _build_loot_panel() -> void:
@@ -607,9 +607,9 @@ func _refresh_hud() -> void:
 	var before: String = _catalog[same[wrapi(at - 1, 0, same.size())]].name
 	var after: String = _catalog[same[wrapi(at + 1, 0, same.size())]].name
 	_piece.text = "◀ %s   [ %s ]   %s ▶" % [before, entry.name, after] if same.size() > 1 else "[ %s ]" % entry.name
-	_title.text = "MODO CONSTRUTOR · %s (%d/%d) · peça %d/%d · %s" % [current_category().to_upper(),
+	_title.text = Txt.t("MODO CONSTRUTOR · %s (%d/%d) · peça %d/%d · %s") % [current_category().to_upper(),
 			names.find(current_category()) + 1, names.size(), at + 1, same.size(), kind_text]
 	var keyboard := InputService.device_of(slot) == InputService.KEYBOARD
-	_hint.text = ("Clique coloca · Q/E ou rodinha troca · V categoria · R gira · Z desfaz · Delete apaga · F conteúdo do contêiner · %s no chat sai" % COMMAND if keyboard
-			else "X coloca · ◀ ▶ troca · ▼ categoria · Y gira · B desfaz · RB conteúdo do contêiner · %s no chat sai" % COMMAND)
+	_hint.text = (Txt.t("Clique coloca · Q/E ou rodinha troca · V categoria · R gira · Z desfaz · Delete apaga · F conteúdo do contêiner · %s no chat sai") % COMMAND if keyboard
+			else Txt.t("X coloca · ◀ ▶ troca · ▼ categoria · Y gira · B desfaz · RB conteúdo do contêiner · %s no chat sai") % COMMAND)
 	_hint.text += "\nGrava direto nas cenas dos blocos (mapa oficial)."

@@ -138,7 +138,7 @@ func _process(_delta: float) -> void:
 
 	var spawner := get_tree().get_first_node_in_group("wave_spawner")
 	if spawner and spawner.wave > 0:
-		_wave_label.text = "Onda %d  ·  inimigos: %d" % [spawner.wave, spawner.alive_count()]
+		_wave_label.text = Txt.t("Onda %d  ·  inimigos: %d") % [spawner.wave, spawner.alive_count()]
 	else:
 		_wave_label.text = ""
 	_fit_cards()
@@ -422,15 +422,15 @@ func _connection_text() -> String:
 			var addresses := NetService.local_addresses()
 			var ip := addresses[0] if not addresses.is_empty() else "?"
 			var internet := NetService.internet
-			var reach := "rede local: IP %s" % ip
+			var reach := Txt.t("rede local: IP %s") % ip
 			if internet and not internet.code.is_empty():
-				reach = "código %s" % internet.code
+				reach = Txt.t("código %s") % internet.code
 			elif internet and internet.state == InternetAccess.State.CHECKING:
 				reach = "abrindo para a internet..."
-			return "%s · online (host) · %s · %d/%d" % [world_name, reach, NetService.player_count(), GameConfig.MAX_PLAYERS]
+			return Txt.t("%s · online (host) · %s · %d/%d") % [world_name, reach, NetService.player_count(), GameConfig.MAX_PLAYERS]
 		NetService.Mode.CLIENT:
-			return "%s · online · %d/%d" % [world_name, NetService.player_count(), GameConfig.MAX_PLAYERS]
-	return "%s · offline" % world_name if world_name else ""
+			return Txt.t("%s · online · %d/%d") % [world_name, NetService.player_count(), GameConfig.MAX_PLAYERS]
+	return Txt.t("%s · offline") % world_name if world_name else ""
 
 
 func _build_pause_menu() -> void:
@@ -472,7 +472,7 @@ func _build_pause_menu() -> void:
 	_copy_button = _make_button(game, "", func() -> void:
 		if NetService.internet:
 			DisplayServer.clipboard_set(NetService.internet.code)
-			_copy_button.text = "Copiado! Mande para o amigo: %s" % NetService.internet.code)
+			_copy_button.text = Txt.t("Copiado! Mande para o amigo: %s") % NetService.internet.code)
 	_copy_button.visible = false
 	_password_row = _build_password_row(game)
 	_loot_button = _make_button(game, "", func() -> void:
@@ -565,13 +565,13 @@ func _update_pause_info() -> void:
 	_password_row.visible = NetService.mode == NetService.Mode.HOST
 	# Quem manda no mundo (host, ou o sofá offline) escolhe a generosidade do loot.
 	_loot_button.visible = NetService.mode != NetService.Mode.CLIENT
-	_loot_button.text = "Loot: %s (criaturas e baús)" % Loot.GENEROSITY.get(String(NetService.world.get("loot", "normal")), Loot.GENEROSITY.normal).name
+	_loot_button.text = Txt.t("Loot: %s (criaturas e baús)") % Txt.t(Loot.GENEROSITY.get(String(NetService.world.get("loot", "normal")), Loot.GENEROSITY.normal).name)
 	if NetService.mode == NetService.Mode.HOST:
-		lines.append("Mundo com senha." if NetService.has_password() else "Mundo sem senha: quem tiver o código ou o IP entra.")
+		lines.append(Txt.t("Mundo com senha.") if NetService.has_password() else Txt.t("Mundo sem senha: quem tiver o código ou o IP entra."))
 	_pause_info.text = "\n".join(lines)
 	_copy_button.visible = internet != null and not internet.code.is_empty()
 	if _copy_button.visible:
-		_copy_button.text = "Copiar código do mundo (%s)" % internet.code
+		_copy_button.text = Txt.t("Copiar código do mundo (%s)") % internet.code
 
 
 func _make_button(parent: Control, text: String, action: Callable) -> Button:

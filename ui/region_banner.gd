@@ -20,10 +20,10 @@ func _init() -> void:
 
 
 func show_region(region: RegionDef) -> void:
-	_title = region.display_name.to_upper()
+	_title = Txt.t(region.display_name).to_upper()
 	_safe = region.safe
 	_danger = region.danger
-	_subtitle = "área segura" if region.safe else "perigo"
+	_subtitle = Txt.t("área segura") if region.safe else Txt.t("perigo")
 	_color = region.color
 	queue_redraw()
 	if _tween:

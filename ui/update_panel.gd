@@ -32,8 +32,8 @@ func _process(_delta: float) -> void:
 	if Updater.phase == Updater.Phase.DOWNLOADING:
 		_bar.value = Updater.progress()
 		var total := Updater.asset_size / 1048576.0
-		_status.text = "Baixando... %.0f%%%s" % [Updater.progress() * 100.0,
-				"  (%.1f MB de %.1f MB)" % [total * Updater.progress(), total] if total > 0.0 else ""]
+		_status.text = Txt.t("Baixando... %.0f%%%s") % [Updater.progress() * 100.0,
+				Txt.t("  (%.1f MB de %.1f MB)") % [total * Updater.progress(), total] if total > 0.0 else ""]
 
 
 func _build() -> void:
@@ -105,10 +105,10 @@ func _refresh() -> void:
 	var show := Updater.has_update() and (Updater.dismissed != Updater.latest or busy)
 	_card.visible = show
 	_badge.visible = Updater.has_update() and not show
-	_badge.text = "⬆ Versão %s disponível · atualizar" % Updater.latest
+	_badge.text = Txt.t("⬆ Versão %s disponível · atualizar") % Updater.latest
 	if not show:
 		return
-	_subtitle.text = "Versão %s  ·  você está na %s" % [Updater.latest, Updater.current]
+	_subtitle.text = Txt.t("Versão %s  ·  você está na %s") % [Updater.latest, Updater.current]
 	_notes.text = _short_notes(Updater.notes)
 	_notes.visible = not _notes.text.is_empty()
 	_bar.visible = busy
@@ -125,7 +125,7 @@ func _refresh() -> void:
 		_main_button.text = "Baixar no site"
 		_status.text = "Baixe o .zip da versão nova, extraia e jogue por ele."
 	if Updater.phase == Updater.Phase.INSTALLING:
-		_status.text = "Instalando... o jogo vai fechar e abrir de novo, já na versão %s." % Updater.latest
+		_status.text = Txt.t("Instalando... o jogo vai fechar e abrir de novo, já na versão %s.") % Updater.latest
 	elif Updater.phase == Updater.Phase.ERROR:
 		_status.text = Updater.error_text
 		_main_button.text = "Tentar de novo"

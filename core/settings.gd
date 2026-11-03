@@ -12,6 +12,8 @@ var minimap_mode := "fixed"
 var camera_mode := "iso"
 ## Sensibilidade da câmera atrás do herói (mouse e analógico).
 var look_sensitivity := 1.0
+## Idioma ("pt_BR", "en"); vazio = o do sistema (português se for português, senão inglês).
+var language := ""
 ## Qualidade gráfica: "baixa", "media" ou "alta" (Graphics).
 var graphics_quality := "media"
 ## Tamanho da interface (textos, menus, HUD): 1.0 = normal.
@@ -43,6 +45,7 @@ var sfx_volume := 0.9
 
 func _ready() -> void:
 	_load()
+	apply_language()
 	apply_ui_scale.call_deferred()
 	get_tree().node_added.connect(func(node: Node) -> void: Graphics.on_node_added(node, graphics_quality))
 	(func() -> void: Graphics.apply(get_tree(), graphics_quality)).call_deferred()
@@ -56,6 +59,7 @@ func _load() -> void:
 		look_sensitivity = config.get_value("camera", "look_sensitivity", look_sensitivity)
 		ui_scale = config.get_value("display", "ui_scale", ui_scale)
 		graphics_quality = config.get_value("display", "graphics", graphics_quality)
+		language = config.get_value("display", "language", language)
 		if not Graphics.LEVELS.has(graphics_quality):
 			graphics_quality = "media"
 		for key in ["voice_mode", "mic_device", "mic_threshold", "radio_voice", "voice_volume", "voice_proximity",
@@ -143,6 +147,32 @@ func set_volume(which: String, value: float) -> void:
 	changed.emit()
 
 
+## Idioma em uso agora.
+func current_language() -> String:
+	# Sem tela (testes automáticos): português, a língua dos textos que os testes conferem.
+	if DisplayServer.get_name() == "headless":
+		return "pt_BR"
+	if Txt.LANGUAGES.has(language):
+		return language
+	return "pt_BR" if OS.get_locale().begins_with("pt") else "en"
+
+
+func apply_language() -> void:
+	TranslationServer.set_locale(current_language())
+
+
+## Troca para o próximo idioma. No menu principal a tela se monta de novo já traduzida.
+func cycle_language() -> void:
+	var codes := Txt.LANGUAGES.keys()
+	language = codes[(codes.find(current_language()) + 1) % codes.size()]
+	apply_language()
+	_save()
+	changed.emit()
+	var scene := get_tree().current_scene
+	if scene and scene.scene_file_path == "res://ui/main_menu.tscn":
+		get_tree().reload_current_scene.call_deferred()
+
+
 ## Passa para a próxima qualidade gráfica (baixa → média → alta → baixa) e aplica na hora.
 func cycle_graphics_quality() -> void:
 	graphics_quality = Graphics.LEVELS[(Graphics.LEVELS.find(graphics_quality) + 1) % Graphics.LEVELS.size()]
@@ -164,6 +194,7 @@ func _save() -> void:
 	config.set_value("camera", "look_sensitivity", look_sensitivity)
 	config.set_value("display", "ui_scale", ui_scale)
 	config.set_value("display", "graphics", graphics_quality)
+	config.set_value("display", "language", language)
 	for key in ["voice_mode", "mic_device", "mic_threshold", "radio_voice", "voice_volume", "voice_proximity",
 			"voice_peer_volume", "voice_peer_muted"]:
 		config.set_value("voice", key, get(key))

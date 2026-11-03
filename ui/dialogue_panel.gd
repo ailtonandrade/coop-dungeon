@@ -27,7 +27,7 @@ func open_for(p_player: Player, p_npc: WorldNpc) -> void:
 	InputService.set_blocked(player.slot, true)
 	_build()
 	var hello := Lore.greeting(npc.npc_name)
-	_npc_says(hello.text if hello else "Olá.")
+	_npc_says(Txt.t(hello.text) if hello else Txt.t("Olá."))
 	if hello:
 		Lore.learn(hello.teaches)
 	_refresh_topics()
@@ -46,7 +46,7 @@ func _build() -> void:
 	var column := VBoxContainer.new()
 	column.add_theme_constant_override("separation", 8)
 	add_child(column)
-	var title: String = "%s · %s" % [npc.npc_name, WorldNpc.SERVICE_NAMES[npc.service]] if npc.npc_name else WorldNpc.SERVICE_NAMES[npc.service]
+	var title: String = "%s · %s" % [npc.npc_name, Txt.t(WorldNpc.SERVICE_NAMES[npc.service])] if npc.npc_name else Txt.t(WorldNpc.SERVICE_NAMES[npc.service])
 	column.add_child(UiSkin.label("P%d · %s" % [player.index + 1, title], 20, color, "Bold", 3))
 	_log = RichTextLabel.new()
 	_log.bbcode_enabled = true
@@ -96,7 +96,7 @@ func _refresh_topics() -> void:
 		child.queue_free()
 	var first: Button = null
 	for topic in Lore.topics_for(npc.npc_name, player):
-		var button := _button(_topics, topic.button_text(), choose.bind(topic))
+		var button := _button(_topics, Txt.t(topic.button_text()), choose.bind(topic))
 		if first == null:
 			first = button
 	if InputService.device_of(player.slot) != InputService.KEYBOARD:
@@ -107,8 +107,8 @@ func _refresh_topics() -> void:
 
 ## O jogador escolheu um assunto (botão ou palavra digitada).
 func choose(topic: DialogueTopic) -> void:
-	_player_says(topic.button_text())
-	_npc_says(topic.text)
+	_player_says(Txt.t(topic.button_text()))
+	_npc_says(Txt.t(topic.text))
 	Lore.heard(npc.npc_name, topic, player)
 	Sound.play("ui_confirm")
 
@@ -121,17 +121,17 @@ func say(text: String) -> void:
 	var topic := Lore.answer(npc.npc_name, text, player)
 	if topic:
 		_player_says(text)
-		_npc_says(topic.text)
+		_npc_says(Txt.t(topic.text))
 		Lore.heard(npc.npc_name, topic, player)
-	elif _has_word(clean, ["tchau", "bye", "falou", "adeus"]):
+	elif _has_word(clean, ["tchau", "bye", "falou", "adeus", "goodbye", "farewell"]):
 		_bye()
-	elif _has_word(clean, ["loja", "trade", "comprar", "vender", "cofre", "servico"]):
+	elif _has_word(clean, ["loja", "trade", "comprar", "vender", "cofre", "servico", "shop", "buy", "sell", "vault", "service"]):
 		_player_says(text)
 		service_requested.emit()
 	else:
 		_player_says(text)
 		var found := Lore.dialogue(npc.npc_name)
-		_npc_says(found.unknown if found else "Hm?")
+		_npc_says(Txt.t(found.unknown) if found else "Hm?")
 
 
 static func _has_word(text: String, words: Array) -> bool:
@@ -150,17 +150,17 @@ func _on_typed(text: String) -> void:
 func _bye() -> void:
 	var found := Lore.dialogue(npc.npc_name)
 	if found and found.farewell:
-		npc.say(found.farewell)
+		npc.say(Txt.t(found.farewell))
 	close_requested.emit()
 
 
 func _npc_says(text: String) -> void:
-	_lines.append("[color=#f2e9cf][b]%s:[/b] %s[/color]" % [npc.npc_name, text.replace("[", "[lb]")])
+	_lines.append(Txt.t("[color=#f2e9cf][b]%s:[/b] %s[/color]") % [npc.npc_name, text.replace("[", "[lb]")])
 	_render()
 
 
 func _player_says(text: String) -> void:
-	_lines.append("[color=#8fd3ff]%s: %s[/color]" % [player.display_name, text.replace("[", "[lb]")])
+	_lines.append(Txt.t("[color=#8fd3ff]%s: %s[/color]") % [player.display_name, text.replace("[", "[lb]")])
 	_render()
 
 

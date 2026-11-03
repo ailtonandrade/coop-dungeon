@@ -116,7 +116,7 @@ func _refresh_cards() -> void:
 	_creating = false
 	_create_box.visible = false
 	_cards.visible = true
-	_title.text = "P%d · escolha seu personagem" % (slot + 1)
+	_title.text = Txt.t("P%d · escolha seu personagem") % (slot + 1)
 	_hint.text = "◀ ▶ escolhe · A entra · B desiste"
 	_cursor = clampi(_cursor, 0, maxi(_row_count() - 1, 0))
 	for child in _cards.get_children():
@@ -155,7 +155,7 @@ func _card(i: int) -> Control:
 	preview.show_character(character)
 	var used := taken.has(character.id)
 	box.add_child(_centered(UiSkin.label(character.name, 15, UiSkin.DIM if used else UiSkin.TEXT, "Bold", 3)))
-	var info := "em jogo" if used else "nível %d · %s" % [Characters.level_of(character), Characters.MODELS[character.model]]
+	var info := "em jogo" if used else Txt.t("nível %d · %s") % [Characters.level_of(character), Txt.t(Characters.MODELS[character.model])]
 	var info_label := UiSkin.label(info, 11, UiSkin.DANGER if used else UiSkin.DIM, "Regular", 2)
 	info_label.clip_text = true
 	box.add_child(_centered(info_label))
@@ -179,7 +179,7 @@ func _start_create() -> void:
 	_draft = Characters.create()
 	_cards.visible = false
 	_create_box.visible = true
-	_title.text = "P%d · novo personagem" % (slot + 1)
+	_title.text = Txt.t("P%d · novo personagem") % (slot + 1)
 	var keyboard := InputService.device_of(slot) == InputService.KEYBOARD
 	_hint.text = "◀ ▶ visual · Y cor do chip · X sorteia nome · A entra · B volta" if not keyboard \
 			else "Digite o nome · ← → visual · Enter entra · Esc volta"
@@ -191,7 +191,7 @@ func _start_create() -> void:
 
 
 func _refresh_create() -> void:
-	_model_label.text = "◀  %s  ▶" % Characters.MODELS[_draft.model]
+	_model_label.text = "◀  %s  ▶" % Txt.t(Characters.MODELS[_draft.model])
 	_create_preview.show_character(_draft)
 
 

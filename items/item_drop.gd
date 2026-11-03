@@ -30,7 +30,7 @@ func summary() -> String:
 	var who: String = GameConfig.CREATURES.get(creature, creature)
 	var count := str(min_count) if max_count <= min_count else "%d-%d" % [min_count, max_count]
 	var kind: String = "raridade sorteada" if rarity == "random" else ItemDB.RARITIES.get(rarity, {}).get("name", rarity)
-	return "%s · %s%% · %s un. · %s" % [who, str(snappedf(chance, 0.1)), count, kind]
+	return Txt.t("%s · %s%% · %s un. · %s") % [who, str(snappedf(chance, 0.1)), count, kind]
 
 
 func _validate_property(property: Dictionary) -> void:

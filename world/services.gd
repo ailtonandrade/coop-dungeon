@@ -30,11 +30,11 @@ static func run(player: Node3D, command: String, args: Array) -> Array:
 				return _fail("Item indisponível")
 			var price := ItemDB.value(item)
 			if inventory.gold < price:
-				return _fail("Faltam parafusos (%d)" % price)
+				return _fail(Txt.t("Faltam parafusos (%d)") % price)
 			if inventory.add_item(item).is_empty():
 				return _fail("Mochila cheia")
 			inventory.spend_gold(price)
-			return _ok("Comprou %s (-%d)" % [ItemDB.display_name(item), price])
+			return _ok(Txt.t("Comprou %s (-%d)") % [ItemDB.display_name(item), price])
 		"sell":
 			if _npc(player, MERCHANT) == null:
 				return _fail("Longe do sucateiro")
@@ -46,7 +46,7 @@ static func run(player: Node3D, command: String, args: Array) -> Array:
 			inventory.remove(args[0])
 			var price := ItemDB.sell_price(item)
 			inventory.add_gold(price)
-			return _ok("Vendeu %s (+%d)" % [ItemDB.display_name(item), price])
+			return _ok(Txt.t("Vendeu %s (+%d)") % [ItemDB.display_name(item), price])
 		"refine":
 			if _npc(player, BLACKSMITH) == null:
 				return _fail("Longe do mecânico")
@@ -54,12 +54,12 @@ static func run(player: Node3D, command: String, args: Array) -> Array:
 			if item == null or ItemDB.is_container(item) or ItemDB.slot_of(item) == "":
 				return _fail("Essa peça não tem upgrade")
 			if int(item.get("refine", 0)) >= ItemDB.MAX_REFINE:
-				return _fail("Já está no máximo (+%d)" % ItemDB.MAX_REFINE)
+				return _fail(Txt.t("Já está no máximo (+%d)") % ItemDB.MAX_REFINE)
 			var cost := ItemDB.refine_cost(item)
 			if not inventory.spend_gold(cost):
-				return _fail("Faltam parafusos (%d)" % cost)
+				return _fail(Txt.t("Faltam parafusos (%d)") % cost)
 			if randf() >= ItemDB.refine_chance(item):
-				return _fail("O upgrade falhou (-%d)" % cost)
+				return _fail(Txt.t("O upgrade falhou (-%d)") % cost)
 			item["refine"] = int(item.get("refine", 0)) + 1
 			inventory.touch()
 			return _ok("%s! (-%d)" % [ItemDB.display_name(item), cost])
@@ -72,12 +72,12 @@ static func run(player: Node3D, command: String, args: Array) -> Array:
 				return _fail("Esse mod não encaixa aqui")
 			var cost := ItemDB.enchant_cost(item, enchant_id)
 			if not inventory.spend_gold(cost):
-				return _fail("Faltam parafusos (%d)" % cost)
+				return _fail(Txt.t("Faltam parafusos (%d)") % cost)
 			var enchants: Dictionary = item.get("enchants", {})
 			enchants[enchant_id] = int(enchants.get(enchant_id, 0)) + 1
 			item["enchants"] = enchants
 			inventory.touch()
-			return _ok("%s %d em %s (-%d)" % [ItemDB.ENCHANTS[enchant_id].name, enchants[enchant_id], ItemDB.display_name(item), cost])
+			return _ok(Txt.t("%s %d em %s (-%d)") % [Txt.t(ItemDB.ENCHANTS[enchant_id].name), enchants[enchant_id], ItemDB.display_name(item), cost])
 		"deposit":
 			if _npc(player, BANK) == null:
 				return _fail("Longe do cofre")
@@ -87,7 +87,7 @@ static func run(player: Node3D, command: String, args: Array) -> Array:
 			if not inventory.depot.contents.has(null):
 				return _fail("Cofre cheio")
 			inventory.add_to_depot(inventory.remove(args[0]))
-			return _ok("Guardou %s" % ItemDB.display_name(item))
+			return _ok(Txt.t("Guardou %s") % ItemDB.display_name(item))
 		"withdraw":
 			if _npc(player, BANK) == null:
 				return _fail("Longe do cofre")
@@ -98,7 +98,7 @@ static func run(player: Node3D, command: String, args: Array) -> Array:
 				return _fail("Mochila cheia")
 			inventory.depot.contents[int(args[0])] = null
 			inventory.touch()
-			return _ok("Retirou %s" % ItemDB.display_name(item))
+			return _ok(Txt.t("Retirou %s") % ItemDB.display_name(item))
 	return _fail("Comando desconhecido")
 
 

@@ -60,7 +60,7 @@ func _build() -> void:
 	var column := VBoxContainer.new()
 	column.add_theme_constant_override("separation", 6)
 	add_child(column)
-	var title: String = "%s · %s" % [npc.npc_name, WorldNpc.SERVICE_NAMES[npc.service]] if npc.npc_name else WorldNpc.SERVICE_NAMES[npc.service]
+	var title: String = "%s · %s" % [npc.npc_name, Txt.t(WorldNpc.SERVICE_NAMES[npc.service])] if npc.npc_name else Txt.t(WorldNpc.SERVICE_NAMES[npc.service])
 	column.add_child(_label("P%d · %s" % [player.index + 1, title], 20, color))
 	_tab_label = _label("", 17, Color(0.85, 0.9, 1.0))
 	column.add_child(_tab_label)
@@ -124,7 +124,7 @@ func _build_rows() -> Array[Dictionary]:
 					var cost := ItemDB.enchant_cost(item, enchant_id)
 					var row := _row(item, ItemDB.money(cost), ["enchant", [_enchant_path, enchant_id]],
 							ItemDB.can_enchant(item, enchant_id) and inventory.gold >= cost)
-					row.text = "%s %d → %d (+%s %s)" % [enchant.name, level, level + 1, str(enchant.per_level), ItemDB.STATS[enchant.stat]]
+					row.text = "%s %d → %d (+%s %s)" % [Txt.t(enchant.name), level, level + 1, str(enchant.per_level), Txt.t(ItemDB.STATS[enchant.stat])]
 					if level >= ItemDB.MAX_ENCHANT_LEVEL:
 						row.right = "máximo"
 					rows.append(row)
@@ -150,7 +150,7 @@ func _refresh() -> void:
 	var names := PackedStringArray()
 	for i in _tabs().size():
 		names.append("[ %s ]" % _tabs()[i] if i == _tab else _tabs()[i])
-	_tab_label.text = "   ".join(names) + ("   (escolha o mod)" if not _enchant_path.is_empty() else "")
+	_tab_label.text = "   ".join(names) + (Txt.t("   (escolha o mod)") if not _enchant_path.is_empty() else "")
 	for child in _list.get_children():
 		child.queue_free()
 	if _rows.is_empty():
@@ -190,7 +190,7 @@ func _describe() -> String:
 	if _rows.is_empty():
 		return ""
 	var item: Dictionary = _rows[_cursor].item
-	return "%s · %s · poder %d\n%s" % [ItemDB.display_name(item), ItemDB.rarity_name(item), int(item.get("power", 1)),
+	return Txt.t("%s · %s · poder %d\n%s") % [ItemDB.display_name(item), ItemDB.rarity_name(item), int(item.get("power", 1)),
 			"   ".join(ItemDB.describe(item))]
 
 

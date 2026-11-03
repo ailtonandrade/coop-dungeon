@@ -6,6 +6,8 @@ var _failed := false
 
 
 func _initialize() -> void:
+	# Os nomes conferidos aqui são os em português (roda antes das configurações do jogo).
+	TranslationServer.set_locale("pt_BR")
 	var inv := Inventory.starter()
 	_check(inv.equipment.has("melee") and inv.equipment.has("bag"), "kit inicial tem arma e mochila")
 	_check(inv.get_item(["bag", 0]).id == "pouch", "bolsa dentro da mochila")

@@ -54,9 +54,9 @@ func describe() -> String:
 		State.CHECKING:
 			return "Abrindo o mundo para a internet..."
 		State.OPEN:
-			return "Aberto pela internet (o roteador abriu a porta sozinho). Código do mundo: %s" % code
+			return Txt.t("Aberto pela internet (o roteador abriu a porta sozinho). Código do mundo: %s") % code
 		State.MANUAL:
-			return "O roteador não abriu a porta sozinho (UPnP desligado). Libere a porta %d (UDP) no roteador; aí o código %s funciona." % [port, code]
+			return Txt.t("O roteador não abriu a porta sozinho (UPnP desligado). Libere a porta %d (UDP) no roteador; aí o código %s funciona.") % [port, code]
 		State.CGNAT:
 			return "Seu provedor usa CGNAT: amigos de fora não conseguem entrar direto. Use uma VPN de jogo (Radmin VPN, ZeroTier ou Tailscale) e passe o IP dela."
 	return "Não deu para abrir pela internet. Na mesma rede funciona normal."

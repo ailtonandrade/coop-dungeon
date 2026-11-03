@@ -163,12 +163,12 @@ func _render() -> void:
 			break
 	for message in shown:
 		var text := _escape(message.text)
-		var time := "[color=#6a7a80]%s[/color] " % message.time
+		var time := Txt.t("[color=#6a7a80]%s[/color] ") % message.time
 		if message.kind == "system":
-			lines.append("%s[color=#%s]» %s[/color]" % [time, UiSkin.AMBER.to_html(false), text])
+			lines.append(Txt.t("%s[color=#%s]» %s[/color]") % [time, UiSkin.AMBER.to_html(false), text])
 		else:
 			var color: Color = GameConfig.PLAYER_COLORS[clampi(int(message.color), 0, 3)].lightened(0.25)
-			lines.append("%s[b][color=#%s]%s:[/color][/b] %s" % [time, color.to_html(false), _escape(message.from), text])
+			lines.append(Txt.t("%s[b][color=#%s]%s:[/color][/b] %s") % [time, color.to_html(false), _escape(message.from), text])
 	_log.text = "\n".join(lines)
 	var empty := shown.is_empty()
 	visible = is_open() or not empty

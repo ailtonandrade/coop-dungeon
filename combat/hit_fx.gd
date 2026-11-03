@@ -133,7 +133,7 @@ static func level_up(source: Node3D, position: Vector3, new_level: int, color: C
 	tween.tween_property(material, "albedo_color:a", 0.0, 0.9)
 	tween.tween_callback(pillar.queue_free)
 	sparks(source, position + Vector3.UP * 0.3, color.lightened(0.4), 30, 6.0)
-	var label := WorldText.make("NÍVEL %d" % new_level, 34, Color(1.0, 0.85, 0.35), true)
+	var label := WorldText.make(Txt.t("NÍVEL %d") % new_level, 34, Color(1.0, 0.85, 0.35), true)
 	label.outline_modulate = Color(0.05, 0.03, 0.03)
 	label.font = UiSkin.title_font()
 	label.render_priority = 10

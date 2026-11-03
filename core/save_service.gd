@@ -115,7 +115,7 @@ func _migrate_old_players() -> void:
 		var old := _read(key)
 		if old.is_empty():
 			continue
-		var character := Characters.create("Herói %d" % (slot + 1), old_models[slot], slot)
+		var character := Characters.create(Txt.t("Herói %d") % (slot + 1), old_models[slot], slot)
 		character["inventory"] = old.get("inventory", {})
 		character["progress"] = old.get("progress", {})
 		_write(_character_prefix() + str(character.id), character)

@@ -38,7 +38,7 @@ func _build() -> void:
 	column.add_theme_constant_override("separation", 6)
 	add_child(column)
 	var color := GameConfig.PLAYER_COLORS[player.index]
-	column.add_child(UiSkin.label("P%d %s · habilidades" % [player.index + 1, player.display_name], 20, color, "Bold", 4))
+	column.add_child(UiSkin.label(Txt.t("P%d %s · habilidades") % [player.index + 1, player.display_name], 20, color, "Bold", 4))
 	_header = UiSkin.label("", 14, UiSkin.DIM, "Regular", 3)
 	_header.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	column.add_child(_header)
@@ -54,9 +54,9 @@ func _build() -> void:
 func _refresh() -> void:
 	if not is_instance_valid(player):
 		return
-	var melee: String = Progression.SKILLS[player.weapon_skill("melee")].name
-	var ranged: String = Progression.SKILLS[player.weapon_skill("ranged")].name
-	_header.text = "Armas na mão treinam: %s (corpo a corpo) e %s (distância). Vigor sobe aguentando dano; Resiliência, apanhando ou esquivando." % [melee, ranged]
+	var melee: String = Txt.t(Progression.SKILLS[player.weapon_skill("melee")].name)
+	var ranged: String = Txt.t(Progression.SKILLS[player.weapon_skill("ranged")].name)
+	_header.text = Txt.t("Armas na mão treinam: %s (corpo a corpo) e %s (distância). Vigor sobe aguentando dano; Resiliência, apanhando ou esquivando.") % [melee, ranged]
 	for row in _rows:
 		row.queue_redraw()
 
@@ -70,7 +70,7 @@ func _draw_row(row: Control, id: String) -> void:
 	if in_use:
 		row.draw_rect(Rect2(rect.position, Vector2(3, rect.size.y)), GameConfig.PLAYER_COLORS[player.index])
 	var bold := UiSkin.font("Bold")
-	row.draw_string(bold, Vector2(14, 19), Progression.SKILLS[id].name, HORIZONTAL_ALIGNMENT_LEFT, -1, 16,
+	row.draw_string(bold, Vector2(14, 19), Txt.t(Progression.SKILLS[id].name), HORIZONTAL_ALIGNMENT_LEFT, -1, 16,
 			UiSkin.TEXT if in_use else UiSkin.TEXT.darkened(0.15))
 	row.draw_string(UiSkin.font("Regular"), Vector2(14, 36), Progression.skill_text(id, level), HORIZONTAL_ALIGNMENT_LEFT, 220, 12, UiSkin.DIM)
 	row.draw_string(UiSkin.title_font(), Vector2(row.size.x - 190, 30), str(level), HORIZONTAL_ALIGNMENT_RIGHT, 50, 22, UiSkin.AMBER)

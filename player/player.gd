@@ -818,7 +818,7 @@ func apply_inventory_command(command: String, args: Array) -> void:
 			var id := String(args[0])
 			if progress.install(id):
 				_apply_stats()
-				_fx("fx_toast", ["%s %d" % [Progression.CHIPS[id].name, progress.chip_level(id)], Color(0.3, 0.95, 1.0), "chip_install"])
+				_fx("fx_toast", ["%s %d" % [Txt.t(Progression.CHIPS[id].name), progress.chip_level(id)], Color(0.3, 0.95, 1.0), "chip_install"])
 				_send_inventory()
 			else:
 				_fx("fx_toast", ["Sem pontos de chip", Color(1.0, 0.5, 0.4), "ui_error"])
@@ -900,10 +900,10 @@ func train(skill: String, amount: float) -> void:
 		_progress_dirty = true
 		return
 	var level := progress.skill_level(skill)
-	var name: String = Progression.SKILLS[skill].name
+	var name: String = Txt.t(Progression.SKILLS[skill].name)
 	_apply_stats()
 	_fx("fx_toast", ["%s %d" % [name, level], Color(0.55, 1.0, 0.7), "refine_ok"])
-	Chat.system("%s avançou em %s (%d)" % [display_name, name, level])
+	Chat.system(Txt.t("%s avançou em %s (%d)") % [display_name, name, level])
 	_send_inventory()
 
 
@@ -919,7 +919,7 @@ func add_xp(amount: int) -> void:
 		_apply_stats()
 		health.heal(health.max_hp)
 		_fx("fx_level_up", [progress.level])
-		Chat.system("%s subiu para o nível %d" % [display_name, progress.level])
+		Chat.system(Txt.t("%s subiu para o nível %d") % [display_name, progress.level])
 	_send_inventory()
 
 

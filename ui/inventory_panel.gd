@@ -56,7 +56,7 @@ func _build() -> void:
 	var column := VBoxContainer.new()
 	column.add_theme_constant_override("separation", 8)
 	add_child(column)
-	column.add_child(_label("P%d %s · inventário" % [player.index + 1, player.display_name], 20, color))
+	column.add_child(_label(Txt.t("P%d %s · inventário") % [player.index + 1, player.display_name], 20, color))
 
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 16)
@@ -146,13 +146,13 @@ func _paint(icon: ItemIcon, path: Array, selected: bool) -> void:
 func _describe() -> String:
 	var lines := PackedStringArray()
 	if not _held.is_empty():
-		lines.append("Na mão: %s (solte com A)" % ItemDB.display_name(player.inventory.get_item(_held)))
+		lines.append(Txt.t("Na mão: %s (solte com A)") % ItemDB.display_name(player.inventory.get_item(_held)))
 	var item: Variant = player.inventory.get_item(_cursor_path())
 	if item == null:
 		if _section == "eq":
-			lines.append(ItemDB.SLOT_NAMES[ItemDB.EQUIP_SLOTS[_cursor]] + ": vazio")
+			lines.append(Txt.t("%s: vazio") % Txt.t(ItemDB.SLOT_NAMES[ItemDB.EQUIP_SLOTS[_cursor]]))
 		return "\n".join(lines)
-	lines.append("%s  ·  %s  ·  poder %d" % [ItemDB.display_name(item), ItemDB.rarity_name(item), int(item.power)])
+	lines.append(Txt.t("%s  ·  %s  ·  poder %d") % [ItemDB.display_name(item), ItemDB.rarity_name(item), int(item.power)])
 	var stats := ItemDB.describe(item)
 	var compare := _comparison(item)
 	if compare:
@@ -171,7 +171,7 @@ func _comparison(item: Dictionary) -> String:
 		var mine := ItemDB.stat(item, key)
 		if mine != 0.0:
 			var diff := mine - (ItemDB.stat(equipped, key) if equipped else 0.0)
-			return "(%s%s vs equipado)" % ["+" if diff >= 0.0 else "", str(snappedf(diff, 0.1))]
+			return Txt.t("(%s%s vs equipado)") % ["+" if diff >= 0.0 else "", str(snappedf(diff, 0.1))]
 	return ""
 
 

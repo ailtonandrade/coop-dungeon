@@ -174,7 +174,7 @@ func open_page() -> void:
 
 func _on_downloaded(result: int, code: int, _headers: PackedStringArray, _body: PackedByteArray) -> void:
 	if result != HTTPRequest.RESULT_SUCCESS or code != 200:
-		_fail("A internet caiu no meio do download (código %d). Tente de novo." % code)
+		_fail(Txt.t("A internet caiu no meio do download (código %d). Tente de novo.") % code)
 		return
 	install_from(_download.download_file)
 

@@ -120,12 +120,13 @@ func answer(npc_name: String, typed: String, player: Node) -> DialogueTopic:
 	for topic in found.topics:
 		if not topic_open(topic, player):
 			continue
+		# Palavra em português ou a tradução dela (jogando em inglês: "water" acha "agua").
 		for keyword in topic.keywords:
-			var key := normalize(keyword)
-			if not key.is_empty() and (words.has(key) or (key.contains(" ") and normalize(typed).contains(key))):
-				if best == null or topic.priority > best.priority:
-					best = topic
-				break
+			for key in [normalize(keyword), normalize(Txt.t(keyword))]:
+				if not key.is_empty() and (words.has(key) or (key.contains(" ") and normalize(typed).contains(key))):
+					if best == null or topic.priority > best.priority:
+						best = topic
+					break
 	return best
 
 

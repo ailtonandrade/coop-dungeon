@@ -127,7 +127,7 @@ func play_world(info: Dictionary) -> Error:
 	var peer := ENetMultiplayerPeer.new()
 	var err := peer.create_server(port, GameConfig.MAX_PLAYERS - 1)
 	if err != OK:
-		last_message = "Não deu pra abrir o mundo na porta %d (já está em uso?)" % port
+		last_message = Txt.t("Não deu pra abrir o mundo na porta %d (já está em uso?)") % port
 		return err
 	multiplayer.multiplayer_peer = peer
 	mode = Mode.HOST
@@ -148,11 +148,11 @@ func join(address: String, p_port := DEFAULT_PORT, password := "") -> Error:
 	var peer := ENetMultiplayerPeer.new()
 	var err := peer.create_client(address, p_port)
 	if err != OK:
-		last_message = "Endereço inválido: %s" % address
+		last_message = Txt.t("Endereço inválido: %s") % address
 		return err
 	multiplayer.multiplayer_peer = peer
 	mode = Mode.CLIENT
-	status_changed.emit("Conectando em %s:%d..." % [address, p_port])
+	status_changed.emit(Txt.t("Conectando em %s:%d...") % [address, p_port])
 	return OK
 
 
@@ -420,13 +420,13 @@ func _on_peer_disconnected(peer: int) -> void:
 func _rpc_hello(version: String, peer_name: String, fingerprint: String, password: String) -> void:
 	var peer := multiplayer.get_remote_sender_id()
 	if version != GAME_VERSION:
-		_reject(peer, "Versão diferente do jogo (host: %s, você: %s)." % [GAME_VERSION, version])
+		_reject(peer, Txt.t("Versão diferente do jogo (host: %s, você: %s).") % [GAME_VERSION, version])
 	elif fingerprint != map_fingerprint:
 		_reject(peer, "O seu mapa ou os seus itens são diferentes dos do host (arquivos do jogo alterados ou atualização diferente).")
 	elif has_password() and password != world.password:
 		_reject(peer, "Senha errada." if password else "Este mundo tem senha: digite a senha antes de entrar.")
 	elif player_count() >= GameConfig.MAX_PLAYERS:
-		_reject(peer, "O mundo está cheio (%d jogadores)." % GameConfig.MAX_PLAYERS)
+		_reject(peer, Txt.t("O mundo está cheio (%d jogadores).") % GameConfig.MAX_PLAYERS)
 	else:
 		_peer_names[peer] = peer_name.left(24)
 		# A senha (resumo) fica só no host.

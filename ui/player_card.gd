@@ -79,7 +79,7 @@ func _draw_empty(color: Color) -> void:
 	draw_polyline(_closed(UiSkin.chamfer_points(plate, 10)), Color(color, 0.35), 1.5)
 	var pulse := 0.55 + 0.45 * sin(_time * 3.0)
 	var f := UiSkin.font("Bold")
-	var text := "P%d · segure Y (ou Espaço)" % (index + 1)
+	var text := Txt.t("P%d · segure Y (ou Espaço)") % (index + 1)
 	draw_string(f, Vector2(plate.position.x, plate.position.y + 26), text, HORIZONTAL_ALIGNMENT_CENTER, plate.size.x, 18, Color(color.lightened(0.3), pulse))
 	# Barra de segurar para entrar (enche em 2 segundos).
 	var hold := InputService.join_hold_ratio()
@@ -184,7 +184,7 @@ func _draw_level_badge(center: Vector2) -> void:
 	var text := str(player.progress.level)
 	draw_string(f, center + Vector2(-14, 5), text, HORIZONTAL_ALIGNMENT_CENTER, 28, 14, UiSkin.TEXT)
 	if free > 0:
-		var hint := "+%d chip" % free
+		var hint := Txt.t("+%d chip") % free
 		draw_string_outline(f, center + Vector2(16, 5), hint, HORIZONTAL_ALIGNMENT_LEFT, -1, 12, 4, UiSkin.INK)
 		draw_string(f, center + Vector2(16, 5), hint, HORIZONTAL_ALIGNMENT_LEFT, -1, 12, Color(UiSkin.AMBER, 0.6 + 0.4 * glow))
 

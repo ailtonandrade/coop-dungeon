@@ -26,12 +26,12 @@ func open_for(p_slot: int, doc: LoreDocument, terminal := false) -> void:
 	var column := VBoxContainer.new()
 	column.add_theme_constant_override("separation", 8)
 	add_child(column)
-	column.add_child(UiSkin.label(doc.title, 24, ink, "Bold", 3))
+	column.add_child(UiSkin.label(Txt.t(doc.title), 24, ink, "Bold", 3))
 	if doc.author:
-		column.add_child(UiSkin.label(doc.author, 15, Color(ink, 0.65), "Regular", 2))
+		column.add_child(UiSkin.label(Txt.t(doc.author), 15, Color(ink, 0.65), "Regular", 2))
 	_text = RichTextLabel.new()
 	_text.bbcode_enabled = false
-	_text.text = doc.text
+	_text.text = Txt.t(doc.text)
 	_text.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_text.add_theme_font_size_override("normal_font_size", 18)
 	_text.add_theme_color_override("default_color", ink)

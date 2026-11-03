@@ -113,7 +113,7 @@ func _ready() -> void:
 
 	# Nome no chão na cor da raridade (como no MU).
 	var label := WorldText.make(ItemDB.display_name(item) if item.get("id") == "gold" \
-			else "%s · poder %d" % [ItemDB.display_name(item), int(item.get("power", 1))], 17, color)
+			else Txt.t("%s · poder %d") % [ItemDB.display_name(item), int(item.get("power", 1))], 17, color)
 	label.position.y = 1.2
 	add_child(label)
 
