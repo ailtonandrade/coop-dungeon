@@ -216,3 +216,11 @@ o chão, para barraca na rua) e o alcance/força da luz. A prévia atualiza no e
 
 De noite o neon brilha forte e pinta a parede e o chão na cor dele; de dia fica mais fraco. Os da
 vila (COFRE, BAR, LANCHES, OFICINA, MERCADO, MODS) foram postos por `tools/letreiros_vila.gd`.
+
+## Poça d'água
+
+Peça `world/prefabs/poca_dagua.tscn`: espelho d'água no chão com borda irregular (cada poça sai
+com um formato, pela posição). Escale e gire no editor para mudar o tamanho. Ela pega a cor do
+letreiro de neon mais perto (mais forte de noite) e reflete o céu da hora; nas qualidades média
+e alta o reflexo de tela espelha o neon e as luzes de verdade. Com chuva, cresce e ganha ondinhas.
+As da vila foram postas por `tools/pocas_vila.gd`; o material vem de `tools/build_poca.gd`.

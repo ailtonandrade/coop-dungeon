@@ -99,6 +99,8 @@ func _build_environment() -> void:
 	env.glow_intensity = 0.9
 	env.glow_bloom = 0.05
 	env.glow_hdr_threshold = 1.2
+	# Reflexo de tela: as poças espelham o neon (média e alta; no PC fraco e na web não).
+	Graphics.apply_environment(env, Settings.graphics_quality)
 	# Neblina de poluição só ao longe: some com a borda do mapa na câmera atrás do herói e não
 	# chega no que a câmera de cima mostra (até uns 40 m).
 	env.fog_enabled = true
@@ -108,6 +110,7 @@ func _build_environment() -> void:
 	env.fog_depth_end = 120.0
 	env.fog_density = 1.0
 	var world_env := WorldEnvironment.new()
+	world_env.add_to_group("world_environment")
 	world_env.environment = env
 	add_child(world_env)
 

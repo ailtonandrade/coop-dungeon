@@ -1,0 +1,32 @@
+[gd_resource type="ShaderMaterial" format=3]
+
+[ext_resource type="Shader" path="res://world/water/poca.gdshader" id="1_d5kmj"]
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_1un6o"]
+frequency = 0.06
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_tup71"]
+width = 256
+height = 256
+noise = SubResource("FastNoiseLite_1un6o")
+seamless = true
+as_normal_map = true
+bump_strength = 6.0
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_4l28c"]
+frequency = 0.012
+fractal_octaves = 3
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_2ldfk"]
+width = 256
+height = 256
+noise = SubResource("FastNoiseLite_4l28c")
+seamless = true
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_d5kmj")
+shader_parameter/shape_noise = SubResource("NoiseTexture2D_2ldfk")
+shader_parameter/ripple_noise = SubResource("NoiseTexture2D_tup71")
+shader_parameter/rain = null
+shader_parameter/fill = null

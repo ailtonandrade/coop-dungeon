@@ -21,6 +21,7 @@
 [ext_resource type="PackedScene" path="res://world/prefabs/arbusto.tscn" id="14_0lrbf"]
 [ext_resource type="PackedScene" path="res://world/prefabs/bloco_de_concreto.tscn" id="15_ffok1"]
 [ext_resource type="PackedScene" path="res://world/prefabs/letreiro_neon.tscn" id="22_1j7j7"]
+[ext_resource type="PackedScene" path="res://world/prefabs/poca_dagua.tscn" id="23_25cto"]
 [ext_resource type="PackedScene" path="res://world/lore/historia_vila.tscn" id="lore_historia_vila"]
 
 [sub_resource type="NavigationMesh" id="NavigationMesh_ffok1"]
@@ -952,3 +953,35 @@ text = "MODS"
 color = Color(0.7, 0.4, 1, 1)
 flicker = true
 stand = true
+
+[node name="Pocas" type="Node3D" parent="." unique_id=637534077]
+
+[node name="Poca_0" parent="Pocas" unique_id=936697430 instance=ExtResource("23_25cto")]
+transform = Transform3D(1.0625184, 0, 0.28470096, 0, 1.1, 0, -0.28470096, 0, 1.0625184, 14.5, 0, 20.8)
+
+[node name="Poca_1" parent="Pocas" unique_id=638045981 instance=ExtResource("23_25cto")]
+transform = Transform3D(1.1258329, 0, -0.65, 0, 1.3, 0, 0.65, 0, 1.1258329, 49.2, 0, 20.4)
+
+[node name="Poca_2" parent="Pocas" unique_id=2000838135 instance=ExtResource("23_25cto")]
+transform = Transform3D(0.34202015, 0, 0.9396926, 0, 1, 0, -0.9396926, 0, 0.34202015, 13.4, 0, 56.6)
+
+[node name="Poca_3" parent="Pocas" unique_id=470085836 instance=ExtResource("23_25cto")]
+transform = Transform3D(1.1954337, 0, 0.10458689, 0, 1.2, 0, -0.10458689, 0, 1.1954337, 51, 0, 57)
+
+[node name="Poca_4" parent="Pocas" unique_id=1363162234 instance=ExtResource("23_25cto")]
+transform = Transform3D(1.0724622, 0, 0.8999026, 0, 1.4, 0, -0.8999026, 0, 1.0724622, 26.5, 0, 32.6)
+
+[node name="Poca_5" parent="Pocas" unique_id=2126786732 instance=ExtResource("23_25cto")]
+transform = Transform3D(0.54999995, 0, -0.952628, 0, 1.1, 0, 0.952628, 0, 0.54999995, 37.6, 0, 32.2)
+
+[node name="Poca_6" parent="Pocas" unique_id=157175848 instance=ExtResource("23_25cto")]
+transform = Transform3D(-0.27783713, 0, 1.5756924, 0, 1.6, 0, -1.5756924, 0, -0.27783713, 31.5, 0, 38)
+
+[node name="Poca_7" parent="Pocas" unique_id=1244355860 instance=ExtResource("23_25cto")]
+transform = Transform3D(0.8863269, 0, -0.15628336, 0, 0.9, 0, 0.15628336, 0, 0.8863269, 21, 0, 25.5)
+
+[node name="Poca_8" parent="Pocas" unique_id=1005525474 instance=ExtResource("23_25cto")]
+transform = Transform3D(0.57357645, 0, 0.81915206, 0, 1, 0, -0.81915206, 0, 0.57357645, 44, 0, 26)
+
+[node name="Poca_9" parent="Pocas" unique_id=964463847 instance=ExtResource("23_25cto")]
+transform = Transform3D(1.1276312, 0, 0.41042417, 0, 1.2, 0, -0.41042417, 0, 1.1276312, 32, 0, 24)
