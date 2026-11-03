@@ -2,8 +2,8 @@
 class_name LoreGate
 extends StaticBody3D
 ## Portão (grade com cadeado eletrônico) que só abre para quem já sabe os fatos de `requires`.
-## Fechado: sólido, luz vermelha. Aberto: a grade some, luz verde, e as criaturas passam a
-## achar caminho por ali. Roda no editor (@tool) só para mostrar o visual.
+## Fechado: sólido, luz vermelha. Aberto: a grade some, a luz do painel (na parede, ao lado do
+## vão) fica verde, e as criaturas passam a achar caminho por ali. Roda no editor (@tool) só para mostrar o visual.
 
 @export var requires: Array[String] = []
 @export var size := Vector2(2.0, 2.4):
@@ -69,7 +69,16 @@ func _build() -> void:
 		_bar(Vector3(0.05, size.y, 0.05), Vector3(-size.x / 2.0 + size.x * i / count, size.y / 2.0, 0), metal)
 	_bar(Vector3(size.x, 0.08, 0.08), Vector3(0, size.y * 0.85, 0), metal)
 	_bar(Vector3(size.x, 0.08, 0.08), Vector3(0, size.y * 0.15, 0), metal)
-	_bar(Vector3(0.22, 0.3, 0.12), Vector3(0, size.y * 0.5, 0.06), Color(0.15, 0.15, 0.16))
+	# Painel do cadeado eletrônico na parede, ao lado do vão (fica lá aberto ou fechado).
+	var panel := MeshInstance3D.new()
+	var panel_box := BoxMesh.new()
+	panel_box.size = Vector3(0.22, 0.32, 0.06)
+	panel.mesh = panel_box
+	var panel_material := StandardMaterial3D.new()
+	panel_material.albedo_color = Color(0.15, 0.15, 0.16)
+	panel.material_override = panel_material
+	panel.position = Vector3(-size.x / 2.0 - 0.3, size.y * 0.5, 0.18)
+	_part(panel)
 	_light = MeshInstance3D.new()
 	var dot := BoxMesh.new()
 	dot.size = Vector3(0.08, 0.08, 0.04)
@@ -80,7 +89,7 @@ func _build() -> void:
 	material.emission = material.albedo_color
 	material.emission_energy_multiplier = 3.0
 	_light.material_override = material
-	_light.position = Vector3(0, size.y * 0.55, 0.13)
+	_light.position = Vector3(-size.x / 2.0 - 0.3, size.y * 0.55, 0.22)
 	_part(_light)
 
 
