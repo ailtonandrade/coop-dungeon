@@ -49,6 +49,10 @@ func show_character(data: Dictionary) -> void:
 	var anim: AnimationPlayer = _model.find_child("AnimationPlayer", true, false)
 	if anim and anim.has_animation("Idle"):
 		anim.play("Idle")
+	# Como fica no jogo: o equipamento dele (arma na mão, a outra no coldre), sem as armas
+	# que já vêm no modelo.
+	var inventory: Variant = data.get("inventory")
+	ItemVisuals.dress(_model, Inventory.from_dict(inventory).visual() if inventory is Dictionary and not inventory.is_empty() else [])
 
 
 func _process(delta: float) -> void:

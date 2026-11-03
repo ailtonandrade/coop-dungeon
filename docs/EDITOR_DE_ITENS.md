@@ -78,3 +78,21 @@ As criaturas que aparecem na regra de loot estão em `GameConfig.CREATURES`; o i
 
 As fichas entram na impressão digital do online junto com o mapa: quem tiver itens diferentes
 do host (arquivos mexidos ou outra versão) não entra no mundo.
+
+
+## Porte das armas (na mão e guardada)
+
+O herói equipa uma arma de corpo a corpo e uma à distância, mas **só uma fica na mão**: bater
+põe a de corpo a corpo na mão e guarda a outra; atirar faz o contrário. A guardada vai para o
+**coldre** dela, e todo mundo (inclusive no online) vê a mesma coisa.
+
+- **Coldres** (`items/weapon_carry.gd`, `HOLSTERS`): `costas` (diagonal, cabo no ombro direito),
+  `costas_cruzado` (a outra diagonal), `cintura_direita`, `cintura_esquerda`.
+- **Padrão por tipo** (`DEFAULT_HOLSTER`): espada/martelo nas costas, machado na cintura
+  esquerda, faca na cintura direita, arco e besta cruzados nas costas. Arma de tipo desconhecido:
+  corpo a corpo nas costas, à distância cruzada.
+- **Na ficha do item** (grupo "Porte"): `Holster` escolhe outro coldre (ou "nenhum": guardada
+  some), e `Holster Position` / `Holster Rotation` ajustam fino, como o encaixe da mão.
+- Modelos de personagem que já vêm com arma (o Swat e o Suit trazem uma pistola) têm essa arma
+  escondida: quem decide a arma é o equipamento.
+- Coldre novo: acrescente em `HOLSTERS` e na lista do campo `holster` do `ItemDef`.

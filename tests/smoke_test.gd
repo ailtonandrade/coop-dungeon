@@ -125,6 +125,7 @@ func _process(_delta: float) -> bool:
 		3 * SECOND + 2:
 			_key(KEY_J, false)
 			_check(_player(0)._animator.current == "slash", "J: P1 ataca com a espadada")
+			_check(_player(0).drawn_weapon == "melee", "bater deixa a arma de corpo a corpo na mão")
 		3 * SECOND + 30:
 			_check(_enemy.health.hp < _enemy_hp, "golpe (pelo botão) tirou vida do inimigo (%.0f -> %.0f)" % [_enemy_hp, _enemy.health.hp])
 		5 * SECOND:
@@ -159,6 +160,7 @@ func _process(_delta: float) -> bool:
 		9 * SECOND + 40:
 			var p1 := _player(0)
 			_check(p1._facing.dot(Vector3.RIGHT) > 0.9, "segurando o clique: P1 olha para o cursor (%.2f)" % p1._facing.dot(Vector3.RIGHT))
+			_check(p1.drawn_weapon == "ranged", "atirar põe a arma à distância na mão (a outra vai para o coldre)")
 			var release := InputEventMouseButton.new()
 			release.button_index = MOUSE_BUTTON_RIGHT
 			release.pressed = false

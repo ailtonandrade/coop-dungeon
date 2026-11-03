@@ -119,6 +119,7 @@ static func dress(model: Node, visual: Array) -> void:
 	for child in skeleton.get_children():
 		if child.has_meta(ATTACH_META):
 			child.queue_free()
+	hide_model_weapons(model)
 	# A mochila do próprio modelo dá lugar à mochila equipada.
 	for mesh: MeshInstance3D in skeleton.find_children("*", "MeshInstance3D", false, false):
 		if mesh.name.to_lower().contains("backpack"):
@@ -139,6 +140,25 @@ static func dress(model: Node, visual: Array) -> void:
 			_wear(skeleton, def, entry)
 			continue
 		var mount := mount_of(def)
+		# Armas: uma peça na mão e outra no coldre; só uma aparece (WeaponCarry.set_drawn).
+		if not mount.is_empty() and WeaponCarry.WEAPON_SLOTS.has(def.get("slot", "")):
+			var slot_name: String = def.slot
+			var hand := _attach(skeleton, pose, mount[0], build(entry), mount[1], mount[2])
+			var holster := WeaponCarry.holster_of(def)
+			if hand:
+				hand.set_meta("weapon_slot", slot_name)
+				hand.set_meta("weapon_pose", "hand")
+			if not holster.is_empty():
+				var stowed := build(entry)
+				var fix := WeaponCarry.axis_fix(def)
+				if fix != Vector3.ZERO:
+					for child in stowed.get_children():
+						(child as Node3D).transform = Transform3D(Basis.from_euler(fix * PI / 180.0), Vector3.ZERO) * (child as Node3D).transform
+				var back := _attach(skeleton, pose, holster[0], stowed, holster[1], holster[2])
+				if back:
+					back.set_meta("weapon_slot", slot_name)
+					back.set_meta("weapon_pose", "holster")
+			continue
 		if not mount.is_empty():
 			var piece := build(entry)
 			# Chapéu importado sem encaixe próprio na ficha: cabe na cabeça, apoiado no topo.
@@ -155,6 +175,7 @@ static func dress(model: Node, visual: Array) -> void:
 		if part:
 			mesh.material_overlay = paints.get(part)
 			mesh.visible = not hidden.has(part)
+	WeaponCarry.set_drawn(model, model.get_meta("drawn_weapon", "melee"))
 
 
 ## Encaixe no corpo [osso, posição, rotação]: o da ficha, se ligado, senão o padrão do tipo.
@@ -280,23 +301,37 @@ static func _reference_pose(model: Node, skeleton: Skeleton3D) -> Array[Transfor
 
 
 static func _attach(skeleton: Skeleton3D, pose: Array[Transform3D], bone: String, piece: Node3D,
-		offset: Vector3, rotation_deg: Vector3) -> void:
+		offset: Vector3, rotation_deg: Vector3) -> BoneAttachment3D:
 	var index := skeleton.find_bone(bone)
 	if index == -1:
 		piece.free()
-		return
+		return null
 	var rest := pose[index]
 	var wanted := Transform3D(Basis.from_euler(rotation_deg * PI / 180.0), rest.origin + offset)
-	_mount(skeleton, bone, piece, rest.affine_inverse() * wanted)
+	return _mount(skeleton, bone, piece, rest.affine_inverse() * wanted)
 
 
-static func _mount(skeleton: Skeleton3D, bone: String, piece: Node3D, local: Transform3D) -> void:
+static func _mount(skeleton: Skeleton3D, bone: String, piece: Node3D, local: Transform3D) -> BoneAttachment3D:
 	var attachment := BoneAttachment3D.new()
 	attachment.bone_name = bone
 	attachment.set_meta(ATTACH_META, true)
 	skeleton.add_child(attachment)
 	piece.transform = local
 	attachment.add_child(piece)
+	return attachment
+
+
+## Esconde armas que já vêm no modelo do personagem (WeaponCarry.MODEL_WEAPON_MESHES).
+static func hide_model_weapons(model: Node) -> void:
+	if model == null:
+		return
+	for mesh: MeshInstance3D in model.find_children("*", "MeshInstance3D", true, false):
+		if mesh.has_meta(ATTACH_META) or mesh.get_parent() is BoneAttachment3D:
+			continue
+		var lower := String(mesh.name).to_lower()
+		for word: String in WeaponCarry.MODEL_WEAPON_MESHES:
+			if lower == word or lower.begins_with(word + "_") or lower.ends_with("_" + word):
+				mesh.visible = false
 
 
 static func _box(parent: Node3D, size: Vector3, pos: Vector3, color: Color, glow := Color.BLACK,

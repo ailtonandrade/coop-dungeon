@@ -86,6 +86,13 @@ static func set_known_shops(shops: PackedStringArray) -> void:
 @export var mount_position := Vector3.ZERO
 @export var mount_rotation := Vector3.ZERO
 
+@export_group("Porte (arma guardada)")
+## Onde a arma fica quando não está na mão (WeaponCarry.HOLSTERS). "auto" = o padrão do tipo.
+@export_enum("auto", "costas", "costas_cruzado", "cintura_direita", "cintura_esquerda", "nenhum") var holster := "auto"
+## Ajuste fino do coldre (somado ao do coldre escolhido).
+@export var holster_position := Vector3.ZERO
+@export var holster_rotation := Vector3.ZERO
+
 
 ## Formato que o jogo usa (ItemDB.def).
 func to_dict() -> Dictionary:
@@ -117,6 +124,10 @@ func to_dict() -> Dictionary:
 		result["ground_scale"] = ground_scale
 	if custom_mount:
 		result["mount"] = [mount_bone, mount_position, mount_rotation]
+	if holster != "auto":
+		result["holster"] = holster
+	if holster_position != Vector3.ZERO or holster_rotation != Vector3.ZERO:
+		result["holster_adjust"] = [holster_position, holster_rotation]
 	return result
 
 

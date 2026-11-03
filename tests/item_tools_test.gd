@@ -123,7 +123,21 @@ func _run() -> void:
 	root.add_child(hero)
 	visuals.dress(hero, [{"id": "chave_inglesa", "rarity": "common"}])
 	var attached := hero.find_children("*", "BoneAttachment3D", true, false)
-	_check(attached.size() == 1 and attached[0].bone_name == "Wrist.L", "presa no osso da ficha (mão esquerda)")
+	var in_hand := attached.filter(func(a: Node) -> bool: return a.get_meta("weapon_pose", "") == "hand")
+	var stowed := attached.filter(func(a: Node) -> bool: return a.get_meta("weapon_pose", "") == "holster")
+	_check(in_hand.size() == 1 and in_hand[0].bone_name == "Wrist.L", "presa no osso da ficha (mão esquerda)")
+	# Porte: arma tem também a peça guardada no coldre; só uma das duas aparece.
+	_check(stowed.size() == 1 and stowed[0].bone_name in ["Chest", "Hips"], "e uma cópia no coldre (costas/cintura)")
+	_check(in_hand[0].visible and not stowed[0].visible, "única arma: fica na mão, o coldre vazio")
+	# Duas armas: só uma na mão; trocar a de mão guarda a outra.
+	var carry: Script = load("res://items/weapon_carry.gd")
+	visuals.dress(hero, [{"id": "sword", "rarity": "common"}, {"id": "bow", "rarity": "common"}])
+	var shown := func(slot: String, pose: String) -> bool:
+		return hero.find_children("*", "BoneAttachment3D", true, false).any(func(a: Node) -> bool:
+			return not a.is_queued_for_deletion() and a.get_meta("weapon_slot", "") == slot and a.get_meta("weapon_pose", "") == pose and a.visible)
+	_check(shown.call("melee", "hand") and shown.call("ranged", "holster") and not shown.call("ranged", "hand"), "espada na mão, arco guardado nas costas")
+	carry.set_drawn(hero, "ranged")
+	_check(shown.call("ranged", "hand") and shown.call("melee", "holster") and not shown.call("melee", "hand"), "sacar o arco guarda a espada")
 	hero.free()
 
 	# Modelo gigante e deitado (30 m no eixo X): o ajuste automático põe em pé, no tamanho de uma

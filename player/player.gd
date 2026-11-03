@@ -51,6 +51,8 @@ var index := 0
 var display_name := ""
 ## Modo construtor (world/god_mode.gd): anda, mas não luta e as criaturas ignoram.
 var building := false
+## Arma na mão: "melee" ou "ranged" (a outra fica no coldre). Muda ao bater ou atirar.
+var drawn_weapon := "melee"
 ## Inventário: no host é o de verdade; no dono é a cópia que ele recebe; nos outros fica vazio.
 var inventory := Inventory.new()
 var progress := Progression.new()
@@ -485,6 +487,7 @@ func _update_climb(delta: float) -> void:
 ## Corpo a corpo
 
 func _start_attack(step: int, dir: Vector3) -> void:
+	draw_weapon("melee")
 	state = State.ATTACKING
 	_combo_step = step
 	_combo_queued = false
@@ -625,9 +628,18 @@ static func _get_arc_mesh() -> ArrayMesh:
 
 ## À distância, poção, cair
 
+## Põe a arma da casa `slot` ("melee"/"ranged") na mão e guarda a outra (WeaponCarry).
+func draw_weapon(slot: String) -> void:
+	if slot == drawn_weapon:
+		return
+	drawn_weapon = slot
+	WeaponCarry.set_drawn(_model, slot)
+
+
 func _shoot_arrow() -> void:
 	if ranged_damage() <= 0.0:
 		return
+	draw_weapon("ranged")
 	_arrow_cooldown = GameConfig.ARROW_COOLDOWN * cooldown_factor()
 	# Mirando de verdade (analógico/mouse) a correção é pequena; atirando "para a frente", maior.
 	var aimed := _aim_dir != Vector3.ZERO
@@ -689,7 +701,8 @@ func _update_downed(delta: float) -> void:
 
 func get_net_state() -> Array:
 	return [global_position, rotation.y, _animator.net_state(),
-			health.hp, state, revive_progress, potion_cooldown, health.max_hp, progress.level, progress.xp]
+			health.hp, state, revive_progress, potion_cooldown, health.max_hp, progress.level, progress.xp,
+			1 if drawn_weapon == "ranged" else 0]
 
 
 func apply_net_state(s: Array) -> void:
@@ -709,6 +722,8 @@ func apply_net_state(s: Array) -> void:
 		progress.level = s[8]
 		progress.xp = s[9]
 		progress.changed.emit()
+	if s.size() > 10:
+		draw_weapon("ranged" if int(s[10]) == 1 else "melee")
 
 
 ## Inventário e atributos
