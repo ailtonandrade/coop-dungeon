@@ -307,13 +307,7 @@ def make_ambience():
     wind *= 0.55 + 0.45 * np.sin(2 * np.pi * t(seconds) / 13.0) ** 2
     hum = (np.sin(2 * np.pi * 60 * t(seconds)) * 0.5 + np.sin(2 * np.pi * 120 * t(seconds)) * 0.3) * 0.08
     out = wind * 0.6 + hum
-    # Neon zumbindo de vez em quando e metal batendo longe.
-    for start in rng.uniform(2, seconds - 4, 7):
-        buzz = onepole_lowpass(square(120, 0.9) * (rng.uniform(0, 1, int(0.9 * RATE)) > 0.3), 900) * env(int(0.9 * RATE), 0.05, 0.8, 2.0) * 0.12
-        out = mix(out, at(buzz, start))[:n]
-    for start in rng.uniform(2, seconds - 4, 5):
-        clank = echo(metal(rng.uniform(250, 420), 0.8) * 0.18, 0.21, 0.4, 3)
-        out = mix(out, at(fft_filter(clank, 100, 2500), start))[:n]
+    # (Tirados: o zumbido de neon picotado e o metal batendo longe soavam aleatórios demais.)
     save(MUSIC, "ambiente_ferro_velho", loop_seam(out, 2.0), peak=0.7, quality=4)
 
 

@@ -5,7 +5,9 @@ extends PanelContainer
 ## fatos da história, liberar portões/contêineres e dar itens (Lore, NpcDialogue).
 ## Se o NPC tem serviço (loja, cofre...), um botão abre a tela dele; fechar volta para cá.
 ##
-## Controle: setas escolhem · A confirma · B tchau. Teclado: digite e Enter, ou clique.
+## Controle: direcional/analógico escolhe (◀ ▶ em ordem, ▲ ▼ a linha de cima/baixo) · A confirma ·
+## B tchau · analógico direito rola a conversa. Cada controle mexe só na conversa do seu jogador
+## (não usa o foco global do Godot). Teclado: digite e Enter, ou clique.
 
 signal close_requested
 signal service_requested
@@ -17,8 +19,15 @@ var _log: RichTextLabel
 var _topics: HFlowContainer
 var _typing: LineEdit
 var _service_button: Button
+var _bye_button: Button
 var _lines: PackedStringArray = []
 var _guard := 0.2
+var _cursor := 0
+var _last_dir := Vector2i.ZERO
+var _repeat := 0.0
+
+const REPEAT_DELAY := 0.3
+const REPEAT_RATE := 0.15
 
 
 func open_for(p_player: Player, p_npc: WorldNpc) -> void:
@@ -72,8 +81,8 @@ func _build() -> void:
 	var found := Lore.dialogue(npc.npc_name)
 	_service_button = _button(row, found.service_button if found and found.service_button else _service_text(), func() -> void: service_requested.emit())
 	_service_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_button(row, "Tchau", _bye)
-	column.add_child(UiSkin.label("Setas escolhem · A confirma · B tchau" if not _typing.visible else "Clique num assunto ou digite · Esc tchau", 13, Color(1, 1, 1, 0.55), "Regular", 2))
+	_bye_button = _button(row, "Tchau", _bye)
+	column.add_child(UiSkin.label("Direcional escolhe · A confirma · B tchau · analógico direito rola a conversa" if not _typing.visible else "Clique num assunto ou digite · Esc tchau", 13, Color(1, 1, 1, 0.55), "Regular", 2))
 
 
 func _service_text() -> String:
@@ -100,7 +109,8 @@ func _refresh_topics() -> void:
 		if first == null:
 			first = button
 	if InputService.device_of(player.slot) != InputService.KEYBOARD:
-		(first if first else _service_button).grab_focus.call_deferred()
+		_cursor = 0
+		_show_cursor.call_deferred()
 	else:
 		_typing.grab_focus.call_deferred()
 
@@ -178,11 +188,114 @@ func _physics_process(delta: float) -> void:
 		return
 	# Aberta, a conversa segura os comandos do jogo (a loja, ao fechar, solta no fim do quadro).
 	InputService.set_blocked(player.slot, true)
+	if InputService.device_of(player.slot) == InputService.KEYBOARD:
+		return
+	_navigate(delta)
+	# A e B esperam um instante: o aperto que abriu a conversa não confirma nem fecha.
 	_guard -= delta
 	if _guard > 0.0:
 		return
-	if InputService.device_of(player.slot) != InputService.KEYBOARD and InputService.back_just_pressed(player.slot):
+	if InputService.back_just_pressed(player.slot):
 		_bye()
+		return
+	if InputService.raw_just_pressed(player.slot, InputService.Action.JUMP):
+		var buttons := _nav_buttons()
+		if _cursor < buttons.size():
+			buttons[_cursor].pressed.emit()
+	# Analógico direito rola a conversa.
+	var device := InputService.device_of(player.slot)
+	var scroll := Input.get_joy_axis(device, JOY_AXIS_RIGHT_Y)
+	if absf(scroll) > 0.3:
+		_log.get_v_scroll_bar().value += scroll * 500.0 * delta
+
+
+## Botões que o controle percorre, na ordem da tela: assuntos, serviço, tchau.
+func _nav_buttons() -> Array[Button]:
+	var result: Array[Button] = []
+	for child in _topics.get_children():
+		if child is Button and not child.is_queued_for_deletion():
+			result.append(child)
+	for button in [_service_button, _bye_button]:
+		if button and button.visible:
+			result.append(button)
+	return result
+
+
+func _navigate(delta: float) -> void:
+	var raw := InputService.raw_move(player.slot)
+	var dir := Vector2i(0 if absf(raw.x) < 0.5 else signi(roundi(raw.x)), 0 if absf(raw.y) < 0.5 else signi(roundi(raw.y)))
+	if dir.y != 0:
+		dir.x = 0
+	if dir == Vector2i.ZERO:
+		_last_dir = dir
+		return
+	if dir != _last_dir:
+		_repeat = REPEAT_DELAY
+	else:
+		_repeat -= delta
+		if _repeat > 0.0:
+			return
+		_repeat = REPEAT_RATE
+	_last_dir = dir
+	_move_cursor(dir)
+
+
+## ◀ ▶: anterior/próximo em ordem. ▲ ▼: o botão mais perto na linha de cima/de baixo.
+func _move_cursor(dir: Vector2i) -> void:
+	var buttons := _nav_buttons()
+	if buttons.is_empty():
+		return
+	_cursor = clampi(_cursor, 0, buttons.size() - 1)
+	if dir.x != 0:
+		_cursor = wrapi(_cursor + dir.x, 0, buttons.size())
+	else:
+		var here := buttons[_cursor].get_global_rect()
+		var best := -1
+		var best_score := INF
+		var target_row := INF
+		for i in buttons.size():
+			var rect := buttons[i].get_global_rect()
+			var dy := (rect.get_center().y - here.get_center().y) * dir.y
+			if dy < 4.0:
+				continue
+			# Primeiro a linha mais próxima; dentro dela, o mais perto na horizontal.
+			if dy < target_row - 4.0:
+				target_row = dy
+				best_score = INF
+			if absf(dy - target_row) <= 4.0:
+				var dx := absf(rect.get_center().x - here.get_center().x)
+				if dx < best_score:
+					best_score = dx
+					best = i
+		if best == -1:
+			return
+		_cursor = best
+	Sound.play("ui_move")
+	_show_cursor()
+
+
+## Destaca o botão escolhido sem usar o foco do Godot (que é um só para a tela toda: com o foco,
+## o direcional de qualquer controle mexeria nesta conversa).
+func _show_cursor() -> void:
+	var buttons := _nav_buttons()
+	if buttons.is_empty():
+		return
+	_cursor = clampi(_cursor, 0, buttons.size() - 1)
+	for i in buttons.size():
+		var button := buttons[i]
+		button.focus_mode = Control.FOCUS_NONE
+		if i == _cursor:
+			button.add_theme_stylebox_override("normal", button.get_theme_stylebox("focus") if button.has_theme_stylebox("focus") else button.get_theme_stylebox("hover"))
+			button.add_theme_color_override("font_color", Color(1.0, 0.92, 0.6))
+		else:
+			button.remove_theme_stylebox_override("normal")
+			button.remove_theme_color_override("font_color")
+
+
+## Botão que o controle deste jogador marcou agora (para os testes), ou null.
+func selected() -> Button:
+	var buttons := _nav_buttons()
+	return buttons[_cursor] if _cursor < buttons.size() else null
 
 
 ## Esc dá tchau mesmo com o campo de digitar em foco (por isso _typing, antes da interface).

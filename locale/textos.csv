@@ -276,6 +276,7 @@ Desligada,Off
 Digite o IP do host.,Type the host's IP.
 Digite o nome · ← → visual · Enter entra · Esc volta,Type the name · ← → look · Enter join · Esc back
 "Digite uma palavra e Enter (ex.: trabalho, água, nome)","Type a word and Enter (e.g. work, water, name)"
+Direcional escolhe · A confirma · B tchau · analógico direito rola a conversa,D-pad choose · A confirm · B goodbye · right stick scrolls the conversation
 Disparo,Shooting
 "Dra. Helena Vasconcelos · Bioenergia · Sinapse, Laboratório 4","Dr. Helena Vasconcelos · Bioenergy · Sinapse, Lab 4"
 Drenagem,Drain
@@ -522,7 +523,6 @@ Sensibilidade,Sensitivity
 Sensibilidade da câmera atrás,Behind camera sensitivity
 Seringa turbinada,Turbo syringe
 Serviço,Service
-Setas escolhem · A confirma · B tchau,Arrows choose · A confirm · B goodbye
 "Seu provedor usa CGNAT: amigos de fora não conseguem entrar direto. Use uma VPN de jogo (Radmin VPN, ZeroTier ou Tailscale) e passe o IP dela.","Your provider uses CGNAT: friends outside can't join directly. Use a gaming VPN (Radmin VPN, ZeroTier or Tailscale) and share its IP."
 Shift (segure),Shift (hold)
 Sinapse,
