@@ -1,26 +1,27 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://btj6q3x5dqghc"]
 
 [ext_resource type="Texture2D" path="res://world/textures/ground_4d453d_615447.res" id="1_y326l"]
-[ext_resource type="Script" path="res://world/fade_occluder.gd" id="2_y326l"]
-[ext_resource type="PackedScene" path="res://assets/props/Barrel.glb" id="3_t5grd"]
-[ext_resource type="PackedScene" path="res://assets/props/Chest.glb" id="4_10agt"]
-[ext_resource type="Script" path="res://world/world_npc.gd" id="5_2772y"]
+[ext_resource type="Script" uid="uid://bbyjjd26mkvij" path="res://world/fade_occluder.gd" id="2_y326l"]
+[ext_resource type="PackedScene" uid="uid://cykmgapidtwdp" path="res://assets/props/Barrel.glb" id="3_t5grd"]
+[ext_resource type="PackedScene" uid="uid://cjysy3ae2mnrl" path="res://assets/props/Chest.glb" id="4_10agt"]
+[ext_resource type="Script" uid="uid://c0oc2dd2qakp7" path="res://world/world_npc.gd" id="5_2772y"]
 [ext_resource type="MeshLibrary" path="res://world/tiles/tiles.meshlib" id="5_y326l"]
-[ext_resource type="PackedScene" path="res://assets/characters/Suit.glb" id="6_f5q74"]
+[ext_resource type="PackedScene" uid="uid://dpmlqyss4405t" path="res://assets/characters/Suit.glb" id="6_f5q74"]
 [ext_resource type="PackedScene" path="res://world/prefabs/bau_de_saque.tscn" id="6_s4uig"]
-[ext_resource type="Script" path="res://world/container_item.gd" id="7_ffok1"]
-[ext_resource type="PackedScene" path="res://assets/characters/Worker.glb" id="7_y8j3o"]
+[ext_resource type="Script" uid="uid://b6ij75nosxtdt" path="res://world/container_item.gd" id="7_ffok1"]
+[ext_resource type="PackedScene" uid="uid://dmy2roidhlikd" path="res://assets/characters/Worker.glb" id="7_y8j3o"]
 [ext_resource type="PackedScene" path="res://world/prefabs/poste_de_luz.tscn" id="8_8ynnr"]
-[ext_resource type="PackedScene" path="res://assets/characters/Beach.glb" id="8_t0nbh"]
+[ext_resource type="PackedScene" uid="uid://dt1dftory4r1p" path="res://assets/characters/Beach.glb" id="8_t0nbh"]
 [ext_resource type="PackedScene" path="res://world/prefabs/carro_quebrado.tscn" id="9_1j7j7"]
-[ext_resource type="PackedScene" path="res://assets/characters/King.glb" id="9_ud5yq"]
+[ext_resource type="PackedScene" uid="uid://biycfshaiffwe" path="res://assets/characters/King.glb" id="9_ud5yq"]
 [ext_resource type="PackedScene" path="res://world/prefabs/pilha_de_pneus.tscn" id="10_25cto"]
 [ext_resource type="PackedScene" path="res://world/prefabs/barril.tscn" id="11_5qdrv"]
 [ext_resource type="PackedScene" path="res://world/prefabs/saco_de_lixo.tscn" id="12_s17pd"]
 [ext_resource type="PackedScene" path="res://world/prefabs/cone.tscn" id="13_cax8w"]
 [ext_resource type="PackedScene" path="res://world/prefabs/arbusto.tscn" id="14_0lrbf"]
+[ext_resource type="PackedScene" path="res://world/prefabs/bloco_de_concreto.tscn" id="15_ffok1"]
 
-[sub_resource type="NavigationMesh" id="NavigationMesh_0lbep"]
+[sub_resource type="NavigationMesh" id="NavigationMesh_ffok1"]
 geometry_collision_mask = 1
 agent_height = 2.0
 filter_baking_aabb = AABB(0, -5, 0, 64, 30, 64)
@@ -377,7 +378,7 @@ size = Vector3(1.6, 0.35, 0.08)
 [node name="Chunk" type="Node3D" unique_id=1626088061]
 
 [node name="Navigation" type="NavigationRegion3D" parent="." unique_id=1661683158]
-navigation_mesh = SubResource("NavigationMesh_0lbep")
+navigation_mesh = SubResource("NavigationMesh_ffok1")
 
 [node name="Ground" type="StaticBody3D" parent="Navigation" unique_id=1389150052]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 32, -0.5, 32)
@@ -856,9 +857,6 @@ transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 29, 
 [node name="PosteDeLuz4" parent="Navigation" unique_id=1537466516 instance=ExtResource("8_8ynnr")]
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 36, 0, 45)
 
-[node name="CarroQuebrado" parent="Navigation" unique_id=1842033940 instance=ExtResource("9_1j7j7")]
-transform = Transform3D(0.34202015, 0, 0.9396926, 0, 1, 0, -0.9396926, 0, 0.34202015, 18, 0, 47)
-
 [node name="PilhaDePneus" parent="Navigation" unique_id=1839906980 instance=ExtResource("10_25cto")]
 transform = Transform3D(0.9659258, 0, 0.25881904, 0, 1, 0, -0.25881904, 0, 0.9659258, 21, 0, 50)
 
@@ -894,6 +892,33 @@ transform = Transform3D(1.0822744, 0, 0.4298665, 0, 1.1645185, 0, -0.4298665, 0,
 
 [node name="Arbusto5" parent="Navigation" unique_id=694052948 instance=ExtResource("14_0lrbf")]
 transform = Transform3D(0.47555193, 0, -1.0728024, 0, 1.1734797, 0, 1.0728024, 0, 0.47555193, 55.5, 0, 59.4)
+
+[node name="god_1793708901_3585" parent="Navigation" unique_id=396086734 instance=ExtResource("15_ffok1")]
+transform = Transform3D(9.92364e-06, 2.5248059e-05, -1, 4.4047474e-06, 1, 2.5248102e-05, 1, -4.404998e-06, 9.923529e-06, 32.832916, 0.9996346, 25.123041)
+
+[node name="god_1793708906_3365" parent="Navigation" unique_id=1502242850 instance=ExtResource("15_ffok1")]
+transform = Transform3D(9.684599e-06, -2.4409583e-05, -1, 1.4767657e-05, 1, -2.4409439e-05, 1, -1.4767421e-05, 9.684959e-06, 33.483105, -0.00036634709, 27.35359)
+
+[node name="god_1793708912_7793" parent="Navigation" unique_id=1733597249 instance=ExtResource("15_ffok1")]
+transform = Transform3D(0.03836968, 0.99923885, 0.0070384974, -0.00013656485, -0.0070384406, 0.99997526, 0.99926364, -0.03836969, -0.00013360182, 33.45809, 0.098897636, 26.894905)
+
+[node name="god_1793708915_1609" parent="Navigation" unique_id=262873666 instance=ExtResource("15_ffok1")]
+transform = Transform3D(0.24373655, 0.0007130952, -0.9698412, 0.02398021, 0.9996896, 0.0067616496, 0.969545, -0.024905058, 0.24364378, 33.520382, 0.21304958, 27.121286)
+
+[node name="god_1793708915_7067" parent="Navigation" unique_id=1248077127 instance=ExtResource("15_ffok1")]
+transform = Transform3D(0.55550593, 0.0027456, -0.83150804, -1.0261996e-05, 0.9999946, 0.0032950789, 0.8315126, -0.0018219028, 0.55550295, 34.45288, -0.009401622, 26.201311)
+
+[node name="god_1793708916_1011" parent="Navigation" unique_id=21946317 instance=ExtResource("15_ffok1")]
+transform = Transform3D(-0.0005877998, 0.5938825, 0.80455154, 0.022221342, -0.80434525, 0.59374654, 0.99975294, 0.01822722, -0.012724073, 33.17641, 0.5693895, 26.905077)
+
+[node name="god_1793708923_7718" parent="Navigation" unique_id=1120622056 instance=ExtResource("15_ffok1")]
+transform = Transform3D(0.52787334, -2.5421357e-06, 0.8493231, 3.26055e-06, -1, -5.0196363e-06, 0.8493231, 5.4189927e-06, -0.52787334, 34.184883, 0.21738043, 26.89092)
+
+[node name="god_1793708924_8372" parent="Navigation" unique_id=918283799 instance=ExtResource("15_ffok1")]
+transform = Transform3D(-0.67568046, -0.005677991, -0.73717284, 0.008391623, -0.99996483, 1.0493547e-05, -0.7371469, -0.0061789863, 0.67570436, 33.51186, 0.21935302, 27.947168)
+
+[node name="god_1793708953_4343" parent="Navigation" unique_id=1240843579 instance=ExtResource("9_1j7j7")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 27.635286, 0, 48.127262)
 
 [node name="Npc_Sr_Gouveia" type="Node3D" parent="." unique_id=1417754578]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, 0, 12.5)
