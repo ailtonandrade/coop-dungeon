@@ -101,6 +101,21 @@ func _process(_delta: float) -> bool:
 			var fixed: Node3D = _god.place_at(_player().global_position + Vector3(-3, 0, 2))
 			_fixed_id = String(fixed.name) if fixed else ""
 			_check(_placed().size() == 2, "peça fixa grava na hora")
+			# Pegar (G/▲) e largar em outro lugar: a mesma peça muda de lugar e o registro também.
+			var from: Vector3 = fixed.global_position
+			_check(_god.grab_near(from) and not fixed.visible, "G pega a peça (some do lugar e vira fantasma)")
+			_god._yaw = PI / 2.0
+			_god.place_at(from + Vector3(2, 0, 0))
+			var moved: Array = _placed().filter(func(e: Dictionary) -> bool: return e.id == _fixed_id)
+			_check(is_instance_valid(fixed) and fixed.visible and fixed.global_position.distance_to(from + Vector3(2, 0, 0)) < 0.05 \
+					and moved.size() == 1 and absf(float(moved[0].xform[9]) - (fixed.position.x)) < 0.05,
+					"largou no lugar novo, girada, e o registro foi junto")
+			_check(_placed().size() == 2, "mudar de lugar não duplica a peça")
+			# Peça do mapa (poste do editor): nos testes nunca mexe nos arquivos do mapa.
+			var lamp: Array = root.find_children("*", "", true, false).filter(func(n: Node) -> bool: return n.scene_file_path.ends_with("poste_de_luz.tscn"))
+			if not lamp.is_empty():
+				var lamp_node: Node3D = lamp[0]
+				_check(_god.piece_near(Vector3(lamp_node.global_position.x, 0, lamp_node.global_position.z)) == lamp_node, "acha peça do mapa (poste) para apagar ou mover")
 			_god.undo()
 		8 * SECOND + 5:
 			_check(_placed().size() == 1 and not _placed().any(func(e: Dictionary) -> bool: return e.id == _fixed_id), "desfazer tira a última peça")

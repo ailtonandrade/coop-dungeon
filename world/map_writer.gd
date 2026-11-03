@@ -39,6 +39,33 @@ static func remove_from_scene(scene_path: String, id: String) -> bool:
 	return _save(root, scene_path)
 
 
+## Tira da cena do bloco um nó qualquer (peça do mapa), pelo caminho dentro do bloco.
+static func remove_path(scene_path: String, node_path: NodePath) -> bool:
+	var root := _open(scene_path)
+	if root == null:
+		return false
+	var node := root.get_node_or_null(node_path)
+	if node == null or node == root:
+		root.free()
+		return false
+	node.get_parent().remove_child(node)
+	node.free()
+	return _save(root, scene_path)
+
+
+## Muda de lugar, na cena do bloco, um nó qualquer (peça do mapa). `local` é relativo ao pai.
+static func move_path(scene_path: String, node_path: NodePath, local: Transform3D) -> bool:
+	var root := _open(scene_path)
+	if root == null:
+		return false
+	var node := root.get_node_or_null(node_path) as Node3D
+	if node == null or node == root:
+		root.free()
+		return false
+	node.transform = local
+	return _save(root, scene_path)
+
+
 static func _open(scene_path: String) -> Node3D:
 	var scene := ResourceLoader.load(scene_path, "PackedScene", ResourceLoader.CACHE_MODE_IGNORE) as PackedScene
 	return scene.instantiate(PackedScene.GEN_EDIT_STATE_INSTANCE) as Node3D if scene else null

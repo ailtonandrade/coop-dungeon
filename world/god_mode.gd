@@ -39,6 +39,9 @@ var _target_ok := false
 var _settling: Array = []
 ## Desfazer: ids colocados nesta sessão, do mais antigo ao mais novo.
 var _undo: Array[String] = []
+## Peça pega para mudar de lugar (G / ▲): o nó no mundo e a altura dele acima do chão.
+var _carrying: Node3D = null
+var _carry_lift := 0.0
 var _hud: CanvasLayer
 var _title: Label
 var _piece: Label
@@ -100,6 +103,7 @@ func start(p_slot: int) -> void:
 
 
 func stop() -> void:
+	cancel_carry()
 	if not active:
 		return
 	if _loot_panel.visible:
@@ -164,6 +168,9 @@ func rotate_piece(step_deg: float) -> void:
 
 ## Coloca a peça escolhida no ponto (global). Retorna o nó criado, ou null.
 func place_at(point: Vector3) -> Node3D:
+	if _carrying:
+		var moved := _carrying
+		return moved if drop_carried(point) else null
 	var entry := current()
 	var streamer := WorldStreamer.of(self)
 	if entry.is_empty() or streamer == null:
@@ -208,18 +215,150 @@ func undo() -> void:
 			return
 
 
-## Apaga a peça do construtor mais perto do ponto (só as do construtor, não as do editor).
+## Apaga a peça mais perto do ponto: as do construtor e também as do mapa (postes, letreiros,
+## barris... qualquer peça pronta posta pelo editor de mapa). Casas, chão e NPCs não.
 func remove_near(point: Vector3) -> bool:
+	var best := piece_near(point)
+	if best == null:
+		Sound.play("ui_error")
+		return false
+	if _is_builder_piece(best):
+		return remove_piece(String(best.name))
+	return _remove_map_piece(best)
+
+
+## Peça (do construtor ou do mapa) mais perto do ponto, no chão. Null se nenhuma perto.
+func piece_near(point: Vector3) -> Node3D:
+	var streamer := WorldStreamer.of(self)
+	if streamer == null:
+		return null
 	var best: Node3D = null
 	var best_distance := REMOVE_RADIUS
-	for chunk: Node in get_tree().get_nodes_in_group("world_streamer")[0].get_children():
-		for node in WorldEdits.parent_in(chunk).get_children():
-			if node is Node3D and String(node.name).begins_with(WorldEdits.ID_PREFIX):
-				var distance := Combat.flat(node.global_position - point).length()
-				if distance < best_distance:
-					best = node
-					best_distance = distance
-	return best != null and remove_piece(String(best.name))
+	for chunk: Node in streamer.get_children():
+		for node: Node in chunk.find_children("*", "Node3D", true, false):
+			if node == _carrying or not is_piece(node, chunk):
+				continue
+			var distance := Combat.flat((node as Node3D).global_position - point).length()
+			if distance < best_distance:
+				best = node
+				best_distance = distance
+	return best
+
+
+## O que o construtor pode apagar e mover: peças dele e peças prontas (cenas) do mapa.
+static func is_piece(node: Node, chunk: Node) -> bool:
+	if not node is Node3D or (node as Node3D).get_parent() == null:
+		return false
+	if _is_builder_piece(node):
+		return true
+	var path := node.scene_file_path
+	return node.owner == chunk and path.ends_with(".tscn") and not path.begins_with("res://world/lore/") \
+			and not path.begins_with("res://world/interiors/") and not path.begins_with("res://world/chunks/")
+
+
+static func _is_builder_piece(node: Node) -> bool:
+	return String(node.name).begins_with(WorldEdits.ID_PREFIX)
+
+
+func _chunk_of(node: Node) -> Node3D:
+	var streamer := WorldStreamer.of(self)
+	var current_node := node
+	while current_node and current_node.get_parent() != streamer:
+		current_node = current_node.get_parent()
+	return current_node as Node3D
+
+
+## Peça do mapa: sai da cena do bloco (o arquivo) e do mundo.
+func _remove_map_piece(node: Node3D) -> bool:
+	var chunk := _chunk_of(node)
+	var streamer := WorldStreamer.of(self)
+	if chunk == null or not WorldEdits.saves_in_map_files():
+		Sound.play("ui_error")
+		return false
+	var key: String = streamer.key_of(chunk)
+	if not MapWriter.remove_path(streamer.scene_path_of(key), chunk.get_path_to(node)):
+		Sound.play("ui_error")
+		return false
+	node.queue_free()
+	WorldStreamer.bake_navigation.call_deferred(chunk, true)
+	Sound.play("ui_back")
+	Chat.local_note(Txt.t("Apagado do mapa: %s") % String(node.name))
+	return true
+
+
+## Pega a peça perto do ponto para mudar de lugar (ou larga, se já está carregando uma).
+func grab_near(point: Vector3) -> bool:
+	if _carrying:
+		cancel_carry()
+		return false
+	var node := piece_near(point)
+	if node == null:
+		Sound.play("ui_error")
+		return false
+	_carrying = node
+	# Altura acima do chão (letreiro na parede continua na mesma altura no lugar novo).
+	var space := node.get_world_3d().direct_space_state
+	var from := node.global_position + Vector3.UP * 0.2
+	var query := PhysicsRayQueryParameters3D.create(from, from + Vector3.DOWN * 20.0, GameConfig.LAYER_SOLID)
+	var hit := space.intersect_ray(query)
+	_carry_lift = node.global_position.y - (hit.position as Vector3).y if not hit.is_empty() else 0.0
+	_carry_lift = maxf(_carry_lift, 0.0)
+	_yaw = node.global_rotation.y
+	node.visible = false
+	_rebuild_ghost()
+	_refresh_hud()
+	Sound.play("ui_move")
+	return true
+
+
+func cancel_carry() -> void:
+	if is_instance_valid(_carrying):
+		_carrying.visible = true
+	_carrying = null
+	_rebuild_ghost()
+	_refresh_hud()
+
+
+## Larga a peça carregada no ponto: muda de lugar no mundo e no arquivo.
+func drop_carried(point: Vector3) -> bool:
+	var node := _carrying
+	if not is_instance_valid(node):
+		_carrying = null
+		return false
+	var streamer := WorldStreamer.of(self)
+	var found: Array = streamer.chunk_at(point)
+	var target_chunk: Node3D = found[0]
+	var old_chunk := _chunk_of(node)
+	if target_chunk == null or old_chunk == null:
+		Sound.play("ui_error")
+		return false
+	var wanted := Transform3D(Basis(Vector3.UP, _yaw) * Basis.from_scale(node.global_basis.get_scale()), point + Vector3.UP * _carry_lift)
+	if _is_builder_piece(node):
+		var old_key: String = streamer.key_of(old_chunk)
+		if WorldEdits.saves_in_map_files():
+			MapWriter.remove_from_scene(streamer.scene_path_of(old_key), String(node.name))
+		NetService.remove_world_edit(String(node.name))
+		if target_chunk != old_chunk:
+			node.reparent(WorldEdits.parent_in(target_chunk))
+		node.global_transform = wanted
+		_finalize(node, found[1])
+	else:
+		# Peça do mapa: fica no mesmo bloco (o arquivo de cada bloco é separado).
+		if target_chunk != old_chunk or not WorldEdits.saves_in_map_files():
+			Sound.play("ui_error")
+			Chat.local_note("Peça do mapa só muda de lugar dentro do mesmo bloco.")
+			return false
+		node.global_transform = wanted
+		if not MapWriter.move_path(streamer.scene_path_of(streamer.key_of(old_chunk)), old_chunk.get_path_to(node), node.transform):
+			Sound.play("ui_error")
+			return false
+		WorldStreamer.bake_navigation(old_chunk, true)
+	node.visible = true
+	_carrying = null
+	_rebuild_ghost()
+	_refresh_hud()
+	Sound.play("ui_confirm", point)
+	return true
 
 
 func remove_piece(id: String) -> bool:
@@ -331,10 +470,18 @@ func _unhandled_input(event: InputEvent) -> void:
 			KEY_V:
 				next_category(-1 if event.shift_pressed else 1)
 			KEY_Z:
-				undo()
+				if _carrying:
+					cancel_carry()
+				else:
+					undo()
 			KEY_DELETE, KEY_BACKSPACE:
-				if _target_ok:
+				if _carrying:
+					cancel_carry()
+				elif _target_ok:
 					remove_near(_target)
+			KEY_G:
+				if _target_ok or _carrying:
+					grab_near(_target)
 			KEY_F:
 				open_loot_editor(_container_near(_target) if _target_ok else null)
 			_:
@@ -357,14 +504,21 @@ func _read_pad() -> void:
 	if InputService.raw_just_pressed(slot, InputService.Action.DODGE):
 		if _loot_panel.visible:
 			close_loot_editor()
+		elif _carrying:
+			cancel_carry()
 		else:
 			undo()
+	if InputService.raw_just_pressed(slot, InputService.Action.PICKUP) and _target_ok and not _carrying:
+		remove_near(_target)
 	if InputService.raw_just_pressed(slot, InputService.Action.ARTIFACT) and not _loot_panel.visible:
 		open_loot_editor(_container_near(_target) if _target_ok else null)
-	for button: JoyButton in [JOY_BUTTON_DPAD_LEFT, JOY_BUTTON_DPAD_RIGHT, JOY_BUTTON_DPAD_DOWN]:
+	for button: JoyButton in [JOY_BUTTON_DPAD_LEFT, JOY_BUTTON_DPAD_RIGHT, JOY_BUTTON_DPAD_DOWN, JOY_BUTTON_DPAD_UP]:
 		var down := Input.is_joy_button_pressed(device, button)
 		if down and not _pad_was.get(button, false):
-			if button == JOY_BUTTON_DPAD_DOWN:
+			if button == JOY_BUTTON_DPAD_UP:
+				if _target_ok or _carrying:
+					grab_near(_target)
+			elif button == JOY_BUTTON_DPAD_DOWN:
 				next_category(1)
 			else:
 				select_next(-1 if button == JOY_BUTTON_DPAD_LEFT else 1)
@@ -527,6 +681,24 @@ func _rebuild_ghost() -> void:
 	_ghost = Node3D.new()
 	_ghost.name = "FantasmaDaPeca"
 	add_child(_ghost)
+	if is_instance_valid(_carrying):
+		for mesh: MeshInstance3D in _carrying.find_children("*", "MeshInstance3D", true, false):
+			var piece := MeshInstance3D.new()
+			piece.mesh = mesh.mesh
+			piece.material_override = _ghost_material
+			piece.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+			piece.transform = Transform3D(Basis.from_scale(_carrying.global_basis.get_scale()), Vector3.UP * _carry_lift) * _relative(_carrying, mesh)
+			_ghost.add_child(piece)
+		# Peça sem malha (só texto/luz, ex.: letreiro sem placa): uma caixinha marca o lugar.
+		if _ghost.get_child_count() == 0:
+			var marker := MeshInstance3D.new()
+			var box := BoxMesh.new()
+			box.size = Vector3(0.6, 0.3, 0.1)
+			marker.mesh = box
+			marker.material_override = _ghost_material
+			marker.position = Vector3.UP * _carry_lift
+			_ghost.add_child(marker)
+		return
 	var entry := current()
 	if entry.is_empty():
 		return
@@ -610,6 +782,10 @@ func _refresh_hud() -> void:
 	_title.text = Txt.t("MODO CONSTRUTOR · %s (%d/%d) · peça %d/%d · %s") % [current_category().to_upper(),
 			names.find(current_category()) + 1, names.size(), at + 1, same.size(), kind_text]
 	var keyboard := InputService.device_of(slot) == InputService.KEYBOARD
-	_hint.text = (Txt.t("Clique coloca · Q/E ou rodinha troca · V categoria · R gira · Z desfaz · Delete apaga · F conteúdo do contêiner · %s no chat sai") % COMMAND if keyboard
-			else Txt.t("X coloca · ◀ ▶ troca · ▼ categoria · Y gira · B desfaz · RB conteúdo do contêiner · %s no chat sai") % COMMAND)
+	if is_instance_valid(_carrying):
+		_title.text = Txt.t("MODO CONSTRUTOR · mudando de lugar: %s") % String(_carrying.name)
+		_hint.text = ("Clique larga aqui · R gira · G ou Delete desiste" if keyboard else "X larga aqui · Y gira · ▲ ou B desiste")
+		return
+	_hint.text = (Txt.t("Clique coloca · Q/E ou rodinha troca · V categoria · R gira · Z desfaz · Delete apaga · G pega e muda de lugar · F conteúdo do contêiner · %s no chat sai") % COMMAND if keyboard
+			else Txt.t("X coloca · ◀ ▶ troca · ▼ categoria · Y gira · B desfaz · LB apaga · ▲ pega e muda de lugar · RB conteúdo do contêiner · %s no chat sai") % COMMAND)
 	_hint.text += "\nGrava direto nas cenas dos blocos (mapa oficial)."

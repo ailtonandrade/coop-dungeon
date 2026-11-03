@@ -187,9 +187,16 @@ seletor de peças e, no mundo, o **fantasma** translúcido da peça onde ela vai
 | Próxima categoria (pasta) | V (Shift+V volta) | direcional ▼ |
 | Girar 45° | R (Shift+R volta) | Y |
 | Desfazer a última | Z | B |
-| Apagar peça do construtor no cursor | Delete | — |
+| Apagar a peça no cursor (do construtor **ou do mapa**) | Delete | LB |
+| Pegar a peça no cursor e mudar de lugar | G (larga com clique; G/Delete desiste) | ▲ (larga com X; ▲/B desiste) |
 | Conteúdo do contêiner no cursor | F | RB |
 
+- **Apagar e mudar de lugar valem para qualquer peça pronta do mapa** (postes, letreiros de neon,
+  barris, contêineres, cones...), não só as do construtor. Casas, chão e NPCs não. Ao pegar, a
+  peça some e vira o fantasma; ela guarda a altura (letreiro na parede continua na parede), o
+  tamanho e o que foi ajustado nela (texto e cor do letreiro). R gira antes de largar. Peça do
+  mapa muda de lugar dentro do mesmo bloco; as do construtor vão para qualquer bloco.
+  Apagou sem querer? A cena do bloco está no Git: dá para voltar.
 - Peça **física** (cone, barril, pneus...) nasce 1,5 m acima, cai, rola e, quando para, fica
   gravada exatamente onde parou. As outras gravam na hora.
 - **Contêiner** colocado pelo construtor: F/RB abre a lista de itens (clique duplo / A põe; na

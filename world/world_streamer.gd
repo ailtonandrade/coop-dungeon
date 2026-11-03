@@ -299,6 +299,14 @@ func chunk_at(position: Vector3) -> Array:
 	return [_loaded.get(key), key]
 
 
+## Chave de um bloco carregado ("" se não for um bloco daqui).
+func key_of(chunk: Node) -> String:
+	for key: String in _loaded:
+		if _loaded[key] == chunk:
+			return key
+	return ""
+
+
 ## Arquivo da cena do bloco.
 func scene_path_of(key: String) -> String:
 	return _path_and_origin(key)[0]
