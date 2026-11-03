@@ -1,0 +1,6 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://world/lore/lore_note.gd" id="1_323kf"]
+
+[node name="DocumentoDaHistoria" type="Node3D" unique_id=1833379010]
+script = ExtResource("1_323kf")

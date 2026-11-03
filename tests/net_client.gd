@@ -118,6 +118,8 @@ func _process(_delta: float) -> bool:
 				var session_ids: Array = net.session_edits.map(func(e: Dictionary) -> String: return e.id)
 				var built := root.find_children("god_*", "", true, false).filter(func(n: Node) -> bool: return session_ids.has(String(n.name)))
 				_check(built.size() == 1 and built[0].scene_file_path.ends_with("barreira.tscn"), "vejo a barreira que o host colocou pelo modo construtor")
+				_check(root.get_node("Lore").knows("fato_do_host"), "fiquei sabendo do que o host descobriu (história do grupo)")
+				root.get_node("Lore").learn(["fato_do_cliente"])
 				_t0 = _now()
 				_step = 8
 		8:

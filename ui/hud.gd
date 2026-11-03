@@ -323,10 +323,20 @@ func _close_inventory(slot: int) -> void:
 		_inventories.erase(slot)
 
 
-## Perto de um NPC, o botão de pegar abre a tela do serviço dele para esse jogador.
+## Perto de um documento da história, o botão de pegar abre a leitura (e o grupo passa a saber
+## o que ele conta); perto de um NPC, abre a tela do serviço dele para esse jogador.
 func _try_open_service(slot: int) -> void:
 	var player := _local_player(slot)
-	if player == null or _inventories.has(slot) or _services.has(slot):
+	if player == null or _inventories.has(slot) or _services.has(slot) or player.building:
+		return
+	var note := LoreNote.nearest(get_tree(), player.global_position)
+	if note and note.document():
+		var reader := LoreReader.new()
+		_root.add_child(reader)
+		reader.open_for(slot, note.document(), note.look == "terminal")
+		reader.close_requested.connect(_close_service.bind(slot))
+		_services[slot] = reader
+		Lore.learn(note.document().facts())
 		return
 	var npc := WorldNpc.nearest(get_tree(), player.global_position)
 	if npc == null:
@@ -357,6 +367,10 @@ func _process_inventory_layout() -> void:
 	var view := get_viewport().get_visible_rect().size
 	var column := view.x / GameConfig.MAX_PLAYERS
 	for panel: Control in _inventories.values() + _services.values():
+		# A leitura de documentos fica no meio da tela, não acima do cartão.
+		if panel is LoreReader:
+			panel.position = ((view - panel.size) / 2.0).max(Vector2(8, 8))
+			continue
 		if not is_instance_valid(panel.player):
 			continue
 		var x := clampf(panel.player.index * column + (column - panel.size.x) / 2.0, 8.0, view.x - panel.size.x - 8.0)

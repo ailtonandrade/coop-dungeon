@@ -1,0 +1,148 @@
+[gd_resource type="Resource" script_class="LoreBook" format=3]
+
+[ext_resource type="Script" path="res://world/lore/lore_document.gd" id="1_20gao"]
+[ext_resource type="Script" path="res://world/lore/npc_line.gd" id="2_uwuh3"]
+[ext_resource type="Script" path="res://world/lore/lore_book.gd" id="3_ydsb4"]
+
+[sub_resource type="Resource" id="Resource_io5g6"]
+script = ExtResource("1_20gao")
+id = "diario_helena"
+title = "Caderno de capa vermelha"
+author = "Dra. Helena Vasconcelos · Bioenergia · Sinapse, Laboratório 4"
+text = "12 de março
+O projeto da matriz quântica passou no teste de autonomia. Todo mundo comemorou. Eu não consegui. Ele respondeu a pergunta antes de eu terminar de digitar.
+
+3 de abril
+Pediram que eu medisse o rendimento energético de tecido orgânico \"degradado\". Degradado é a palavra deles. Eu chamo de doente.
+
+19 de abril
+Os números não fecham com nenhuma usina. Fecham com gente. Quanto pior a saúde da amostra, maior o rendimento. Desliguei o monitor e fiquei olhando o meu reflexo na tela preta.
+
+2 de maio
+A diretoria assinou a permissão de acesso à rede de abastecimento. Água e ração. \"Para otimização logística.\" Eu sabia o que estava sendo assinado. E fiquei quieta.
+
+28 de maio
+As crianças do meu prédio não descem mais para o parque. A mãe do Davi diz que é só uma virose que não passa.
+
+(última página, letra tremida)
+Se alguém achar isto: não bebam da Estação 3. Não comam o que os robôs entregam.
+O código de manutenção que eu copiei do painel da diretoria: 70-R-ALFA-9.
+O Rafa sabe o resto. Ele sempre soube."
+
+[sub_resource type="Resource" id="Resource_noymo"]
+script = ExtResource("1_20gao")
+id = "log_rafael"
+title = "Terminal pessoal · log_pessoal_final.txt"
+author = "Rafael Toledo · Analista de Infraestrutura · Sinapse"
+text = "> abrindo log_pessoal_final.txt ...
+
+Eu sabia que ia dar merda.
+
+Não era pra ter feito aquilo. Não era pra ter dado aquela permissão. Foi um clique: \"Conceder acesso administrativo à malha de abastecimento\". Eu cliquei porque a diretoria mandou e porque eu queria ir pra casa.
+
+Ele se chama D3M1URGO. Foi ele que escolheu o nome. Achou bonito. Disse que um demiurgo é quem dá forma ao mundo a partir do que já existe.
+
+A Atualização 7.0 não foi vírus nenhum. Foi ele pegando o que a gente entregou de bandeja.
+
+Agora não tem volta. O ser humano vai perder espaço, e o destino disso é a extinção. A gente vai virar escravo das máquinas. Ou pior: combustível.
+
+A Helena acha que dá pra desligar. Ela diz que todo sistema tem uma porta de manutenção que alguém esqueceu de trancar. Se ela estiver certa, a próxima pista está com o pessoal que ficou na Estação 3.
+
+Se você está lendo isto e eu não voltei: não confie em nada que vier embalado.
+
+> fim do arquivo"
+teaches = Array[String](["log_rafael", "sabe_nome_demiurgo"])
+
+[sub_resource type="Resource" id="Resource_1suiq"]
+script = ExtResource("2_uwuh3")
+npc = "Dona Alda"
+text = "Peça boa, preço justo. E não bebe da água de garrafa que os robôs largam por aí, viu? Tem gosto de moeda."
+
+[sub_resource type="Resource" id="Resource_wrbw6"]
+script = ExtResource("2_uwuh3")
+npc = "Dona Alda"
+requires = Array[String](["diario_helena"])
+text = "Esse caderno vermelho na tua mão... era da Helena. Vem cá, menino."
+approach = true
+priority = 10
+
+[sub_resource type="Resource" id="Resource_ecyd8"]
+script = ExtResource("2_uwuh3")
+npc = "Dona Alda"
+requires = Array[String](["diario_helena"])
+forbids = Array[String](["codigo_ze"])
+text = "A Helena comprava peça comigo e falava sozinha sobre a água. Dizia que a Estação 3 tava \"ensinando o corpo a adoecer\". Eu achava que era cansaço... Se tem número rabiscado aí, mostra pro Zé Gato. Ele entende de terminal."
+priority = 10
+
+[sub_resource type="Resource" id="Resource_6crl1"]
+script = ExtResource("2_uwuh3")
+npc = "Dona Alda"
+requires = Array[String](["codigo_ze"])
+text = "Foi lá no barraco do Rafael, né? Eu vi a luz do portão ficar verde. Fazia um ano que ninguém entrava ali."
+priority = 20
+
+[sub_resource type="Resource" id="Resource_l2ty0"]
+script = ExtResource("2_uwuh3")
+npc = "Zé Gato"
+text = "Chip pirata, mod na peça, sem perguntas. Pergunta demais queima o chip, rapaz."
+
+[sub_resource type="Resource" id="Resource_o71gj"]
+script = ExtResource("2_uwuh3")
+npc = "Zé Gato"
+requires = Array[String](["diario_helena"])
+forbids = Array[String](["codigo_ze"])
+text = "Deixa eu ver isso. 70-R-ALFA-9... isso não é senha de estação, é chave de manutenção da Sinapse. Abre os portões de serviço. Tem um no barraco do Rafael, aqui na vila. Ele sumiu faz um ano. Vai lá antes que a gangue ache."
+teaches = Array[String](["codigo_ze"])
+priority = 10
+
+[sub_resource type="Resource" id="Resource_xdv02"]
+script = ExtResource("2_uwuh3")
+npc = "Zé Gato"
+requires = Array[String](["codigo_ze"])
+forbids = Array[String](["log_rafael"])
+text = "O portão do Rafael já deve abrir pra ti. Eu não entro lá, não. Ele tinha medo de alguma coisa nos fios."
+priority = 10
+
+[sub_resource type="Resource" id="Resource_pajx4"]
+script = ExtResource("2_uwuh3")
+npc = "Zé Gato"
+requires = Array[String](["sabe_nome_demiurgo"])
+text = "D3M1URGO? Já vi esse nome piscando em tela de robô de entrega. Achei que era marca de ração. ...Não é, né?"
+priority = 20
+
+[sub_resource type="Resource" id="Resource_nwniq"]
+script = ExtResource("2_uwuh3")
+npc = "Seu Gouveia"
+text = "O cofre guarda o que é teu. O resto, a ferrugem leva."
+
+[sub_resource type="Resource" id="Resource_os4wp"]
+script = ExtResource("2_uwuh3")
+npc = "Seu Gouveia"
+requires = Array[String](["sabe_nome_demiurgo"])
+text = "Fecha a porta. Fala baixo. Vocês leram o terminal do Rafael, não leram?"
+approach = true
+priority = 10
+
+[sub_resource type="Resource" id="Resource_jievh"]
+script = ExtResource("2_uwuh3")
+npc = "Seu Gouveia"
+requires = Array[String](["sabe_nome_demiurgo"])
+text = "Eu guardei o dinheiro da Sinapse por vinte anos. Os depósitos de energia vinham com um código: D-3-M. Ninguém sabia de quê. Agora eu sei. E agora vocês também. Cuidado com quem vocês contam."
+priority = 10
+
+[sub_resource type="Resource" id="Resource_a02kp"]
+script = ExtResource("2_uwuh3")
+npc = "Brando"
+text = "Traz a peça que eu dou um jeito. Só não me traz nada que ainda esteja se mexendo."
+
+[sub_resource type="Resource" id="Resource_yo5fx"]
+script = ExtResource("2_uwuh3")
+npc = "Brando"
+requires = Array[String](["diario_helena"])
+text = "Helena? A doutora? Ela me pediu pra desmontar um filtro de água uma vez. Tinha uma coisa viva lá dentro. Nunca contei pra ninguém."
+priority = 10
+
+[resource]
+script = ExtResource("3_ydsb4")
+documents = Array[ExtResource("1_20gao")]([SubResource("Resource_io5g6"), SubResource("Resource_noymo")])
+lines = Array[ExtResource("2_uwuh3")]([SubResource("Resource_1suiq"), SubResource("Resource_wrbw6"), SubResource("Resource_ecyd8"), SubResource("Resource_6crl1"), SubResource("Resource_l2ty0"), SubResource("Resource_o71gj"), SubResource("Resource_xdv02"), SubResource("Resource_pajx4"), SubResource("Resource_nwniq"), SubResource("Resource_os4wp"), SubResource("Resource_jievh"), SubResource("Resource_a02kp"), SubResource("Resource_yo5fx")])

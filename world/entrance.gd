@@ -14,6 +14,8 @@ const ENTER_TIME := 1.2
 ## Para onde leva (posição no mundo; interiores ficam longe do mapa de fora).
 @export var target_point := Vector3.ZERO
 @export var radius := 1.8
+## Só leva quem já sabe estes fatos da história (Lore); antes disso aparece "Trancado".
+@export var requires: Array[String] = []
 
 var _progress := {}  # máquina (peer) -> segundos na entrada
 var _label: Label3D
@@ -37,7 +39,9 @@ func _ready() -> void:
 
 
 func _physics_process(delta: float) -> void:
-	if not multiplayer.is_server():
+	var locked := not Lore.knows_all(requires)
+	_label.text = title + ("\n(trancado)" if locked else "")
+	if not multiplayer.is_server() or locked:
 		return
 	var standing := {}
 	for player: Player in get_tree().get_nodes_in_group("players"):

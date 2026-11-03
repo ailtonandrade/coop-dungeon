@@ -1,0 +1,23 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://world/lore/lore_note.gd" id="1_omo52"]
+[ext_resource type="Script" path="res://world/lore/lore_gate.gd" id="2_q84iw"]
+
+[node name="HistoriaVila" type="Node3D" unique_id=466531167]
+
+[node name="CadernoHelena" type="Node3D" parent="." unique_id=1316145400]
+transform = Transform3D(0.9396926, 0, 0.34202012, 0, 1, 0, -0.34202012, 0, 0.9396926, 47.2, 0, 11.6)
+script = ExtResource("1_omo52")
+document_id = "diario_helena"
+
+[node name="PortaoRafael" type="StaticBody3D" parent="." unique_id=2100030858]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, 0, 53.55)
+script = ExtResource("2_q84iw")
+requires = Array[String](["codigo_ze"])
+size = Vector2(2, 2.4)
+
+[node name="TerminalRafael" type="Node3D" parent="." unique_id=974067900]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, 0, 47.1)
+script = ExtResource("1_omo52")
+document_id = "log_rafael"
+look = "terminal"

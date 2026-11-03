@@ -20,6 +20,7 @@
 [ext_resource type="PackedScene" path="res://world/prefabs/cone.tscn" id="13_cax8w"]
 [ext_resource type="PackedScene" path="res://world/prefabs/arbusto.tscn" id="14_0lrbf"]
 [ext_resource type="PackedScene" path="res://world/prefabs/bloco_de_concreto.tscn" id="15_ffok1"]
+[ext_resource type="PackedScene" path="res://world/lore/historia_vila.tscn" id="lore_historia_vila"]
 
 [sub_resource type="NavigationMesh" id="NavigationMesh_ffok1"]
 geometry_collision_mask = 1
@@ -1004,3 +1005,5 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.6)
 light_color = Color(0.2, 0.95, 1, 1)
 light_energy = 1.5
 omni_range = 6.0
+
+[node name="HistoriaVila" parent="Navigation" instance=ExtResource("lore_historia_vila")]

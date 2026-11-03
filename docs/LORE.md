@@ -69,19 +69,42 @@ A história principal **não tem questlog**, não avisa que avançou e não atua
   nome ou o caminho.
 - Quem joga sem prestar atenção termina o jogo sem nunca descobrir. Quem lê tudo junta a verdade.
 
-### (proposta) Como fazer no jogo
+### Como está no jogo (sistema de Conhecimento)
 
-Um sistema de **Conhecimento** (sem tela nenhuma para o jogador):
-- **Fatos:** cada descoberta é um fato com id (`leu_diario_dra_helena`, `viu_estacao_agua`,
-  `sabe_nome_demiurgo`). Fica salvo **no mundo** (é a descoberta do grupo, como a suspeita do
-  grupo) e pode também marcar o personagem que leu.
-- **Itens-chave:** um tipo novo de item (documento, gravação, troféu) que, ao ser lido/usado,
-  mostra o texto e grava o fato. Pode ficar num baú, num corpo, numa estante, numa tela.
-- **Falas condicionadas:** cada NPC ganha falas extras que só aparecem com certos fatos (e somem
-  com outros). Também falas "puxando assunto" quando o grupo chega perto depois de descobrir.
-- **Acessos condicionados:** entradas, portas, terminais e contêineres que só abrem com um fato.
-- **Editor:** tudo isso preenchível pelo editor de itens / Inspector, como as fichas de hoje, e
-  colocável pelo editor de mapa e pelo `/construir`.
+Nada aparece na tela: sem questlog, sem aviso, sem mensagem no chat.
+- **Fatos:** cada descoberta é um fato com id (`diario_helena`, `codigo_ze`, `sabe_nome_demiurgo`).
+  Ficam no **save do mundo** (`facts`), porque são a descoberta do grupo; vão para os convidados
+  junto com o mundo e na hora em que alguém descobre (`net/lore_service.gd`, serviço `Lore`).
+- **Livro da história:** `world/lore/lore.tres` (abra no Inspector). Tem:
+  - **Documents** (`LoreDocument`): id, título, autor, texto e os fatos que ensina (vazio = o
+    próprio id).
+  - **Lines** (`NpcLine`): fala de um NPC (pelo nome dele no mapa) com os fatos que **exige**
+    (`requires`), os que a **apagam** (`forbids`), os que ela **ensina** (`teaches`), a
+    **prioridade** e se é de **puxar assunto** (`approach`: balão acima da cabeça quando o grupo
+    chega perto, uma vez por sessão). Ao falar com o NPC (LB / F), a fala de maior prioridade que
+    vale aparece no topo da tela dele.
+- **Documento no mapa:** `LoreNote` (peça **Documento da história**, categoria História): visual de
+  caderno, terminal, foto ou troféu; escolha o `document_id`. LB / F perto dele abre a leitura.
+  Pode ter `requires` (só aparece para quem já sabe).
+- **Portão trancado:** `LoreGate` (peça **Portão trancado**): grade com luz vermelha que só abre
+  (some, luz verde, criaturas passam) quando o grupo sabe os fatos de `requires`.
+- **Entradas de masmorra** (`Entrance`) também têm `requires`: antes disso aparece "(trancado)".
+
+### O 1º elo (na vila)
+
+`world/lore/historia_vila.tscn` (dentro do bloco da vila; dá para mover no editor):
+1. **Caderno da Dra. Helena Vasconcelos** (bioenergia, Sinapse) na casa abandonada do canto
+   nordeste da vila. Ler ensina `diario_helena`.
+2. **Dona Alda** passa a falar da Helena e puxa assunto quando o grupo chega perto. **Brando**
+   lembra do filtro de água com "uma coisa viva lá dentro".
+3. **Zé Gato** reconhece o código rabiscado (70-R-ALFA-9) como chave de manutenção da Sinapse:
+   ensina `codigo_ze`, e o **portão do barraco do Rafael** (a outra casa vazia) abre.
+4. **Terminal do Rafael Toledo** (analista de infraestrutura, quem "deu a permissão"): ensina
+   `log_rafael` e `sabe_nome_demiurgo`. A próxima pista aponta para **a Estação 3**.
+5. **Seu Gouveia** puxa assunto e conta dos depósitos de energia com o código D-3-M. Zé Gato
+   lembra do nome piscando em robô de entrega.
+
+Teste: `tests/lore_test.gd` joga a cadeia inteira como um jogador.
 
 ## Música e ambiente
 

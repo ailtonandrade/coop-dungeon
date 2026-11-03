@@ -46,6 +46,8 @@ func _process(_delta: float) -> bool:
 						god._index = i
 				_check(god.place_at(Vector3(20, 0, 25)) != null, "host colocou uma barreira pelo modo construtor")
 				god.stop()
+				# História: o host descobre algo; o convidado tem que ficar sabendo.
+				root.get_node("Lore").learn(["fato_do_host"])
 				_remote_x = _remote.global_position.x
 				_t0 = _now()
 				_step = 2
@@ -99,6 +101,7 @@ func _process(_delta: float) -> bool:
 		3:
 			if _remote_player() == null:
 				_check(true, "cliente saiu e o jogador dele sumiu")
+				_check(root.get_node("Lore").knows("fato_do_cliente"), "o que o convidado descobriu chegou no host (e fica no mundo)")
 				var texts: Array = root.get_node("Chat").history.map(func(m: Dictionary) -> String: return m.text)
 				_check(not texts.has("mensagem de mutado"), "mutado pelo host não fala no chat")
 				_check(texts.any(func(t: String) -> bool: return t.ends_with("saiu")), "aviso de que ele saiu")

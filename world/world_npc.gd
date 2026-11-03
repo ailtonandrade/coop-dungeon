@@ -97,3 +97,22 @@ func _process(_delta: float) -> void:
 				near = true
 				break
 	_label.text = _title + ("\n[LB / F] falar" if near else "")
+	# Puxa assunto sozinho quando o grupo chega perto depois de descobrir algo (uma vez).
+	if near:
+		var line := Lore.approach_line(npc_name)
+		if line:
+			Lore.mark_said(line)
+			say(line.text)
+
+
+## Balão de fala acima da cabeça por uns segundos (só nesta tela).
+func say(text: String) -> void:
+	var bubble := WorldText.make("“%s”" % text, 17, Color(1.0, 0.95, 0.8), true)
+	bubble.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	bubble.width = 900.0
+	bubble.position.y = 3.2
+	add_child(bubble)
+	var tween := bubble.create_tween()
+	tween.tween_interval(6.0)
+	tween.tween_property(bubble, "modulate:a", 0.0, 0.8)
+	tween.tween_callback(bubble.queue_free)
