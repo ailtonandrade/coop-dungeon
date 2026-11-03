@@ -1,0 +1,16 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://assets/props/packs/Zombie/Environment/glTF/Chest_Special.gltf" id="1_fpvy4"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_tv61h"]
+size = Vector3(0.852393, 0.4061696, 0.48294973)
+
+[node name="ChestSpecial" type="StaticBody3D" unique_id=144197547]
+metadata/prop_def = "res://world/props/chest_special.tres"
+
+[node name="Modelo" type="Node3D" parent="." unique_id=560494859 instance=ExtResource("1_fpvy4")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.0031980162, 4.4703484e-08)
+
+[node name="Collision" type="CollisionShape3D" parent="." unique_id=174726747]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.2030848, 0)
+shape = SubResource("BoxShape3D_tv61h")

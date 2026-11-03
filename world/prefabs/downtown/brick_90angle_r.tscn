@@ -1,0 +1,16 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://assets/props/packs/DownTown/Brick_90Angle_R.gltf" id="1_m63up"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_k41lb"]
+size = Vector3(0.7062069, 3.0000005, 0.7)
+
+[node name="Brick90AngleR" type="StaticBody3D" unique_id=1033515976]
+metadata/prop_def = "res://world/props/brick_90angle_r.tres"
+
+[node name="Modelo" type="Node3D" parent="." unique_id=629651631 instance=ExtResource("1_m63up")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.6469064, 0, 0.35)
+
+[node name="Collision" type="CollisionShape3D" parent="." unique_id=2112916236]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.9802322e-08, 1.5000002, 0)
+shape = SubResource("BoxShape3D_k41lb")

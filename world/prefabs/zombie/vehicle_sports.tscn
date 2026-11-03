@@ -1,0 +1,16 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://assets/props/packs/Zombie/Vehicles/glTF/Vehicle_Sports.gltf" id="1_w2g00"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_t5lqp"]
+size = Vector3(2.6706188, 1.8647262, 5.655101)
+
+[node name="VehicleSports" type="StaticBody3D" unique_id=1341708801]
+metadata/prop_def = "res://world/props/vehicle_sports.tres"
+
+[node name="Modelo" type="Node3D" parent="." unique_id=1254600741 instance=ExtResource("1_w2g00")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.7683716e-07, 0.011760712, -0.11176562)
+
+[node name="Collision" type="CollisionShape3D" parent="." unique_id=1647348608]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9323631, 0)
+shape = SubResource("BoxShape3D_t5lqp")

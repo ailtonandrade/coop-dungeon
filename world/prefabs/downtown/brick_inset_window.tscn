@@ -1,0 +1,16 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://assets/props/packs/DownTown/Brick_Inset_Window.gltf" id="1_3toc2"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_aq0ab"]
+size = Vector3(4, 3.0000005, 0.37428498)
+
+[node name="BrickInsetWindow" type="StaticBody3D" unique_id=1384795758]
+metadata/prop_def = "res://world/props/brick_inset_window.tres"
+
+[node name="Modelo" type="Node3D" parent="." unique_id=1424134423 instance=ExtResource("1_3toc2")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.05812469)
+
+[node name="Collision" type="CollisionShape3D" parent="." unique_id=1181371383]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5000002, 0)
+shape = SubResource("BoxShape3D_aq0ab")

@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="PropDef" format=3]
+
+[ext_resource type="PackedScene" path="res://assets/props/packs/Zombie/Environment/glTF/WaterTower.gltf" id="1_rtini"]
+[ext_resource type="Script" path="res://props/prop_def.gd" id="2_4031v"]
+
+[resource]
+script = ExtResource("2_4031v")
+id = "watertower"
+display_name = "WaterTower"
+model = ExtResource("1_rtini")

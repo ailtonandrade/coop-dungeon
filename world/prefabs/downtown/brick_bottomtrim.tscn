@@ -1,0 +1,16 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://assets/props/packs/DownTown/Brick_BottomTrim.gltf" id="1_bh3pl"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_bwwuq"]
+size = Vector3(2, 3.0000005, 0.22896369)
+
+[node name="BrickBottomTrim" type="StaticBody3D" unique_id=603586324]
+metadata/prop_def = "res://world/props/brick_bottomtrim.tres"
+
+[node name="Modelo" type="Node3D" parent="." unique_id=591908054 instance=ExtResource("1_bh3pl")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.08551825)
+
+[node name="Collision" type="CollisionShape3D" parent="." unique_id=771403159]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5000002, 0)
+shape = SubResource("BoxShape3D_bwwuq")

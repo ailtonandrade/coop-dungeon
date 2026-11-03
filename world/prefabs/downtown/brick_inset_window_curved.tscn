@@ -1,0 +1,16 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://assets/props/packs/DownTown/Brick_Inset_Window_Curved.gltf" id="1_drwmu"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_651xn"]
+size = Vector3(4, 3.0000005, 0.37368232)
+
+[node name="BrickInsetWindowCurved" type="StaticBody3D" unique_id=1393939452]
+metadata/prop_def = "res://world/props/brick_inset_window_curved.tres"
+
+[node name="Modelo" type="Node3D" parent="." unique_id=1429974511 instance=ExtResource("1_drwmu")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.6292068e-08, 0.05521226)
+
+[node name="Collision" type="CollisionShape3D" parent="." unique_id=1874337506]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5000002, 0)
+shape = SubResource("BoxShape3D_651xn")

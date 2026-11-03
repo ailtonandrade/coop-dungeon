@@ -172,7 +172,7 @@ size = Vector3(2.4730203, 2.2181363, 2.7378554)
 [sub_resource type="BoxShape3D" id="BoxShape3D_yapql"]
 size = Vector3(0.892535, 0.14004704, 1.2169636)
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_yecox"]
+[sub_resource type="BoxShape3D" id="BoxShape3D_qbd6y"]
 size = Vector3(22, 3.6, 0.35)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_g5gt2"]
@@ -684,394 +684,394 @@ cell_size = Vector3(1, 1, 1)
 cell_center_y = false
 collision_mask = 0
 
-[node name="Laboratorio4" type="Node3D" parent="Navigation" unique_id=419140026]
+[node name="Laboratorio4" type="Node3D" parent="Navigation" unique_id=1178051094]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 24, 0, 40)
 
-[node name="ParedeFundo" type="StaticBody3D" parent="Navigation/Laboratorio4" unique_id=790935018]
+[node name="ParedeFundo" type="StaticBody3D" parent="Navigation/Laboratorio4" unique_id=1306646396]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.8, -8)
 
-[node name="Collision" type="CollisionShape3D" parent="Navigation/Laboratorio4/ParedeFundo" unique_id=85149725]
-shape = SubResource("BoxShape3D_yecox")
+[node name="Collision" type="CollisionShape3D" parent="Navigation/Laboratorio4/ParedeFundo" unique_id=911805627]
+shape = SubResource("BoxShape3D_qbd6y")
 
-[node name="Mesh" type="MeshInstance3D" parent="Navigation/Laboratorio4/ParedeFundo" unique_id=1499604878]
+[node name="Mesh" type="MeshInstance3D" parent="Navigation/Laboratorio4/ParedeFundo" unique_id=416395644]
 material_override = SubResource("StandardMaterial3D_g5gt2")
 mesh = SubResource("BoxMesh_l1o7u")
 
-[node name="ParedeEsq" type="StaticBody3D" parent="Navigation/Laboratorio4" unique_id=2084528365]
+[node name="ParedeEsq" type="StaticBody3D" parent="Navigation/Laboratorio4" unique_id=1151082973]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11, 1.8, 0)
 
-[node name="Collision" type="CollisionShape3D" parent="Navigation/Laboratorio4/ParedeEsq" unique_id=471404188]
+[node name="Collision" type="CollisionShape3D" parent="Navigation/Laboratorio4/ParedeEsq" unique_id=1399479976]
 shape = SubResource("BoxShape3D_y61be")
 
-[node name="Mesh" type="MeshInstance3D" parent="Navigation/Laboratorio4/ParedeEsq" unique_id=594874708]
+[node name="Mesh" type="MeshInstance3D" parent="Navigation/Laboratorio4/ParedeEsq" unique_id=946404049]
 material_override = SubResource("StandardMaterial3D_g5gt2")
 mesh = SubResource("BoxMesh_gxti4")
 
-[node name="ParedeDir" type="StaticBody3D" parent="Navigation/Laboratorio4" unique_id=511153242]
+[node name="ParedeDir" type="StaticBody3D" parent="Navigation/Laboratorio4" unique_id=1606135503]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11, 1.8, 0)
 
-[node name="Collision" type="CollisionShape3D" parent="Navigation/Laboratorio4/ParedeDir" unique_id=1441440040]
+[node name="Collision" type="CollisionShape3D" parent="Navigation/Laboratorio4/ParedeDir" unique_id=1416502352]
 shape = SubResource("BoxShape3D_r7x1o")
 
-[node name="Mesh" type="MeshInstance3D" parent="Navigation/Laboratorio4/ParedeDir" unique_id=219153886]
+[node name="Mesh" type="MeshInstance3D" parent="Navigation/Laboratorio4/ParedeDir" unique_id=1186249231]
 material_override = SubResource("StandardMaterial3D_g5gt2")
 mesh = SubResource("BoxMesh_jsmvx")
 
-[node name="FrenteEsq" type="StaticBody3D" parent="Navigation/Laboratorio4" unique_id=1861933920]
+[node name="FrenteEsq" type="StaticBody3D" parent="Navigation/Laboratorio4" unique_id=1178328977]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.15, 1.8, 8)
 
-[node name="Collision" type="CollisionShape3D" parent="Navigation/Laboratorio4/FrenteEsq" unique_id=616578741]
+[node name="Collision" type="CollisionShape3D" parent="Navigation/Laboratorio4/FrenteEsq" unique_id=51643909]
 shape = SubResource("BoxShape3D_t8350")
 
-[node name="Mesh" type="MeshInstance3D" parent="Navigation/Laboratorio4/FrenteEsq" unique_id=476329114]
+[node name="Mesh" type="MeshInstance3D" parent="Navigation/Laboratorio4/FrenteEsq" unique_id=1350552131]
 material_override = SubResource("StandardMaterial3D_g5gt2")
 mesh = SubResource("BoxMesh_uad1y")
 
-[node name="FrenteDir" type="StaticBody3D" parent="Navigation/Laboratorio4" unique_id=493121318]
+[node name="FrenteDir" type="StaticBody3D" parent="Navigation/Laboratorio4" unique_id=125616865]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.15, 1.8, 8)
 
-[node name="Collision" type="CollisionShape3D" parent="Navigation/Laboratorio4/FrenteDir" unique_id=667231638]
+[node name="Collision" type="CollisionShape3D" parent="Navigation/Laboratorio4/FrenteDir" unique_id=121896558]
 shape = SubResource("BoxShape3D_c3wm0")
 
-[node name="Mesh" type="MeshInstance3D" parent="Navigation/Laboratorio4/FrenteDir" unique_id=696225178]
+[node name="Mesh" type="MeshInstance3D" parent="Navigation/Laboratorio4/FrenteDir" unique_id=1333452854]
 material_override = SubResource("StandardMaterial3D_g5gt2")
 mesh = SubResource("BoxMesh_aj6sq")
 
-[node name="Verga" type="StaticBody3D" parent="Navigation/Laboratorio4" unique_id=1569441436]
+[node name="Verga" type="StaticBody3D" parent="Navigation/Laboratorio4" unique_id=1915586599]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.15, 8)
 
-[node name="Collision" type="CollisionShape3D" parent="Navigation/Laboratorio4/Verga" unique_id=1599151926]
+[node name="Collision" type="CollisionShape3D" parent="Navigation/Laboratorio4/Verga" unique_id=545616535]
 shape = SubResource("BoxShape3D_cuh1q")
 
-[node name="Mesh" type="MeshInstance3D" parent="Navigation/Laboratorio4/Verga" unique_id=1543470734]
+[node name="Mesh" type="MeshInstance3D" parent="Navigation/Laboratorio4/Verga" unique_id=495860896]
 material_override = SubResource("StandardMaterial3D_g5gt2")
 mesh = SubResource("BoxMesh_sgb6j")
 
-[node name="HallEsq" type="StaticBody3D" parent="Navigation/Laboratorio4" unique_id=1829945276]
+[node name="HallEsq" type="StaticBody3D" parent="Navigation/Laboratorio4" unique_id=1046028134]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 1.8, 4)
 
-[node name="Collision" type="CollisionShape3D" parent="Navigation/Laboratorio4/HallEsq" unique_id=1186607458]
+[node name="Collision" type="CollisionShape3D" parent="Navigation/Laboratorio4/HallEsq" unique_id=960761787]
 shape = SubResource("BoxShape3D_41yp8")
 
-[node name="Mesh" type="MeshInstance3D" parent="Navigation/Laboratorio4/HallEsq" unique_id=1493306345]
+[node name="Mesh" type="MeshInstance3D" parent="Navigation/Laboratorio4/HallEsq" unique_id=1894046854]
 material_override = SubResource("StandardMaterial3D_g5gt2")
 mesh = SubResource("BoxMesh_p7te7")
 
-[node name="HallDir" type="StaticBody3D" parent="Navigation/Laboratorio4" unique_id=1940920062]
+[node name="HallDir" type="StaticBody3D" parent="Navigation/Laboratorio4" unique_id=1528831751]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 1.8, 4)
 
-[node name="Collision" type="CollisionShape3D" parent="Navigation/Laboratorio4/HallDir" unique_id=1783520623]
+[node name="Collision" type="CollisionShape3D" parent="Navigation/Laboratorio4/HallDir" unique_id=1105762565]
 shape = SubResource("BoxShape3D_567i1")
 
-[node name="Mesh" type="MeshInstance3D" parent="Navigation/Laboratorio4/HallDir" unique_id=1004936140]
+[node name="Mesh" type="MeshInstance3D" parent="Navigation/Laboratorio4/HallDir" unique_id=15684416]
 material_override = SubResource("StandardMaterial3D_g5gt2")
 mesh = SubResource("BoxMesh_626kr")
 
-[node name="ServidorLado" type="StaticBody3D" parent="Navigation/Laboratorio4" unique_id=2020112344]
+[node name="ServidorLado" type="StaticBody3D" parent="Navigation/Laboratorio4" unique_id=438767163]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 1.8, -5.25)
 
-[node name="Collision" type="CollisionShape3D" parent="Navigation/Laboratorio4/ServidorLado" unique_id=1223794440]
+[node name="Collision" type="CollisionShape3D" parent="Navigation/Laboratorio4/ServidorLado" unique_id=1734605026]
 shape = SubResource("BoxShape3D_l77xp")
 
-[node name="Mesh" type="MeshInstance3D" parent="Navigation/Laboratorio4/ServidorLado" unique_id=354093957]
+[node name="Mesh" type="MeshInstance3D" parent="Navigation/Laboratorio4/ServidorLado" unique_id=1969560189]
 material_override = SubResource("StandardMaterial3D_g5gt2")
 mesh = SubResource("BoxMesh_u6ntb")
 
-[node name="ServidorFrenteA" type="StaticBody3D" parent="Navigation/Laboratorio4" unique_id=223952632]
+[node name="ServidorFrenteA" type="StaticBody3D" parent="Navigation/Laboratorio4" unique_id=2010784265]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -9.75, 1.8, -2.5)
 
-[node name="Collision" type="CollisionShape3D" parent="Navigation/Laboratorio4/ServidorFrenteA" unique_id=1642298047]
+[node name="Collision" type="CollisionShape3D" parent="Navigation/Laboratorio4/ServidorFrenteA" unique_id=991647140]
 shape = SubResource("BoxShape3D_t36lw")
 
-[node name="Mesh" type="MeshInstance3D" parent="Navigation/Laboratorio4/ServidorFrenteA" unique_id=1233510228]
+[node name="Mesh" type="MeshInstance3D" parent="Navigation/Laboratorio4/ServidorFrenteA" unique_id=2113466044]
 material_override = SubResource("StandardMaterial3D_g5gt2")
 mesh = SubResource("BoxMesh_skhv8")
 
-[node name="ServidorFrenteB" type="StaticBody3D" parent="Navigation/Laboratorio4" unique_id=1621168966]
+[node name="ServidorFrenteB" type="StaticBody3D" parent="Navigation/Laboratorio4" unique_id=1519386655]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.25, 1.8, -2.5)
 
-[node name="Collision" type="CollisionShape3D" parent="Navigation/Laboratorio4/ServidorFrenteB" unique_id=1812409834]
+[node name="Collision" type="CollisionShape3D" parent="Navigation/Laboratorio4/ServidorFrenteB" unique_id=1596499174]
 shape = SubResource("BoxShape3D_hjqc7")
 
-[node name="Mesh" type="MeshInstance3D" parent="Navigation/Laboratorio4/ServidorFrenteB" unique_id=978642899]
+[node name="Mesh" type="MeshInstance3D" parent="Navigation/Laboratorio4/ServidorFrenteB" unique_id=455855101]
 material_override = SubResource("StandardMaterial3D_g5gt2")
 mesh = SubResource("BoxMesh_5yigl")
 
-[node name="Viga" type="Node3D" parent="Navigation/Laboratorio4" unique_id=187494950]
+[node name="Viga" type="Node3D" parent="Navigation/Laboratorio4" unique_id=1993765227]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 3.75, 0)
 
-[node name="Mesh" type="MeshInstance3D" parent="Navigation/Laboratorio4/Viga" unique_id=2011592959]
+[node name="Mesh" type="MeshInstance3D" parent="Navigation/Laboratorio4/Viga" unique_id=1737879320]
 material_override = SubResource("StandardMaterial3D_g5gt2")
 mesh = SubResource("BoxMesh_ywbqq")
 
-[node name="Viga2" type="Node3D" parent="Navigation/Laboratorio4" unique_id=605299861]
+[node name="Viga2" type="Node3D" parent="Navigation/Laboratorio4" unique_id=1123284733]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.5, 3.75, 0)
 
-[node name="Mesh" type="MeshInstance3D" parent="Navigation/Laboratorio4/Viga2" unique_id=198140225]
+[node name="Mesh" type="MeshInstance3D" parent="Navigation/Laboratorio4/Viga2" unique_id=1208359972]
 material_override = SubResource("StandardMaterial3D_g5gt2")
 mesh = SubResource("BoxMesh_vtp1u")
 
-[node name="Viga3" type="Node3D" parent="Navigation/Laboratorio4" unique_id=963946316]
+[node name="Viga3" type="Node3D" parent="Navigation/Laboratorio4" unique_id=123888923]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.5, 3.75, 0)
 
-[node name="Mesh" type="MeshInstance3D" parent="Navigation/Laboratorio4/Viga3" unique_id=1342862883]
+[node name="Mesh" type="MeshInstance3D" parent="Navigation/Laboratorio4/Viga3" unique_id=523192315]
 material_override = SubResource("StandardMaterial3D_g5gt2")
 mesh = SubResource("BoxMesh_hti4u")
 
-[node name="LajeQuebrada" type="Node3D" parent="Navigation/Laboratorio4" unique_id=471059607]
+[node name="LajeQuebrada" type="Node3D" parent="Navigation/Laboratorio4" unique_id=195738383]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.5, 3.7, 6)
 
-[node name="Mesh" type="MeshInstance3D" parent="Navigation/Laboratorio4/LajeQuebrada" unique_id=1272476304]
+[node name="Mesh" type="MeshInstance3D" parent="Navigation/Laboratorio4/LajeQuebrada" unique_id=1519957445]
 material_override = SubResource("StandardMaterial3D_g5gt2")
 mesh = SubResource("BoxMesh_ok3xg")
 
-[node name="Piso" type="MeshInstance3D" parent="Navigation/Laboratorio4" unique_id=620230028]
+[node name="Piso" type="MeshInstance3D" parent="Navigation/Laboratorio4" unique_id=363520539]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.02, 0)
 material_override = ExtResource("6_0y58v")
 mesh = SubResource("PlaneMesh_evry4")
 
-[node name="Bancada_0" type="StaticBody3D" parent="Navigation/Laboratorio4" unique_id=1864041179]
+[node name="Bancada_0" type="StaticBody3D" parent="Navigation/Laboratorio4" unique_id=1740303351]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0.45, -2)
 
-[node name="Collision" type="CollisionShape3D" parent="Navigation/Laboratorio4/Bancada_0" unique_id=1734880268]
+[node name="Collision" type="CollisionShape3D" parent="Navigation/Laboratorio4/Bancada_0" unique_id=2085629584]
 shape = SubResource("BoxShape3D_vuqcp")
 
-[node name="Mesh" type="MeshInstance3D" parent="Navigation/Laboratorio4/Bancada_0" unique_id=1966181914]
+[node name="Mesh" type="MeshInstance3D" parent="Navigation/Laboratorio4/Bancada_0" unique_id=1170196025]
 material_override = SubResource("StandardMaterial3D_g0c30")
 mesh = SubResource("BoxMesh_7qvgu")
 
-[node name="Monitor" type="Node3D" parent="Navigation/Laboratorio4/Bancada_0" unique_id=1881212906]
-transform = Transform3D(0.99918216, 0, 0.040435098, 0, 1, 0, -0.040435098, 0, 0.99918216, -0.8, 0.72, -0.15)
+[node name="Monitor" type="Node3D" parent="Navigation/Laboratorio4/Bancada_0" unique_id=413242867]
+transform = Transform3D(0.9597076, 0, 0.28100058, 0, 1, 0, -0.28100058, 0, 0.9597076, -0.8, 0.72, -0.15)
 
-[node name="Mesh" type="MeshInstance3D" parent="Navigation/Laboratorio4/Bancada_0/Monitor" unique_id=1123567986]
+[node name="Mesh" type="MeshInstance3D" parent="Navigation/Laboratorio4/Bancada_0/Monitor" unique_id=1708701991]
 material_override = SubResource("StandardMaterial3D_yapql")
 mesh = SubResource("BoxMesh_v6voy")
 
-[node name="Monitor2" type="Node3D" parent="Navigation/Laboratorio4/Bancada_0" unique_id=1129470089]
-transform = Transform3D(0.9981829, 0, 0.060256932, 0, 1, 0, -0.060256932, 0, 0.9981829, 0.7, 0.72, -0.15)
+[node name="Monitor2" type="Node3D" parent="Navigation/Laboratorio4/Bancada_0" unique_id=952176888]
+transform = Transform3D(0.97053003, 0, 0.24098028, 0, 1, 0, -0.24098028, 0, 0.97053003, 0.7, 0.72, -0.15)
 
-[node name="Mesh" type="MeshInstance3D" parent="Navigation/Laboratorio4/Bancada_0/Monitor2" unique_id=1170109485]
+[node name="Mesh" type="MeshInstance3D" parent="Navigation/Laboratorio4/Bancada_0/Monitor2" unique_id=1565932076]
 material_override = SubResource("StandardMaterial3D_yapql")
 mesh = SubResource("BoxMesh_du2j1")
 
-[node name="Bancada_1" type="StaticBody3D" parent="Navigation/Laboratorio4" unique_id=650598742]
+[node name="Bancada_1" type="StaticBody3D" parent="Navigation/Laboratorio4" unique_id=1852159433]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.5, 0.45, -2)
 
-[node name="Collision" type="CollisionShape3D" parent="Navigation/Laboratorio4/Bancada_1" unique_id=1222056691]
+[node name="Collision" type="CollisionShape3D" parent="Navigation/Laboratorio4/Bancada_1" unique_id=915628557]
 shape = SubResource("BoxShape3D_5ouv0")
 
-[node name="Mesh" type="MeshInstance3D" parent="Navigation/Laboratorio4/Bancada_1" unique_id=529842902]
+[node name="Mesh" type="MeshInstance3D" parent="Navigation/Laboratorio4/Bancada_1" unique_id=748725736]
 material_override = SubResource("StandardMaterial3D_5bw3v")
 mesh = SubResource("BoxMesh_lu03q")
 
-[node name="Monitor" type="Node3D" parent="Navigation/Laboratorio4/Bancada_1" unique_id=120612763]
-transform = Transform3D(0.99776256, 0, -0.0668571, 0, 1, 0, 0.0668571, 0, 0.99776256, -0.8, 0.72, -0.15)
+[node name="Monitor" type="Node3D" parent="Navigation/Laboratorio4/Bancada_1" unique_id=365836199]
+transform = Transform3D(0.9714761, 0, 0.23713757, 0, 1, 0, -0.23713757, 0, 0.9714761, -0.8, 0.72, -0.15)
 
-[node name="Mesh" type="MeshInstance3D" parent="Navigation/Laboratorio4/Bancada_1/Monitor" unique_id=1442347058]
+[node name="Mesh" type="MeshInstance3D" parent="Navigation/Laboratorio4/Bancada_1/Monitor" unique_id=1064909467]
 material_override = SubResource("StandardMaterial3D_rs85a")
 mesh = SubResource("BoxMesh_jmimi")
 
-[node name="Monitor2" type="Node3D" parent="Navigation/Laboratorio4/Bancada_1" unique_id=750563039]
-transform = Transform3D(0.9657791, 0, -0.2593659, 0, 1, 0, 0.2593659, 0, 0.9657791, 0.7, 0.72, -0.15)
+[node name="Monitor2" type="Node3D" parent="Navigation/Laboratorio4/Bancada_1" unique_id=2084786706]
+transform = Transform3D(0.9996933, 0, 0.024764935, 0, 1, 0, -0.024764935, 0, 0.9996933, 0.7, 0.72, -0.15)
 
-[node name="Mesh" type="MeshInstance3D" parent="Navigation/Laboratorio4/Bancada_1/Monitor2" unique_id=1161786670]
+[node name="Mesh" type="MeshInstance3D" parent="Navigation/Laboratorio4/Bancada_1/Monitor2" unique_id=64599468]
 material_override = SubResource("StandardMaterial3D_rs85a")
 mesh = SubResource("BoxMesh_h6ild")
 
-[node name="Bancada_2" type="StaticBody3D" parent="Navigation/Laboratorio4" unique_id=291470808]
+[node name="Bancada_2" type="StaticBody3D" parent="Navigation/Laboratorio4" unique_id=1312238743]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0.45, 1.8)
 
-[node name="Collision" type="CollisionShape3D" parent="Navigation/Laboratorio4/Bancada_2" unique_id=2131212311]
+[node name="Collision" type="CollisionShape3D" parent="Navigation/Laboratorio4/Bancada_2" unique_id=1131933109]
 shape = SubResource("BoxShape3D_o385h")
 
-[node name="Mesh" type="MeshInstance3D" parent="Navigation/Laboratorio4/Bancada_2" unique_id=1694106987]
+[node name="Mesh" type="MeshInstance3D" parent="Navigation/Laboratorio4/Bancada_2" unique_id=2109372411]
 material_override = SubResource("StandardMaterial3D_gepig")
 mesh = SubResource("BoxMesh_juxij")
 
-[node name="Monitor" type="Node3D" parent="Navigation/Laboratorio4/Bancada_2" unique_id=685926789]
-transform = Transform3D(0.9989832, 0, 0.04508401, 0, 1, 0, -0.04508401, 0, 0.9989832, -0.8, 0.72, -0.15)
+[node name="Monitor" type="Node3D" parent="Navigation/Laboratorio4/Bancada_2" unique_id=818829610]
+transform = Transform3D(0.97808033, 0, -0.20822799, 0, 1, 0, 0.20822799, 0, 0.97808033, -0.8, 0.72, -0.15)
 
-[node name="Mesh" type="MeshInstance3D" parent="Navigation/Laboratorio4/Bancada_2/Monitor" unique_id=1421340283]
+[node name="Mesh" type="MeshInstance3D" parent="Navigation/Laboratorio4/Bancada_2/Monitor" unique_id=787276484]
 material_override = SubResource("StandardMaterial3D_5w1ej")
 mesh = SubResource("BoxMesh_was1e")
 
-[node name="Monitor2" type="Node3D" parent="Navigation/Laboratorio4/Bancada_2" unique_id=60960013]
-transform = Transform3D(0.98981404, 0, -0.14236642, 0, 1, 0, 0.14236642, 0, 0.98981404, 0.7, 0.72, -0.15)
+[node name="Monitor2" type="Node3D" parent="Navigation/Laboratorio4/Bancada_2" unique_id=1063584330]
+transform = Transform3D(0.96249354, 0, 0.27130458, 0, 1, 0, -0.27130458, 0, 0.96249354, 0.7, 0.72, -0.15)
 
-[node name="Mesh" type="MeshInstance3D" parent="Navigation/Laboratorio4/Bancada_2/Monitor2" unique_id=821199490]
+[node name="Mesh" type="MeshInstance3D" parent="Navigation/Laboratorio4/Bancada_2/Monitor2" unique_id=653055894]
 material_override = SubResource("StandardMaterial3D_5w1ej")
 mesh = SubResource("BoxMesh_ff5oe")
 
-[node name="Bancada_3" type="StaticBody3D" parent="Navigation/Laboratorio4" unique_id=1195045552]
+[node name="Bancada_3" type="StaticBody3D" parent="Navigation/Laboratorio4" unique_id=1078021554]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.5, 0.45, 1.8)
 
-[node name="Collision" type="CollisionShape3D" parent="Navigation/Laboratorio4/Bancada_3" unique_id=2048840199]
+[node name="Collision" type="CollisionShape3D" parent="Navigation/Laboratorio4/Bancada_3" unique_id=1836056382]
 shape = SubResource("BoxShape3D_rx03k")
 
-[node name="Mesh" type="MeshInstance3D" parent="Navigation/Laboratorio4/Bancada_3" unique_id=515947896]
+[node name="Mesh" type="MeshInstance3D" parent="Navigation/Laboratorio4/Bancada_3" unique_id=492068048]
 material_override = SubResource("StandardMaterial3D_c05bq")
 mesh = SubResource("BoxMesh_6itm5")
 
-[node name="Monitor" type="Node3D" parent="Navigation/Laboratorio4/Bancada_3" unique_id=203730458]
-transform = Transform3D(0.96164036, 0, -0.27431333, 0, 1, 0, 0.27431333, 0, 0.96164036, -0.8, 0.72, -0.15)
+[node name="Monitor" type="Node3D" parent="Navigation/Laboratorio4/Bancada_3" unique_id=2015107954]
+transform = Transform3D(0.9638722, 0, -0.26636523, 0, 1, 0, 0.26636523, 0, 0.9638722, -0.8, 0.72, -0.15)
 
-[node name="Mesh" type="MeshInstance3D" parent="Navigation/Laboratorio4/Bancada_3/Monitor" unique_id=1973237596]
+[node name="Mesh" type="MeshInstance3D" parent="Navigation/Laboratorio4/Bancada_3/Monitor" unique_id=1296304168]
 material_override = SubResource("StandardMaterial3D_bi6dn")
 mesh = SubResource("BoxMesh_l1xal")
 
-[node name="Monitor2" type="Node3D" parent="Navigation/Laboratorio4/Bancada_3" unique_id=1068139252]
-transform = Transform3D(0.9920609, 0, -0.1257585, 0, 1, 0, 0.1257585, 0, 0.9920609, 0.7, 0.72, -0.15)
+[node name="Monitor2" type="Node3D" parent="Navigation/Laboratorio4/Bancada_3" unique_id=957592493]
+transform = Transform3D(0.9977364, 0, -0.06724674, 0, 1, 0, 0.06724674, 0, 0.9977364, 0.7, 0.72, -0.15)
 
-[node name="Mesh" type="MeshInstance3D" parent="Navigation/Laboratorio4/Bancada_3/Monitor2" unique_id=1773056916]
+[node name="Mesh" type="MeshInstance3D" parent="Navigation/Laboratorio4/Bancada_3/Monitor2" unique_id=1361932232]
 material_override = SubResource("StandardMaterial3D_bi6dn")
 mesh = SubResource("BoxMesh_5ar4w")
 
-[node name="Bancada_4" type="StaticBody3D" parent="Navigation/Laboratorio4" unique_id=1647354435]
+[node name="Bancada_4" type="StaticBody3D" parent="Navigation/Laboratorio4" unique_id=1021598179]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 0.45, 1.8)
 
-[node name="Collision" type="CollisionShape3D" parent="Navigation/Laboratorio4/Bancada_4" unique_id=1922851178]
+[node name="Collision" type="CollisionShape3D" parent="Navigation/Laboratorio4/Bancada_4" unique_id=24472559]
 shape = SubResource("BoxShape3D_7fdqe")
 
-[node name="Mesh" type="MeshInstance3D" parent="Navigation/Laboratorio4/Bancada_4" unique_id=729727416]
+[node name="Mesh" type="MeshInstance3D" parent="Navigation/Laboratorio4/Bancada_4" unique_id=879759641]
 material_override = SubResource("StandardMaterial3D_ower8")
 mesh = SubResource("BoxMesh_j3dah")
 
-[node name="Monitor" type="Node3D" parent="Navigation/Laboratorio4/Bancada_4" unique_id=1889401332]
-transform = Transform3D(0.9895086, 0, -0.1444736, 0, 1, 0, 0.1444736, 0, 0.9895086, -0.8, 0.72, -0.15)
+[node name="Monitor" type="Node3D" parent="Navigation/Laboratorio4/Bancada_4" unique_id=1665247511]
+transform = Transform3D(0.9893503, 0, 0.14555399, 0, 1, 0, -0.14555399, 0, 0.9893503, -0.8, 0.72, -0.15)
 
-[node name="Mesh" type="MeshInstance3D" parent="Navigation/Laboratorio4/Bancada_4/Monitor" unique_id=103015162]
+[node name="Mesh" type="MeshInstance3D" parent="Navigation/Laboratorio4/Bancada_4/Monitor" unique_id=296951941]
 material_override = SubResource("StandardMaterial3D_l76f5")
 mesh = SubResource("BoxMesh_eee8p")
 
-[node name="Monitor2" type="Node3D" parent="Navigation/Laboratorio4/Bancada_4" unique_id=1774370796]
-transform = Transform3D(0.9626292, 0, -0.2708229, 0, 1, 0, 0.2708229, 0, 0.9626292, 0.7, 0.72, -0.15)
+[node name="Monitor2" type="Node3D" parent="Navigation/Laboratorio4/Bancada_4" unique_id=1778957810]
+transform = Transform3D(0.9642554, 0, 0.2649746, 0, 1, 0, -0.2649746, 0, 0.9642554, 0.7, 0.72, -0.15)
 
-[node name="Mesh" type="MeshInstance3D" parent="Navigation/Laboratorio4/Bancada_4/Monitor2" unique_id=359290006]
+[node name="Mesh" type="MeshInstance3D" parent="Navigation/Laboratorio4/Bancada_4/Monitor2" unique_id=2090580220]
 material_override = SubResource("StandardMaterial3D_l76f5")
 mesh = SubResource("BoxMesh_0r7uy")
 
-[node name="Entulho" type="StaticBody3D" parent="Navigation/Laboratorio4" unique_id=468925028]
+[node name="Entulho" type="StaticBody3D" parent="Navigation/Laboratorio4" unique_id=1784811144]
 transform = Transform3D(-0.040740006, 0.05185132, 0.9978235, -0.026077054, 0.9982573, -0.05293856, -0.9988294, -0.028177012, -0.039316874, 8.00354, 0.11725862, -3.0332165)
 
-[node name="Collision" type="CollisionShape3D" parent="Navigation/Laboratorio4/Entulho" unique_id=1046741190]
+[node name="Collision" type="CollisionShape3D" parent="Navigation/Laboratorio4/Entulho" unique_id=1396465874]
 shape = SubResource("BoxShape3D_64dj6")
 
-[node name="Mesh" type="MeshInstance3D" parent="Navigation/Laboratorio4/Entulho" unique_id=1996845988]
+[node name="Mesh" type="MeshInstance3D" parent="Navigation/Laboratorio4/Entulho" unique_id=1505963698]
 material_override = ExtResource("7_bro8w")
 mesh = SubResource("BoxMesh_w1603")
 
-[node name="Entulho2" type="StaticBody3D" parent="Navigation/Laboratorio4" unique_id=1499664348]
+[node name="Entulho2" type="StaticBody3D" parent="Navigation/Laboratorio4" unique_id=1406175842]
 transform = Transform3D(0.836569, -0.28817317, -0.4659491, 0.21568073, 0.9550396, -0.20342347, 0.503621, 0.06968153, 0.86111, 2.2962046, 0.24434574, 4.456538)
 
-[node name="Collision" type="CollisionShape3D" parent="Navigation/Laboratorio4/Entulho2" unique_id=1910352686]
+[node name="Collision" type="CollisionShape3D" parent="Navigation/Laboratorio4/Entulho2" unique_id=1190036873]
 shape = SubResource("BoxShape3D_ufjbl")
 
-[node name="Mesh" type="MeshInstance3D" parent="Navigation/Laboratorio4/Entulho2" unique_id=1106030633]
+[node name="Mesh" type="MeshInstance3D" parent="Navigation/Laboratorio4/Entulho2" unique_id=2106800174]
 material_override = SubResource("StandardMaterial3D_g5gt2")
 mesh = SubResource("BoxMesh_xdqfj")
 
-[node name="Entulho3" type="Node3D" parent="Navigation/Laboratorio4" unique_id=971628848]
+[node name="Entulho3" type="Node3D" parent="Navigation/Laboratorio4" unique_id=1135787021]
 transform = Transform3D(-0.48451966, 0.15600353, 0.8607576, -0.025306325, 0.9810585, -0.19205175, -0.87441427, -0.11483546, -0.47139427, -8.6248665, 0.21154512, -4.5853386)
 
-[node name="Mesh" type="MeshInstance3D" parent="Navigation/Laboratorio4/Entulho3" unique_id=1424839387]
+[node name="Mesh" type="MeshInstance3D" parent="Navigation/Laboratorio4/Entulho3" unique_id=2088429534]
 material_override = SubResource("StandardMaterial3D_g5gt2")
 mesh = SubResource("BoxMesh_tcmag")
 
-[node name="Entulho4" type="Node3D" parent="Navigation/Laboratorio4" unique_id=1156681741]
+[node name="Entulho4" type="Node3D" parent="Navigation/Laboratorio4" unique_id=424869761]
 transform = Transform3D(-0.8723579, -0.097518, 0.47904262, 0.023656907, 0.9703336, 0.24060966, -0.48829493, 0.22123042, -0.8441713, -6.604357, 0.2187233, -2.2593842)
 
-[node name="Mesh" type="MeshInstance3D" parent="Navigation/Laboratorio4/Entulho4" unique_id=1804961218]
+[node name="Mesh" type="MeshInstance3D" parent="Navigation/Laboratorio4/Entulho4" unique_id=478205689]
 material_override = ExtResource("7_bro8w")
 mesh = SubResource("BoxMesh_cra5p")
 
-[node name="Entulho5" type="Node3D" parent="Navigation/Laboratorio4" unique_id=2059006509]
+[node name="Entulho5" type="Node3D" parent="Navigation/Laboratorio4" unique_id=47435997]
 transform = Transform3D(-0.39842978, -0.28639424, -0.87133926, -0.2036418, 0.9539112, -0.22041668, 0.8943063, 0.08962052, -0.43838847, -0.2658491, 0.22707744, -3.437523)
 
-[node name="Mesh" type="MeshInstance3D" parent="Navigation/Laboratorio4/Entulho5" unique_id=2028701497]
+[node name="Mesh" type="MeshInstance3D" parent="Navigation/Laboratorio4/Entulho5" unique_id=1542945570]
 material_override = SubResource("StandardMaterial3D_g5gt2")
 mesh = SubResource("BoxMesh_wp6he")
 
-[node name="Entulho6" type="StaticBody3D" parent="Navigation/Laboratorio4" unique_id=1745821009]
+[node name="Entulho6" type="StaticBody3D" parent="Navigation/Laboratorio4" unique_id=987962154]
 transform = Transform3D(0.70710903, 0.25274473, -0.6603915, -0.116156824, 0.9627692, 0.24409658, 0.6974987, -0.09589392, 0.7101408, 1.6615095, 0.16192894, 0.5991969)
 
-[node name="Collision" type="CollisionShape3D" parent="Navigation/Laboratorio4/Entulho6" unique_id=1725068099]
+[node name="Collision" type="CollisionShape3D" parent="Navigation/Laboratorio4/Entulho6" unique_id=1114371493]
 shape = SubResource("BoxShape3D_41icr")
 
-[node name="Mesh" type="MeshInstance3D" parent="Navigation/Laboratorio4/Entulho6" unique_id=125494870]
+[node name="Mesh" type="MeshInstance3D" parent="Navigation/Laboratorio4/Entulho6" unique_id=1716964944]
 material_override = SubResource("StandardMaterial3D_g5gt2")
 mesh = SubResource("BoxMesh_vcdwj")
 
-[node name="Entulho7" type="StaticBody3D" parent="Navigation/Laboratorio4" unique_id=1824317957]
+[node name="Entulho7" type="StaticBody3D" parent="Navigation/Laboratorio4" unique_id=1808782200]
 transform = Transform3D(-0.9646727, 0.2296112, -0.12917142, 0.21196528, 0.96762305, 0.13702706, 0.15645218, 0.1048064, -0.9821091, 5.3193836, 0.19605806, -4.5580926)
 
-[node name="Collision" type="CollisionShape3D" parent="Navigation/Laboratorio4/Entulho7" unique_id=411031248]
+[node name="Collision" type="CollisionShape3D" parent="Navigation/Laboratorio4/Entulho7" unique_id=437325615]
 shape = SubResource("BoxShape3D_07txe")
 
-[node name="Mesh" type="MeshInstance3D" parent="Navigation/Laboratorio4/Entulho7" unique_id=847643170]
+[node name="Mesh" type="MeshInstance3D" parent="Navigation/Laboratorio4/Entulho7" unique_id=1559404621]
 material_override = ExtResource("7_bro8w")
 mesh = SubResource("BoxMesh_bqw56")
 
-[node name="Entulho8" type="StaticBody3D" parent="Navigation/Laboratorio4" unique_id=1967879191]
+[node name="Entulho8" type="StaticBody3D" parent="Navigation/Laboratorio4" unique_id=2056320365]
 transform = Transform3D(0.54609305, -0.22466397, -0.8070369, 0.06727324, 0.97201735, -0.22507007, 0.835019, 0.068617225, 0.5459258, 8.211679, 0.08024776, -3.103342)
 
-[node name="Collision" type="CollisionShape3D" parent="Navigation/Laboratorio4/Entulho8" unique_id=1607658958]
+[node name="Collision" type="CollisionShape3D" parent="Navigation/Laboratorio4/Entulho8" unique_id=1197917306]
 shape = SubResource("BoxShape3D_mnf3n")
 
-[node name="Mesh" type="MeshInstance3D" parent="Navigation/Laboratorio4/Entulho8" unique_id=702775145]
+[node name="Mesh" type="MeshInstance3D" parent="Navigation/Laboratorio4/Entulho8" unique_id=857445742]
 material_override = SubResource("StandardMaterial3D_g5gt2")
 mesh = SubResource("BoxMesh_0rwvq")
 
-[node name="Entulho9" type="StaticBody3D" parent="Navigation/Laboratorio4" unique_id=454259230]
+[node name="Entulho9" type="StaticBody3D" parent="Navigation/Laboratorio4" unique_id=852424175]
 transform = Transform3D(0.040316056, -0.04441978, -0.99819916, 0.046942826, 0.99799246, -0.04251462, 0.9980837, -0.045144267, 0.042320307, 9.3306675, 0.08761506, 1.9905415)
 
-[node name="Collision" type="CollisionShape3D" parent="Navigation/Laboratorio4/Entulho9" unique_id=2111719215]
+[node name="Collision" type="CollisionShape3D" parent="Navigation/Laboratorio4/Entulho9" unique_id=890250100]
 shape = SubResource("BoxShape3D_h0sq4")
 
-[node name="Mesh" type="MeshInstance3D" parent="Navigation/Laboratorio4/Entulho9" unique_id=1019406260]
+[node name="Mesh" type="MeshInstance3D" parent="Navigation/Laboratorio4/Entulho9" unique_id=1604202520]
 material_override = SubResource("StandardMaterial3D_g5gt2")
 mesh = SubResource("BoxMesh_lpw21")
 
-[node name="Entulho10" type="StaticBody3D" parent="Navigation/Laboratorio4" unique_id=736566306]
+[node name="Entulho10" type="StaticBody3D" parent="Navigation/Laboratorio4" unique_id=1314174091]
 transform = Transform3D(-0.970208, -0.23883085, -0.040697496, -0.23448043, 0.96791947, -0.0902821, 0.06095405, -0.078049645, -0.99508435, 9.466116, 0.17770943, -5.7093477)
 
-[node name="Collision" type="CollisionShape3D" parent="Navigation/Laboratorio4/Entulho10" unique_id=375429889]
+[node name="Collision" type="CollisionShape3D" parent="Navigation/Laboratorio4/Entulho10" unique_id=1015954608]
 shape = SubResource("BoxShape3D_4w63w")
 
-[node name="Mesh" type="MeshInstance3D" parent="Navigation/Laboratorio4/Entulho10" unique_id=432285527]
+[node name="Mesh" type="MeshInstance3D" parent="Navigation/Laboratorio4/Entulho10" unique_id=1003262055]
 material_override = ExtResource("7_bro8w")
 mesh = SubResource("BoxMesh_mckea")
 
-[node name="Entulho11" type="StaticBody3D" parent="Navigation/Laboratorio4" unique_id=1631196361]
+[node name="Entulho11" type="StaticBody3D" parent="Navigation/Laboratorio4" unique_id=1688851929]
 transform = Transform3D(-0.7966986, -0.3026061, -0.5231642, -0.19050844, 0.9472358, -0.2577805, 0.57356584, -0.10570617, -0.8123105, -6.3528624, 0.099875264, 3.2513084)
 
-[node name="Collision" type="CollisionShape3D" parent="Navigation/Laboratorio4/Entulho11" unique_id=1544240119]
+[node name="Collision" type="CollisionShape3D" parent="Navigation/Laboratorio4/Entulho11" unique_id=338073326]
 shape = SubResource("BoxShape3D_bvpwj")
 
-[node name="Mesh" type="MeshInstance3D" parent="Navigation/Laboratorio4/Entulho11" unique_id=1939048919]
+[node name="Mesh" type="MeshInstance3D" parent="Navigation/Laboratorio4/Entulho11" unique_id=1910542832]
 material_override = SubResource("StandardMaterial3D_g5gt2")
 mesh = SubResource("BoxMesh_o53qa")
 
-[node name="Entulho12" type="Node3D" parent="Navigation/Laboratorio4" unique_id=971827583]
+[node name="Entulho12" type="Node3D" parent="Navigation/Laboratorio4" unique_id=1038987030]
 transform = Transform3D(0.41654533, 0.3860246, -0.8230887, -0.26856905, 0.9172162, 0.2942536, 0.8685394, 0.098486185, 0.48573637, 5.211316, 0.11608645, 2.2673635)
 
-[node name="Mesh" type="MeshInstance3D" parent="Navigation/Laboratorio4/Entulho12" unique_id=1920812998]
+[node name="Mesh" type="MeshInstance3D" parent="Navigation/Laboratorio4/Entulho12" unique_id=2062670112]
 material_override = SubResource("StandardMaterial3D_g5gt2")
 mesh = SubResource("BoxMesh_dqp5l")
 
-[node name="Entulho13" type="StaticBody3D" parent="Navigation/Laboratorio4" unique_id=1670311863]
+[node name="Entulho13" type="StaticBody3D" parent="Navigation/Laboratorio4" unique_id=538806611]
 transform = Transform3D(-0.9623059, -0.22337627, 0.15514623, -0.239387, 0.96642333, -0.09337948, -0.1290782, -0.12699963, -0.98346823, -0.6783657, 0.23528627, -4.80208)
 
-[node name="Collision" type="CollisionShape3D" parent="Navigation/Laboratorio4/Entulho13" unique_id=782108721]
+[node name="Collision" type="CollisionShape3D" parent="Navigation/Laboratorio4/Entulho13" unique_id=1550181119]
 shape = SubResource("BoxShape3D_qygma")
 
-[node name="Mesh" type="MeshInstance3D" parent="Navigation/Laboratorio4/Entulho13" unique_id=1003263902]
+[node name="Mesh" type="MeshInstance3D" parent="Navigation/Laboratorio4/Entulho13" unique_id=1077053803]
 material_override = ExtResource("7_bro8w")
 mesh = SubResource("BoxMesh_k67gx")
 
-[node name="Entulho14" type="Node3D" parent="Navigation/Laboratorio4" unique_id=567304831]
+[node name="Entulho14" type="Node3D" parent="Navigation/Laboratorio4" unique_id=748169235]
 transform = Transform3D(0.9424683, -0.010637987, -0.33412617, -0.029890714, 0.99280846, -0.11592189, 0.33295643, 0.11923998, 0.9353726, 0.7224579, 0.20315042, 5.346197)
 
-[node name="Mesh" type="MeshInstance3D" parent="Navigation/Laboratorio4/Entulho14" unique_id=40458095]
+[node name="Mesh" type="MeshInstance3D" parent="Navigation/Laboratorio4/Entulho14" unique_id=2007467222]
 material_override = SubResource("StandardMaterial3D_g5gt2")
 mesh = SubResource("BoxMesh_p3k24")
 
@@ -1091,10 +1091,10 @@ count = 5
 respawn_time = 40.0
 power = 6
 
-[node name="Lab4_Coisas" type="Node3D" parent="." unique_id=873232731]
+[node name="Lab4_Coisas" type="Node3D" parent="." unique_id=2084776470]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 24, 0, 40)
 
-[node name="PortaoLab4" type="StaticBody3D" parent="Lab4_Coisas" unique_id=1648919846]
+[node name="PortaoLab4" type="StaticBody3D" parent="Lab4_Coisas" unique_id=2054808583]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 8)
 script = ExtResource("9_g0x7c")
 lock = "codigo"
@@ -1102,20 +1102,20 @@ code = "70-R-ALFA-9"
 unlock_fact = "lab4_portao"
 size = Vector2(2.6, 2.7)
 
-[node name="PortaoServidor" type="StaticBody3D" parent="Lab4_Coisas" unique_id=2049125805]
+[node name="PortaoServidor" type="StaticBody3D" parent="Lab4_Coisas" unique_id=1623773886]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.5, 0, -2.5)
 script = ExtResource("9_g0x7c")
 lock = "invasao"
 unlock_fact = "lab4_servidor"
 size = Vector2(2, 2.5)
 
-[node name="TerminalRafael" type="Node3D" parent="Lab4_Coisas" unique_id=587681399]
+[node name="TerminalRafael" type="Node3D" parent="Lab4_Coisas" unique_id=2058000101]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0, -7.2)
 script = ExtResource("10_ulptm")
 document_id = "log_rafael"
 look = "terminal"
 
-[node name="RegistroServidor" type="Node3D" parent="Lab4_Coisas" unique_id=306570214]
+[node name="RegistroServidor" type="Node3D" parent="Lab4_Coisas" unique_id=735564272]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -9.8, 0, -7)
 script = ExtResource("10_ulptm")
 document_id = "registro_lab4"
@@ -1125,7 +1125,7 @@ look = "terminal"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.8, 0, -7)
 container_id = "lab4_bau_servidor"
 
-[node name="LetreiroLab4" parent="Lab4_Coisas" unique_id=126363520 instance=ExtResource("12_ph60n")]
+[node name="LetreiroLab4" parent="Lab4_Coisas" unique_id=64268462 instance=ExtResource("12_ph60n")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.7, 8.25)
 text = "SINAPSE · LAB 4"
 color = Color(0.25, 0.85, 1, 1)
@@ -1133,7 +1133,7 @@ letter_height = 0.36
 icon = "chip"
 flicker = true
 
-[node name="AndroidesSalao" type="Marker3D" parent="Lab4_Coisas" unique_id=187908376]
+[node name="AndroidesSalao" type="Marker3D" parent="Lab4_Coisas" unique_id=208617181]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0, -1)
 script = ExtResource("6_bsqge")
 kinds = PackedInt32Array(3, 3)
@@ -1144,7 +1144,7 @@ aggro_radius = 9.0
 leash_radius = 13.0
 power = 7
 
-[node name="AndroidesFundo" type="Marker3D" parent="Lab4_Coisas" unique_id=385236002]
+[node name="AndroidesFundo" type="Marker3D" parent="Lab4_Coisas" unique_id=1434651043]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 0, 1)
 script = ExtResource("6_bsqge")
 kinds = PackedInt32Array(3, 3, 2)
@@ -1154,7 +1154,7 @@ aggro_radius = 9.0
 leash_radius = 13.0
 power = 7
 
-[node name="AndroideServidor" type="Marker3D" parent="Lab4_Coisas" unique_id=1511990392]
+[node name="AndroideServidor" type="Marker3D" parent="Lab4_Coisas" unique_id=1448312340]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.5, 0, -5.4)
 script = ExtResource("6_bsqge")
 kinds = PackedInt32Array(3)
@@ -1165,19 +1165,19 @@ aggro_radius = 9.0
 leash_radius = 13.0
 power = 7
 
-[node name="LuzFria" type="OmniLight3D" parent="Lab4_Coisas" unique_id=1281123932]
+[node name="LuzFria" type="OmniLight3D" parent="Lab4_Coisas" unique_id=1450255701]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 3, -2)
 light_color = Color(0.7, 0.85, 1, 1)
 light_energy = 0.9
 omni_range = 7.0
 
-[node name="@OmniLight3D@2" type="OmniLight3D" parent="Lab4_Coisas" unique_id=2098252795]
+[node name="@OmniLight3D@2" type="OmniLight3D" parent="Lab4_Coisas" unique_id=39123980]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 3, 2)
 light_color = Color(0.7, 0.85, 1, 1)
 light_energy = 0.9
 omni_range = 7.0
 
-[node name="@OmniLight3D@3" type="OmniLight3D" parent="Lab4_Coisas" unique_id=1571142776]
+[node name="@OmniLight3D@3" type="OmniLight3D" parent="Lab4_Coisas" unique_id=1347034507]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.8, 6)
 light_color = Color(0.7, 0.85, 1, 1)
 light_energy = 0.9

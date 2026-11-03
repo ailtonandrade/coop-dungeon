@@ -27,7 +27,7 @@ contents = Array[ExtResource("5_wb0dl")]([SubResource("Resource_ikm1e")])
 gold = 120
 requires = Array[String](["alda_caixa_helena"])
 
-[node name="OficioTransferencia" type="Node3D" parent="." unique_id=1813399843]
+[node name="OficioTransferencia" type="Node3D" parent="." unique_id=386202600]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13.2, 0, 49.4)
 script = ExtResource("1_omo52")
 document_id = "ordem_transferencia"

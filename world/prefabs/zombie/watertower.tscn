@@ -1,0 +1,16 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://assets/props/packs/Zombie/Environment/glTF/WaterTower.gltf" id="1_f3y5k"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_0hgu1"]
+size = Vector3(2.6457036, 9.379796, 2.7084818)
+
+[node name="WaterTower" type="StaticBody3D" unique_id=1899969953]
+metadata/prop_def = "res://world/props/watertower.tres"
+
+[node name="Modelo" type="Node3D" parent="." unique_id=1840801358 instance=ExtResource("1_f3y5k")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.032191813, -2.3841858e-07)
+
+[node name="Collision" type="CollisionShape3D" parent="." unique_id=1290377180]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.689898, 0)
+shape = SubResource("BoxShape3D_0hgu1")

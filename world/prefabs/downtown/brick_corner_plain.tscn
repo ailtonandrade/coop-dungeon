@@ -1,0 +1,16 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://assets/props/packs/DownTown/Brick_Corner_Plain.gltf" id="1_8fjds"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_jssq8"]
+size = Vector3(2, 3.0000005, 2)
+
+[node name="BrickCornerPlain" type="StaticBody3D" unique_id=755889073]
+metadata/prop_def = "res://world/props/brick_corner_plain.tres"
+
+[node name="Modelo" type="Node3D" parent="." unique_id=1485007739 instance=ExtResource("1_8fjds")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.1920929e-07, 0, 1)
+
+[node name="Collision" type="CollisionShape3D" parent="." unique_id=1416907892]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5000002, 0)
+shape = SubResource("BoxShape3D_jssq8")
