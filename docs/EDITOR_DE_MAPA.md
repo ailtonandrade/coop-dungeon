@@ -215,7 +215,7 @@ seletor de peças e, no mundo, o **fantasma** translúcido da peça onde ela vai
 ## Letreiro de neon
 
 Peça `world/prefabs/letreiro_neon.tscn` (no catálogo de peças e no `/construir`). Selecione no
-mapa e mude no Inspector: **Text**, **Color**, **Letter Height** (altura das letras), **Board**
+mapa e mude no Inspector: **Text**, **Color**, **Icon** (chave, carrinho, copo, cofre, chip, lanche, cruz, caveira, desenhados em tubo), **Letter Height** (altura das letras), **Board**
 (placa escura atrás), **Flicker** (pisca de vez em quando, neon velho), **Stand** (pé de ferro até
 o chão, para barraca na rua) e o alcance/força da luz. A prévia atualiza no editor.
 

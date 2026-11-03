@@ -6,7 +6,7 @@ extends Node3D
 ## de dia fica mais fraco (o neon continua ligado, mas some na claridade). Pode piscar de vez
 ## em quando, como neon velho de ferro-velho.
 ##
-## Mexa no Inspector: texto, cor, altura das letras, se tem placa atrás, se pisca e se fica
+## Mexa no Inspector: texto, cor, ícone, altura das letras, se tem placa atrás, se pisca e se fica
 ## num pé (letreiro solto no chão, para barraca na rua). A prévia atualiza no editor.
 
 @export var text := "BAR":
@@ -27,6 +27,11 @@ extends Node3D
 	set(value):
 		board = value
 		_rebuild()
+## Desenho em tubo de neon à esquerda do texto.
+@export_enum("nenhum", "chave", "carrinho", "copo", "cofre", "chip", "lanche", "cruz", "caveira") var icon := "nenhum":
+	set(value):
+		icon = value
+		_rebuild()
 ## Pisca de vez em quando (neon com defeito).
 @export var flicker := false
 ## Letreiro solto, num pé de ferro até o chão (o nó fica na altura das letras).
@@ -43,12 +48,37 @@ extends Node3D
 		light_energy = value
 		_rebuild()
 
+## Desenhos dos ícones: linhas (listas de pontos, num quadrado de -0.5 a 0.5, y para cima).
+## "o" no começo da lista = círculo [centro x, centro y, raio].
+const ICONS := {
+	"chave": [[Vector2(-0.38, -0.38), Vector2(0.12, 0.12)], [Vector2(-0.46, -0.3), Vector2(-0.3, -0.46)],
+		["o", 0.22, 0.22, 0.17, 40.0, 320.0]],
+	"carrinho": [[Vector2(-0.48, 0.32), Vector2(-0.32, 0.32), Vector2(-0.18, -0.12), Vector2(0.36, -0.12), Vector2(0.46, 0.2), Vector2(-0.26, 0.2)],
+		["o", -0.1, -0.3, 0.07, 0.0, 360.0], ["o", 0.28, -0.3, 0.07, 0.0, 360.0]],
+	"copo": [[Vector2(-0.36, 0.38), Vector2(0.36, 0.38), Vector2(0.0, -0.02), Vector2(-0.36, 0.38)],
+		[Vector2(0.0, -0.02), Vector2(0.0, -0.36)], [Vector2(-0.2, -0.38), Vector2(0.2, -0.38)], ["o", 0.1, 0.24, 0.05, 0.0, 360.0]],
+	"cofre": [[Vector2(-0.42, -0.4), Vector2(-0.42, 0.4), Vector2(0.42, 0.4), Vector2(0.42, -0.4), Vector2(-0.42, -0.4)],
+		["o", 0.0, 0.0, 0.2, 0.0, 360.0], [Vector2(0.0, 0.2), Vector2(0.0, 0.3)], [Vector2(0.2, 0.0), Vector2(0.3, 0.0)]],
+	"chip": [[Vector2(-0.26, -0.26), Vector2(-0.26, 0.26), Vector2(0.26, 0.26), Vector2(0.26, -0.26), Vector2(-0.26, -0.26)],
+		[Vector2(-0.12, -0.26), Vector2(-0.12, -0.44)], [Vector2(0.12, -0.26), Vector2(0.12, -0.44)], [Vector2(-0.12, 0.26), Vector2(-0.12, 0.44)],
+		[Vector2(0.12, 0.26), Vector2(0.12, 0.44)], [Vector2(-0.26, 0.12), Vector2(-0.44, 0.12)], [Vector2(-0.26, -0.12), Vector2(-0.44, -0.12)],
+		[Vector2(0.26, 0.12), Vector2(0.44, 0.12)], [Vector2(0.26, -0.12), Vector2(0.44, -0.12)]],
+	"lanche": [["o", 0.0, 0.02, 0.4, 0.0, 180.0], [Vector2(-0.44, -0.1), Vector2(0.44, -0.1)],
+		[Vector2(-0.4, -0.26), Vector2(-0.3, -0.34), Vector2(0.3, -0.34), Vector2(0.4, -0.26)]],
+	"cruz": [[Vector2(-0.12, -0.42), Vector2(-0.12, -0.12), Vector2(-0.42, -0.12), Vector2(-0.42, 0.12), Vector2(-0.12, 0.12),
+		Vector2(-0.12, 0.42), Vector2(0.12, 0.42), Vector2(0.12, 0.12), Vector2(0.42, 0.12), Vector2(0.42, -0.12), Vector2(0.12, -0.12),
+		Vector2(0.12, -0.42), Vector2(-0.12, -0.42)]],
+	"caveira": [["o", 0.0, 0.08, 0.34, -30.0, 210.0], [Vector2(-0.29, -0.09), Vector2(-0.2, -0.3), Vector2(0.2, -0.3), Vector2(0.29, -0.09)],
+		["o", -0.13, 0.08, 0.08, 0.0, 360.0], ["o", 0.13, 0.08, 0.08, 0.0, 360.0], [Vector2(-0.08, -0.3), Vector2(-0.08, -0.42), Vector2(0.08, -0.42), Vector2(0.08, -0.3)]],
+}
+
 const FONT := preload("res://ui/fonts/ChakraPetch-SemiBold.ttf")
 const FONT_SIZE := 96
 ## De dia o neon fica com esta fração do brilho.
 const DAY_LEVEL := 0.4
 
 var _label: Label3D
+var _icon_material: StandardMaterial3D
 var _light: OmniLight3D
 var _level := -1.0
 var _check := 0.0
@@ -71,7 +101,15 @@ func _rebuild() -> void:
 			remove_child(child)
 			child.queue_free()
 	var pixel := letter_height / float(FONT_SIZE) * 1.35
-	var width := FONT.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, FONT_SIZE).x * pixel
+	var text_width := FONT.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, FONT_SIZE).x * pixel
+	# Ícone à esquerda: o conjunto (ícone + texto) fica centrado no nó.
+	var icon_size := letter_height * 1.5 if ICONS.has(icon) else 0.0
+	var gap := letter_height * 0.35 if icon_size > 0.0 else 0.0
+	if text.is_empty() and icon_size > 0.0:
+		icon_size = letter_height * 2.0
+	var width := text_width + gap + icon_size
+	var text_x := (icon_size + gap) / 2.0
+	var icon_x := -width / 2.0 + icon_size / 2.0
 
 	if board:
 		var plate := MeshInstance3D.new()
@@ -129,8 +167,14 @@ func _rebuild() -> void:
 	_label.no_depth_test = false
 	_label.alpha_cut = Label3D.ALPHA_CUT_DISABLED
 	_label.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	_label.position.z = 0.01
+	_label.position = Vector3(text_x, 0, 0.01)
 	_part(_label)
+	if icon_size > 0.0:
+		_icon_material = StandardMaterial3D.new()
+		_icon_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		_build_icon(ICONS[icon], icon_size, Vector3(icon_x, 0, 0.01))
+	else:
+		_icon_material = null
 
 	_light = OmniLight3D.new()
 	_light.light_color = color
@@ -141,6 +185,35 @@ func _rebuild() -> void:
 	_part(_light)
 	_level = -1.0
 	_set_level(_target_level())
+
+
+## Tubos do ícone: cada trecho de linha é uma barrinha acesa.
+func _build_icon(strokes: Array, size: float, at: Vector3) -> void:
+	var thickness := maxf(size * 0.055, 0.018)
+	for stroke: Array in strokes:
+		var points: Array[Vector2] = []
+		if stroke.size() > 0 and stroke[0] is String:
+			# Círculo (ou arco): centro, raio, ângulo de início e fim, em graus.
+			var steps := 14
+			for i in steps + 1:
+				var angle := deg_to_rad(lerpf(stroke[4], stroke[5], float(i) / steps))
+				points.append(Vector2(stroke[1], stroke[2]) + Vector2(cos(angle), sin(angle)) * float(stroke[3]))
+		else:
+			for point: Vector2 in stroke:
+				points.append(point)
+		for i in points.size() - 1:
+			var a := points[i] * size
+			var b := points[i + 1] * size
+			var tube := MeshInstance3D.new()
+			var box := BoxMesh.new()
+			box.size = Vector3(a.distance_to(b) + thickness, thickness, thickness)
+			tube.mesh = box
+			tube.material_override = _icon_material
+			tube.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+			var middle := (a + b) / 2.0
+			tube.position = at + Vector3(middle.x, middle.y, 0)
+			tube.rotation.z = (b - a).angle()
+			_part(tube)
 
 
 func _part(node: Node3D) -> void:
@@ -192,6 +265,8 @@ func _apply(level: float) -> void:
 	# Miolo quase branco (o tubo aceso) e o halo na cor: brilhante o bastante para o glow.
 	var core := color.lerp(Color.WHITE, 0.55)
 	_label.modulate = Color(core.r, core.g, core.b) * lerpf(1.0, 2.6, level)
+	if _icon_material:
+		_icon_material.albedo_color = Color(core.r, core.g, core.b) * lerpf(1.0, 2.4, level)
 	_label.outline_modulate = Color(color.r * 1.6, color.g * 1.6, color.b * 1.6, lerpf(0.25, 0.6, level))
 	_light.light_energy = light_energy * level
 	_light.visible = level > 0.05

@@ -926,31 +926,37 @@ shop_items = PackedStringArray("sword", "axe", "bow", "longbow", "leather_hood",
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, 2.75, 18.35)
 text = "COFRE"
 color = Color(0.2, 0.95, 1, 1)
+icon = "cofre"
 
 [node name="Letreiro_Bar" parent="Neon" unique_id=1232716209 instance=ExtResource("22_1j7j7")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 50, 2.75, 17.85)
+icon = "copo"
 flicker = true
 
 [node name="Letreiro_Lanches" parent="Neon" unique_id=186777925 instance=ExtResource("22_1j7j7")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, 2.75, 53.85)
 text = "LANCHES"
 color = Color(1, 0.8, 0.2, 1)
+icon = "lanche"
 
 [node name="Letreiro_Oficina" parent="Neon" unique_id=1409855814 instance=ExtResource("22_1j7j7")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 50, 2.75, 54.35)
 text = "OFICINA"
 color = Color(1, 0.3, 0.2, 1)
+icon = "chave"
 
 [node name="Letreiro_Mercado" parent="Neon" unique_id=481394565 instance=ExtResource("22_1j7j7")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 25, 2.3, 28.4)
 text = "MERCADO"
 color = Color(0.35, 1, 0.5, 1)
+icon = "carrinho"
 stand = true
 
 [node name="Letreiro_Mods" parent="Neon" unique_id=804782541 instance=ExtResource("22_1j7j7")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 39, 2.3, 28.4)
 text = "MODS"
 color = Color(0.7, 0.4, 1, 1)
+icon = "chip"
 flicker = true
 stand = true
 
