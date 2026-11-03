@@ -19,6 +19,23 @@ func _initialize() -> void:
 	_check(cone_entry.size() == 1 and cone_entry[0].kind == "fisico", "cone está na lista como físico")
 	_check(catalog.any(func(e: Dictionary) -> bool: return e.path.ends_with("/casa_pequena.tscn") and e.def == null), "peças montadas à mão continuam na lista (sem ficha)")
 
+	# Categorias: subpasta de world/prefabs vira categoria; peça nova vai para a pasta pedida.
+	var cat_def: Resource = load("res://props/prop_def.gd").new()
+	cat_def.id = "teste_pneu_categoria"
+	cat_def.display_name = "Pneu de teste"
+	cat_def.model = load("res://assets/props/Wheels_Stack.glb")
+	var cat_path: String = builder.save(cat_def, "Teste categoria")
+	_check(cat_path == "res://world/prefabs/teste_categoria/teste_pneu_categoria.tscn", "peça nova vai para a pasta da categoria (%s)" % cat_path)
+	var with_cat: Array = builder.catalog()
+	_check(with_cat.any(func(e: Dictionary) -> bool: return e.path == cat_path and e.category == "Teste Categoria"), "subpasta vira a categoria \"Teste Categoria\"")
+	_check(with_cat[0].category == "Geral", "peças soltas ficam em \"Geral\", primeiro")
+	_check(builder.prefab_path_of("teste_pneu_categoria") == cat_path, "acha a peça pelo id em qualquer pasta")
+	cat_def.scale = 1.5
+	_check(builder.save(cat_def, "outra") == cat_path, "salvar de novo regera no mesmo lugar (não duplica)")
+	DirAccess.remove_absolute(ProjectSettings.globalize_path(cat_path))
+	DirAccess.remove_absolute(ProjectSettings.globalize_path("res://world/prefabs/teste_categoria"))
+	DirAccess.remove_absolute(ProjectSettings.globalize_path("res://world/props/teste_pneu_categoria.tres"))
+
 	var def: Resource = load("res://props/prop_def.gd").new()
 	def.id = "teste_barril"
 	def.display_name = "Barril de teste"

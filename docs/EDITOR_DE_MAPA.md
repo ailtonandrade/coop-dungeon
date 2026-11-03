@@ -52,6 +52,14 @@ aparece mais a "película" azul por cima do cenário; cenas antigas: botão **Ti
 - Escolhendo uma peça na lista, a **prévia 3D** embaixo dela mostra o modelo girando.
 - As peças são cenas em `world/prefabs`: mudar uma muda todos os lugares que a usam.
 
+### Categorias (pastas)
+
+As peças ficam em `world/prefabs`; cada **subpasta** é uma categoria (`world/prefabs/cidade/` →
+"Cidade"), e as soltas na raiz ficam em "Geral". Para organizar, crie pastas e mova as peças no
+painel **FileSystem** do Godot (arrastando lá dentro o Godot atualiza os blocos que usam a peça;
+fora do Godot, não). A lista do editor de mapa tem o filtro de categoria em cima, e no modo
+construtor o **V** passa de uma categoria para a outra.
+
 ### Objetos 3D próprios (.obj, .glb, .gltf, .fbx)
 
 **Importar objeto 3D…** abre o seletor de arquivos (pode ser fora do projeto: o modelo é copiado
@@ -67,8 +75,13 @@ para `assets/props/importados/<nome>/` junto com o que ele usa, como .mtl e text
     convidados acompanham.
   - **Atravessável:** só enfeite, sem colisão (mato, papel no chão).
 
+**Importar pasta inteira…** traz todos os modelos de uma pasta e das subpastas de uma vez,
+como peças **fixas**, e cada pasta vira uma categoria (um pack com `cidade/` e `natureza/` vira
+as categorias Cidade e Natureza). Depois é só abrir a ficha das que forem físicas, contêineres
+ou enfeites. Importando um modelo só, ele também cai na categoria da pasta de onde veio.
+
 **Salvar peça** grava a ficha em `world/props/<id>.tres` e gera a peça pronta em
-`world/prefabs/<id>.tscn`. **Ficha da peça…** abre a ficha da peça escolhida para mudar (a peça é
+`world/prefabs/<categoria>/<id>.tscn`. **Ficha da peça…** abre a ficha da peça escolhida para mudar (a peça é
 gerada de novo e todos os lugares do mapa que a usam mudam junto). Cone, barril, saco de lixo,
 pilha de pneus, pallet e bloco de concreto já vêm como **físicos**. Peças montadas por partes
 (casas, árvores, NPCs) não têm ficha.
@@ -149,7 +162,8 @@ seletor de peças e, no mundo, o **fantasma** translúcido da peça onde ela vai
 | | Teclado e mouse | Controle |
 |---|---|---|
 | Colocar | clique esquerdo (no cursor) | X (à frente do herói) |
-| Trocar peça | Q / E ou rodinha | direcional ◀ ▶ |
+| Trocar peça (dentro da categoria) | Q / E ou rodinha | direcional ◀ ▶ |
+| Próxima categoria (pasta) | V (Shift+V volta) | direcional ▼ |
 | Girar 45° | R (Shift+R volta) | Y |
 | Desfazer a última | Z | B |
 | Apagar peça do construtor no cursor | Delete | — |

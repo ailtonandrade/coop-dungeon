@@ -3,6 +3,10 @@ class_name PropBuilder
 extends RefCounted
 ## Monta a peça pronta (world/prefabs/<id>.tscn) a partir da ficha (PropDef) e lista as peças
 ## que o editor de mapa e o modo construtor oferecem.
+##
+## Categorias são as subpastas de world/prefabs (world/prefabs/arvores/pinheiro.tscn fica em
+## "Arvores"); as soltas na raiz ficam em "Geral". Para reorganizar, mova os arquivos no
+## FileSystem do Godot (ele atualiza os blocos que usam a peça).
 
 const PREFAB_DIR := "res://world/prefabs"
 const DEF_DIR := "res://world/props"
@@ -10,7 +14,11 @@ const DEF_DIR := "res://world/props"
 const MESH_SCENE_DIR := "res://world/props/models"
 
 
-## Todas as peças prontas: [{path, name, kind, def}] (def é a ficha, ou null nas antigas).
+const GENERAL := "Geral"
+
+
+## Todas as peças prontas, agrupadas por categoria ("Geral" primeiro) e por nome:
+## [{path, name, kind, def, category}] (def é a ficha, ou null nas montadas à mão).
 static func catalog() -> Array[Dictionary]:
 	var defs := {}
 	for file in DirAccess.get_files_at(DEF_DIR):
@@ -20,19 +28,62 @@ static func catalog() -> Array[Dictionary]:
 			if def and not def.id.is_empty():
 				defs[def.id] = def
 	var entries: Array[Dictionary] = []
-	for file in DirAccess.get_files_at(PREFAB_DIR):
-		file = file.trim_suffix(".remap")
-		if not file.ends_with(".tscn"):
-			continue
-		var id := file.get_basename()
+	for path in prefab_files():
+		var id := path.get_file().get_basename()
 		var def: PropDef = defs.get(id)
 		entries.append({
-			"path": PREFAB_DIR.path_join(file),
+			"path": path,
 			"name": def.display_name if def and def.display_name else id.replace("_", " "),
 			"kind": def.kind if def else "",
 			"def": def,
+			"category": category_of(path),
 		})
+	entries.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
+		if a.category != b.category:
+			return a.category == GENERAL or (b.category != GENERAL and a.category.naturalnocasecmp_to(b.category) < 0)
+		return String(a.name).naturalnocasecmp_to(b.name) < 0)
 	return entries
+
+
+## Categorias na ordem do catálogo (sem repetir).
+static func categories(entries: Array[Dictionary]) -> PackedStringArray:
+	var result := PackedStringArray()
+	for entry in entries:
+		if not result.has(entry.category):
+			result.append(entry.category)
+	return result
+
+
+## Todas as cenas de peça, inclusive nas subpastas (categorias).
+static func prefab_files(dir := PREFAB_DIR) -> PackedStringArray:
+	var result := PackedStringArray()
+	for file in DirAccess.get_files_at(dir):
+		file = file.trim_suffix(".remap")
+		if file.ends_with(".tscn") and not result.has(dir.path_join(file)):
+			result.append(dir.path_join(file))
+	for sub in DirAccess.get_directories_at(dir):
+		if not sub.begins_with("."):
+			result.append_array(prefab_files(dir.path_join(sub)))
+	return result
+
+
+## "Geral" para as soltas em world/prefabs; senão o nome da pasta ("arvores_altas" -> "Arvores Altas").
+static func category_of(prefab_path: String) -> String:
+	var folder := prefab_path.get_base_dir().trim_prefix(PREFAB_DIR).trim_prefix("/")
+	if folder.is_empty():
+		return GENERAL
+	var parts := PackedStringArray()
+	for part in folder.split("/"):
+		parts.append(part.capitalize())
+	return " / ".join(parts)
+
+
+## Onde está a peça com esse id (em qualquer pasta), ou "".
+static func prefab_path_of(id: String) -> String:
+	for path in prefab_files():
+		if path.get_file().get_basename() == id:
+			return path
+	return ""
 
 
 ## Id de arquivo a partir de um nome ("Caixa d'água 2" -> "caixa_dagua_2").
@@ -52,7 +103,9 @@ static func id_from(text: String) -> String:
 
 
 ## Salva a ficha e (re)gera a peça pronta. Retorna o caminho da peça, ou "" se falhar.
-static func save(def: PropDef) -> String:
+## Peça que já existe é regerada onde estiver; peça nova vai para a pasta `folder` (categoria,
+## dentro de world/prefabs; vazio = solta, em "Geral").
+static func save(def: PropDef, folder := "") -> String:
 	if def.id.is_empty() or def.model == null:
 		return ""
 	DirAccess.make_dir_recursive_absolute(DEF_DIR)
@@ -68,7 +121,11 @@ static func save(def: PropDef) -> String:
 	root.free()
 	if err != OK:
 		return ""
-	var path := PREFAB_DIR.path_join(def.id + ".tscn")
+	var path := prefab_path_of(def.id)
+	if path.is_empty():
+		var dir := PREFAB_DIR.path_join(id_from(folder)) if not id_from(folder).is_empty() else PREFAB_DIR
+		DirAccess.make_dir_recursive_absolute(dir)
+		path = dir.path_join(def.id + ".tscn")
 	if ResourceSaver.save(packed, path) != OK:
 		return ""
 	packed.take_over_path(path)

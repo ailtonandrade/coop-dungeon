@@ -274,9 +274,15 @@ func get_world_move(slot: int) -> Vector2:
 	return Vector2(world.x, world.z)
 
 
+## Vaga no modo construtor (/construir): lá o V troca a categoria das peças, não abre o microfone.
+var builder_slot := -1
+
+
 ## Apertar para falar (voz): V no teclado ou direcional para cima em qualquer controle do sofá.
 func push_to_talk_pressed() -> bool:
 	for slot in active_slots():
+		if slot == builder_slot:
+			continue
 		var device := _devices[slot]
 		if device == KEYBOARD and Input.is_physical_key_pressed(KEY_V):
 			return true

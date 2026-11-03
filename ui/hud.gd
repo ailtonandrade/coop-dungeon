@@ -187,8 +187,10 @@ func _physics_process(_delta: float) -> void:
 func _check_quick_chat() -> void:
 	for slot in InputService.active_slots():
 		var down := InputService.dpad_down(slot)
+		var player := _local_player(slot)
+		# Construindo (/construir), o ▼ troca a categoria das peças.
 		if down and not _dpad_was.get(slot, false) and not _pause.visible and not _chat.is_open() \
-				and not InputService.is_blocked(slot) and _local_player(slot) != null:
+				and not InputService.is_blocked(slot) and player != null and not player.building:
 			_chat.open_quick(slot)
 		_dpad_was[slot] = down
 

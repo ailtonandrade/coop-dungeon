@@ -6,6 +6,8 @@ extends ConfirmationDialog
 signal saved(prefab_path: String)
 
 var def: PropDef
+## Pasta (categoria) em world/prefabs onde uma peça nova vai ficar.
+var folder := ""
 
 var _name: LineEdit
 var _kind: OptionButton
@@ -60,9 +62,13 @@ func _init() -> void:
 	confirmed.connect(_on_confirmed)
 
 
-func edit(p_def: PropDef) -> void:
+func edit(p_def: PropDef, p_folder := "") -> void:
 	def = p_def
-	_model_label.text = "Modelo: %s" % (def.model.resource_path if def.model else "?")
+	folder = p_folder
+	var existing := PropBuilder.prefab_path_of(def.id) if not def.id.is_empty() else ""
+	var category := PropBuilder.category_of(existing) if existing else (p_folder.capitalize() if p_folder else PropBuilder.GENERAL)
+	_model_label.text = "Modelo: %s\nCategoria: %s%s" % [def.model.resource_path if def.model else "?", category,
+			"  (para mudar, mova a peça para outra pasta de world/prefabs no FileSystem)" if existing else ""]
 	_name.text = def.display_name
 	_kind.select(maxi(PropDef.KINDS.find(def.kind), 0))
 	_scale.value = def.scale
@@ -94,7 +100,7 @@ func _on_confirmed() -> void:
 	def.container_title = _title.text
 	def.gold = int(_gold.value)
 	def.random_items = int(_items.value)
-	saved.emit(PropBuilder.save(def))
+	saved.emit(PropBuilder.save(def, folder))
 
 
 func _line(parent: Control, text: String) -> LineEdit:

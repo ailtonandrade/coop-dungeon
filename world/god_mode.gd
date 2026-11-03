@@ -7,11 +7,12 @@ extends Node
 ## Peça física cai de DROP_HEIGHT, rola e, quando para, fica gravada ali, direto na cena do
 ## bloco (WorldEdits).
 ##
-## Teclado e mouse: clique esquerdo coloca no cursor · Q/E ou rodinha troca a peça · R gira 45°
-## (Shift+R volta) · Z desfaz a última · Delete apaga a peça do construtor no cursor · F edita o
-## conteúdo do contêiner no cursor.
-## Controle: X coloca à frente · direcional ◀ ▶ troca · Y gira · B desfaz · RB edita o
-## contêiner à frente.
+## Teclado e mouse: clique esquerdo coloca no cursor · Q/E ou rodinha troca a peça (dentro da
+## categoria) · V próxima categoria (Shift+V volta) · R gira 45° (Shift+R volta) · Z desfaz a
+## última · Delete apaga a peça do construtor no cursor · F edita o conteúdo do contêiner.
+## Controle: X coloca à frente · direcional ◀ ▶ troca a peça · ▼ próxima categoria · Y gira ·
+## B desfaz · RB edita o contêiner à frente.
+## Categorias = subpastas de world/prefabs (PropBuilder.catalog).
 
 ## O que digitar no chat para entrar e sair.
 const COMMAND := "/construir"
@@ -91,6 +92,7 @@ func start(p_slot: int) -> void:
 	_catalog = PropBuilder.catalog()
 	_index = clampi(_index, 0, maxi(_catalog.size() - 1, 0))
 	_player_of(slot).building = true
+	InputService.builder_slot = slot
 	_rebuild_ghost()
 	_hud.visible = true
 	_refresh_hud()
@@ -105,6 +107,7 @@ func stop() -> void:
 	var player := _player_of(slot)
 	if player:
 		player.building = false
+	InputService.builder_slot = -1
 	active = false
 	if _ghost:
 		_ghost.queue_free()
@@ -118,13 +121,41 @@ func current() -> Dictionary:
 	return _catalog[_index] if _index < _catalog.size() else {}
 
 
+## Troca a peça dentro da categoria atual (dá a volta nela).
 func select_next(step: int) -> void:
 	if _catalog.is_empty():
 		return
-	_index = wrapi(_index + step, 0, _catalog.size())
+	var same := _in_category(current_category())
+	var at := same.find(_index)
+	_index = same[wrapi(at + step, 0, same.size())]
 	Sound.play("ui_move")
 	_rebuild_ghost()
 	_refresh_hud()
+
+
+## Vai para a primeira peça da próxima categoria (pasta).
+func next_category(step: int) -> void:
+	if _catalog.is_empty():
+		return
+	var names := PropBuilder.categories(_catalog)
+	var category: String = names[wrapi(names.find(current_category()) + step, 0, names.size())]
+	_index = _in_category(category)[0]
+	Sound.play("ui_move")
+	_rebuild_ghost()
+	_refresh_hud()
+
+
+func current_category() -> String:
+	return String(current().get("category", PropBuilder.GENERAL))
+
+
+## Índices do catálogo que estão na categoria.
+func _in_category(category: String) -> Array[int]:
+	var result: Array[int] = []
+	for i in _catalog.size():
+		if _catalog[i].category == category:
+			result.append(i)
+	return result
 
 
 func rotate_piece(step_deg: float) -> void:
@@ -288,6 +319,8 @@ func _unhandled_input(event: InputEvent) -> void:
 				select_next(1)
 			KEY_R:
 				rotate_piece(-45.0 if event.shift_pressed else 45.0)
+			KEY_V:
+				next_category(-1 if event.shift_pressed else 1)
 			KEY_Z:
 				undo()
 			KEY_DELETE, KEY_BACKSPACE:
@@ -319,10 +352,13 @@ func _read_pad() -> void:
 			undo()
 	if InputService.raw_just_pressed(slot, InputService.Action.ARTIFACT) and not _loot_panel.visible:
 		open_loot_editor(_container_near(_target) if _target_ok else null)
-	for button: JoyButton in [JOY_BUTTON_DPAD_LEFT, JOY_BUTTON_DPAD_RIGHT]:
+	for button: JoyButton in [JOY_BUTTON_DPAD_LEFT, JOY_BUTTON_DPAD_RIGHT, JOY_BUTTON_DPAD_DOWN]:
 		var down := Input.is_joy_button_pressed(device, button)
 		if down and not _pad_was.get(button, false):
-			select_next(-1 if button == JOY_BUTTON_DPAD_LEFT else 1)
+			if button == JOY_BUTTON_DPAD_DOWN:
+				next_category(1)
+			else:
+				select_next(-1 if button == JOY_BUTTON_DPAD_LEFT else 1)
 		_pad_was[button] = down
 
 
@@ -550,11 +586,15 @@ func _refresh_hud() -> void:
 		_piece.text = "Nenhuma peça em world/prefabs"
 		return
 	var kind_text: String = {"fixo": "fixo", "conteiner": "contêiner", "fisico": "físico (cai e rola)", "atravessavel": "enfeite"}.get(entry.kind, "peça pronta")
-	var before: String = _catalog[wrapi(_index - 1, 0, _catalog.size())].name
-	var after: String = _catalog[wrapi(_index + 1, 0, _catalog.size())].name
-	_piece.text = "◀ %s   [ %s ]   %s ▶" % [before, entry.name, after]
-	_title.text = "MODO CONSTRUTOR · %s · %d/%d" % [kind_text, _index + 1, _catalog.size()]
+	var same := _in_category(current_category())
+	var at := same.find(_index)
+	var names := PropBuilder.categories(_catalog)
+	var before: String = _catalog[same[wrapi(at - 1, 0, same.size())]].name
+	var after: String = _catalog[same[wrapi(at + 1, 0, same.size())]].name
+	_piece.text = "◀ %s   [ %s ]   %s ▶" % [before, entry.name, after] if same.size() > 1 else "[ %s ]" % entry.name
+	_title.text = "MODO CONSTRUTOR · %s (%d/%d) · peça %d/%d · %s" % [current_category().to_upper(),
+			names.find(current_category()) + 1, names.size(), at + 1, same.size(), kind_text]
 	var keyboard := InputService.device_of(slot) == InputService.KEYBOARD
-	_hint.text = ("Clique coloca · Q/E ou rodinha troca · R gira · Z desfaz · Delete apaga · F conteúdo do contêiner · %s no chat sai" % COMMAND if keyboard
-			else "X coloca · ◀ ▶ troca · Y gira · B desfaz · RB conteúdo do contêiner · %s no chat sai" % COMMAND)
+	_hint.text = ("Clique coloca · Q/E ou rodinha troca · V categoria · R gira · Z desfaz · Delete apaga · F conteúdo do contêiner · %s no chat sai" % COMMAND if keyboard
+			else "X coloca · ◀ ▶ troca · ▼ categoria · Y gira · B desfaz · RB conteúdo do contêiner · %s no chat sai" % COMMAND)
 	_hint.text += "\nGrava direto nas cenas dos blocos (mapa oficial)."

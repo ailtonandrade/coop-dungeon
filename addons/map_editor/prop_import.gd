@@ -7,13 +7,33 @@ const IMPORT_DIR := "res://assets/props/importados"
 const IMAGE_EXTENSIONS := ["png", "jpg", "jpeg", "tga", "webp", "bmp"]
 
 
+const MODEL_EXTENSIONS := ["obj", "glb", "gltf", "fbx"]
+
+
+## Categoria de um modelo: o nome da pasta onde ele está ("C:/Packs/Cidade/poste.obj" -> "cidade").
+static func category_from(file: String) -> String:
+	return PropBuilder.id_from(file.get_base_dir().get_file())
+
+
+## Modelos 3D de uma pasta e das subpastas: [[caminho, categoria]] (categoria = pasta de cada um).
+static func models_in(dir: String) -> Array:
+	var found := []
+	for file in DirAccess.get_files_at(dir):
+		if MODEL_EXTENSIONS.has(file.get_extension().to_lower()):
+			found.append([dir.path_join(file), category_from(dir.path_join(file))])
+	for sub in DirAccess.get_directories_at(dir):
+		if not sub.begins_with("."):
+			found.append_array(models_in(dir.path_join(sub)))
+	return found
+
+
 ## Copia o modelo (e o que ele usa: .mtl e texturas do .obj, .bin e imagens do .gltf) para
-## assets/props/importados/<nome>/. Retorna o caminho res:// do modelo, ou "" se falhar.
+## assets/props/importados/<pasta de origem>/. Retorna o caminho res:// do modelo, ou "" se falhar.
 static func copy_into_project(file: String) -> String:
-	var stem := PropBuilder.id_from(file.get_file().get_basename())
-	if stem.is_empty():
-		stem = "modelo"
-	var folder := IMPORT_DIR.path_join(stem)
+	var category := category_from(file)
+	if category.is_empty():
+		category = "modelos"
+	var folder := IMPORT_DIR.path_join(category)
 	DirAccess.make_dir_recursive_absolute(folder)
 	var source_dir := file.get_base_dir()
 	var extras := PackedStringArray()
@@ -56,7 +76,7 @@ static func free_id(base: String) -> String:
 		base = "peca"
 	var id := base
 	var n := 2
-	while FileAccess.file_exists(PropBuilder.PREFAB_DIR.path_join(id + ".tscn")):
+	while not PropBuilder.prefab_path_of(id).is_empty():
 		id = "%s_%d" % [base, n]
 		n += 1
 	return id

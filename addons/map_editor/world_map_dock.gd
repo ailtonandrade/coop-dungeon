@@ -26,6 +26,11 @@ var _preview: SubViewportContainer
 var _ficha: ConfirmationDialog
 var _file_dialog: EditorFileDialog
 var _pending_import := ""
+var _pending_category := ""
+## Importação de pasta inteira: [[caminho res://, categoria]] esperando o Godot importar.
+var _pending_batch: Array = []
+var _category_filter: OptionButton
+var _dir_dialog: EditorFileDialog
 var _stamp_button: Button
 var _vary: CheckBox
 var _report: RichTextLabel
@@ -87,6 +92,10 @@ func _ready() -> void:
 	_button(box, "Sincronizar entradas (depois de mover)", _sync_entrances)
 
 	_header(box, "Peças prontas")
+	_category_filter = OptionButton.new()
+	_category_filter.tooltip_text = "Categorias = subpastas de world/prefabs (mova as peças no FileSystem para organizar)."
+	_category_filter.item_selected.connect(func(_i: int) -> void: _refresh_prefabs())
+	box.add_child(_category_filter)
 	_prefabs = ItemList.new()
 	_prefabs.custom_minimum_size = Vector2(0, 220)
 	_prefabs.max_columns = 0
@@ -103,6 +112,8 @@ func _ready() -> void:
 	box.add_child(prop_row)
 	_button(prop_row, "Importar objeto 3D…", _ask_import)
 	_button(prop_row, "Ficha da peça…", _open_ficha)
+	var import_dir := _button(box, "Importar pasta inteira… (cada pasta vira categoria)", func() -> void: _dir_dialog.popup_file_dialog())
+	import_dir.tooltip_text = "Importa todos os .obj/.glb/.gltf/.fbx da pasta e das subpastas como peças fixas, cada pasta virando uma categoria. Depois ajuste a ficha das que forem físicas, contêineres ou enfeites."
 	_ficha = preload("res://addons/map_editor/prop_ficha.gd").new()
 	_ficha.saved.connect(_on_ficha_saved)
 	add_child(_ficha)
@@ -113,6 +124,12 @@ func _ready() -> void:
 	_file_dialog.add_filter("*.obj, *.glb, *.gltf, *.fbx", "Modelos 3D")
 	_file_dialog.file_selected.connect(_import_model)
 	add_child(_file_dialog)
+	_dir_dialog = EditorFileDialog.new()
+	_dir_dialog.file_mode = EditorFileDialog.FILE_MODE_OPEN_DIR
+	_dir_dialog.access = EditorFileDialog.ACCESS_FILESYSTEM
+	_dir_dialog.title = "Escolha a pasta com os modelos 3D"
+	_dir_dialog.dir_selected.connect(_import_folder)
+	add_child(_dir_dialog)
 	_stamp_button = _button(box, "Colocar clicando na vista (carimbo)", func() -> void: set_stamping(not stamping))
 	_stamp_button.toggle_mode = true
 	_stamp_button.tooltip_text = "Cada clique esquerdo na vista 3D coloca a peça escolhida no chão (ou em cima do que estiver lá). Clique direito ou este botão de novo para parar."
@@ -152,8 +169,21 @@ func _load_map() -> void:
 
 
 func _refresh_prefabs(select_path := "") -> void:
+	var catalog := PropBuilder.catalog()
+	# Filtro de categoria: mantém a escolhida (ou vai para a da peça recém-salva).
+	var wanted := _category_filter.get_item_text(_category_filter.selected) if _category_filter.selected > 0 else ""
+	if select_path:
+		wanted = PropBuilder.category_of(select_path)
+	_category_filter.clear()
+	_category_filter.add_item("Todas as categorias")
+	for category in PropBuilder.categories(catalog):
+		_category_filter.add_item(category)
+		if category == wanted:
+			_category_filter.select(_category_filter.item_count - 1)
 	_prefabs.clear()
-	for entry: Dictionary in PropBuilder.catalog():
+	for entry: Dictionary in catalog:
+		if _category_filter.selected > 0 and entry.category != _category_filter.get_item_text(_category_filter.selected):
+			continue
 		var label: String = entry.name
 		if entry.kind:
 			label += "\n(%s)" % {"fixo": "fixo", "conteiner": "contêiner", "fisico": "físico", "atravessavel": "enfeite"}[entry.kind]
@@ -284,6 +314,7 @@ func _import_model(file: String) -> void:
 			_say("[color=red]Não deu para copiar o modelo para dentro do projeto.[/color]")
 			return
 	_pending_import = res_path
+	_pending_category = PropImport.category_from(file)
 	_say("Importando %s..." % res_path.get_file())
 	EditorInterface.get_resource_filesystem().scan()
 	_wait_import()
@@ -307,8 +338,53 @@ func _wait_import(tries := 0) -> void:
 	def.display_name = stem.replace("_", " ")
 	def.id = PropImport.free_id(PropBuilder.id_from(stem))
 	def.scale = PropImport.suggest_scale(def)
-	_ficha.edit(def)
+	_ficha.edit(def, _pending_category)
 	_say("Modelo importado. Preencha a ficha e salve: a peça aparece na lista.")
+
+
+## Importa todos os modelos da pasta (e subpastas) como peças fixas, cada pasta virando categoria.
+func _import_folder(dir: String) -> void:
+	var models := PropImport.models_in(dir)
+	if models.is_empty():
+		_say("[color=orange]Nenhum .obj/.glb/.gltf/.fbx nessa pasta.[/color]")
+		return
+	_pending_batch = []
+	for pair: Array in models:
+		var res_path := ProjectSettings.localize_path(pair[0])
+		if not res_path.begins_with("res://"):
+			res_path = PropImport.copy_into_project(pair[0])
+		if not res_path.is_empty():
+			_pending_batch.append([res_path, pair[1]])
+	_say("Importando %d modelos..." % _pending_batch.size())
+	EditorInterface.get_resource_filesystem().scan()
+	_wait_batch()
+
+
+func _wait_batch(tries := 0) -> void:
+	var missing := _pending_batch.filter(func(pair: Array) -> bool: return not ResourceLoader.exists(pair[0]))
+	if not missing.is_empty() and tries < 120:
+		get_tree().create_timer(0.5).timeout.connect(_wait_batch.bind(tries + 1))
+		return
+	var made := 0
+	var last := ""
+	for pair: Array in _pending_batch:
+		var model: Resource = load(pair[0]) if ResourceLoader.exists(pair[0]) else null
+		if model == null:
+			continue
+		var stem: String = pair[0].get_file().get_basename()
+		var def := PropDef.new()
+		def.model = model
+		def.display_name = stem.replace("_", " ")
+		def.id = PropImport.free_id(PropBuilder.id_from(stem))
+		def.scale = PropImport.suggest_scale(def)
+		var saved := PropBuilder.save(def, pair[1])
+		if saved:
+			made += 1
+			last = saved
+	_pending_batch = []
+	EditorInterface.get_resource_filesystem().scan()
+	_refresh_prefabs(last)
+	_say("%d peças criadas (fixas), cada pasta virou uma categoria. Ajuste a ficha das que forem físicas, contêineres ou enfeites." % made)
 
 
 func _open_ficha() -> void:
