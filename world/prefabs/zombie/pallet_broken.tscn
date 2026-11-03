@@ -1,0 +1,16 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://assets/props/packs/Zombie/Environment/glTF/Pallet_Broken.gltf" id="1_iur8t"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_eu0fv"]
+size = Vector3(0.9172976, 0.16393404, 1.2221136)
+
+[node name="PalletBroken" type="StaticBody3D" unique_id=1132858179]
+metadata/prop_def = "res://world/props/pallet_broken.tres"
+
+[node name="Modelo" type="Node3D" parent="." unique_id=1611501406 instance=ExtResource("1_iur8t")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0025770664, -0.00043001398, -0.00097060204)
+
+[node name="Collision" type="CollisionShape3D" parent="." unique_id=1325964359]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.08196702, 0)
+shape = SubResource("BoxShape3D_eu0fv")

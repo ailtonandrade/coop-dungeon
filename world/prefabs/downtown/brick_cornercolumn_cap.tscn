@@ -1,0 +1,16 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://assets/props/packs/DownTown/Brick_CornerColumn_Cap.gltf" id="1_m3l1v"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_ydcjl"]
+size = Vector3(1.2600001, 1.0123003, 1.26)
+
+[node name="BrickCornerColumnCap" type="StaticBody3D" unique_id=1297877411]
+metadata/prop_def = "res://world/props/brick_cornercolumn_cap.tres"
+
+[node name="Modelo" type="Node3D" parent="." unique_id=1028963186 instance=ExtResource("1_m3l1v")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.39999992, -2, 0.39999998)
+
+[node name="Collision" type="CollisionShape3D" parent="." unique_id=151102389]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5061501, 0)
+shape = SubResource("BoxShape3D_ydcjl")

@@ -1,0 +1,16 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://assets/props/packs/Zombie/Environment/glTF/CinderBlock.gltf" id="1_pryyw"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_bn8iy"]
+size = Vector3(0.47155374, 0.22737953, 0.21452652)
+
+[node name="CinderBlock" type="StaticBody3D" unique_id=1152183862]
+metadata/prop_def = "res://world/props/cinderblock.tres"
+
+[node name="Modelo" type="Node3D" parent="." unique_id=1499846044 instance=ExtResource("1_pryyw")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.0032515824, -7.450581e-09)
+
+[node name="Collision" type="CollisionShape3D" parent="." unique_id=360083402]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.113689765, 0)
+shape = SubResource("BoxShape3D_bn8iy")

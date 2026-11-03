@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="PropDef" format=3]
+
+[ext_resource type="PackedScene" path="res://assets/props/packs/Zombie/Vehicles/glTF/Vehicle_Sports.gltf" id="1_gm07g"]
+[ext_resource type="Script" path="res://props/prop_def.gd" id="2_ei8we"]
+
+[resource]
+script = ExtResource("2_ei8we")
+id = "vehicle_sports"
+display_name = "Vehicle Sports"
+model = ExtResource("1_gm07g")

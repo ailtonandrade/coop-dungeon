@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="PropDef" format=3]
+
+[ext_resource type="PackedScene" path="res://assets/props/packs/DownTown/Brick_90Angle_R.gltf" id="1_db7kf"]
+[ext_resource type="Script" path="res://props/prop_def.gd" id="2_37mfr"]
+
+[resource]
+script = ExtResource("2_37mfr")
+id = "brick_90angle_r"
+display_name = "Brick 90Angle R"
+model = ExtResource("1_db7kf")

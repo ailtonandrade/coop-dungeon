@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="PropDef" format=3]
+
+[ext_resource type="PackedScene" path="res://assets/props/packs/DownTown/Brick_Plain_3.gltf" id="1_6tsc5"]
+[ext_resource type="Script" path="res://props/prop_def.gd" id="2_jwta8"]
+
+[resource]
+script = ExtResource("2_jwta8")
+id = "brick_plain_3"
+display_name = "Brick Plain 3"
+model = ExtResource("1_6tsc5")

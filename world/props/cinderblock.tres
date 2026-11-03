@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="PropDef" format=3]
+
+[ext_resource type="PackedScene" path="res://assets/props/packs/Zombie/Environment/glTF/CinderBlock.gltf" id="1_pchfc"]
+[ext_resource type="Script" path="res://props/prop_def.gd" id="2_3ydb8"]
+
+[resource]
+script = ExtResource("2_3ydb8")
+id = "cinderblock"
+display_name = "CinderBlock"
+model = ExtResource("1_pchfc")

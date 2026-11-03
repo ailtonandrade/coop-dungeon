@@ -1,0 +1,16 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://assets/props/packs/DownTown/Brick_Ornament_Horizontal.gltf" id="1_fl7x8"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_2a6xv"]
+size = Vector3(2, 0.3140063, 0.051402777)
+
+[node name="BrickOrnamentHorizontal" type="StaticBody3D" unique_id=502652647]
+metadata/prop_def = "res://world/props/brick_ornament_horizontal.tres"
+
+[node name="Modelo" type="Node3D" parent="." unique_id=396665989 instance=ExtResource("1_fl7x8")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.16814113, -0.026850956)
+
+[node name="Collision" type="CollisionShape3D" parent="." unique_id=964106783]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.15700315, 0)
+shape = SubResource("BoxShape3D_2a6xv")

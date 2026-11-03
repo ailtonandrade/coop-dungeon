@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="PropDef" format=3]
+
+[ext_resource type="PackedScene" path="res://assets/props/packs/DownTown/Brick_Inset_Window_Curved.gltf" id="1_erv06"]
+[ext_resource type="Script" path="res://props/prop_def.gd" id="2_uv1ca"]
+
+[resource]
+script = ExtResource("2_uv1ca")
+id = "brick_inset_window_curved"
+display_name = "Brick Inset Window Curved"
+model = ExtResource("1_erv06")

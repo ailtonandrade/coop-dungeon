@@ -1,0 +1,16 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://assets/props/packs/Zombie/Environment/glTF/Barrel.gltf" id="1_pvgk4"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_hjn4t"]
+size = Vector3(0.7041178, 1.1449082, 0.70411783)
+
+[node name="Barrel" type="StaticBody3D" unique_id=866342718]
+metadata/prop_def = "res://world/props/barrel.tres"
+
+[node name="Modelo" type="Node3D" parent="." unique_id=1127926361 instance=ExtResource("1_pvgk4")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.1920929e-07, -0.0017448686, 1.7881393e-07)
+
+[node name="Collision" type="CollisionShape3D" parent="." unique_id=1304269062]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5724541, 0)
+shape = SubResource("BoxShape3D_hjn4t")

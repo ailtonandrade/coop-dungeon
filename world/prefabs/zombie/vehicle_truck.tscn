@@ -1,0 +1,16 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://assets/props/packs/Zombie/Vehicles/glTF/Vehicle_Truck.gltf" id="1_rqg18"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_l7hhm"]
+size = Vector3(2.7092824, 2.8839679, 5.255568)
+
+[node name="VehicleTruck" type="StaticBody3D" unique_id=416684161]
+metadata/prop_def = "res://world/props/vehicle_truck.tres"
+
+[node name="Modelo" type="Node3D" parent="." unique_id=967583109 instance=ExtResource("1_rqg18")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.0006736948, 0.43520737)
+
+[node name="Collision" type="CollisionShape3D" parent="." unique_id=1023438773]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.4419839, 0)
+shape = SubResource("BoxShape3D_l7hhm")

@@ -1,0 +1,16 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://assets/props/packs/Zombie/Environment/glTF/TrafficBarrier_1.gltf" id="1_wjqs1"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_h1nw2"]
+size = Vector3(1.5553299, 1.1119834, 0.88062197)
+
+[node name="TrafficBarrier1" type="StaticBody3D" unique_id=1339943651]
+metadata/prop_def = "res://world/props/trafficbarrier_1.tres"
+
+[node name="Modelo" type="Node3D" parent="." unique_id=1849223737 instance=ExtResource("1_wjqs1")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.0064981254, 0)
+
+[node name="Collision" type="CollisionShape3D" parent="." unique_id=943077580]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5559917, 0)
+shape = SubResource("BoxShape3D_h1nw2")
