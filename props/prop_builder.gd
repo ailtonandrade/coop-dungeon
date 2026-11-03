@@ -53,7 +53,7 @@ static func catalog(include_packs := false) -> Array[Dictionary]:
 		for pack: Array in pack_models():
 			if not used.has(pack[0]):
 				entries.append({"path": pack[0], "name": String(pack[0]).get_file().get_basename().replace("_", " "),
-						"kind": "fixo", "def": null, "category": id_from(pack[1]).capitalize(), "raw": true, "pack": pack[1]})
+						"kind": "estrutura" if PropDef.looks_structural(String(pack[0]).get_file().get_basename()) else "fixo", "def": null, "category": id_from(pack[1]).capitalize(), "raw": true, "pack": pack[1]})
 	entries.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
 		if a.category != b.category:
 			return a.category == GENERAL or (b.category != GENERAL and a.category.naturalnocasecmp_to(b.category) < 0)
@@ -110,7 +110,7 @@ static func make_from_model(model_path: String, pack: String) -> String:
 	def.display_name = model_path.get_file().get_basename().replace("_", " ")
 	var base := id_from(model_path.get_file().get_basename())
 	def.id = free_id(base if prefab_path_of(base).is_empty() else "%s_%s" % [id_from(pack), base])
-	def.kind = "fixo"
+	def.kind = "estrutura" if PropDef.looks_structural(model_path.get_file().get_basename()) else "fixo"
 	def.scale = suggest_scale(def)
 	return save(def, pack)
 
@@ -276,7 +276,7 @@ static func build(def: PropDef) -> Node3D:
 			chest.model = model_scene
 			chest.model_scale = def.scale
 			root = chest
-		"fixo":
+		"fixo", "estrutura":
 			root = StaticBody3D.new()
 			(root as StaticBody3D).collision_layer = GameConfig.LAYER_WORLD
 		_:
@@ -288,7 +288,7 @@ static func build(def: PropDef) -> Node3D:
 		model.owner = root
 	else:
 		model.free()
-	if def.kind == "fixo" or def.kind == "fisico":
+	if def.kind in ["fixo", "fisico", "estrutura"]:
 		var shape := BoxShape3D.new()
 		shape.size = box.size.max(Vector3.ONE * 0.05)
 		var collision := CollisionShape3D.new()

@@ -8,3 +8,4 @@ script = ExtResource("2_uv1ca")
 id = "brick_inset_window_curved"
 display_name = "Brick Inset Window Curved"
 model = ExtResource("1_erv06")
+kind = "estrutura"

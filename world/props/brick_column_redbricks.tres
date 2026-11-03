@@ -8,3 +8,4 @@ script = ExtResource("2_gefqb")
 id = "brick_column_redbricks"
 display_name = "Brick Column RedBricks"
 model = ExtResource("1_is7my")
+kind = "estrutura"

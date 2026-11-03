@@ -8,3 +8,4 @@ script = ExtResource("2_qktjn")
 id = "brick_corner_plain"
 display_name = "Brick Corner Plain"
 model = ExtResource("1_rm0nb")
+kind = "estrutura"

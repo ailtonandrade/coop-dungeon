@@ -8,3 +8,4 @@ script = ExtResource("2_37mfr")
 id = "brick_90angle_r"
 display_name = "Brick 90Angle R"
 model = ExtResource("1_db7kf")
+kind = "estrutura"

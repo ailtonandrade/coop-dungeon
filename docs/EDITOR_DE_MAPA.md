@@ -202,6 +202,14 @@ seletor de peças e, no mundo, o **fantasma** translúcido da peça onde ela vai
   tamanho e o que foi ajustado nela (texto e cor do letreiro). R gira antes de largar. Peça do
   mapa muda de lugar dentro do mesmo bloco; as do construtor vão para qualquer bloco.
   Apagou sem querer? A cena do bloco está no Git: dá para voltar.
+- **Estrutura** (paredes, pisos, telhados, colunas, janelas do pack DownTown): fica exatamente
+  onde você larga (não cai), gira de 90 em 90 e **encaixa na estrutura vizinha**: chegue perto
+  da ponta de uma parede e a nova cola do lado, sem fresta; mire em cima e vira outro andar;
+  gire 90° perto da ponta e fecha o canto. Longe de outra estrutura, prende numa grade de meio
+  metro. Peças de pack com nome de parede/piso/telhado/janela já entram como estrutura; dá
+  para trocar o tipo na ficha (Importar objeto 3D).
+- Peça **fixa** comum (barreira, poste, caixa...) solta no ar desce até o chão, ou até o que
+  estiver embaixo (mesa, laje).
 - Peça **física** (cone, barril, pneus...) nasce 1,5 m acima, cai, rola e, quando para, fica
   gravada exatamente onde parou. As outras gravam na hora.
 - **Contêiner** colocado pelo construtor: F/RB abre a lista de itens (clique duplo / A põe; na

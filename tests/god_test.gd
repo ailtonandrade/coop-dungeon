@@ -111,6 +111,32 @@ func _process(_delta: float) -> bool:
 					and moved.size() == 1 and absf(float(moved[0].xform[9]) - (fixed.position.x)) < 0.05,
 					"largou no lugar novo, girada, e o registro foi junto")
 			_check(_placed().size() == 2, "mudar de lugar não duplica a peça")
+			# Estrutura (parede de tijolo do pack): fica onde larga e encaixa na vizinha.
+			_select("brick_plain_1.tscn")
+			_check(_god._current_kind() == "estrutura", "parede do pack é estrutura")
+			var base_point: Vector3 = _player().global_position + Vector3(4, 0, -4)
+			_god._yaw = 0.0
+			var wall_a: Node3D = _god.place_at(base_point)
+			var width: float = _god.box_of(wall_a).size.x
+			# Mira meio torta perto da ponta direita: encaixa certinho do lado.
+			var wall_b: Node3D = _god.place_at(base_point + Vector3(width + 0.35, 0.0, 0.3))
+			var side: Vector3 = wall_b.global_position - wall_a.global_position
+			_check(absf(side.x - width) < 0.01 and absf(side.z) < 0.01 and absf(side.y) < 0.01,
+					"segunda parede encaixa ao lado, sem fresta (%s)" % side)
+			# Em cima: outro andar de tijolo.
+			var height: float = _god.box_of(wall_a).size.y
+			var wall_c: Node3D = _god.place_at(wall_a.global_position + Vector3(0.2, height, 0.1))
+			var up: Vector3 = wall_c.global_position - wall_a.global_position
+			_check(absf(up.y - height) < 0.01 and absf(up.x) < 0.01 and absf(up.z) < 0.01, "e empilha em cima (%s)" % up)
+			_god.rotate_piece(45.0)
+			_check(is_equal_approx(_god._yaw, PI / 2.0), "estrutura gira de 90 em 90")
+			_god._yaw = 0.0
+			# Peça fixa comum largada no ar desce até o chão.
+			_select("barreira.tscn")
+			var dropped: Transform3D = _god.placement(_player().global_position + Vector3(-2, 2.5, 3))
+			_check(dropped.origin.y < 0.2, "objeto solto no ar desce até o chão (y %.2f)" % dropped.origin.y)
+			for wall: Node3D in [wall_a, wall_b, wall_c]:
+				_god.remove_piece(String(wall.name))
 			# Peça do mapa (poste do editor): nos testes nunca mexe nos arquivos do mapa.
 			var lamp: Array = root.find_children("*", "", true, false).filter(func(n: Node) -> bool: return n.scene_file_path.ends_with("poste_de_luz.tscn"))
 			if not lamp.is_empty():

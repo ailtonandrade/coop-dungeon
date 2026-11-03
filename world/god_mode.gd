@@ -22,6 +22,9 @@ const MapWriter := preload("res://world/map_writer.gd")
 const DROP_HEIGHT := 1.5
 const AHEAD := 2.5
 const REMOVE_RADIUS := 1.6
+## Encaixe de estrutura: grade sem vizinha e distância máxima até a vizinha.
+const GRID := 0.5
+const SNAP_REACH := 1.6
 ## Peça física que não parar sozinha em tanto tempo é gravada onde estiver.
 const SETTLE_MAX := 6.0
 
@@ -163,6 +166,10 @@ func _in_category(category: String) -> Array[int]:
 
 
 func rotate_piece(step_deg: float) -> void:
+	# Estrutura (parede, piso...) gira de 90 em 90, para fechar cantos certinho.
+	if _current_kind() == "estrutura":
+		step_deg = 90.0 * signf(step_deg)
+		_yaw = snappedf(_yaw, PI / 2.0)
 	_yaw = wrapf(_yaw + deg_to_rad(step_deg), 0.0, TAU)
 
 
@@ -198,7 +205,10 @@ func place_at(point: Vector3) -> Node3D:
 		node.container_id = id
 	var physics := node is RigidBody3D
 	WorldEdits.parent_in(chunk).add_child(node)
-	node.global_transform = Transform3D(Basis(Vector3.UP, _yaw), point + Vector3.UP * (DROP_HEIGHT if physics else 0.0))
+	if physics:
+		node.global_transform = Transform3D(Basis(Vector3.UP, _yaw), point + Vector3.UP * DROP_HEIGHT)
+	else:
+		node.global_transform = placement(point)
 	Sound.play("ui_confirm", point)
 	if physics:
 		_settling.append([node, found[1], 0.0])
@@ -333,6 +343,9 @@ func drop_carried(point: Vector3) -> bool:
 		Sound.play("ui_error")
 		return false
 	var wanted := Transform3D(Basis(Vector3.UP, _yaw) * Basis.from_scale(node.global_basis.get_scale()), point + Vector3.UP * _carry_lift)
+	if kind_of_node(node) == "estrutura":
+		var snapped := placement(point)
+		wanted = Transform3D(snapped.basis * Basis.from_scale(node.global_basis.get_scale()), snapped.origin)
 	if _is_builder_piece(node):
 		var old_key: String = streamer.key_of(old_chunk)
 		if WorldEdits.saves_in_map_files():
@@ -368,7 +381,8 @@ func remove_piece(id: String) -> bool:
 	var removed := false
 	for chunk: Node3D in streamer.get_children():
 		var node := WorldEdits.parent_in(chunk).get_node_or_null(NodePath(id))
-		if node == null:
+		# Já apagada neste quadro (some no fim dele): não conta de novo.
+		if node == null or node.is_queued_for_deletion():
 			continue
 		var key: String = streamer.chunk_at(node.global_position)[1]
 		if WorldEdits.saves_in_map_files():
@@ -401,6 +415,160 @@ func _finalize(node: Node3D, key: String) -> void:
 	WorldStreamer.bake_navigation(chunk, true)
 
 
+## Encaixe
+
+## Onde a peça escolhida (ou a carregada) fica se largar agora no ponto:
+## - estrutura (parede, piso, telhado...): fica onde está, sem cair, e encaixa na estrutura
+##   vizinha (lado com lado ou em cima, com o giro dela de 90 em 90); longe de outra, prende
+##   numa grade de meio metro;
+## - peça fixa, contêiner ou enfeite solto no ar: desce até o chão (ou o que tiver embaixo);
+## - peça física: cai sozinha (nasce no alto, ver place_at).
+func placement(point: Vector3) -> Transform3D:
+	var basis := Basis(Vector3.UP, _yaw)
+	var kind := kind_of_node(_carrying) if is_instance_valid(_carrying) else _current_kind()
+	if kind == "estrutura":
+		var box := _carried_box() if is_instance_valid(_carrying) else _entry_box(current())
+		return _snap_structure(point, box)
+	if kind != "fisico":
+		point = _floor_below(point)
+	return Transform3D(basis, point)
+
+
+func _current_kind() -> String:
+	if is_instance_valid(_carrying):
+		return kind_of_node(_carrying)
+	return String(current().get("kind", "fixo"))
+
+
+## Tipo da peça já no mundo (pela ficha dela), "" se não tiver ficha.
+static func kind_of_node(node: Node) -> String:
+	if node == null or not node.has_meta("prop_def"):
+		return ""
+	var path := String(node.get_meta("prop_def"))
+	if not _kind_cache.has(path):
+		var def := load(path) as PropDef if ResourceLoader.exists(path) else null
+		_kind_cache[path] = def.kind if def else ""
+	return _kind_cache[path]
+
+
+static var _kind_cache := {}
+static var _box_cache := {}
+
+
+## Caixa da peça (no espaço dela) pela colisão (as peças prontas têm a base no chão e o centro no meio).
+static func box_of(node: Node) -> AABB:
+	var collision := node.get_node_or_null("Collision") as CollisionShape3D
+	if collision and collision.shape is BoxShape3D:
+		var size := (collision.shape as BoxShape3D).size
+		return AABB(collision.position - size / 2.0, size)
+	var box := AABB()
+	var first := true
+	for mesh: MeshInstance3D in node.find_children("*", "MeshInstance3D", true, false):
+		var local := _relative(node, mesh) * mesh.get_aabb()
+		box = local if first else box.merge(local)
+		first = false
+	return box if not first else AABB(Vector3(-0.5, 0, -0.5), Vector3.ONE)
+
+
+func _entry_box(entry: Dictionary) -> AABB:
+	var path := String(entry.get("path", ""))
+	if _box_cache.has(path):
+		return _box_cache[path]
+	var box := AABB(Vector3(-0.5, 0, -0.5), Vector3.ONE)
+	if entry.get("raw", false):
+		var preview := PropBuilder.preview_from_model(path)
+		if preview:
+			var raw := box_of(preview)
+			# Ao carimbar, a peça fica com a base no chão e o centro no meio.
+			box = AABB(Vector3(-raw.size.x / 2.0, 0, -raw.size.z / 2.0), raw.size)
+			preview.free()
+	elif ResourceLoader.exists(path):
+		var node := (load(path) as PackedScene).instantiate()
+		box = box_of(node)
+		node.free()
+	_box_cache[path] = box
+	return box
+
+
+func _carried_box() -> AABB:
+	return box_of(_carrying)
+
+
+func _floor_below(point: Vector3) -> Vector3:
+	var space := get_viewport().world_3d.direct_space_state if get_viewport() else null
+	if space == null:
+		return point
+	var from := point + Vector3.UP * 0.3
+	var query := PhysicsRayQueryParameters3D.create(from, from + Vector3.DOWN * 40.0, GameConfig.LAYER_SOLID)
+	if is_instance_valid(_carrying) and _carrying is CollisionObject3D:
+		query.exclude = [(_carrying as CollisionObject3D).get_rid()]
+	var hit := space.intersect_ray(query)
+	return hit.position if not hit.is_empty() else point
+
+
+## Estruturas já no mundo perto do ponto (as do mapa e as do construtor).
+func _structures_near(point: Vector3, reach: float) -> Array[Node3D]:
+	var found: Array[Node3D] = []
+	var streamer := WorldStreamer.of(self)
+	if streamer == null:
+		return found
+	for chunk: Node in streamer.get_children():
+		for node: Node in chunk.find_children("*", "StaticBody3D", true, false):
+			if node == _carrying or not node.has_meta("prop_def") or kind_of_node(node) != "estrutura":
+				continue
+			if (node as Node3D).global_position.distance_to(point) < reach:
+				found.append(node)
+	return found
+
+
+## Encaixe de estrutura: lado com lado (paredes em fila, cantos) ou em cima (outro andar), na
+## vizinha mais perto do ponto; sem vizinha perto, grade de meio metro.
+func _snap_structure(point: Vector3, box: AABB) -> Transform3D:
+	var half := box.size / 2.0
+	var center_local := box.get_center()
+	var want := point + Vector3.UP * half.y
+	var best := Transform3D(Basis(Vector3.UP, snappedf(_yaw, PI / 2.0)),
+			Vector3(snappedf(point.x, GRID), point.y, snappedf(point.z, GRID)))
+	var best_distance := SNAP_REACH + maxf(box.size.x, box.size.z) * 0.5
+	for neighbor in _structures_near(point, 14.0):
+		var n_xform := neighbor.global_transform.orthonormalized()
+		var n_box := box_of(neighbor)
+		var n_scale := neighbor.global_basis.get_scale()
+		n_box = AABB(n_box.position * n_scale, n_box.size * n_scale)
+		var n_center := n_box.get_center()
+		var n_half := n_box.size / 2.0
+		var n_yaw := n_xform.basis.get_euler().y
+		# Giro da peça nova relativo à vizinha, sempre de 90 em 90.
+		var turns := roundi(wrapf(_yaw - n_yaw, -PI, PI) / (PI / 2.0))
+		var relative := Basis(Vector3.UP, turns * PI / 2.0)
+		var new_half := (relative * half).abs()
+		var new_center_offset := relative * center_local
+		var spots: Array[Vector3] = [
+			Vector3(n_center.x + n_half.x + new_half.x, n_center.y - n_half.y + new_half.y, n_center.z),
+			Vector3(n_center.x - n_half.x - new_half.x, n_center.y - n_half.y + new_half.y, n_center.z),
+			Vector3(n_center.x, n_center.y - n_half.y + new_half.y, n_center.z + n_half.z + new_half.z),
+			Vector3(n_center.x, n_center.y - n_half.y + new_half.y, n_center.z - n_half.z - new_half.z),
+			Vector3(n_center.x, n_center.y + n_half.y + new_half.y, n_center.z),
+		]
+		# Canto: parede girada 90° encosta na ponta da vizinha.
+		if turns % 2 != 0:
+			for side: float in [-1.0, 1.0]:
+				for depth: float in [-1.0, 1.0]:
+					spots.append(Vector3(n_center.x + side * (n_half.x - new_half.x), n_center.y - n_half.y + new_half.y,
+							n_center.z + depth * (n_half.z + new_half.z)))
+		for spot in spots:
+			var world_center: Vector3 = n_xform * spot
+			# Lugar já ocupado por outra estrutura igual: pula.
+			if world_center.distance_to(n_xform * n_center) < 0.05:
+				continue
+			var distance := world_center.distance_to(want)
+			if distance < best_distance:
+				best_distance = distance
+				var basis := n_xform.basis * relative
+				best = Transform3D(basis, n_xform * (spot - new_center_offset))
+	return best
+
+
 func _physics_process(delta: float) -> void:
 	for item: Array in _settling.duplicate():
 		var body := item[0] as RigidBody3D
@@ -421,7 +589,8 @@ func _physics_process(delta: float) -> void:
 	_read_pad()
 	if _ghost:
 		_ghost.visible = _target_ok
-		_ghost.global_transform = Transform3D(Basis(Vector3.UP, _yaw), _target)
+		_ghost.global_transform = placement(_target) if not is_instance_valid(_carrying) or kind_of_node(_carrying) == "estrutura" \
+				else Transform3D(Basis(Vector3.UP, _yaw), _target)
 
 
 ## Ponto onde a peça vai: o cursor do mouse no chão (teclado) ou à frente do herói (controle).
@@ -770,7 +939,7 @@ func _refresh_hud() -> void:
 	if entry.is_empty():
 		_piece.text = "Nenhuma peça em world/prefabs"
 		return
-	var kind_text: String = {"fixo": "fixo", "conteiner": "contêiner", "fisico": "físico (cai e rola)", "atravessavel": "enfeite"}.get(entry.kind, "peça pronta")
+	var kind_text: String = {"fixo": "fixo (cai até o chão)", "conteiner": "contêiner", "fisico": "físico (cai e rola)", "atravessavel": "enfeite", "estrutura": "estrutura (encaixa)"}.get(entry.kind, "peça pronta")
 	if entry.get("raw", false):
 		kind_text = "do pack (vira peça fixa ao carimbar)"
 	var same := _in_category(current_category())

@@ -186,7 +186,7 @@ func _refresh_prefabs(select_path := "") -> void:
 			continue
 		var label: String = entry.name
 		if entry.kind:
-			label += "\n(%s)" % {"fixo": "fixo", "conteiner": "contêiner", "fisico": "físico", "atravessavel": "enfeite"}[entry.kind]
+			label += "\n(%s)" % {"fixo": "fixo", "conteiner": "contêiner", "fisico": "físico", "atravessavel": "enfeite", "estrutura": "estrutura"}.get(entry.kind, entry.kind)
 		var index := _prefabs.add_item(label)
 		_prefabs.set_item_metadata(index, entry.path)
 		_prefabs.set_item_tooltip(index, "%s\n%s" % [entry.path, entry.def.kind_name() if entry.def else "peça montada à mão"])
