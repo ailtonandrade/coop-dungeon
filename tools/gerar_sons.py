@@ -424,11 +424,39 @@ def make_ambience():
     save(MUSIC, "ambiente_ferro_velho", loop_seam(out, 2.0), peak=0.7, quality=4)
 
 
+def make_rain():
+    """Chuva em loop: chiado largo e macio (chuva longe) + gotas batendo perto (chão, lata, toldo)."""
+    seconds = 24.0
+    n = int(seconds * RATE)
+    rng_ = np.random.default_rng(77)
+    bed = fft_filter(rng_.uniform(-1, 1, n), 300, 6000)
+    bed = onepole_lowpass(bed, 4500)
+    # Sobe e desce devagar (rajadas).
+    bed *= 0.8 + 0.2 * np.sin(2 * np.pi * t(seconds) / 7.0) ** 2
+    drops = np.zeros(n)
+    for _ in range(1400):
+        start = int(rng_.uniform(0, seconds - 0.05) * RATE)
+        length = int(rng_.uniform(0.006, 0.02) * RATE)
+        grain = bandpass(rng_.uniform(-1, 1, length), rng_.uniform(900, 2500), rng_.uniform(3500, 8000))
+        grain *= env(length, 0.0003, length / RATE * 0.4) * rng_.uniform(0.2, 1.0)
+        drops[start:start + length] += grain
+    # Gotas mais pesadas de vez em quando (lata, toldo).
+    for _ in range(90):
+        start = int(rng_.uniform(0, seconds - 0.2) * RATE)
+        tone = metal(rng_.uniform(500, 1400), 0.12, 0.3) * rng_.uniform(0.05, 0.15)
+        drops[start:start + len(tone)] += tone[: n - start]
+    out = bed * 0.55 + onepole_lowpass(drops, 6000) * 0.5
+    save(MUSIC, "chuva", loop_seam(out, 2.0), peak=0.7, quality=4)
+
+
 if __name__ == "__main__":
     if subprocess.run(["ffmpeg", "-version"], capture_output=True).returncode != 0:
         sys.exit("Precisa do ffmpeg no PATH.")
     if sys.argv[1:] == ["ui"]:
         make_ui()
+        sys.exit(0)
+    if sys.argv[1:] == ["chuva"]:
+        make_rain()
         sys.exit(0)
     if sys.argv[1:] == ["passos"]:
         make_steps()

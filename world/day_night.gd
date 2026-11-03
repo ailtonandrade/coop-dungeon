@@ -134,13 +134,19 @@ func _apply() -> void:
 	if environment == null or sun == null:
 		return
 	var light := sample(hour)
+	# Chuva fecha o céu: menos sol, céu e névoa cinza, neblina mais perto.
+	var weather := get_tree().get_first_node_in_group("weather")
+	var rain: float = float(weather.get("level")) if weather else 0.0
+	var grey: Color = Color(0.16, 0.17, 0.19) * (0.35 + 0.65 * float(light.ambient_energy) / 0.5)
+	light.sky = (light.sky as Color).lerp(grey, rain * 0.6)
 	environment.background_color = light.sky
 	environment.ambient_light_color = light.ambient
-	environment.ambient_light_energy = light.ambient_energy
+	environment.ambient_light_energy = light.ambient_energy * (1.0 - 0.18 * rain)
 	environment.fog_light_color = light.sky.lerp(Color(0.1, 0.09, 0.14), 0.5)
+	environment.fog_depth_begin = lerpf(45.0, 26.0, rain)
 	environment.glow_intensity = _base_glow * light.neon
 	sun.light_color = light.sun
-	sun.light_energy = light.sun_energy
+	sun.light_energy = light.sun_energy * (1.0 - 0.55 * rain)
 	sun.rotation_degrees = sun_angles(hour)
 	# Poças espelham o céu da hora.
 	PUDDLE_MATERIAL.set_shader_parameter("sky", (light.sky as Color).lerp(light.ambient * light.ambient_energy, 0.6))

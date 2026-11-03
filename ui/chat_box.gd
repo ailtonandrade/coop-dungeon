@@ -114,6 +114,13 @@ func _submit(text: String) -> void:
 		god.toggle(player.slot)
 		close()
 		return
+	# Dono do jogo: "/chuva" liga ou desliga a chuva.
+	var weather := Weather.of(get_tree())
+	if player and god and god.allowed() and weather and text.strip_edges().to_lower() == "/chuva":
+		weather.set_rain(not weather.is_raining())
+		Chat.local_note("Chuva começando." if weather.is_raining() else "Chuva parando.")
+		close()
+		return
 	# Dono do jogo: "/hora 20" (ou 20:30) muda a hora do mundo, para testar o dia e a noite.
 	var clock := DayNight.of(get_tree())
 	if player and god and god.allowed() and clock and text.strip_edges().to_lower().begins_with("/hora"):

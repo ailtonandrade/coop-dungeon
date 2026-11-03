@@ -12,6 +12,8 @@ signal status_changed(text: String)
 signal peer_ready(peer_id: int)
 ## Convidado: chegou a hora do mundo mandada pelo host (DayNight acerta o relógio).
 signal clock_received(hour: float)
+## Convidado: o host mudou o clima (chuva 0..1).
+signal weather_received(rain: float)
 
 ## Versão do jogo (application/config/version): convidado e host precisam estar na mesma.
 var GAME_VERSION := str(ProjectSettings.get_setting("application/config/version", "0.0.0"))
@@ -451,6 +453,20 @@ func send_clock(hour: float) -> void:
 		return
 	for peer in ready_peers():
 		_rpc_clock.rpc_id(peer, hour)
+
+
+## Host: avisa quem está jogando que a chuva começou ou parou.
+func send_weather(rain: float) -> void:
+	if mode != Mode.HOST:
+		return
+	for peer in ready_peers():
+		_rpc_weather.rpc_id(peer, rain)
+
+
+@rpc("authority", "call_remote", "reliable")
+func _rpc_weather(rain: float) -> void:
+	world["rain"] = rain
+	weather_received.emit(rain)
 
 
 @rpc("authority", "call_remote", "unreliable_ordered")

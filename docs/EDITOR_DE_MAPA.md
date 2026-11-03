@@ -177,6 +177,11 @@ comando não vai para o chat da sala; o aviso "Modo construtor ligado" só apare
 ver como fica o dia, o pôr do sol e a noite (postes acendem sozinhos de 18h40 a 5h40). Também
 só para o dono do jogo, rodando pelo editor; os amigos conectados veem a mesma hora.
 
+**Chuva:** vem e vai sozinha (trechos de 3 a 8 minutos, ~1 em cada 3 com chuva). `/chuva` no chat
+liga ou desliga na hora. Chovendo: gotas e respingos em volta dos heróis, som de chuva, chão
+molhado brilhando nas luzes, poças maiores com ondinhas e o céu mais fechado. Dentro de
+casa/caverna a chuva some e o som fica abafado. Amigos conectados veem a mesma chuva.
+
 O herói continua andando (e correndo), não luta e as criaturas o ignoram. Embaixo aparece o
 seletor de peças e, no mundo, o **fantasma** translúcido da peça onde ela vai cair.
 

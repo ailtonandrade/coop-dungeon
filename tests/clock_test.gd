@@ -4,6 +4,7 @@ extends SceneTree
 
 var _failed := false
 var _frames := 0
+var _weather: Node
 
 
 func _process(_delta: float) -> bool:
@@ -37,6 +38,19 @@ func _process(_delta: float) -> bool:
 		_check(DayNight.sun_angles(12.0).x < -50.0 and DayNight.sun_angles(6.0).x > -30.0, "sol alto ao meio-dia e baixo de manhã")
 		var badge := get_first_node_in_group("hud").find_children("*", "HBoxContainer", true, false).filter(func(n: Node) -> bool: return n.get_script() == load("res://ui/clock_badge.gd"))
 		_check(badge.size() == 1, "relógio na tela, embaixo do minimapa")
+		# Chuva: liga pelo dono, vai no save, chega aos poucos e molha as poças.
+		var weather: Node = get_first_node_in_group("weather")
+		_check(weather != null and not weather.is_raining(), "mundo novo começa sem chuva")
+		weather.set_rain(true)
+		_check(weather.is_raining() and root.get_node("NetService").world.get("rain", 0.0) == 1.0, "/chuva liga e vai no save do mundo")
+		_check(weather.level < 0.1, "a chuva chega aos poucos")
+		_weather = weather
+	elif _frames == 150:
+		_check(_weather.level > 0.05 and _weather._rain.emitting, "começou a cair (%.2f)" % _weather.level)
+		var material: ShaderMaterial = load("res://world/water/poca_material.tres")
+		_check(float(material.get_shader_parameter("rain")) > 0.05, "poças sentem a chuva")
+		_weather.set_rain(false)
+		_check(not _weather.is_raining(), "/chuva de novo desliga")
 		print("RELÓGIO: " + ("FALHOU" if _failed else "OK"))
 		quit(1 if _failed else 0)
 	return false

@@ -127,3 +127,7 @@ func _build_environment() -> void:
 	clock.name = "DayNight"
 	add_child(clock)
 	clock.setup(env, sun)
+	# Clima: chuva que vem e vai.
+	var weather := Weather.new()
+	weather.name = "Weather"
+	add_child(weather)
