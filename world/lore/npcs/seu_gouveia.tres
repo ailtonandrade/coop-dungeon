@@ -1,0 +1,56 @@
+[gd_resource type="Resource" script_class="NpcDialogue" format=3]
+
+[ext_resource type="Script" path="res://world/lore/dialogue_line.gd" id="1_6n6e7"]
+[ext_resource type="Script" path="res://world/lore/npc_dialogue.gd" id="2_yakfx"]
+[ext_resource type="Script" path="res://world/lore/dialogue_topic.gd" id="3_wfuau"]
+
+[sub_resource type="Resource" id="Resource_n676m"]
+script = ExtResource("1_6n6e7")
+text = "Fecha a porta. Fala baixo. Vocês leram o terminal do Rafael, não leram?"
+requires = Array[String](["sabe_nome_demiurgo"])
+priority = 10
+
+[sub_resource type="Resource" id="Resource_6jcft"]
+script = ExtResource("1_6n6e7")
+text = "Boa tarde. Fale baixo e seja breve."
+
+[sub_resource type="Resource" id="Resource_2rq3g"]
+script = ExtResource("1_6n6e7")
+text = "Feche a porta. ...Vocês leram o terminal do Rafael, não leram?"
+requires = Array[String](["sabe_nome_demiurgo"])
+priority = 10
+
+[sub_resource type="Resource" id="Resource_edho0"]
+script = ExtResource("3_wfuau")
+label = "Nome"
+keywords = PackedStringArray("nome", "quem")
+text = "Gouveia. Ex-gerente de agência da Sinapse. Hoje, guardião de cofre de sucata."
+
+[sub_resource type="Resource" id="Resource_rkijh"]
+script = ExtResource("3_wfuau")
+label = "Cofre"
+keywords = PackedStringArray("cofre", "guardar", "depositar", "dinheiro")
+text = "O cofre guarda o que é teu. O resto, a ferrugem leva."
+
+[sub_resource type="Resource" id="Resource_v0if6"]
+script = ExtResource("3_wfuau")
+label = "Sinapse"
+keywords = PackedStringArray("sinapse", "banco", "emprego")
+text = "Vinte anos contando dinheiro dos outros. Achei que era o dinheiro que importava."
+
+[sub_resource type="Resource" id="Resource_mp28j"]
+script = ExtResource("3_wfuau")
+label = "D-3-M"
+keywords = PackedStringArray("d3m", "demiurgo", "d3m1urgo", "deposito", "energia")
+text = "Eu guardei o dinheiro da Sinapse por vinte anos. Os depósitos de energia vinham com um código: D-3-M. Ninguém sabia de quê. Agora eu sei. E agora vocês também. Cuidado com quem vocês contam."
+requires = Array[String](["sabe_nome_demiurgo"])
+priority = 10
+
+[resource]
+script = ExtResource("2_yakfx")
+npc = "Seu Gouveia"
+greetings = Array[ExtResource("1_6n6e7")]([SubResource("Resource_6jcft"), SubResource("Resource_2rq3g")])
+approach = Array[ExtResource("1_6n6e7")]([SubResource("Resource_n676m")])
+topics = Array[ExtResource("3_wfuau")]([SubResource("Resource_edho0"), SubResource("Resource_rkijh"), SubResource("Resource_v0if6"), SubResource("Resource_mp28j")])
+unknown = "Não entendi. E na minha idade, não pergunto duas vezes."
+farewell = "Passar bem."

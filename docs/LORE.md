@@ -75,14 +75,24 @@ Nada aparece na tela: sem questlog, sem aviso, sem mensagem no chat.
 - **Fatos:** cada descoberta é um fato com id (`diario_helena`, `codigo_ze`, `sabe_nome_demiurgo`).
   Ficam no **save do mundo** (`facts`), porque são a descoberta do grupo; vão para os convidados
   junto com o mundo e na hora em que alguém descobre (`net/lore_service.gd`, serviço `Lore`).
-- **Livro da história:** `world/lore/lore.tres` (abra no Inspector). Tem:
-  - **Documents** (`LoreDocument`): id, título, autor, texto e os fatos que ensina (vazio = o
-    próprio id).
-  - **Lines** (`NpcLine`): fala de um NPC (pelo nome dele no mapa) com os fatos que **exige**
-    (`requires`), os que a **apagam** (`forbids`), os que ela **ensina** (`teaches`), a
-    **prioridade** e se é de **puxar assunto** (`approach`: balão acima da cabeça quando o grupo
-    chega perto, uma vez por sessão). Ao falar com o NPC (LB / F), a fala de maior prioridade que
-    vale aparece no topo da tela dele.
+- **Livro da história:** `world/lore/lore.tres`: os **documentos** (`LoreDocument`): id, título,
+  autor, texto e os fatos que ensina (vazio = o próprio id).
+- **Conversas dos NPCs** (estilo Tibia): um arquivo por NPC em `world/lore/npcs/` (`NpcDialogue`,
+  ligado pelo nome do NPC no mapa). LB / F perto do NPC abre a conversa: ele cumprimenta, os
+  **assuntos** aparecem como botões e, no teclado, dá para **digitar** palavras (sem ligar para
+  acento ou maiúscula). "loja/comprar/cofre" abre o serviço, "tchau" fecha; o serviço também tem
+  botão, e fechar a loja volta para a conversa.
+  - **Greetings** (cumprimentos) e **Approach** (puxar assunto, balão quando o grupo chega perto):
+    falas com `requires`/`forbids`/`teaches`/`priority`; vale a de maior prioridade liberada.
+  - **Topics** (`DialogueTopic`): botão (`label`), palavras (`keywords`), resposta, `hidden` (só
+    digitando: segredos e easter eggs), `requires`/`forbids` (fatos), `requires_item` (item na
+    mochila de quem conversa), `teaches` (fatos que libera) e `gives_item` (dá um item, uma vez
+    por mundo).
+  - **Unknown** (palavra que ele não conhece) e **Farewell** (tchau, em balão).
+- **Painel "Histórias"** no editor (ao lado do Mapa do Mundo): lista e cria conversas e
+  documentos (abre no Inspector) e mostra o **mapa dos gatilhos**: cada fato, quem ensina e o que
+  libera; fato exigido que ninguém ensina aparece em laranja.
+- **Contêiner trancado:** `LootContainer` tem `requires`; até o grupo saber, aparece "trancado".
 - **Documento no mapa:** `LoreNote` (peça **Documento da história**, categoria História): visual de
   caderno, terminal, foto ou troféu; escolha o `document_id`. LB / F perto dele abre a leitura.
   Pode ter `requires` (só aparece para quem já sabe).
@@ -95,14 +105,17 @@ Nada aparece na tela: sem questlog, sem aviso, sem mensagem no chat.
 `world/lore/historia_vila.tscn` (dentro do bloco da vila; dá para mover no editor):
 1. **Caderno da Dra. Helena Vasconcelos** (bioenergia, Sinapse) na casa abandonada do canto
    nordeste da vila. Ler ensina `diario_helena`.
-2. **Dona Alda** passa a falar da Helena e puxa assunto quando o grupo chega perto. **Brando**
-   lembra do filtro de água com "uma coisa viva lá dentro".
-3. **Zé Gato** reconhece o código rabiscado (70-R-ALFA-9) como chave de manutenção da Sinapse:
+2. **Dona Alda** cumprimenta diferente, puxa assunto quando o grupo chega perto e ganha os
+   assuntos "Helena" e "Coisas da Helena" (este destrava a **Caixa da Helena** na casa dela, com
+   um amuleto e parafusos). Palavra secreta: "Davi". **Brando** lembra do filtro de água com "uma
+   coisa viva lá dentro".
+3. **Zé Gato** (assunto "O código do caderno") reconhece o código rabiscado (70-R-ALFA-9) como chave de manutenção da Sinapse:
    ensina `codigo_ze`, e o **portão do barraco do Rafael** (a outra casa vazia) abre.
 4. **Terminal do Rafael Toledo** (analista de infraestrutura, quem "deu a permissão"): ensina
    `log_rafael` e `sabe_nome_demiurgo`. A próxima pista aponta para **a Estação 3**.
-5. **Seu Gouveia** puxa assunto e conta dos depósitos de energia com o código D-3-M. Zé Gato
-   lembra do nome piscando em robô de entrega.
+5. **Seu Gouveia** puxa assunto e conta dos depósitos de energia com o código D-3-M (assunto
+   "D-3-M"). Zé Gato lembra do nome piscando em robô de entrega. Palavra secreta do Zé Gato:
+   "gato" (dá um anel, uma vez por mundo).
 
 Teste: `tests/lore_test.gd` joga a cadeia inteira como um jogador.
 

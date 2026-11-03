@@ -34,6 +34,9 @@ const LOOT_SCRIPT := "res://items/loot.gd"
 @export_range(0.0, 10080.0, 1.0, "suffix:min") var refill_minutes := 0.0
 ## Som ao abrir (evento do SoundBank): "chest_open" (madeira) ou "container_open" (metal).
 @export var open_sound := "chest_open"
+## Gatilho da história: só abre depois que o grupo sabe estes fatos (ex.: falou tal coisa com tal
+## NPC). Antes disso aparece "trancado". Ver world/lore/npcs e docs/LORE.md.
+@export var requires: Array[String] = []
 
 var _visual: Node3D
 var _label: Label3D
@@ -96,8 +99,14 @@ func on_opened() -> void:
 
 
 ## Host: um jogador apertou pegar perto. Larga o conteúdo no chão e guarda que abriu.
+## Trancado pela história (o grupo ainda não sabe o que precisa)?
+func is_locked() -> bool:
+	var lore := get_node_or_null("/root/Lore")
+	return lore != null and not lore.knows_all(requires)
+
+
 func open_by(player: Node3D) -> bool:
-	if _opened or _flat(player.global_position - global_position).length() > open_range:
+	if _opened or is_locked() or _flat(player.global_position - global_position).length() > open_range:
 		return false
 	var items := roll_contents(_region_power())
 	var loot: Script = load(LOOT_SCRIPT)
@@ -155,7 +164,7 @@ func _process(_delta: float) -> void:
 			if player.is_local() and _flat(player.global_position - global_position).length() <= open_range:
 				near = true
 				break
-	_label.text = "%s\n[LB / F] abrir" % title if near else ""
+	_label.text = ("%s\n(trancado)" % title if is_locked() else "%s\n[LB / F] abrir" % title) if near else ""
 
 
 func _region_power() -> int:

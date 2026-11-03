@@ -62,14 +62,6 @@ func _build() -> void:
 	add_child(column)
 	var title: String = "%s · %s" % [npc.npc_name, WorldNpc.SERVICE_NAMES[npc.service]] if npc.npc_name else WorldNpc.SERVICE_NAMES[npc.service]
 	column.add_child(_label("P%d · %s" % [player.index + 1, title], 20, color))
-	# O que o NPC tem para dizer agora (depende do que o grupo já descobriu: Lore).
-	var line := Lore.line_for(npc.npc_name)
-	if line:
-		var said := _label("“%s”" % line.text, 16, Color(0.95, 0.92, 0.8))
-		said.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		said.custom_minimum_size = Vector2(440, 0)
-		column.add_child(said)
-		Lore.learn(line.teaches)
 	_tab_label = _label("", 17, Color(0.85, 0.9, 1.0))
 	column.add_child(_tab_label)
 	_list = VBoxContainer.new()

@@ -1,0 +1,75 @@
+[gd_resource type="Resource" script_class="NpcDialogue" format=3]
+
+[ext_resource type="Script" path="res://world/lore/dialogue_line.gd" id="1_m58j0"]
+[ext_resource type="Script" path="res://world/lore/npc_dialogue.gd" id="2_t4cx4"]
+[ext_resource type="Script" path="res://world/lore/dialogue_topic.gd" id="3_5c5tb"]
+
+[sub_resource type="Resource" id="Resource_lllib"]
+script = ExtResource("1_m58j0")
+text = "E aí, parça. Fala baixo que os fios escutam."
+
+[sub_resource type="Resource" id="Resource_twqf0"]
+script = ExtResource("1_m58j0")
+text = "...É, eu também tô ouvindo aquele zumbido agora. Desde que tu falou aquele nome."
+requires = Array[String](["sabe_nome_demiurgo"])
+priority = 10
+
+[sub_resource type="Resource" id="Resource_pu1l5"]
+script = ExtResource("3_5c5tb")
+label = "Nome"
+keywords = PackedStringArray("nome", "quem", "ze")
+text = "Zé Gato. Por causa dos gatos de energia, não do bigode."
+
+[sub_resource type="Resource" id="Resource_cgh85"]
+script = ExtResource("3_5c5tb")
+label = "Chips e mods"
+keywords = PackedStringArray("chip", "chips", "mod", "mods", "pirata")
+text = "Chip pirata, mod na peça, sem perguntas. Pergunta demais queima o chip, rapaz. Clica em Instalar mods que eu mexo na tua peça."
+
+[sub_resource type="Resource" id="Resource_6w0eb"]
+script = ExtResource("3_5c5tb")
+label = "Sinapse"
+keywords = PackedStringArray("sinapse", "empresa", "credito")
+text = "A Sinapse vendia chip a prestação. Quem pagou em dia virou Corrompido. Quem não pagou tá aqui comprando chip pirata comigo. Ironia, né?"
+
+[sub_resource type="Resource" id="Resource_8d8l6"]
+script = ExtResource("3_5c5tb")
+label = "O código do caderno"
+keywords = PackedStringArray("codigo", "numero", "senha", "alfa", "70")
+text = "Deixa eu ver isso. 70-R-ALFA-9... isso não é senha de estação, é chave de manutenção da Sinapse. Abre os portões de serviço. Tem um no barraco do Rafael, aqui na vila. Ele sumiu faz um ano. Vai lá antes que a gangue ache."
+requires = Array[String](["diario_helena"])
+forbids = Array[String](["codigo_ze"])
+teaches = Array[String](["codigo_ze"])
+priority = 10
+
+[sub_resource type="Resource" id="Resource_mx8nk"]
+script = ExtResource("3_5c5tb")
+label = "Rafael"
+keywords = PackedStringArray("rafael", "barraco", "portao")
+text = "O portão do Rafael já deve abrir pra ti. Eu não entro lá, não. Ele tinha medo de alguma coisa nos fios."
+requires = Array[String](["codigo_ze"])
+forbids = Array[String](["log_rafael"])
+
+[sub_resource type="Resource" id="Resource_lje03"]
+script = ExtResource("3_5c5tb")
+label = "D3M1URGO"
+keywords = PackedStringArray("demiurgo", "d3m1urgo", "d3m")
+text = "D3M1URGO? Já vi esse nome piscando em tela de robô de entrega. Achei que era marca de ração. ...Não é, né?"
+requires = Array[String](["sabe_nome_demiurgo"])
+priority = 10
+
+[sub_resource type="Resource" id="Resource_lepw2"]
+script = ExtResource("3_5c5tb")
+label = "Gato"
+keywords = PackedStringArray("gato", "gatos", "gatonet")
+text = "Gato de energia? Que gato? Ó, toma isso aqui e esquece que perguntou."
+hidden = true
+gives_item = "power_ring"
+
+[resource]
+script = ExtResource("2_t4cx4")
+npc = "Zé Gato"
+greetings = Array[ExtResource("1_m58j0")]([SubResource("Resource_lllib"), SubResource("Resource_twqf0")])
+topics = Array[ExtResource("3_5c5tb")]([SubResource("Resource_pu1l5"), SubResource("Resource_cgh85"), SubResource("Resource_6w0eb"), SubResource("Resource_8d8l6"), SubResource("Resource_mx8nk"), SubResource("Resource_lje03"), SubResource("Resource_lepw2")])
+unknown = "Hã? Fala em português de gente, parça."
+farewell = "Some daqui sem deixar rastro."

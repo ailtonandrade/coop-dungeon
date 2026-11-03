@@ -99,7 +99,7 @@ func _process(_delta: float) -> void:
 	_label.text = _title + ("\n[LB / F] falar" if near else "")
 	# Puxa assunto sozinho quando o grupo chega perto depois de descobrir algo (uma vez).
 	if near:
-		var line := Lore.approach_line(npc_name)
+		var line: DialogueLine = Lore.approach_line(npc_name)
 		if line:
 			Lore.mark_said(line)
 			say(line.text)

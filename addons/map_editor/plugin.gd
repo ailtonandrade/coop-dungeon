@@ -3,8 +3,10 @@ extends EditorPlugin
 ## Liga o painel "Mapa do Mundo" no editor (lado direito, embaixo do Inspector).
 
 const Dock := preload("res://addons/map_editor/world_map_dock.gd")
+const StoryDock := preload("res://addons/map_editor/story_dock.gd")
 
 var _dock: Control
+var _story: Control
 
 
 func _enter_tree() -> void:
@@ -12,6 +14,10 @@ func _enter_tree() -> void:
 	_dock.name = "Mapa do Mundo"
 	_dock.plugin = self
 	add_control_to_dock(DOCK_SLOT_RIGHT_BL, _dock)
+	# Histórias: conversas dos NPCs, documentos e gatilhos (fatos) da lore.
+	_story = StoryDock.new()
+	_story.name = "Histórias"
+	add_control_to_dock(DOCK_SLOT_RIGHT_BL, _story)
 
 
 ## Modo carimbo do painel: o plugin recebe os cliques da vista 3D enquanto ele está ligado.
@@ -36,6 +42,10 @@ func _forward_3d_gui_input(camera: Camera3D, event: InputEvent) -> int:
 
 
 func _exit_tree() -> void:
+	if _story:
+		remove_control_from_docks(_story)
+		_story.queue_free()
+		_story = null
 	if _dock:
 		remove_control_from_docks(_dock)
 		_dock.queue_free()

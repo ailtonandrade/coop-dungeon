@@ -341,16 +341,44 @@ func _try_open_service(slot: int) -> void:
 	var npc := WorldNpc.nearest(get_tree(), player.global_position)
 	if npc == null:
 		return
+	# Conversa primeiro (estilo Tibia); o serviço abre por um botão dela.
+	var talk := DialoguePanel.new()
+	_root.add_child(talk)
+	talk.open_for(player, npc)
+	talk.close_requested.connect(_close_service.bind(slot))
+	talk.service_requested.connect(_open_npc_service.bind(slot, talk))
+	_services[slot] = talk
+
+
+## Abre a loja/cofre/oficina do NPC por cima da conversa; fechar volta para a conversa.
+func _open_npc_service(slot: int, talk: DialoguePanel) -> void:
+	var player := _local_player(slot)
+	if player == null or not is_instance_valid(talk):
+		return
 	var panel := ServicePanel.new()
 	_root.add_child(panel)
-	panel.open_for(player, npc)
-	panel.close_requested.connect(_close_service.bind(slot))
+	panel.open_for(player, talk.npc)
+	talk.visible = false
 	_services[slot] = panel
+	panel.close_requested.connect(func() -> void:
+		panel.queue_free()
+		if is_instance_valid(talk):
+			talk.visible = true
+			_services[slot] = talk
+			InputService.set_blocked(slot, true)
+			talk._refresh_topics()
+		else:
+			_services.erase(slot))
 
 
 func _close_service(slot: int) -> void:
 	if _services.has(slot):
-		_services[slot].queue_free()
+		var panel: Node = _services[slot]
+		# Fechando a loja aberta por cima da conversa, a conversa (escondida) sai junto.
+		for other in _root.get_children():
+			if other is DialoguePanel and not other.visible and other.player == panel.get("player"):
+				other.queue_free()
+		panel.queue_free()
 		_services.erase(slot)
 
 

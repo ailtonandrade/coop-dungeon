@@ -34,7 +34,10 @@ func _process(_delta: float) -> bool:
 		SECOND + 12:
 			_key(KEY_F, false)
 			var hud := current_scene.get_node("HUD")
-			_check(hud._services.has(0), "F perto do comerciante abre a tela de serviço")
+			_check(hud._services.has(0) and hud._services[0].has_method("choose"), "F perto do comerciante abre a conversa com ele")
+			# "Ver mercadorias" na conversa abre a loja.
+			hud._services[0].service_requested.emit()
+			_check(hud._services.has(0) and not hud._services[0].has_method("choose"), "o botão da conversa abre a loja")
 			_check(root.get_node("InputService").is_blocked(0), "com a tela aberta, o herói não anda nem ataca")
 			_gold = _p1().inventory.gold
 			_swords = _count("sword")
@@ -60,8 +63,13 @@ func _process(_delta: float) -> bool:
 			_key(KEY_SHIFT, true)
 		SECOND + 34:
 			_key(KEY_SHIFT, false)
+			var talk: Variant = current_scene.get_node("HUD")._services.get(0)
+			_check(talk != null and talk.has_method("choose") and talk.visible, "B/Shift fecha a loja e volta para a conversa")
+			_key(KEY_ESCAPE, true)
+		SECOND + 35:
+			_key(KEY_ESCAPE, false)
 		SECOND + 36:
-			_check(not current_scene.get_node("HUD")._services.has(0), "B/Shift fecha a tela")
+			_check(not current_scene.get_node("HUD")._services.has(0), "Esc dá tchau e fecha a conversa")
 			_check(not root.get_node("InputService").is_blocked(0), "tela fechada: herói volta a andar")
 			# Longe do ferreiro, o host recusa o refino.
 			_p1().request_inventory("refine", [["eq", "melee"]])

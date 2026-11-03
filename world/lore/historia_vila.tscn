@@ -2,6 +2,14 @@
 
 [ext_resource type="Script" path="res://world/lore/lore_note.gd" id="1_omo52"]
 [ext_resource type="Script" path="res://world/lore/lore_gate.gd" id="2_q84iw"]
+[ext_resource type="Script" path="res://world/loot_container.gd" id="3_1fsfg"]
+[ext_resource type="PackedScene" path="res://assets/props/Chest.glb" id="4_43ns1"]
+[ext_resource type="Script" path="res://world/container_item.gd" id="5_wb0dl"]
+
+[sub_resource type="Resource" id="Resource_ikm1e"]
+script = ExtResource("5_wb0dl")
+item_id = "life_amulet"
+rarity = "rare"
 
 [node name="HistoriaVila" type="Node3D" unique_id=466531167]
 
@@ -14,10 +22,19 @@ document_id = "diario_helena"
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, 0, 53.55)
 script = ExtResource("2_q84iw")
 requires = Array[String](["codigo_ze"])
-size = Vector2(2, 2.4)
 
 [node name="TerminalRafael" type="Node3D" parent="." unique_id=974067900]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, 0, 47.1)
 script = ExtResource("1_omo52")
 document_id = "log_rafael"
 look = "terminal"
+
+[node name="CaixaDaHelena" type="Node3D" parent="." unique_id=777411099]
+transform = Transform3D(-0.9396926, 0, -0.34202015, 0, 1, 0, 0.34202015, 0, -0.9396926, 52.6, 0, 15.9)
+script = ExtResource("3_1fsfg")
+container_id = "caixa_da_helena"
+title = "Caixa da Helena"
+model = ExtResource("4_43ns1")
+contents = Array[ExtResource("5_wb0dl")]([SubResource("Resource_ikm1e")])
+gold = 120
+requires = Array[String](["alda_caixa_helena"])

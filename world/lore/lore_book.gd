@@ -1,11 +1,11 @@
 @tool
 class_name LoreBook
 extends Resource
-## Livro da história: todos os documentos e falas condicionadas dos NPCs. Edite pelo Inspector
-## (world/lore/lore.tres). Ver docs/LORE.md.
+## Livro da história: os documentos (diários, gravações, terminais). Edite pelo Inspector
+## (world/lore/lore.tres). As conversas dos NPCs ficam em world/lore/npcs/ (NpcDialogue).
+## Ver docs/LORE.md.
 
 @export var documents: Array[LoreDocument] = []
-@export var lines: Array[NpcLine] = []
 
 
 func document(id: String) -> LoreDocument:

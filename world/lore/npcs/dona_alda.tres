@@ -1,0 +1,89 @@
+[gd_resource type="Resource" script_class="NpcDialogue" format=3]
+
+[ext_resource type="Script" path="res://world/lore/dialogue_line.gd" id="1_31vqo"]
+[ext_resource type="Script" path="res://world/lore/npc_dialogue.gd" id="2_qgjda"]
+[ext_resource type="Script" path="res://world/lore/dialogue_topic.gd" id="3_ys6lp"]
+
+[sub_resource type="Resource" id="Resource_ygtla"]
+script = ExtResource("1_31vqo")
+text = "Esse caderno vermelho na tua mão... era da Helena. Vem cá, menino."
+requires = Array[String](["diario_helena"])
+priority = 10
+
+[sub_resource type="Resource" id="Resource_33vdx"]
+script = ExtResource("1_31vqo")
+text = "Ô, meu filho! Chega mais, que ferrugem não espera ninguém."
+
+[sub_resource type="Resource" id="Resource_wmb2h"]
+script = ExtResource("1_31vqo")
+text = "Você tá com a cara de quem leu coisa que não devia. Senta aí."
+requires = Array[String](["diario_helena"])
+priority = 10
+
+[sub_resource type="Resource" id="Resource_rjyyw"]
+script = ExtResource("3_ys6lp")
+label = "Nome"
+keywords = PackedStringArray("nome", "quem")
+text = "Alda. Dona Alda pra você. Trinta anos catando o que a cidade jogou fora."
+
+[sub_resource type="Resource" id="Resource_3r0l4"]
+script = ExtResource("3_ys6lp")
+label = "Trabalho"
+keywords = PackedStringArray("trabalho", "sucata", "negocio", "vende")
+text = "Compro, vendo, troco. Peça boa, preço justo. Clica em Ver mercadorias que eu te mostro."
+
+[sub_resource type="Resource" id="Resource_eh7ws"]
+script = ExtResource("3_ys6lp")
+label = "Água"
+keywords = PackedStringArray("agua", "garrafa", "beber", "sede")
+text = "Não bebe da água de garrafa que os robôs largam por aí, viu? Tem gosto de moeda. Eu fervo a minha três vezes e ainda rezo."
+
+[sub_resource type="Resource" id="Resource_b3q54"]
+script = ExtResource("3_ys6lp")
+label = "A vila"
+keywords = PackedStringArray("vila", "aqui", "lugar")
+text = "Isso aqui era estacionamento de shopping. Hoje é o que sobrou de casa pra muita gente. Tinha criança correndo por aí, sabia? Tinha."
+
+[sub_resource type="Resource" id="Resource_1anu6"]
+script = ExtResource("3_ys6lp")
+label = "Helena"
+keywords = PackedStringArray("helena", "doutora", "caderno")
+text = "A Helena comprava peça comigo e falava sozinha sobre a água. Dizia que a Estação 3 tava \"ensinando o corpo a adoecer\". Eu achava que era cansaço... Se tem número rabiscado aí, mostra pro Zé Gato. Ele entende de terminal."
+requires = Array[String](["diario_helena"])
+forbids = Array[String](["codigo_ze"])
+priority = 10
+
+[sub_resource type="Resource" id="Resource_2f8hg"]
+script = ExtResource("3_ys6lp")
+label = "Helena"
+keywords = PackedStringArray("helena", "doutora", "caderno", "rafael")
+text = "Foi lá no barraco do Rafael, né? Eu vi a luz do portão ficar verde. Fazia um ano que ninguém entrava ali."
+requires = Array[String](["codigo_ze"])
+priority = 20
+
+[sub_resource type="Resource" id="Resource_75gev"]
+script = ExtResource("3_ys6lp")
+label = "Coisas da Helena"
+keywords = PackedStringArray("caixa", "coisas", "guardou", "deixou")
+text = "A Helena deixou uma caixa comigo antes de sumir. Disse pra eu só abrir pra quem tivesse lido o caderno dela. Tá na casa dela, ali no canto. Pode ir, eu destravei."
+requires = Array[String](["diario_helena"])
+forbids = Array[String](["alda_caixa_helena"])
+teaches = Array[String](["alda_caixa_helena"])
+priority = 15
+
+[sub_resource type="Resource" id="Resource_dd28d"]
+script = ExtResource("3_ys6lp")
+label = "Davi"
+keywords = PackedStringArray("davi", "menino", "criancas")
+text = "O Davi... era o menino do prédio da Helena. A mãe dele ainda passa aqui toda semana perguntando se alguém viu. Ninguém viu."
+hidden = true
+requires = Array[String](["diario_helena"])
+
+[resource]
+script = ExtResource("2_qgjda")
+npc = "Dona Alda"
+greetings = Array[ExtResource("1_31vqo")]([SubResource("Resource_33vdx"), SubResource("Resource_wmb2h")])
+approach = Array[ExtResource("1_31vqo")]([SubResource("Resource_ygtla")])
+topics = Array[ExtResource("3_ys6lp")]([SubResource("Resource_rjyyw"), SubResource("Resource_3r0l4"), SubResource("Resource_eh7ws"), SubResource("Resource_b3q54"), SubResource("Resource_1anu6"), SubResource("Resource_2f8hg"), SubResource("Resource_75gev"), SubResource("Resource_dd28d")])
+unknown = "Fala direito, menino, que eu tô ficando surda de tanto martelo."
+farewell = "Vai com Deus. E ferve a água!"
