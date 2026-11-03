@@ -89,7 +89,7 @@ func start(p_slot: int) -> void:
 		return
 	slot = p_slot
 	active = true
-	_catalog = PropBuilder.catalog()
+	_catalog = PropBuilder.catalog(true)
 	_index = clampi(_index, 0, maxi(_catalog.size() - 1, 0))
 	_player_of(slot).building = true
 	InputService.builder_slot = slot
@@ -168,6 +168,15 @@ func place_at(point: Vector3) -> Node3D:
 	var streamer := WorldStreamer.of(self)
 	if entry.is_empty() or streamer == null:
 		return null
+	# Modelo de pack ainda solto: vira peça pronta (fixa) agora, na pasta do pack.
+	if entry.get("raw", false):
+		var made := PropBuilder.make_from_model(String(entry.path), String(entry.pack))
+		if made.is_empty():
+			Sound.play("ui_error")
+			return null
+		entry.path = made
+		entry.raw = false
+		entry.def = load(PropBuilder.DEF_DIR.path_join(made.get_file().get_basename() + ".tres"))
 	var found: Array = streamer.chunk_at(point)
 	var chunk: Node3D = found[0]
 	if chunk == null:
@@ -521,8 +530,12 @@ func _rebuild_ghost() -> void:
 	var entry := current()
 	if entry.is_empty():
 		return
-	var scene := load(String(entry.path)) as PackedScene
-	var source := scene.instantiate() if scene else null
+	var source: Node
+	if entry.get("raw", false):
+		source = PropBuilder.preview_from_model(String(entry.path))
+	else:
+		var scene := load(String(entry.path)) as PackedScene
+		source = scene.instantiate() if scene else null
 	if source == null:
 		return
 	var model: Variant = source.get("model")
@@ -586,6 +599,8 @@ func _refresh_hud() -> void:
 		_piece.text = "Nenhuma peça em world/prefabs"
 		return
 	var kind_text: String = {"fixo": "fixo", "conteiner": "contêiner", "fisico": "físico (cai e rola)", "atravessavel": "enfeite"}.get(entry.kind, "peça pronta")
+	if entry.get("raw", false):
+		kind_text = "do pack (vira peça fixa ao carimbar)"
 	var same := _in_category(current_category())
 	var at := same.find(_index)
 	var names := PropBuilder.categories(_catalog)

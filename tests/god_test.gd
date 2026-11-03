@@ -64,7 +64,27 @@ func _process(_delta: float) -> bool:
 			DirAccess.remove_absolute(ProjectSettings.globalize_path("res://world/prefabs/zz_teste/teste_god_categoria.tscn"))
 			DirAccess.remove_absolute(ProjectSettings.globalize_path("res://world/prefabs/zz_teste"))
 			DirAccess.remove_absolute(ProjectSettings.globalize_path("res://world/props/teste_god_categoria.tres"))
-			_god._catalog = load("res://props/prop_builder.gd").catalog()
+			# Packs: cada subpasta de packs/ vira categoria com os modelos dela; carimbar um modelo
+			# solto cria a peça pronta (fixa) na hora. Aqui "assets" faz o papel da pasta packs/.
+			var builder: Script = load("res://props/prop_builder.gd")
+			builder.pack_dirs = ["res://assets"]
+			_god._catalog = builder.catalog(true)
+			var raw: Array = _god._catalog.filter(func(e: Dictionary) -> bool: return e.get("raw", false) and e.pack == "props")
+			_check(not raw.is_empty() and raw.all(func(e: Dictionary) -> bool: return e.category == "Props"), "subpasta do pack vira categoria com os modelos soltos (%d)" % raw.size())
+			_check(not _god._catalog.any(func(e: Dictionary) -> bool: return e.get("raw", false) and String(e.path).ends_with("TrafficCone_1.glb")), "modelo que já virou peça (o cone) não aparece repetido")
+			_god._index = _god._catalog.find(raw[0])
+			_god._rebuild_ghost()
+			_check(_god._ghost.get_child_count() > 0, "fantasma do modelo do pack aparece")
+			var made: Node3D = _god.place_at(_player().global_position + Vector3(4, 0, -3))
+			_check(made != null and made.scene_file_path.begins_with("res://world/prefabs/props/") and made is StaticBody3D, "carimbar o modelo do pack cria a peça fixa na pasta do pack (%s)" % (made.scene_file_path if made else "-"))
+			_check(not _god.current().get("raw", true), "e a lista passa a usar a peça nova")
+			var made_path: String = made.scene_file_path
+			_god.remove_piece(String(made.name))
+			DirAccess.remove_absolute(ProjectSettings.globalize_path(made_path))
+			DirAccess.remove_absolute(ProjectSettings.globalize_path("res://world/props/" + made_path.get_file().get_basename() + ".tres"))
+			DirAccess.remove_absolute(ProjectSettings.globalize_path("res://world/prefabs/props"))
+			builder.pack_dirs = ["res://assets/props/packs", "res://props/packs"]
+			_god._catalog = builder.catalog()
 			_select("cone.tscn")
 			_cone = _god.place_at(_player().global_position + Vector3(3, 0, 0))
 			_check(_cone != null and _cone.global_position.y > 1.0, "cone físico nasce no alto (y %.2f)" % (_cone.global_position.y if _cone else -1.0))

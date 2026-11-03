@@ -72,32 +72,12 @@ static func copy_into_project(file: String) -> String:
 
 ## Id ainda não usado por nenhuma peça.
 static func free_id(base: String) -> String:
-	if base.is_empty():
-		base = "peca"
-	var id := base
-	var n := 2
-	while not PropBuilder.prefab_path_of(id).is_empty():
-		id = "%s_%d" % [base, n]
-		n += 1
-	return id
+	return PropBuilder.free_id(base)
 
 
 ## Modelos exportados em centímetros chegam 100x maiores: sugere um tamanho que caiba.
 static func suggest_scale(def: PropDef) -> float:
-	var scene := PropBuilder.model_scene_of(def)
-	if scene == null:
-		return 1.0
-	var node := scene.instantiate() as Node3D
-	if node == null:
-		return 1.0
-	var size := PropBuilder._bounds(node).size
-	node.free()
-	var biggest := maxf(size.x, maxf(size.y, size.z))
-	if biggest > 40.0:
-		return 0.01
-	if biggest < 0.05 and biggest > 0.0:
-		return 1.0 / biggest
-	return 1.0
+	return PropBuilder.suggest_scale(def)
 
 
 ## Ficha da peça: a salva, ou uma nova a partir de uma peça antiga de um modelo só

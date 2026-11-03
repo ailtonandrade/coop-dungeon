@@ -15,11 +15,18 @@ const MESH_SCENE_DIR := "res://world/props/models"
 
 
 const GENERAL := "Geral"
+## Packs de modelos soltos (DownTown, Survival, Zombie...): cada subpasta é uma categoria do
+## construtor, com todos os modelos dela (também nas sub-subpastas). O modelo vira peça pronta
+## (fixa) na primeira vez que é carimbado (make_from_model), em world/prefabs/<pack>/.
+static var pack_dirs: Array = ["res://assets/props/packs", "res://props/packs"]
+const MODEL_EXTENSIONS := ["glb", "gltf", "fbx", "obj"]
 
 
 ## Todas as peças prontas, agrupadas por categoria ("Geral" primeiro) e por nome:
 ## [{path, name, kind, def, category}] (def é a ficha, ou null nas montadas à mão).
-static func catalog() -> Array[Dictionary]:
+## Com `include_packs`, entram também os modelos dos packs que ainda não viraram peça:
+## {path = o modelo, raw = true, pack = pasta do pack}.
+static func catalog(include_packs := false) -> Array[Dictionary]:
 	var defs := {}
 	for file in DirAccess.get_files_at(DEF_DIR):
 		file = file.trim_suffix(".remap")
@@ -38,6 +45,15 @@ static func catalog() -> Array[Dictionary]:
 			"def": def,
 			"category": category_of(path),
 		})
+	if include_packs:
+		var used := {}
+		for def: PropDef in defs.values():
+			if def.model:
+				used[def.model.resource_path] = true
+		for pack: Array in pack_models():
+			if not used.has(pack[0]):
+				entries.append({"path": pack[0], "name": String(pack[0]).get_file().get_basename().replace("_", " "),
+						"kind": "fixo", "def": null, "category": id_from(pack[1]).capitalize(), "raw": true, "pack": pack[1]})
 	entries.sort_custom(func(a: Dictionary, b: Dictionary) -> bool:
 		if a.category != b.category:
 			return a.category == GENERAL or (b.category != GENERAL and a.category.naturalnocasecmp_to(b.category) < 0)
@@ -52,6 +68,104 @@ static func categories(entries: Array[Dictionary]) -> PackedStringArray:
 		if not result.has(entry.category):
 			result.append(entry.category)
 	return result
+
+
+## Modelos dos packs: [[caminho, nome da pasta do pack]]. O mesmo modelo em vários formatos
+## (pack com FBX, OBJ e glTF) entra uma vez só, no melhor formato (glb > gltf > fbx > obj).
+static func pack_models() -> Array:
+	var found := []
+	for root: String in pack_dirs:
+		if not DirAccess.dir_exists_absolute(root):
+			continue
+		for pack in DirAccess.get_directories_at(root):
+			var best := {}  # nome sem extensão -> caminho
+			for path in _models_under(root.path_join(pack)):
+				var stem := path.get_file().get_basename().to_lower()
+				if not best.has(stem) or MODEL_EXTENSIONS.find(path.get_extension().to_lower()) < MODEL_EXTENSIONS.find(String(best[stem]).get_extension().to_lower()):
+					best[stem] = path
+			for path: String in best.values():
+				found.append([path, pack])
+	return found
+
+
+static func _models_under(dir: String) -> PackedStringArray:
+	var result := PackedStringArray()
+	for file in DirAccess.get_files_at(dir):
+		if MODEL_EXTENSIONS.has(file.get_extension().to_lower()) and ResourceLoader.exists(dir.path_join(file)):
+			result.append(dir.path_join(file))
+	for sub in DirAccess.get_directories_at(dir):
+		if not sub.begins_with("."):
+			result.append_array(_models_under(dir.path_join(sub)))
+	return result
+
+
+## Transforma um modelo de pack em peça pronta fixa (com caixa de colisão), na pasta do pack.
+## Retorna o caminho da peça, ou "".
+static func make_from_model(model_path: String, pack: String) -> String:
+	var model: Resource = load(model_path)
+	if model == null:
+		return ""
+	var def := PropDef.new()
+	def.model = model
+	def.display_name = model_path.get_file().get_basename().replace("_", " ")
+	var base := id_from(model_path.get_file().get_basename())
+	def.id = free_id(base if prefab_path_of(base).is_empty() else "%s_%s" % [id_from(pack), base])
+	def.kind = "fixo"
+	def.scale = suggest_scale(def)
+	return save(def, pack)
+
+
+## Id ainda não usado por nenhuma peça.
+static func free_id(base: String) -> String:
+	if base.is_empty():
+		base = "peca"
+	var id := base
+	var n := 2
+	while not prefab_path_of(id).is_empty():
+		id = "%s_%d" % [base, n]
+		n += 1
+	return id
+
+
+## Modelos exportados em centímetros chegam 100x maiores: sugere um tamanho que caiba.
+static func suggest_scale(def: PropDef) -> float:
+	var node := model_node(def.model)
+	if node == null:
+		return 1.0
+	var size := _bounds(node).size
+	node.free()
+	var biggest := maxf(size.x, maxf(size.y, size.z))
+	if biggest > 40.0:
+		return 0.01
+	if biggest < 0.05 and biggest > 0.0:
+		return 1.0 / biggest
+	return 1.0
+
+
+## O modelo montado como nó (cena ou malha), sem gravar nada. Null se não der.
+static func model_node(model: Resource) -> Node3D:
+	if model is PackedScene:
+		return (model as PackedScene).instantiate() as Node3D
+	if model is Mesh:
+		var mesh := MeshInstance3D.new()
+		mesh.mesh = model
+		return mesh
+	return null
+
+
+## Prévia de um modelo de pack: base no chão e no tamanho sugerido (para o fantasma).
+static func preview_from_model(model_path: String) -> Node3D:
+	var def := PropDef.new()
+	def.model = load(model_path)
+	var node := model_node(def.model)
+	if node == null:
+		return null
+	node.scale = Vector3.ONE * suggest_scale(def)
+	var box := _bounds(node)
+	var holder := Node3D.new()
+	node.position = -Vector3(box.get_center().x, box.position.y, box.get_center().z)
+	holder.add_child(node)
+	return holder
 
 
 ## Todas as cenas de peça, inclusive nas subpastas (categorias).

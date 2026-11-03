@@ -60,6 +60,23 @@ painel **FileSystem** do Godot (arrastando lá dentro o Godot atualiza os blocos
 fora do Godot, não). A lista do editor de mapa tem o filtro de categoria em cima, e no modo
 construtor o **V** passa de uma categoria para a outra.
 
+### Packs de modelos (para o modo construtor)
+
+Jogue packs inteiros em **`assets/props/packs/`** (ou `props/packs/`), uma pasta por pack:
+`packs/DownTown`, `packs/Survival`, `packs/Zombie`... Cada pasta vira uma **categoria** no
+`/construir` (V passa de uma para a outra), com **todos os modelos dela**, até nas
+sub-subpastas. Pack que vem com o mesmo modelo em vários formatos aparece uma vez só (glb >
+gltf > fbx > obj). Para trazer mais, é só criar outra pasta ali e abrir o projeto no Godot (ele
+importa sozinho).
+
+Na **primeira vez que você carimba** um modelo do pack, ele vira peça pronta **fixa** (com
+caixa de colisão e tamanho ajustado se vier em centímetros) em `world/prefabs/<pack>/`. Daí em
+diante é uma peça como as outras: para deixar física, contêiner ou enfeite, abra a ficha dela no
+editor de mapa. Os modelos que ainda não viraram peça só aparecem no `/construir`.
+
+Os packs ficam no projeto: para o jogo exportado ter as peças que você colocou, faça commit das
+pastas dos packs junto (ou pelo menos dos modelos usados).
+
 ### Objetos 3D próprios (.obj, .glb, .gltf, .fbx)
 
 **Importar objeto 3D…** abre o seletor de arquivos (pode ser fora do projeto: o modelo é copiado
