@@ -114,7 +114,9 @@ func _process(_delta: float) -> bool:
 			# O host abre o baú da vila com o meu jogador: o aviso chega aqui.
 			if net.world.get("containers", {}).has("vila_bau_inicial"):
 				_check(true, "baú que meu jogador abriu ficou aberto aqui também")
-				var built := root.find_children("god_*", "", true, false)
+				# Só a peça que o host pôs nesta sessão (o mapa já pode ter outras do construtor).
+				var session_ids: Array = net.session_edits.map(func(e: Dictionary) -> String: return e.id)
+				var built := root.find_children("god_*", "", true, false).filter(func(n: Node) -> bool: return session_ids.has(String(n.name)))
 				_check(built.size() == 1 and built[0].scene_file_path.ends_with("barreira.tscn"), "vejo a barreira que o host colocou pelo modo construtor")
 				_t0 = _now()
 				_step = 8
