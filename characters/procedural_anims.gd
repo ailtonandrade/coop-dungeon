@@ -10,16 +10,18 @@ extends RefCounted
 ## Nesse esqueleto os pés são controladores presos na raiz (não na canela). Por isso, depois de
 ## girar a perna, o pé é levado para o fim dela; senão a malha da perna estica até o chão.
 
+## No tronco o sinal é o contrário dos membros (o osso aponta para o outro lado): positivo inclina
+## para a frente. Para pular, a pessoa agacha jogando o peito para a frente, não para trás.
 const CROUCH := {
-	"Torso": -12.0, "UpperLeg.L": -35.0, "UpperLeg.R": -35.0, "LowerLeg.L": 65.0, "LowerLeg.R": 65.0,
+	"Torso": 22.0, "UpperLeg.L": -35.0, "UpperLeg.R": -35.0, "LowerLeg.L": 65.0, "LowerLeg.R": 65.0,
 	"UpperArm.L": 20.0, "UpperArm.R": 20.0,
 }
 const LEAP := {
-	"Torso": 4.0, "UpperLeg.L": -20.0, "UpperLeg.R": 8.0, "LowerLeg.L": 25.0, "LowerLeg.R": 30.0,
+	"Torso": 10.0, "UpperLeg.L": -20.0, "UpperLeg.R": 8.0, "LowerLeg.L": 25.0, "LowerLeg.R": 30.0,
 	"UpperArm.L": -40.0, "UpperArm.R": -40.0, "LowerArm.L": -40.0, "LowerArm.R": -40.0,
 }
 const AIR := {
-	"Torso": -5.0, "UpperLeg.L": -40.0, "UpperLeg.R": -15.0, "LowerLeg.L": 60.0, "LowerLeg.R": 40.0,
+	"Torso": 6.0, "UpperLeg.L": -40.0, "UpperLeg.R": -15.0, "LowerLeg.L": 60.0, "LowerLeg.R": 40.0,
 	"UpperArm.L": -25.0, "UpperArm.R": -25.0, "LowerArm.L": -35.0, "LowerArm.R": -35.0,
 }
 const HANG := {
@@ -27,7 +29,7 @@ const HANG := {
 	"UpperLeg.L": -40.0, "LowerLeg.L": 70.0, "UpperLeg.R": -10.0, "LowerLeg.R": 30.0,
 }
 const PULL := {
-	"Torso": -25.0, "UpperArm.L": -70.0, "UpperArm.R": -70.0, "LowerArm.L": -80.0, "LowerArm.R": -80.0,
+	"Torso": 25.0, "UpperArm.L": -70.0, "UpperArm.R": -70.0, "LowerArm.L": -80.0, "LowerArm.R": -80.0,
 	"UpperLeg.L": -75.0, "LowerLeg.L": 95.0, "UpperLeg.R": -30.0, "LowerLeg.R": 50.0,
 }
 
