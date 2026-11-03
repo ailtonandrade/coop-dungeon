@@ -10,6 +10,8 @@ extends Node
 
 signal hour_changed(hour: int)
 
+## Neblina de poluição (exponencial): quanto o ar "engole" por metro.
+const FOG_DENSITY := 0.0055
 ## Minutos de verdade para um dia inteiro do jogo (24 = uma hora do jogo por minuto).
 const DAY_MINUTES := 24.0
 ## Mundo novo começa no fim da tarde: dá para ver o pôr do sol e a noite logo no começo.
@@ -141,8 +143,10 @@ func _apply() -> void:
 	environment.background_color = light.sky
 	environment.ambient_light_color = light.ambient
 	environment.ambient_light_energy = light.ambient_energy * (1.0 - 0.18 * rain)
-	environment.fog_light_color = light.sky.lerp(Color(0.1, 0.09, 0.14), 0.5)
-	environment.fog_depth_begin = lerpf(45.0, 26.0, rain)
+	# Neblina de poluição: poeira amarelada misturada com a cor do céu da hora.
+	var smog: Color = Color(0.42, 0.39, 0.32) * (0.25 + 0.75 * clampf(float(light.ambient_energy) / 0.47, 0.0, 1.0))
+	environment.fog_light_color = (light.sky as Color).lerp(smog, 0.55)
+	environment.fog_density = FOG_DENSITY * (1.0 + 0.6 * rain)
 	environment.glow_intensity = _base_glow * light.neon
 	sun.light_color = light.sun
 	sun.light_energy = light.sun_energy * (1.0 - 0.55 * rain)

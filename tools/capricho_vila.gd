@@ -16,8 +16,8 @@ const PACK_MODELS := {
 }
 ## [nome, peça (arquivo em world/prefabs ou id de modelo do pack), posição, giro (graus), campos]
 const PIECES := [
-	["Toldo_Bar", "toldo", Vector3(50, 2.3, 17.67), 0.0, {"color_a": Color(0.55, 0.06, 0.12), "color_b": Color(0.92, 0.86, 0.76)}],
-	["Toldo_Lanches", "toldo", Vector3(14, 2.3, 53.67), 0.0, {"color_a": Color(0.95, 0.7, 0.1), "color_b": Color(0.75, 0.12, 0.08)}],
+	["Toldo_Bar", "toldo", Vector3(50, 2.3, 17.67), 0.0, {"color_a": Color(0.32, 0.14, 0.13), "color_b": Color(0.55, 0.52, 0.45)}],
+	["Toldo_Lanches", "toldo", Vector3(14, 2.3, 53.67), 0.0, {"color_a": Color(0.48, 0.4, 0.22), "color_b": Color(0.36, 0.2, 0.16)}],
 	["Mesa_Bar_1", "mesa_de_bar", Vector3(47.0, 0, 21.8), 17.0, {}],
 	["Mesa_Bar_2", "mesa_de_bar", Vector3(53.2, 0, 22.4), -23.0, {}],
 	["Caixotes_Bar", "caixotes", Vector3(54.0, 0, 18.05), 0.0, {}],

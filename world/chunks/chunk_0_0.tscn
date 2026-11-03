@@ -1,9 +1,11 @@
 [gd_scene format=3]
 
 [ext_resource type="Texture2D" path="res://world/textures/ground_4d453d_615447.res" id="1_y326l"]
+[ext_resource type="Material" path="res://world/materials/parede.tres" id="2_s6l2a"]
 [ext_resource type="Script" path="res://world/fade_occluder.gd" id="2_y326l"]
 [ext_resource type="PackedScene" path="res://assets/props/Barrel.glb" id="3_t5grd"]
 [ext_resource type="PackedScene" path="res://assets/props/Chest.glb" id="4_10agt"]
+[ext_resource type="Material" path="res://world/materials/contrapiso.tres" id="4_xd5h5"]
 [ext_resource type="Script" path="res://world/world_npc.gd" id="5_2772y"]
 [ext_resource type="MeshLibrary" path="res://world/tiles/tiles.meshlib" id="5_y326l"]
 [ext_resource type="PackedScene" path="res://assets/characters/Suit.glb" id="6_f5q74"]
@@ -50,9 +52,6 @@ size = Vector2(64, 64)
 [sub_resource type="BoxShape3D" id="BoxShape3D_1j7j7"]
 size = Vector3(10, 3.2, 0.3)
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_25cto"]
-albedo_color = Color(0.75, 0.68, 0.55, 1)
-
 [sub_resource type="BoxMesh" id="BoxMesh_5qdrv"]
 size = Vector3(10, 3.2, 0.3)
 
@@ -65,17 +64,11 @@ size = Vector3(0.3, 3.2, 8)
 [sub_resource type="BoxShape3D" id="BoxShape3D_0lrbf"]
 size = Vector3(0.3, 3.2, 8)
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_s4uig"]
-albedo_color = Color(0.75, 0.68, 0.55, 1)
-
 [sub_resource type="BoxMesh" id="BoxMesh_r1otr"]
 size = Vector3(0.3, 3.2, 8)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_86sbv"]
 size = Vector3(4, 3.2, 0.3)
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_8ynnr"]
-albedo_color = Color(0.75, 0.68, 0.55, 1)
 
 [sub_resource type="BoxMesh" id="BoxMesh_cnhu1"]
 size = Vector3(4, 3.2, 0.3)
@@ -83,17 +76,11 @@ size = Vector3(4, 3.2, 0.3)
 [sub_resource type="BoxShape3D" id="BoxShape3D_s6l2a"]
 size = Vector3(4, 3.2, 0.3)
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_1j7j7"]
-albedo_color = Color(0.75, 0.68, 0.55, 1)
-
 [sub_resource type="BoxMesh" id="BoxMesh_0nkr3"]
 size = Vector3(4, 3.2, 0.3)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_oeamu"]
 size = Vector3(2, 0.8, 0.3)
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_5qdrv"]
-albedo_color = Color(0.75, 0.68, 0.55, 1)
 
 [sub_resource type="BoxMesh" id="BoxMesh_vfcfh"]
 size = Vector3(2, 0.8, 0.3)
@@ -116,9 +103,6 @@ albedo_color = Color(0.5, 0.2, 0.15, 1)
 [sub_resource type="BoxMesh" id="BoxMesh_68aof"]
 size = Vector3(6, 0.6, 4.8)
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_v5epx"]
-albedo_color = Color(0.45, 0.32, 0.2, 1)
-
 [sub_resource type="PlaneMesh" id="PlaneMesh_2rhxj"]
 size = Vector2(9.6, 7.6)
 
@@ -137,17 +121,11 @@ size = Vector3(0.3, 3.2, 7)
 [sub_resource type="BoxShape3D" id="BoxShape3D_q861x"]
 size = Vector3(0.3, 3.2, 7)
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_0lrbf"]
-albedo_color = Color(0.75, 0.68, 0.55, 1)
-
 [sub_resource type="BoxMesh" id="BoxMesh_ph1nh"]
 size = Vector3(0.3, 3.2, 7)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_mpuvm"]
 size = Vector3(3.5, 3.2, 0.3)
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_2ylo1"]
-albedo_color = Color(0.75, 0.68, 0.55, 1)
 
 [sub_resource type="BoxMesh" id="BoxMesh_0kiek"]
 size = Vector3(3.5, 3.2, 0.3)
@@ -155,17 +133,11 @@ size = Vector3(3.5, 3.2, 0.3)
 [sub_resource type="BoxShape3D" id="BoxShape3D_u05kh"]
 size = Vector3(3.5, 3.2, 0.3)
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_r1otr"]
-albedo_color = Color(0.75, 0.68, 0.55, 1)
-
 [sub_resource type="BoxMesh" id="BoxMesh_wqdwu"]
 size = Vector3(3.5, 3.2, 0.3)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_2wek6"]
 size = Vector3(2, 0.8, 0.3)
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_86sbv"]
-albedo_color = Color(0.75, 0.68, 0.55, 1)
 
 [sub_resource type="BoxMesh" id="BoxMesh_eg8je"]
 size = Vector3(2, 0.8, 0.3)
@@ -206,17 +178,11 @@ size = Vector3(0.3, 3.2, 7)
 [sub_resource type="BoxShape3D" id="BoxShape3D_dn3l4"]
 size = Vector3(0.3, 3.2, 7)
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_s6l2a"]
-albedo_color = Color(0.75, 0.68, 0.55, 1)
-
 [sub_resource type="BoxMesh" id="BoxMesh_h1unw"]
 size = Vector3(0.3, 3.2, 7)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_div1y"]
 size = Vector3(3.5, 3.2, 0.3)
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_xd5h5"]
-albedo_color = Color(0.75, 0.68, 0.55, 1)
 
 [sub_resource type="BoxMesh" id="BoxMesh_q0sta"]
 size = Vector3(3.5, 3.2, 0.3)
@@ -224,17 +190,11 @@ size = Vector3(3.5, 3.2, 0.3)
 [sub_resource type="BoxShape3D" id="BoxShape3D_3uogg"]
 size = Vector3(3.5, 3.2, 0.3)
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_0nkr3"]
-albedo_color = Color(0.75, 0.68, 0.55, 1)
-
 [sub_resource type="BoxMesh" id="BoxMesh_c6888"]
 size = Vector3(3.5, 3.2, 0.3)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_3o7kn"]
 size = Vector3(2, 0.8, 0.3)
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_63e1h"]
-albedo_color = Color(0.75, 0.68, 0.55, 1)
 
 [sub_resource type="BoxMesh" id="BoxMesh_jejw5"]
 size = Vector3(2, 0.8, 0.3)
@@ -275,17 +235,11 @@ size = Vector3(0.3, 3.2, 8)
 [sub_resource type="BoxShape3D" id="BoxShape3D_kg6uo"]
 size = Vector3(0.3, 3.2, 8)
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_14m0m"]
-albedo_color = Color(0.75, 0.68, 0.55, 1)
-
 [sub_resource type="BoxMesh" id="BoxMesh_l2n4p"]
 size = Vector3(0.3, 3.2, 8)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_svia3"]
 size = Vector3(4, 3.2, 0.3)
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_68aof"]
-albedo_color = Color(0.75, 0.68, 0.55, 1)
 
 [sub_resource type="BoxMesh" id="BoxMesh_y8fxd"]
 size = Vector3(4, 3.2, 0.3)
@@ -293,17 +247,11 @@ size = Vector3(4, 3.2, 0.3)
 [sub_resource type="BoxShape3D" id="BoxShape3D_hp5kw"]
 size = Vector3(4, 3.2, 0.3)
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_2rhxj"]
-albedo_color = Color(0.75, 0.68, 0.55, 1)
-
 [sub_resource type="BoxMesh" id="BoxMesh_spj4e"]
 size = Vector3(4, 3.2, 0.3)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_nob24"]
 size = Vector3(2, 0.8, 0.3)
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_a1aji"]
-albedo_color = Color(0.75, 0.68, 0.55, 1)
 
 [sub_resource type="BoxMesh" id="BoxMesh_q1j1i"]
 size = Vector3(2, 0.8, 0.3)
@@ -376,7 +324,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.6, -4)
 shape = SubResource("BoxShape3D_1j7j7")
 
 [node name="Mesh" type="MeshInstance3D" parent="Navigation/House_14_14/WallBack" unique_id=2026496877]
-material_override = SubResource("StandardMaterial3D_25cto")
+material_override = ExtResource("2_s6l2a")
 mesh = SubResource("BoxMesh_5qdrv")
 
 [node name="WallLeft" type="StaticBody3D" parent="Navigation/House_14_14" unique_id=2076674672]
@@ -386,7 +334,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 1.6, 0)
 shape = SubResource("BoxShape3D_s17pd")
 
 [node name="Mesh" type="MeshInstance3D" parent="Navigation/House_14_14/WallLeft" unique_id=1244302804]
-material_override = SubResource("StandardMaterial3D_25cto")
+material_override = ExtResource("2_s6l2a")
 mesh = SubResource("BoxMesh_cax8w")
 
 [node name="FrontWalls" type="Node3D" parent="Navigation/House_14_14" unique_id=272302524]
@@ -402,7 +350,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 1.6, 0)
 shape = SubResource("BoxShape3D_0lrbf")
 
 [node name="Mesh" type="MeshInstance3D" parent="Navigation/House_14_14/FrontWalls/WallRight" unique_id=1191673057]
-material_override = SubResource("StandardMaterial3D_s4uig")
+material_override = ExtResource("2_s6l2a")
 mesh = SubResource("BoxMesh_r1otr")
 
 [node name="WallFrontL" type="StaticBody3D" parent="Navigation/House_14_14/FrontWalls" unique_id=1604324350]
@@ -412,7 +360,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 1.6, 4)
 shape = SubResource("BoxShape3D_86sbv")
 
 [node name="Mesh" type="MeshInstance3D" parent="Navigation/House_14_14/FrontWalls/WallFrontL" unique_id=2055874654]
-material_override = SubResource("StandardMaterial3D_8ynnr")
+material_override = ExtResource("2_s6l2a")
 mesh = SubResource("BoxMesh_cnhu1")
 
 [node name="WallFrontR" type="StaticBody3D" parent="Navigation/House_14_14/FrontWalls" unique_id=2035108947]
@@ -422,7 +370,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 1.6, 4)
 shape = SubResource("BoxShape3D_s6l2a")
 
 [node name="Mesh" type="MeshInstance3D" parent="Navigation/House_14_14/FrontWalls/WallFrontR" unique_id=160398159]
-material_override = SubResource("StandardMaterial3D_1j7j7")
+material_override = ExtResource("2_s6l2a")
 mesh = SubResource("BoxMesh_0nkr3")
 
 [node name="Lintel" type="StaticBody3D" parent="Navigation/House_14_14/FrontWalls" unique_id=13979473]
@@ -432,7 +380,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.8, 4)
 shape = SubResource("BoxShape3D_oeamu")
 
 [node name="Mesh" type="MeshInstance3D" parent="Navigation/House_14_14/FrontWalls/Lintel" unique_id=287353610]
-material_override = SubResource("StandardMaterial3D_5qdrv")
+material_override = ExtResource("2_s6l2a")
 mesh = SubResource("BoxMesh_vfcfh")
 
 [node name="Roof" type="Node3D" parent="Navigation/House_14_14" unique_id=446143760]
@@ -466,7 +414,7 @@ mesh = SubResource("BoxMesh_68aof")
 
 [node name="Mesh" type="MeshInstance3D" parent="Navigation/House_14_14" unique_id=991639283]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.02, 0)
-material_override = SubResource("StandardMaterial3D_v5epx")
+material_override = ExtResource("4_xd5h5")
 mesh = SubResource("PlaneMesh_2rhxj")
 
 [node name="House_50_14" type="Node3D" parent="Navigation" unique_id=2036593579]
@@ -479,7 +427,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.6, -3.5)
 shape = SubResource("BoxShape3D_a1aji")
 
 [node name="Mesh" type="MeshInstance3D" parent="Navigation/House_50_14/WallBack" unique_id=755322574]
-material_override = SubResource("StandardMaterial3D_25cto")
+material_override = ExtResource("2_s6l2a")
 mesh = SubResource("BoxMesh_h5tfs")
 
 [node name="WallLeft" type="StaticBody3D" parent="Navigation/House_50_14" unique_id=1688912678]
@@ -489,7 +437,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.5, 1.6, 0)
 shape = SubResource("BoxShape3D_tst6q")
 
 [node name="Mesh" type="MeshInstance3D" parent="Navigation/House_50_14/WallLeft" unique_id=250320817]
-material_override = SubResource("StandardMaterial3D_25cto")
+material_override = ExtResource("2_s6l2a")
 mesh = SubResource("BoxMesh_6mv5i")
 
 [node name="FrontWalls" type="Node3D" parent="Navigation/House_50_14" unique_id=1707915093]
@@ -505,7 +453,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.5, 1.6, 0)
 shape = SubResource("BoxShape3D_q861x")
 
 [node name="Mesh" type="MeshInstance3D" parent="Navigation/House_50_14/FrontWalls/WallRight" unique_id=1560230482]
-material_override = SubResource("StandardMaterial3D_0lrbf")
+material_override = ExtResource("2_s6l2a")
 mesh = SubResource("BoxMesh_ph1nh")
 
 [node name="WallFrontL" type="StaticBody3D" parent="Navigation/House_50_14/FrontWalls" unique_id=159151724]
@@ -515,7 +463,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.75, 1.6, 3.5)
 shape = SubResource("BoxShape3D_mpuvm")
 
 [node name="Mesh" type="MeshInstance3D" parent="Navigation/House_50_14/FrontWalls/WallFrontL" unique_id=168351265]
-material_override = SubResource("StandardMaterial3D_2ylo1")
+material_override = ExtResource("2_s6l2a")
 mesh = SubResource("BoxMesh_0kiek")
 
 [node name="WallFrontR" type="StaticBody3D" parent="Navigation/House_50_14/FrontWalls" unique_id=322004590]
@@ -525,7 +473,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.75, 1.6, 3.5)
 shape = SubResource("BoxShape3D_u05kh")
 
 [node name="Mesh" type="MeshInstance3D" parent="Navigation/House_50_14/FrontWalls/WallFrontR" unique_id=317054461]
-material_override = SubResource("StandardMaterial3D_r1otr")
+material_override = ExtResource("2_s6l2a")
 mesh = SubResource("BoxMesh_wqdwu")
 
 [node name="Lintel" type="StaticBody3D" parent="Navigation/House_50_14/FrontWalls" unique_id=1398172320]
@@ -535,7 +483,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.8, 3.5)
 shape = SubResource("BoxShape3D_2wek6")
 
 [node name="Mesh" type="MeshInstance3D" parent="Navigation/House_50_14/FrontWalls/Lintel" unique_id=1538466667]
-material_override = SubResource("StandardMaterial3D_86sbv")
+material_override = ExtResource("2_s6l2a")
 mesh = SubResource("BoxMesh_eg8je")
 
 [node name="Roof" type="Node3D" parent="Navigation/House_50_14" unique_id=406918318]
@@ -569,7 +517,7 @@ mesh = SubResource("BoxMesh_fhqjl")
 
 [node name="Mesh" type="MeshInstance3D" parent="Navigation/House_50_14" unique_id=1758610340]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.02, 0)
-material_override = SubResource("StandardMaterial3D_v5epx")
+material_override = ExtResource("4_xd5h5")
 mesh = SubResource("PlaneMesh_7nqcj")
 
 [node name="House_14_50" type="Node3D" parent="Navigation" unique_id=1273330099]
@@ -582,7 +530,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.6, -3.5)
 shape = SubResource("BoxShape3D_4behg")
 
 [node name="Mesh" type="MeshInstance3D" parent="Navigation/House_14_50/WallBack" unique_id=186309136]
-material_override = SubResource("StandardMaterial3D_25cto")
+material_override = ExtResource("2_s6l2a")
 mesh = SubResource("BoxMesh_8ud7e")
 
 [node name="WallLeft" type="StaticBody3D" parent="Navigation/House_14_50" unique_id=947414115]
@@ -592,7 +540,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.5, 1.6, 0)
 shape = SubResource("BoxShape3D_sxejp")
 
 [node name="Mesh" type="MeshInstance3D" parent="Navigation/House_14_50/WallLeft" unique_id=399547177]
-material_override = SubResource("StandardMaterial3D_25cto")
+material_override = ExtResource("2_s6l2a")
 mesh = SubResource("BoxMesh_xx4ee")
 
 [node name="FrontWalls" type="Node3D" parent="Navigation/House_14_50" unique_id=1939832144]
@@ -608,7 +556,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.5, 1.6, 0)
 shape = SubResource("BoxShape3D_dn3l4")
 
 [node name="Mesh" type="MeshInstance3D" parent="Navigation/House_14_50/FrontWalls/WallRight" unique_id=1528631831]
-material_override = SubResource("StandardMaterial3D_s6l2a")
+material_override = ExtResource("2_s6l2a")
 mesh = SubResource("BoxMesh_h1unw")
 
 [node name="WallFrontL" type="StaticBody3D" parent="Navigation/House_14_50/FrontWalls" unique_id=347696314]
@@ -618,7 +566,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.75, 1.6, 3.5)
 shape = SubResource("BoxShape3D_div1y")
 
 [node name="Mesh" type="MeshInstance3D" parent="Navigation/House_14_50/FrontWalls/WallFrontL" unique_id=939370751]
-material_override = SubResource("StandardMaterial3D_xd5h5")
+material_override = ExtResource("2_s6l2a")
 mesh = SubResource("BoxMesh_q0sta")
 
 [node name="WallFrontR" type="StaticBody3D" parent="Navigation/House_14_50/FrontWalls" unique_id=1797545917]
@@ -628,7 +576,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.75, 1.6, 3.5)
 shape = SubResource("BoxShape3D_3uogg")
 
 [node name="Mesh" type="MeshInstance3D" parent="Navigation/House_14_50/FrontWalls/WallFrontR" unique_id=2075487109]
-material_override = SubResource("StandardMaterial3D_0nkr3")
+material_override = ExtResource("2_s6l2a")
 mesh = SubResource("BoxMesh_c6888")
 
 [node name="Lintel" type="StaticBody3D" parent="Navigation/House_14_50/FrontWalls" unique_id=981032223]
@@ -638,7 +586,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.8, 3.5)
 shape = SubResource("BoxShape3D_3o7kn")
 
 [node name="Mesh" type="MeshInstance3D" parent="Navigation/House_14_50/FrontWalls/Lintel" unique_id=1243595443]
-material_override = SubResource("StandardMaterial3D_63e1h")
+material_override = ExtResource("2_s6l2a")
 mesh = SubResource("BoxMesh_jejw5")
 
 [node name="Roof" type="Node3D" parent="Navigation/House_14_50" unique_id=851417930]
@@ -672,7 +620,7 @@ mesh = SubResource("BoxMesh_cn8td")
 
 [node name="Mesh" type="MeshInstance3D" parent="Navigation/House_14_50" unique_id=1735997789]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.02, 0)
-material_override = SubResource("StandardMaterial3D_v5epx")
+material_override = ExtResource("4_xd5h5")
 mesh = SubResource("PlaneMesh_55yx2")
 
 [node name="House_50_50" type="Node3D" parent="Navigation" unique_id=398867597]
@@ -685,7 +633,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.6, -4)
 shape = SubResource("BoxShape3D_al0sg")
 
 [node name="Mesh" type="MeshInstance3D" parent="Navigation/House_50_50/WallBack" unique_id=1171660473]
-material_override = SubResource("StandardMaterial3D_25cto")
+material_override = ExtResource("2_s6l2a")
 mesh = SubResource("BoxMesh_6xa1y")
 
 [node name="WallLeft" type="StaticBody3D" parent="Navigation/House_50_50" unique_id=2016701964]
@@ -695,7 +643,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 1.6, 0)
 shape = SubResource("BoxShape3D_pi0s0")
 
 [node name="Mesh" type="MeshInstance3D" parent="Navigation/House_50_50/WallLeft" unique_id=2015185807]
-material_override = SubResource("StandardMaterial3D_25cto")
+material_override = ExtResource("2_s6l2a")
 mesh = SubResource("BoxMesh_p3ygk")
 
 [node name="FrontWalls" type="Node3D" parent="Navigation/House_50_50" unique_id=2095178401]
@@ -711,7 +659,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 1.6, 0)
 shape = SubResource("BoxShape3D_kg6uo")
 
 [node name="Mesh" type="MeshInstance3D" parent="Navigation/House_50_50/FrontWalls/WallRight" unique_id=36763840]
-material_override = SubResource("StandardMaterial3D_14m0m")
+material_override = ExtResource("2_s6l2a")
 mesh = SubResource("BoxMesh_l2n4p")
 
 [node name="WallFrontL" type="StaticBody3D" parent="Navigation/House_50_50/FrontWalls" unique_id=989971543]
@@ -721,7 +669,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 1.6, 4)
 shape = SubResource("BoxShape3D_svia3")
 
 [node name="Mesh" type="MeshInstance3D" parent="Navigation/House_50_50/FrontWalls/WallFrontL" unique_id=224985293]
-material_override = SubResource("StandardMaterial3D_68aof")
+material_override = ExtResource("2_s6l2a")
 mesh = SubResource("BoxMesh_y8fxd")
 
 [node name="WallFrontR" type="StaticBody3D" parent="Navigation/House_50_50/FrontWalls" unique_id=1534936900]
@@ -731,7 +679,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 1.6, 4)
 shape = SubResource("BoxShape3D_hp5kw")
 
 [node name="Mesh" type="MeshInstance3D" parent="Navigation/House_50_50/FrontWalls/WallFrontR" unique_id=1384787712]
-material_override = SubResource("StandardMaterial3D_2rhxj")
+material_override = ExtResource("2_s6l2a")
 mesh = SubResource("BoxMesh_spj4e")
 
 [node name="Lintel" type="StaticBody3D" parent="Navigation/House_50_50/FrontWalls" unique_id=975938518]
@@ -741,7 +689,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.8, 4)
 shape = SubResource("BoxShape3D_nob24")
 
 [node name="Mesh" type="MeshInstance3D" parent="Navigation/House_50_50/FrontWalls/Lintel" unique_id=1058164197]
-material_override = SubResource("StandardMaterial3D_a1aji")
+material_override = ExtResource("2_s6l2a")
 mesh = SubResource("BoxMesh_q1j1i")
 
 [node name="Roof" type="Node3D" parent="Navigation/House_50_50" unique_id=2084789932]
@@ -775,7 +723,7 @@ mesh = SubResource("BoxMesh_ymd3u")
 
 [node name="Mesh" type="MeshInstance3D" parent="Navigation/House_50_50" unique_id=150405257]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.02, 0)
-material_override = SubResource("StandardMaterial3D_v5epx")
+material_override = ExtResource("4_xd5h5")
 mesh = SubResource("PlaneMesh_jx4nn")
 
 [node name="Well" type="StaticBody3D" parent="Navigation" unique_id=909752596]
@@ -970,16 +918,6 @@ stand = true
 
 [node name="Capricho" type="Node3D" parent="." unique_id=2102101520]
 
-[node name="Toldo_Bar" parent="Capricho" unique_id=963888193 instance=ExtResource("24_cnhu1")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 50, 2.3, 17.67)
-color_a = Color(0.55, 0.06, 0.12, 1)
-color_b = Color(0.92, 0.86, 0.76, 1)
-
-[node name="Toldo_Lanches" parent="Capricho" unique_id=1481534915 instance=ExtResource("24_cnhu1")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, 2.3, 53.67)
-color_a = Color(0.95, 0.7, 0.1, 1)
-color_b = Color(0.75, 0.12, 0.08, 1)
-
 [node name="Mesa_Bar_1" parent="Capricho" unique_id=161748325 instance=ExtResource("25_s6l2a")]
 transform = Transform3D(0.9563048, 0, 0.2923717, 0, 1, 0, -0.2923717, 0, 0.9563048, 47, 0, 21.8)
 
@@ -1027,3 +965,12 @@ transform = Transform3D(0.42, 0, 0, 0, 0.42, 0, 0, 0, 0.42, 11.8, 0, 18.6)
 
 [node name="Vaso_Cofre_2" parent="Capricho" unique_id=2130960782 instance=ExtResource("31_xl4y7")]
 transform = Transform3D(0.42, 0, 0, 0, 0.42, 0, 0, 0, 0.42, 16.2, 0, 18.6)
+
+[node name="Toldo_Bar" parent="Capricho" unique_id=1130112639 instance=ExtResource("24_cnhu1")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 50, 2.3, 17.67)
+color_a = Color(0.32, 0.14, 0.13, 1)
+
+[node name="Toldo_Lanches" parent="Capricho" unique_id=836819544 instance=ExtResource("24_cnhu1")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, 2.3, 53.67)
+color_a = Color(0.48, 0.4, 0.22, 1)
+color_b = Color(0.36, 0.2, 0.16, 1)

@@ -4,11 +4,11 @@ extends Node3D
 ## Toldo listrado de lona, preso na parede em cima da porta (o nó fica na parede, na altura de
 ## cima; a lona desce para a frente, +Z). Mexa no Inspector: cores, largura, quanto avança.
 
-@export var color_a := Color(0.72, 0.12, 0.1):
+@export var color_a := Color(0.34, 0.15, 0.13):
 	set(value):
 		color_a = value
 		_rebuild()
-@export var color_b := Color(0.92, 0.88, 0.78):
+@export var color_b := Color(0.55, 0.52, 0.45):
 	set(value):
 		color_b = value
 		_rebuild()
@@ -27,6 +27,8 @@ extends Node3D
 		_rebuild()
 
 const DROP := 0.35
+## Lona encardida: manchas e escorridos de chuva por cima das listras.
+const GRIME := preload("res://world/textures/sujeira.png")
 
 
 func _ready() -> void:
@@ -48,8 +50,12 @@ func _rebuild() -> void:
 	for c: Color in [color_a, color_b]:
 		var material := StandardMaterial3D.new()
 		material.albedo_color = c
-		material.roughness = 0.85
+		material.roughness = 0.95
 		material.cull_mode = BaseMaterial3D.CULL_DISABLED
+		material.albedo_texture = GRIME
+		material.uv1_triplanar = true
+		material.uv1_world_triplanar = true
+		material.uv1_scale = Vector3.ONE / 1.6
 		materials.append(material)
 	for i in count:
 		var x := -width / 2.0 + real * (i + 0.5)

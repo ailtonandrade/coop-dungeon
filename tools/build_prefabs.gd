@@ -89,6 +89,13 @@ func _house(size: Vector2) -> Node3D:
 	floor_mesh.material_override = _material(Color(0.45, 0.32, 0.2))
 	root.add_child(floor_mesh)
 	floor_mesh.owner = root
+	# Parede brasileira (tijolo e reboco) e contrapiso: tools/paredes_brasileiras.gd.
+	if ResourceLoader.exists("res://world/materials/parede.tres"):
+		for wall_name in ["WallBack", "WallLeft", "WallRight", "WallFrontL", "WallFrontR", "Lintel"]:
+			var body := root.find_child(wall_name, true, false)
+			if body and body.has_node("Mesh"):
+				(body.get_node("Mesh") as MeshInstance3D).material_override = load("res://world/materials/parede.tres")
+		floor_mesh.material_override = load("res://world/materials/contrapiso.tres")
 	return root
 
 

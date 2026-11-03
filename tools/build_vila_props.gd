@@ -25,11 +25,16 @@ func _save(root: Node3D, file: String) -> void:
 	root.free()
 
 
+## Tudo encardido: a cor leva por cima a textura de sujeira (manchas e escorridos).
 func _material(color: Color, rough := 0.8, metal := 0.0) -> StandardMaterial3D:
 	var material := StandardMaterial3D.new()
 	material.albedo_color = color
 	material.roughness = rough
 	material.metallic = metal
+	material.albedo_texture = preload("res://world/textures/sujeira.png")
+	material.uv1_triplanar = true
+	material.uv1_world_triplanar = true
+	material.uv1_scale = Vector3.ONE / 1.2
 	return material
 
 
@@ -76,13 +81,14 @@ func _solid(parent: Node3D, size: Vector3, at: Vector3) -> void:
 func _bar_table() -> Node3D:
 	var root := Node3D.new()
 	root.name = "MesaDeBar"
-	var plastic := _material(Color(0.78, 0.12, 0.1), 0.55)
+	# Plástico de boteco que já foi vermelho: desbotado de sol e encardido.
+	var plastic := _material(Color(0.46, 0.2, 0.17), 0.8)
 	var top := _box(root, Vector3(0.8, 0.04, 0.8), Vector3(0, 0.72, 0), plastic)
 	top.name = "Tampo"
 	for x: float in [-0.34, 0.34]:
 		for z: float in [-0.34, 0.34]:
 			_box(root, Vector3(0.05, 0.7, 0.05), Vector3(x, 0.35, z), plastic)
-	var chair := _material(Color(0.9, 0.9, 0.88), 0.6)
+	var chair := _material(Color(0.6, 0.58, 0.52), 0.85)
 	var spots := [[Vector3(0, 0, 0.72), 0.0], [Vector3(0, 0, -0.72), PI], [Vector3(0.72, 0, 0), PI / 2.0], [Vector3(-0.74, 0, 0.1), -PI / 2.0 + 0.3]]
 	for spot: Array in spots:
 		var seat := Node3D.new()
@@ -99,7 +105,7 @@ func _bar_table() -> Node3D:
 	var amber := _material(Color(0.45, 0.24, 0.06), 0.15)
 	_cylinder(root, 0.035, 0.26, Vector3(0.12, 0.87, 0.05), glass)
 	_cylinder(root, 0.035, 0.26, Vector3(-0.1, 0.87, -0.12), amber)
-	_cylinder(root, 0.045, 0.1, Vector3(0.0, 0.79, 0.18), _material(Color(0.85, 0.85, 0.8), 0.1))
+	_cylinder(root, 0.045, 0.1, Vector3(0.0, 0.79, 0.18), _material(Color(0.6, 0.6, 0.56), 0.3))
 	_solid(root, Vector3(0.8, 0.75, 0.8), Vector3(0, 0.375, 0))
 	return root
 
@@ -108,8 +114,8 @@ func _bar_table() -> Node3D:
 func _crates() -> Node3D:
 	var root := Node3D.new()
 	root.name = "Caixotes"
-	var wood := _material(Color(0.55, 0.38, 0.2), 0.9)
-	var dark := _material(Color(0.36, 0.24, 0.12), 0.9)
+	var wood := _material(Color(0.36, 0.29, 0.21), 0.95)
+	var dark := _material(Color(0.22, 0.17, 0.12), 0.95)
 	var crates := [[Vector3(0, 0.3, 0), 0.0], [Vector3(0.66, 0.3, 0.05), 0.15], [Vector3(0.3, 0.9, 0.02), -0.1]]
 	for crate: Array in crates:
 		var box := Node3D.new()
@@ -124,7 +130,7 @@ func _crates() -> Node3D:
 		for x: float in [-0.28, 0.28]:
 			for z: float in [-0.28, 0.28]:
 				_box(box, Vector3(0.05, 0.6, 0.05), Vector3(x, 0, z), dark)
-	var crate_plastic := _material(Color(0.95, 0.72, 0.1), 0.6)
+	var crate_plastic := _material(Color(0.5, 0.42, 0.18), 0.85)
 	var beer := Node3D.new()
 	beer.name = "Engradado"
 	beer.position = Vector3(0.68, 0.72, 0.05)
@@ -146,13 +152,13 @@ func _crates() -> Node3D:
 func _stall() -> Node3D:
 	var root := Node3D.new()
 	root.name = "Banca"
-	var wood := _material(Color(0.48, 0.33, 0.18), 0.9)
-	var cloth := _material(Color(0.15, 0.32, 0.55), 0.85)
+	var wood := _material(Color(0.33, 0.27, 0.2), 0.95)
+	var cloth := _material(Color(0.2, 0.23, 0.25), 0.95)
 	_box(root, Vector3(2.0, 0.08, 0.7), Vector3(0, 0.9, 0), wood)
 	_box(root, Vector3(2.0, 0.86, 0.04), Vector3(0, 0.44, 0.33), cloth)
 	for x: float in [-0.95, 0.95]:
 		_box(root, Vector3(0.06, 0.9, 0.6), Vector3(x, 0.45, 0), wood)
-	var colors := [Color(0.85, 0.2, 0.15), Color(0.2, 0.6, 0.85), Color(0.9, 0.8, 0.2), Color(0.3, 0.3, 0.32), Color(0.85, 0.85, 0.8)]
+	var colors := [Color(0.42, 0.25, 0.2), Color(0.28, 0.33, 0.35), Color(0.45, 0.4, 0.26), Color(0.22, 0.22, 0.23), Color(0.5, 0.48, 0.43)]
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 42
 	for i in 9:

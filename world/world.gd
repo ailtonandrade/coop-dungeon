@@ -99,14 +99,26 @@ func _build_environment() -> void:
 	env.glow_intensity = 0.9
 	env.glow_bloom = 0.05
 	env.glow_hdr_threshold = 1.2
-	# Neblina de poluição só ao longe: some com a borda do mapa na câmera atrás do herói e não
-	# chega no que a câmera de cima mostra (até uns 40 m).
+	# Ar de poluição: neblina densa de poeira e fumaça o tempo todo (o relógio pinta a cor dela
+	# pela hora). Perto já se sente; ao longe some tudo no cinza-amarelado.
 	env.fog_enabled = true
-	env.fog_mode = Environment.FOG_MODE_DEPTH
-	env.fog_light_color = Color(0.1, 0.09, 0.14)
-	env.fog_depth_begin = 45.0
-	env.fog_depth_end = 120.0
-	env.fog_density = 1.0
+	env.fog_mode = Environment.FOG_MODE_EXPONENTIAL
+	env.fog_light_color = Color(0.32, 0.3, 0.26)
+	env.fog_density = DayNight.FOG_DENSITY
+	env.fog_sky_affect = 1.0
+	# Cor de mundo doente, de leve: um pouco menos de saturação, sombras puxando para um verde de
+	# mofo e os claros num amarelo de poeira (o neon continua vivo por cima).
+	env.adjustment_enabled = true
+	env.adjustment_saturation = 0.85
+	env.adjustment_contrast = 1.06
+	env.adjustment_brightness = 0.97
+	var grade := Gradient.new()
+	grade.set_color(0, Color(0.02, 0.04, 0.035))
+	grade.set_color(1, Color(0.93, 0.9, 0.8))
+	grade.add_point(0.45, Color(0.4, 0.42, 0.37))
+	var grade_texture := GradientTexture1D.new()
+	grade_texture.gradient = grade
+	env.adjustment_color_correction = grade_texture
 	var world_env := WorldEnvironment.new()
 	world_env.environment = env
 	add_child(world_env)

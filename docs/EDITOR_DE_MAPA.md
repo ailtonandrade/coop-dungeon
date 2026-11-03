@@ -230,3 +230,13 @@ boteco com cadeiras e garrafas), **caixotes** (pilha com engradado de cerveja) e
 camelô, com mercadoria e radinho). Do pack vieram o sofá velho, o ar-condicionado, os pneus, os
 canos e o vaso. As da vila estão no grupo **Capricho** do bloco (`tools/capricho_vila.gd`, que só
 acrescenta o que faltar): arraste no editor ou mova/apague pelo `/construir`.
+
+## Cara de periferia brasileira (paredes, sujeira, ar)
+
+- **Paredes de tijolo com reboco caindo** e **piso de contrapiso**: `world/materials/parede.tres`
+  (textura presa no mundo, então qualquer caixa de parede fica certa; barro respingado no rodapé)
+  e `world/materials/contrapiso.tres`. As texturas saem de `tools/gerar_texturas.py`;
+  `tools/paredes_brasileiras.gd` aplica nas casas dos blocos e nas peças de casa.
+- **Sujeira** (`world/textures/sujeira.png`) por cima do toldo, das mesas, caixotes e bancas.
+- **Ar de poluição**: neblina de poeira o tempo todo (`DayNight.FOG_DENSITY`, mais densa com
+  chuva) e grãos de poeira boiando em volta dos heróis (somem quase todos com a chuva).

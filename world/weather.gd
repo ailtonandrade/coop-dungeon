@@ -1,6 +1,6 @@
 class_name Weather
 extends Node
-## Clima do mundo: chuva que vem e vai sozinha. Quem manda no mundo (host ou sofá offline)
+## Clima do mundo: chuva que vem e vai sozinha, e poeira no ar o tempo todo. Quem manda no mundo (host ou sofá offline)
 ## sorteia; o clima vai no save do mundo (chave "rain": 0 ou 1) e para os convidados.
 ##
 ## Chovendo: gotas caindo em volta dos heróis, respingos no chão, som de chuva, chão mais
@@ -16,6 +16,7 @@ const RAMP := 25.0
 const AREA := 26.0
 const DROPS := 2200
 const SPLASHES := 260
+const DUST := 420
 const RAIN_SOUND := "res://audio/music/chuva.ogg"
 
 ## 0 = seco, 1 = chovendo forte (vai mudando aos poucos até `target`).
@@ -25,6 +26,7 @@ var target := 0.0
 var _spell_left := 0.0
 var _rain: GPUParticles3D
 var _splash: GPUParticles3D
+var _dust: GPUParticles3D
 var _sound: AudioStreamPlayer
 var _ground_check := 0.0
 var _indoors := false
@@ -129,6 +131,46 @@ func _build() -> void:
 	_splash.draw_pass_1 = splash_mesh
 	add_child(_splash)
 
+	# Poeira no ar, sempre (some quase toda com a chuva, que assenta o pó): grãos claros
+	# boiando devagar em volta dos heróis, pegando a luz.
+	_dust = GPUParticles3D.new()
+	_dust.name = "Poeira"
+	_dust.amount = DUST
+	_dust.lifetime = 9.0
+	_dust.preprocess = 9.0
+	_dust.visibility_aabb = AABB(Vector3(-AREA, -2, -AREA), Vector3(AREA * 2, 10, AREA * 2))
+	_dust.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	var dust_process := ParticleProcessMaterial.new()
+	dust_process.emission_shape = ParticleProcessMaterial.EMISSION_SHAPE_BOX
+	dust_process.emission_box_extents = Vector3(AREA * 0.7, 3.0, AREA * 0.7)
+	dust_process.direction = Vector3(1, 0.1, 0.3)
+	dust_process.spread = 60.0
+	dust_process.initial_velocity_min = 0.05
+	dust_process.initial_velocity_max = 0.35
+	dust_process.gravity = Vector3(0.05, -0.02, 0.02)
+	dust_process.turbulence_enabled = true
+	dust_process.turbulence_noise_strength = 0.4
+	dust_process.turbulence_noise_scale = 3.0
+	var fade := Curve.new()
+	fade.add_point(Vector2(0, 0))
+	fade.add_point(Vector2(0.2, 1))
+	fade.add_point(Vector2(0.8, 1))
+	fade.add_point(Vector2(1, 0))
+	var fade_texture := CurveTexture.new()
+	fade_texture.curve = fade
+	dust_process.scale_curve = fade_texture
+	_dust.process_material = dust_process
+	var mote := QuadMesh.new()
+	mote.size = Vector2(0.035, 0.035)
+	var mote_material := StandardMaterial3D.new()
+	mote_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	mote_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	mote_material.billboard_mode = BaseMaterial3D.BILLBOARD_PARTICLES
+	mote_material.albedo_color = Color(0.85, 0.8, 0.68, 0.45)
+	mote.material = mote_material
+	_dust.draw_pass_1 = mote
+	add_child(_dust)
+
 	_sound = AudioStreamPlayer.new()
 	_sound.name = "SomDaChuva"
 	_sound.bus = "Ambience"
@@ -158,6 +200,7 @@ func _follow_players() -> void:
 	_indoors = _is_indoors(center)
 	_rain.global_position = center + Vector3(0, 13.0, 0)
 	_splash.global_position = center + Vector3(0, 0.05, 0)
+	_dust.global_position = center + Vector3(0, 2.5, 0)
 
 
 func _is_indoors(point: Vector3) -> bool:
@@ -177,6 +220,8 @@ func _apply_effects() -> void:
 	_splash.emitting = visible_rain
 	_splash.visible = visible_rain
 	_splash.amount_ratio = clampf(outside, 0.05, 1.0)
+	# A chuva assenta a poeira; dentro de casa e caverna também tem pó (menos).
+	_dust.amount_ratio = clampf((1.0 - level * 0.85) * (0.5 if _indoors else 1.0), 0.05, 1.0)
 	# Som: forte fora, abafado dentro; some quando seca.
 	var loudness := level * (0.35 if _indoors else 1.0)
 	if loudness > 0.01:
