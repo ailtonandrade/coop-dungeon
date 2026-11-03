@@ -142,7 +142,7 @@ func play_ambience(name: String) -> void:
 func apply_volumes() -> void:
 	_set_bus_volume("Master", Settings.master_volume)
 	_set_bus_volume("Music", Settings.music_volume)
-	_set_bus_volume("Ambience", Settings.music_volume)
+	_set_bus_volume("Ambience", Settings.ambience_volume)
 	_set_bus_volume("SFX", Settings.sfx_volume)
 	_set_bus_volume("UI", Settings.sfx_volume)
 

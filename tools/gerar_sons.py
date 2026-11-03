@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Gera os efeitos sonoros sintetizados do jogo (audio/sfx/*.ogg) e a música/ambiente
-provisórios (audio/music/*.ogg). Sons de ferro-velho: golpes, pregos, metal, chip queimando.
+provisórios (audio/music/ambiente*.ogg; o piano é do tools/gerar_piano.py). Sons de ferro-velho: golpes, pregos, metal, chip queimando.
 
 São provisórios no mesmo sentido dos modelos: dá para trocar qualquer arquivo por um som de
 verdade com o mesmo nome (o banco em audio/sound_bank.gd lista os arquivos de cada evento).
@@ -317,37 +317,9 @@ def make_ambience():
     save(MUSIC, "ambiente_ferro_velho", loop_seam(out, 2.0), peak=0.7, quality=4)
 
 
-def make_menu_music():
-    bpm = 92
-    beat = 60.0 / bpm
-    bars = 8
-    seconds = bars * 4 * beat
-    n = int(seconds * RATE)
-    progression = [[220.0, 261.6, 329.6], [174.6, 220.0, 261.6], [261.6, 329.6, 392.0], [196.0, 246.9, 293.7]]
-    out = np.zeros(n + RATE)
-    for bar in range(bars):
-        notes = progression[bar % 4]
-        start = bar * 4 * beat
-        pad_ = chord(notes, 4 * beat + 0.4) * env(int((4 * beat + 0.4) * RATE), 0.6, 4 * beat, 1.2)
-        sweep = 500 + 900 * (0.5 + 0.5 * np.sin(np.pi * bar / 4))
-        out = mix(out, at(onepole_lowpass(pad_, sweep) * 0.55, start))
-        bass = onepole_lowpass(saw(notes[0] / 2, 4 * beat), 300) * env(int(4 * beat * RATE), 0.02, 4 * beat, 1.5)
-        out = mix(out, at(bass * 0.5, start))
-        for step in range(8):
-            f = notes[step % 3] * (2 if step % 4 == 3 else 1)
-            note = onepole_lowpass(square(f * 2, beat / 2) * 0.3, 2200) * env(int(beat / 2 * RATE), 0.003, beat / 3)
-            out = mix(out, at(note * (0.5 if step % 2 else 0.7), start + step * beat / 2))
-        for step in range(8):
-            hat = bandpass(noise(0.04), 6000, 12000) * env(int(0.04 * RATE), 0.001, 0.02) * (0.25 if step % 2 else 0.12)
-            out = mix(out, at(hat, start + step * beat / 2))
-    out = echo(out[: n + RATE // 2], beat * 0.75, 0.25, 3)[:n + RATE]
-    save(MUSIC, "menu_tema", loop_seam(out[: n + RATE], 1.0), peak=0.75, quality=5)
-
-
 if __name__ == "__main__":
     if subprocess.run(["ffmpeg", "-version"], capture_output=True).returncode != 0:
         sys.exit("Precisa do ffmpeg no PATH.")
     make_sfx()
     print("Música e ambiente:")
     make_ambience()
-    make_menu_music()

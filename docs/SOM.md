@@ -31,6 +31,13 @@ O Godot **não** traz sons prontos. Os do jogo vêm de dois lugares:
   barramento) e, no código, `Sound.play("nome", posição)`. Efeitos que todos da sala precisam
   ouvir passam pelos `fx_*` das entidades (rodam em todas as máquinas).
 - **Música:** arquivo em `audio/music/` e o nome em `SoundBank.MUSIC`.
+- **Piano** (`tools/gerar_piano.py`): piano de feltro grave sintetizado por modelo físico (cordas
+  com harmônicos de verdade, 3 cordas desafinadas por nota, martelo de feltro, sala grande).
+  `menu_piano` (tema do menu, Ré menor, lento) e `mundo_piano` (no mundo, notas isoladas com muito
+  silêncio por cima do vento). Para mudar a música, mude as notas em `menu_theme()` /
+  `world_theme()` e rode o script; para trocar por um piano gravado, é só pôr o .ogg com o mesmo
+  nome.
+- **Volumes separados** nas configurações: geral, música, ambiente (vento, máquinas) e efeitos.
 
 Volumes (geral, música/ambiente, efeitos) ficam no menu de pausa e são salvos por máquina.
 

@@ -13,8 +13,9 @@ const DEBUG_SPAWN_FILE := "user://debug_spawn.json"
 
 
 func _ready() -> void:
-	# No mundo: só o ambiente de ferro-velho (vento, zumbido de neon, metal longe).
-	Sound.play_music("")
+	# No mundo: o ambiente de ferro-velho (vento, zumbido de neon, metal longe) e o piano
+	# esparso por cima, com muito silêncio entre as frases.
+	Sound.play_music("mundo")
 	Sound.play_ambience("ambiente")
 	# O que já existe nasce de uma vez ao carregar (loot, criaturas): sem barulho junto.
 	Sound.quiet_for(1.5)

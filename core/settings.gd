@@ -37,6 +37,7 @@ var voice_peer_muted := {}
 ## Volumes (0 a 1): geral, música/ambiente e efeitos.
 var master_volume := 0.9
 var music_volume := 0.6
+var ambience_volume := 0.6
 var sfx_volume := 0.9
 
 
@@ -64,6 +65,8 @@ func _load() -> void:
 		active_character = config.get_value("characters", "active", active_character)
 		master_volume = config.get_value("audio", "master", master_volume)
 		music_volume = config.get_value("audio", "music", music_volume)
+		# Antes era um volume só para música e ambiente: sem o novo, herda o antigo.
+		ambience_volume = config.get_value("audio", "ambience", music_volume)
 		sfx_volume = config.get_value("audio", "sfx", sfx_volume)
 
 
@@ -133,7 +136,7 @@ func remember_character(slot: int, character_id: String) -> void:
 		_save()
 
 
-## Muda um volume ("master", "music", "sfx") e salva.
+## Muda um volume ("master", "music", "ambience", "sfx") e salva.
 func set_volume(which: String, value: float) -> void:
 	set(which + "_volume", clampf(value, 0.0, 1.0))
 	_save()
@@ -168,5 +171,6 @@ func _save() -> void:
 	config.set_value("characters", "active", active_character)
 	config.set_value("audio", "master", master_volume)
 	config.set_value("audio", "music", music_volume)
+	config.set_value("audio", "ambience", ambience_volume)
 	config.set_value("audio", "sfx", sfx_volume)
 	config.save(PATH)

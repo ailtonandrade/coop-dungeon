@@ -14,7 +14,8 @@ func _ready() -> void:
 	_slider("Tamanho dos textos e menus", Settings.UI_SCALE_MIN, Settings.UI_SCALE_MAX, 0.05, Settings.ui_scale,
 			Settings.set_ui_scale, func(v: float) -> String: return "%d%%" % roundi(v * 100.0))
 	_slider("Volume geral", 0.0, 1.0, 0.05, Settings.master_volume, func(v: float) -> void: Settings.set_volume("master", v), _percent)
-	_slider("Música e ambiente", 0.0, 1.0, 0.05, Settings.music_volume, func(v: float) -> void: Settings.set_volume("music", v), _percent)
+	_slider("Música", 0.0, 1.0, 0.05, Settings.music_volume, func(v: float) -> void: Settings.set_volume("music", v), _percent)
+	_slider("Ambiente (vento, máquinas)", 0.0, 1.0, 0.05, Settings.ambience_volume, func(v: float) -> void: Settings.set_volume("ambience", v), _percent)
 	_slider("Efeitos", 0.0, 1.0, 0.05, Settings.sfx_volume, func(v: float) -> void: Settings.set_volume("sfx", v), _percent)
 	_camera_button = _button(Settings.toggle_camera_mode)
 	_slider("Sensibilidade da câmera atrás", 0.3, 3.0, 0.1, Settings.look_sensitivity, Settings.set_look_sensitivity,

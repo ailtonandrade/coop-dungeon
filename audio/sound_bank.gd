@@ -54,6 +54,8 @@ const EVENTS := {
 
 ## Músicas e ambientes em loop (audio/music).
 const MUSIC := {
-	"menu": "menu_tema",
+	# Piano de feltro grave (tools/gerar_piano.py): tema no menu, quase só silêncio no mundo.
+	"menu": "menu_piano",
+	"mundo": "mundo_piano",
 	"ambiente": "ambiente_ferro_velho",
 }
