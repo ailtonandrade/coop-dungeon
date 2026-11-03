@@ -4,7 +4,7 @@ extends Node
 ## sorteia; o clima vai no save do mundo (chave "rain": 0 ou 1) e para os convidados.
 ##
 ## Chovendo: gotas caindo em volta dos heróis, respingos no chão, som de chuva, chão mais
-## molhado (brilha), poças maiores e com ondinhas, luz mais fechada (o relógio lê `level`).
+## molhado (brilha nas luzes), luz mais fechada (o relógio lê `level`).
 ## Dentro de casa/caverna (interiores) a chuva some e o som fica abafado.
 
 ## Duração de cada trecho (segundos de verdade) e a chance de o próximo ser de chuva.
@@ -16,7 +16,6 @@ const RAMP := 25.0
 const AREA := 26.0
 const DROPS := 2200
 const SPLASHES := 260
-const PUDDLE_MATERIAL := preload("res://world/water/poca_material.tres")
 const RAIN_SOUND := "res://audio/music/chuva.ogg"
 
 ## 0 = seco, 1 = chovendo forte (vai mudando aos poucos até `target`).
@@ -43,10 +42,6 @@ func _ready() -> void:
 	_spell_left = randf_range(SPELL_MIN, SPELL_MAX)
 	_build()
 	_apply_effects()
-
-
-func _exit_tree() -> void:
-	PUDDLE_MATERIAL.set_shader_parameter("rain", 0.0)
 
 
 ## Liga/desliga a chuva (comando /chuva do dono do jogo). Só quem manda no mundo.
@@ -190,7 +185,6 @@ func _apply_effects() -> void:
 		_sound.volume_db = linear_to_db(loudness) - 4.0
 	elif _sound.playing:
 		_sound.stop()
-	PUDDLE_MATERIAL.set_shader_parameter("rain", level)
 	_ground_check -= get_process_delta_time()
 	if _ground_check <= 0.0:
 		_ground_check = 1.0

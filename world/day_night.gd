@@ -46,7 +46,6 @@ var _lights_on := -1.0
 
 ## Postes de luz (prefab "PosteDeLuz"): apagados de dia, acendem no anoitecer.
 const STREET_LIGHT_PREFIX := "PosteDeLuz"
-const PUDDLE_MATERIAL := preload("res://world/water/poca_material.tres")
 const LIGHTS_ON := [18.6, 19.6]   # começa a acender, totalmente aceso
 const LIGHTS_OFF := [5.6, 6.6]    # começa a apagar, apagado
 
@@ -148,8 +147,6 @@ func _apply() -> void:
 	sun.light_color = light.sun
 	sun.light_energy = light.sun_energy * (1.0 - 0.55 * rain)
 	sun.rotation_degrees = sun_angles(hour)
-	# Poças espelham o céu da hora.
-	PUDDLE_MATERIAL.set_shader_parameter("sky", (light.sky as Color).lerp(light.ambient * light.ambient_energy, 0.6))
 	var level := street_lights_level(hour)
 	if absf(level - _lights_on) > 0.01:
 		_lights_on = level

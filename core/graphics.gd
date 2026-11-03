@@ -43,21 +43,9 @@ static func apply(tree: SceneTree, quality: String) -> void:
 	root.msaa_3d = Viewport.MSAA_2X if quality == "alta" else Viewport.MSAA_DISABLED
 	for sun: Node in tree.get_nodes_in_group("sun"):
 		apply_sun(sun as DirectionalLight3D, quality)
-	for world_env: Node in tree.get_nodes_in_group("world_environment"):
-		apply_environment((world_env as WorldEnvironment).environment, quality)
 	for node in root.find_children("*", "GeometryInstance3D", true, false):
 		if node.has_meta("graphics_range"):
 			(node as GeometryInstance3D).visibility_range_end = VIEW_RANGE[quality]
-
-
-## Reflexo de tela (poças espelhando o neon): só em média e alta.
-static func apply_environment(env: Environment, quality: String) -> void:
-	if env == null:
-		return
-	env.ssr_enabled = quality != "baixa"
-	env.ssr_max_steps = 48 if quality == "alta" else 24
-	env.ssr_fade_in = 0.15
-	env.ssr_fade_out = 2.0
 
 
 static func apply_sun(sun: DirectionalLight3D, quality: String) -> void:
