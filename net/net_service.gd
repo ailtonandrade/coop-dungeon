@@ -11,7 +11,8 @@ extends Node
 signal status_changed(text: String)
 signal peer_ready(peer_id: int)
 
-const GAME_VERSION := "0.10"
+## Versão do jogo (application/config/version): convidado e host precisam estar na mesma.
+var GAME_VERSION := str(ProjectSettings.get_setting("application/config/version", "0.0.0"))
 const DEFAULT_PORT := 7777
 const LEVEL_SCENE := "res://world/world.tscn"
 const MENU_SCENE := "res://ui/main_menu.tscn"
