@@ -100,8 +100,7 @@ static func build(item: Dictionary) -> Node3D:
 		"pouch":
 			_box(root, Vector3(0.16, 0.18, 0.12), Vector3.ZERO, color, shine)
 		"coins":
-			for i in 3:
-				_box(root, Vector3(0.14, 0.03, 0.14), Vector3(0.03 * i, 0.035 * i, 0.0), color, color)
+			_coins(root, color, int(item.get("amount", 10)))
 		"backpack":
 			var size: float = 1.15 if def.get("capacity", 0) > 12 else 1.0
 			_box(root, Vector3(0.36, 0.4, 0.2) * size, Vector3.ZERO, color, shine)
@@ -332,6 +331,42 @@ static func hide_model_weapons(model: Node) -> void:
 		for word: String in WeaponCarry.MODEL_WEAPON_MESHES:
 			if lower == word or lower.begins_with(word + "_") or lower.ends_with("_" + word):
 				mesh.visible = false
+
+
+## Montinho de parafusos (o dinheiro do jogo): mais moedas quanto maior a quantia, umas
+## empilhadas e outras espalhadas em volta. Sempre igual para a mesma quantia.
+static func _coins(root: Node3D, color: Color, amount: int) -> void:
+	var count := clampi(3 + int(sqrt(float(maxi(amount, 1)))), 4, 14)
+	var rng := RandomNumberGenerator.new()
+	rng.seed = amount
+	var coin := CylinderMesh.new()
+	coin.top_radius = 0.055
+	coin.bottom_radius = 0.055
+	coin.height = 0.018
+	coin.radial_segments = 14
+	coin.rings = 1
+	var material := StandardMaterial3D.new()
+	material.albedo_color = color
+	material.metallic = 0.9
+	material.roughness = 0.3
+	material.emission_enabled = true
+	material.emission = color
+	material.emission_energy_multiplier = 0.25
+	coin.material = material
+	var stack := mini(count / 2, 5)
+	for i in count:
+		var mesh := MeshInstance3D.new()
+		mesh.mesh = coin
+		if i < stack:
+			# Pilha no meio, meio torta.
+			mesh.position = Vector3(rng.randf_range(-0.012, 0.012), 0.009 + i * 0.019, rng.randf_range(-0.012, 0.012))
+			mesh.rotation = Vector3(rng.randf_range(-0.06, 0.06), 0, rng.randf_range(-0.06, 0.06))
+		else:
+			var angle := rng.randf() * TAU
+			var radius := rng.randf_range(0.1, 0.2)
+			mesh.position = Vector3(cos(angle) * radius, 0.012, sin(angle) * radius)
+			mesh.rotation = Vector3(rng.randf_range(-0.25, 0.25), 0, rng.randf_range(-0.25, 0.25))
+		root.add_child(mesh)
 
 
 static func _box(parent: Node3D, size: Vector3, pos: Vector3, color: Color, glow := Color.BLACK,

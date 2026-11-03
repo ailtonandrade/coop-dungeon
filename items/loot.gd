@@ -16,6 +16,9 @@ const GROUND_SCALE := 1.3
 const FALL_TIME := 0.45
 const FALL_HEIGHT := 0.6
 const GLOW_SIZE := 1.1
+## O nome só aparece com alguém desta máquina perto (no meio do loot de uma luta não vira sopa
+## de letras); o item ao alcance do botão de pegar acende.
+const NAME_RANGE := 6.0
 const _GLOW_SHADER := preload("res://items/loot_glow.gdshader")
 
 ## Generosidade do loot, escolhida pelo host (fica no save do mundo, chave "loot"):
@@ -37,6 +40,14 @@ var _rest := Transform3D.IDENTITY
 var _floor := 0.0
 var _fall := 0.0
 var _spot := Vector3.ZERO
+var _decor: Node3D
+var _label: Label3D
+var _base_glow := 1.0
+var _near := 0.0  # 0 = longe, 1 = alguém do sofá perto (nome aparece)
+var _focus := 0.0  # 1 = é o que o botão de pegar vai pegar
+var _check := 0.0
+var _near_target := 0.0
+var _focus_target := 0.0
 
 
 ## Host: larga um item no chão.
@@ -112,17 +123,21 @@ func _ready() -> void:
 	_visual.transform = _rest
 	add_child(_visual)
 
+	# Tudo que enfeita o item (brilho, fio de luz, faíscas, nome) acompanha o chão achado.
+	_decor = Node3D.new()
+	add_child(_decor)
 	# Brilho no chão na cor da raridade: discreto, só para achar no meio da luta.
 	var rarity: String = item.get("rarity", "common")
+	_base_glow = 0.45 if rarity == "common" else 1.0
 	_glow = MeshInstance3D.new()
 	var disc := PlaneMesh.new()
 	disc.size = Vector2.ONE * GLOW_SIZE
 	_glow.mesh = disc
 	# Comum quase some; quanto melhor a raridade, mais o brilho aparece.
-	_glow.material_override = _glow_material(Color(color, 0.45 if rarity == "common" else 1.0))
+	_glow.material_override = _glow_material(color)
 	_glow.position.y = 0.02
 	_glow.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	add_child(_glow)
+	_decor.add_child(_glow)
 	# Raro e Protótipo ganham um fio de luz fino e baixo (os comuns não chamam atenção).
 	if item.get("id") != "gold" and rarity in ["rare", "unique"]:
 		var beam := MeshInstance3D.new()
@@ -137,13 +152,16 @@ func _ready() -> void:
 		beam.material_override = beam_material
 		beam.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		beam.position.y = cylinder.height / 2.0
-		add_child(beam)
+		_decor.add_child(beam)
+		_decor.add_child(_sparkles(color, 6 if rarity == "rare" else 12))
 
 	# Nome na cor da raridade, baixinho, logo acima do item.
 	var label := WorldText.make(ItemDB.display_name(item) if item.get("id") == "gold" \
 			else Txt.t("%s · poder %d") % [ItemDB.display_name(item), int(item.get("power", 1))], 12, color)
 	label.position.y = 0.55
-	add_child(label)
+	_label = label
+	_label.transparency = 1.0
+	_decor.add_child(label)
 	_snap_to_floor.call_deferred()
 
 
@@ -216,9 +234,66 @@ func _process(delta: float) -> void:
 		var k := (t - 0.7) / 0.3
 		height = FALL_HEIGHT * 0.12 * sin(k * PI)
 	_visual.transform = Transform3D(_rest.basis, _rest.origin + Vector3.UP * (_floor + height))
-	_glow.position.y = _floor + 0.02
+	_decor.position.y = _floor
+	_check -= delta
+	if _check <= 0.0:
+		_check = 0.2
+		_look_for_players()
+	_near = move_toward(_near, _near_target, delta * 4.0)
+	_focus = move_toward(_focus, _focus_target, delta * 6.0)
+	_label.transparency = 1.0 - maxf(_near, _focus)
+	_label.screen_px = 12.0 + 3.0 * _focus
 	var pulse := 0.75 + sin(Time.get_ticks_msec() / 500.0) * 0.25
-	(_glow.material_override as ShaderMaterial).set_shader_parameter("strength", pulse)
+	(_glow.material_override as ShaderMaterial).set_shader_parameter("strength", lerpf(_base_glow * pulse, 1.6, _focus))
+	_glow.scale = Vector3.ONE * (1.0 + 0.15 * _focus)
+
+
+## Jogadores desta máquina por perto: mostra o nome; ao alcance de pegar (e o mais perto
+## deles), acende como "é este".
+func _look_for_players() -> void:
+	_near_target = 0.0
+	_focus_target = 0.0
+	for player: Node3D in get_tree().get_nodes_in_group("players"):
+		if not player.has_method("is_local") or not player.is_local():
+			continue
+		var distance := Combat.flat(player.global_position - global_position).length()
+		if distance <= NAME_RANGE:
+			_near_target = 1.0
+		if distance <= PICKUP_RADIUS and Loot.nearest(get_tree(), player.global_position) == self:
+			_focus_target = 1.0
+
+
+## Faíscas subindo devagar (só Remendado e Protótipo).
+static func _sparkles(color: Color, amount: int) -> CPUParticles3D:
+	var sparks := CPUParticles3D.new()
+	sparks.amount = amount
+	sparks.lifetime = 1.6
+	sparks.emission_shape = CPUParticles3D.EMISSION_SHAPE_RING
+	sparks.emission_ring_radius = 0.35
+	sparks.emission_ring_inner_radius = 0.1
+	sparks.emission_ring_height = 0.0
+	sparks.emission_ring_axis = Vector3.UP
+	sparks.direction = Vector3.UP
+	sparks.spread = 10.0
+	sparks.gravity = Vector3.ZERO
+	sparks.initial_velocity_min = 0.25
+	sparks.initial_velocity_max = 0.55
+	sparks.scale_amount_min = 0.6
+	sparks.scale_amount_max = 1.0
+	var fade := Curve.new()
+	fade.add_point(Vector2(0, 0))
+	fade.add_point(Vector2(0.2, 1))
+	fade.add_point(Vector2(1, 0))
+	sparks.scale_amount_curve = fade
+	var quad := QuadMesh.new()
+	quad.size = Vector2(0.035, 0.035)
+	var material := Combat.overlay_material(Color(color.lightened(0.3), 0.9))
+	material.billboard_mode = BaseMaterial3D.BILLBOARD_ENABLED
+	material.blend_mode = BaseMaterial3D.BLEND_MODE_ADD
+	quad.material = material
+	sparks.mesh = quad
+	sparks.position.y = 0.05
+	return sparks
 
 
 func _physics_process(delta: float) -> void:
