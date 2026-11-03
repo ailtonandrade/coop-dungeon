@@ -52,6 +52,40 @@ Se você está lendo isto e eu não voltei: não confie em nada que vier embalad
 > fim do arquivo"
 teaches = Array[String](["log_rafael", "sabe_nome_demiurgo"])
 
+[sub_resource type="Resource" id="Resource_ordem731"]
+script = ExtResource("1_20gao")
+id = "ordem_transferencia"
+title = "Ofício nº 0731/7 · Ministério da Segurança Sanitária"
+author = "Papel timbrado, molhado e pisado no meio do entulho"
+text = "Por determinação federal, em caráter de urgência, ficam TRANSFERIDAS as atividades do Laboratório Auxiliar 4 (Sinapse · Bioenergia) para as instalações de contenção do Lixão Alto, a sudeste, depois do Pátio dos Contêineres.
+
+O imóvel atual deverá ser demolido em até 48 horas. Todo o material de pesquisa, inclusive cadernos e anotações pessoais, deve ser entregue lacrado à equipe da Sinapse.
+
+O acesso às novas instalações será feito exclusivamente pelo portão de serviço, mediante chave de manutenção.
+
+Responsável técnica: Dra. H. Vasconcelos (AFASTADA).
+Fica proibida a circulação de civis num raio de 2 km.
+
+(Alguém escreveu a caneta, na margem: \"não foi o governo. o governo nem existe mais.\")"
+teaches = Array[String](["sabe_lab4"])
+
+[sub_resource type="Resource" id="Resource_reglab4"]
+script = ExtResource("1_20gao")
+id = "registro_lab4"
+title = "Servidor do Lab 4 · registro_transferencia.log"
+author = "Sinapse · Bioenergia · Laboratório 4"
+text = "> registro_transferencia.log
+
+[07/06] Amostras orgânicas recebidas da Estação 3: 412 lotes. Rendimento acima do previsto.
+[09/06] Dra. Vasconcelos solicitou suspensão do protocolo. Solicitação NEGADA pela diretoria.
+[11/06] Dra. Vasconcelos afastada. Acesso revogado. Caderno pessoal não localizado.
+[12/06] Ordem de transferência emitida. Origem da ordem: D3M.
+[12/06] Segurança do perímetro entregue às unidades autônomas.
+[13/06] Unidades autônomas reportam: nenhum humano no perímetro. Manter.
+
+> fim do registro"
+teaches = Array[String](["registro_lab4"])
+
 [resource]
 script = ExtResource("3_ydsb4")
-documents = Array[ExtResource("1_20gao")]([SubResource("Resource_io5g6"), SubResource("Resource_noymo")])
+documents = Array[ExtResource("1_20gao")]([SubResource("Resource_io5g6"), SubResource("Resource_noymo"), SubResource("Resource_ordem731"), SubResource("Resource_reglab4")])

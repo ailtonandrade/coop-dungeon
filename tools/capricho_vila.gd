@@ -17,18 +17,14 @@ const PACK_MODELS := {
 ## [nome, peça (arquivo em world/prefabs ou id de modelo do pack), posição, giro (graus), campos]
 const PIECES := [
 	["Toldo_Bar", "toldo", Vector3(50, 2.3, 17.67), 0.0, {"color_a": Color(0.32, 0.14, 0.13), "color_b": Color(0.55, 0.52, 0.45)}],
-	["Toldo_Lanches", "toldo", Vector3(14, 2.3, 53.67), 0.0, {"color_a": Color(0.48, 0.4, 0.22), "color_b": Color(0.36, 0.2, 0.16)}],
 	["Mesa_Bar_1", "mesa_de_bar", Vector3(47.0, 0, 21.8), 17.0, {}],
 	["Mesa_Bar_2", "mesa_de_bar", Vector3(53.2, 0, 22.4), -23.0, {}],
 	["Caixotes_Bar", "caixotes", Vector3(54.0, 0, 18.05), 0.0, {}],
 	["Sofa_Bar", "couch", Vector3(45.3, 0, 19.0), 160.0, {"scale": Vector3.ONE * 0.8}],
-	["Mesa_Lanches", "mesa_de_bar", Vector3(11.0, 0, 56.2), 35.0, {}],
-	["Caixotes_Lanches", "caixotes", Vector3(17.6, 0, 54.05), 0.0, {}],
 	["Pneus_Oficina", "wheels_stack", Vector3(53.9, 0, 55.4), 20.0, {}],
 	["Canos_Oficina", "pipes", Vector3(46.0, 0, 55.8), 80.0, {}],
 	["Caixotes_Oficina", "caixotes", Vector3(54.3, 0, 54.55), 90.0, {}],
 	["Ar_Cofre", "prop_acunit", Vector3(17.6, 2.2, 18.2), 0.0, {}],
-	["Ar_Lanches", "prop_acunit", Vector3(10.3, 2.2, 53.7), 0.0, {}],
 	["Ar_Oficina", "prop_acunit", Vector3(46.4, 2.2, 54.2), 0.0, {}],
 	["Vaso_Cofre_1", "prop_planter_single", Vector3(11.8, 0, 18.6), 0.0, {"scale": Vector3.ONE * 0.42}],
 	["Vaso_Cofre_2", "prop_planter_single", Vector3(16.2, 0, 18.6), 0.0, {"scale": Vector3.ONE * 0.42}],

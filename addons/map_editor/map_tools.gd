@@ -266,7 +266,13 @@ static func _check_scene(root: Node, path: String, size: Vector2, region: Region
 	for node in root.find_children("*", "Marker3D", true, false):
 		if node.get("respawn_time") == null:
 			continue
+		# Posição no bloco (o gerador pode estar dentro de um grupo deslocado).
 		var p: Vector3 = (node as Marker3D).position
+		var parent := node.get_parent()
+		while parent and parent != root:
+			if parent is Node3D:
+				p = (parent as Node3D).transform * p
+			parent = parent.get_parent()
 		if p.x < 0 or p.z < 0 or p.x > size.x or p.z > size.y:
 			issues.append(_issue("erro", "%s: gerador de criaturas '%s' fora do bloco" % [path.get_file(), node.name], path))
 		if region and region.safe:

@@ -122,6 +122,7 @@ const CREATURES := {
 	"punk": "Bandido de cano",
 	"atirador": "Atirador de pregos",
 	"corrompido": "Corrompido",
+	"androide": "Androide de segurança",
 }
 
 const PLAYER_COLORS: Array[Color] = [

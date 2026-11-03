@@ -1,7 +1,9 @@
 extends SceneTree
 ## História escondida (Lore) e conversa estilo Tibia, jogadas como um jogador faria.
 ## Caderno da Helena -> Dona Alda puxa assunto e destrava a caixa da Helena -> Zé Gato reconhece
-## o código -> portão do Rafael abre -> terminal revela o D3M1URGO -> Seu Gouveia reage.
+## o código -> no Lab 4 (longe, no Lixão Alto) o portão de serviço abre digitando a chave no
+## teclado -> terminal do Rafael revela o D3M1URGO -> sala do servidor abre pela invasão (senha) ->
+## Seu Gouveia reage. Na vila, o lugar antigo do laboratório é entulho com o ofício de transferência.
 ## Palavra secreta do Zé Gato dá um item (uma vez). Nada avisa na tela.
 ## Rodar: godot --headless --fixed-fps 60 --path coop-dungeon -s tests/lore_test.gd
 ## Sem tipos do jogo aqui: o script de teste compila antes dos serviços globais existirem.
@@ -14,6 +16,8 @@ var _lore: Node
 var _gate: Node
 var _box: Node
 var _chat_before := 0
+## Portão do Lab 4 no mundo (bloco 2,2 do Lixão Alto).
+const LAB_DOOR := Vector3(128 + 24, 0, 128 + 48)
 
 
 func _process(_delta: float) -> bool:
@@ -28,10 +32,14 @@ func _process(_delta: float) -> bool:
 			root.get_node("InputService")._try_join(-1)
 		SECOND:
 			_lore = root.get_node("Lore")
-			_gate = current_scene.find_child("PortaoRafael", true, false)
 			_box = current_scene.find_child("CaixaDaHelena", true, false)
-			_check(current_scene.find_child("CadernoHelena", true, false) != null and _gate != null and _box != null, "a história da vila está no mapa (caderno, portão, caixa)")
-			_check(_lore.facts().is_empty() and not _gate.open and _box.is_locked(), "mundo novo: nada descoberto, portão e caixa trancados")
+			_check(current_scene.find_child("CadernoHelena", true, false) != null and current_scene.find_child("OficioTransferencia", true, false) != null and _box != null,
+					"a história da vila está no mapa (caderno, ofício no entulho, caixa)")
+			_check(current_scene.find_child("PortaoRafael", true, false) == null, "o portão não fica mais no meio da vila")
+			_check(_lore.facts().is_empty() and _box.is_locked(), "mundo novo: nada descoberto, caixa trancada")
+			# Para o teste não depender de sobreviver aos androides do laboratório.
+			_player().health.max_hp = 99999.0
+			_player().health.hp = 99999.0
 			_chat_before = root.get_node("Chat").history.size()
 			# Conversa com a Dona Alda antes de tudo: cumprimento com personalidade, sem Helena.
 			_talk("Dona Alda")
@@ -86,7 +94,7 @@ func _process(_delta: float) -> bool:
 		SECOND + 100:
 			var talk: Node = _hud()._services.get(0)
 			_choose(talk, "O código do caderno")
-			_check(_lore.knows("codigo_ze") and _gate.open, "Zé Gato reconhece o código e o portão do Rafael abre")
+			_check(_lore.knows("codigo_ze") and not _lore.knows("lab4_portao"), "Zé Gato reconhece o código (o portão continua trancado até digitar)")
 			_check(not _labels(talk).has("O código do caderno") and _labels(talk).has("Rafael"), "o assunto já falado some e vem o próximo")
 			var before: int = _count("power_ring")
 			talk.say("e o gato?")
@@ -94,14 +102,48 @@ func _process(_delta: float) -> bool:
 			_check(_count("power_ring") == before + 1, "palavra secreta dá o item, uma vez só")
 			_check(_lore.has_item(_player(), "power_ring") and not _lore.has_item(_player(), "life_amulet"), "confere item na mochila (para assunto que exige item)")
 			_hud()._close_service(0)
-			_player().teleport_to(_pos("TerminalRafael") + Vector3(0, 0, 1.2))
-		SECOND + 120:
+			# Viagem até o Lab 4, no Lixão Alto (bloco 2,2: longe da vila).
+			get_first_node_in_group("world_streamer").load_now(LAB_DOOR)
+			_player().teleport_to(LAB_DOOR + Vector3(-1.4, 0, 1.6))
+		SECOND + 130:
+			_gate = current_scene.find_child("PortaoLab4", true, false)
+			_check(_gate != null and not _gate.open and _gate.lock == "codigo", "o laboratório fica longe e o portão de serviço tem teclado")
+			_check(_gate.global_position.distance_to(Vector3(30, 0, 30)) > 120.0, "bem longe do centro da vila (%.0f m)" % _gate.global_position.distance_to(Vector3(30, 0, 30)))
 			_hud()._try_open_service(0)
-		SECOND + 125:
+			var lock: Node = _hud()._services.get(0)
+			_check(lock != null and lock.has_method("submit_code"), "LB / F perto do painel abre o teclado")
+			lock._typed.text = "1234"
+			_check(not lock.submit_code(), "chave errada não abre")
+			lock._typed.text = "70 r alfa 9"
+			_check(lock.submit_code(), "a chave do caderno abre (sem ligar para espaço e tracinho)")
+		SECOND + 140:
+			_check(_gate.open and _lore.knows("lab4_portao"), "portão abriu e o grupo fica sabendo")
+			_hud()._close_service(0)
+			_player().teleport_to(_pos("TerminalRafael") + Vector3(0, 0, 1.2))
+		SECOND + 160:
+			_hud()._try_open_service(0)
+		SECOND + 165:
 			_check(_lore.knows("sabe_nome_demiurgo"), "o terminal revela o nome D3M1URGO")
 			_hud()._close_service(0)
+			var server: Node = current_scene.find_child("PortaoServidor", true, false)
+			_player().teleport_to(server.terminal_position() + Vector3(0, 0, 0.3))
+		SECOND + 175:
+			_hud()._try_open_service(0)
+			var hack: Node = _hud()._services.get(0)
+			_check(hack != null and hack.has_method("try_word") and hack._words.size() >= 8, "a sala do servidor pede invasão (lista de senhas)")
+			var wrong := ""
+			for word: String in hack._words:
+				if word != hack._secret:
+					wrong = word
+					break
+			_check(not hack.try_word(wrong) and hack._attempts == 3, "senha errada gasta tentativa")
+			_check(hack._log.text.contains("SEMELHANÇA %d/6" % hack.likeness(wrong, hack._secret)), "e mostra a semelhança")
+			_check(hack.try_word(hack._secret), "a senha certa libera")
+		SECOND + 185:
+			_check(current_scene.find_child("PortaoServidor", true, false).open, "a grade do servidor abre")
+			_hud()._close_service(0)
 			_talk("Seu Gouveia")
-		SECOND + 130:
+		SECOND + 190:
 			var talk: Node = _hud()._services.get(0)
 			_check(_said(talk).contains("terminal do Rafael"), "Seu Gouveia cumprimenta já sabendo")
 			_choose(talk, "D-3-M")

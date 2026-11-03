@@ -36,7 +36,7 @@ text = "A Sinapse vendia chip a prestação. Quem pagou em dia virou Corrompido.
 script = ExtResource("3_5c5tb")
 label = "O código do caderno"
 keywords = PackedStringArray("codigo", "numero", "senha", "alfa", "70")
-text = "Deixa eu ver isso. 70-R-ALFA-9... isso não é senha de estação, é chave de manutenção da Sinapse. Abre os portões de serviço. Tem um no barraco do Rafael, aqui na vila. Ele sumiu faz um ano. Vai lá antes que a gangue ache."
+text = "Deixa eu ver isso. 70-R-ALFA-9... isso não é senha de estação, é chave de manutenção da Sinapse. Abre os portões de serviço. Tem um no Laboratório 4, aquele que mandaram pro Lixão Alto, lá pra sudeste. O Rafael trabalhava lá e sumiu faz um ano. Leva arma: dizem que quem guarda aquilo agora não é gente."
 requires = Array[String](["diario_helena"])
 forbids = Array[String](["codigo_ze"])
 teaches = Array[String](["codigo_ze"])
@@ -45,8 +45,8 @@ priority = 10
 [sub_resource type="Resource" id="Resource_mx8nk"]
 script = ExtResource("3_5c5tb")
 label = "Rafael"
-keywords = PackedStringArray("rafael", "barraco", "portao")
-text = "O portão do Rafael já deve abrir pra ti. Eu não entro lá, não. Ele tinha medo de alguma coisa nos fios."
+keywords = PackedStringArray("rafael", "barraco", "portao", "laboratorio", "lab")
+text = "O portão de serviço do laboratório tem teclado. Digita a chave do caderno. Eu não vou contigo, não: o Rafael tinha medo de alguma coisa nos fios, e o Rafael não tinha medo de nada."
 requires = Array[String](["codigo_ze"])
 forbids = Array[String](["log_rafael"])
 

@@ -13,7 +13,8 @@ signal died(enemy: Enemy)
 
 ## MELEE e RANGED são os bandidos das gangues; CORRUPTED é o Corrompido (humano + máquina que
 ## deu errado: chip queimando na cabeça, rápido e furioso).
-enum Kind { MELEE, RANGED, CORRUPTED }
+## ANDROID é o androide de segurança da Sinapse (guarda laboratórios): lento, duro, atira laser.
+enum Kind { MELEE, RANGED, CORRUPTED, ANDROID }
 enum State { CHASE, WINDUP, RECOVER, STAGGER, DEAD }
 
 const STATS := {
@@ -32,6 +33,12 @@ const STATS := {
 		"hp": 22.0, "speed": 5.0, "attack_range": 1.5, "windup": 0.3, "recover": 0.5,
 		"damage": 9.0, "knockback": 4.0, "attack": "punch", "anims": AnimSets.HUMANOID,
 		"chip": Color(1.0, 0.1, 0.05),
+	},
+	Kind.ANDROID: {
+		"id": "androide", "xp": 26, "model": "res://assets/characters/Swat.glb", "tint": Color(0.55, 0.62, 0.72, 0.55), "scale": 1.08,
+		"hp": 48.0, "speed": 2.5, "attack_range": 11.0, "windup": 0.9, "recover": 1.3,
+		"damage": 13.0, "knockback": 3.0, "attack": "shoot", "anims": AnimSets.HUMANOID,
+		"ranged": true, "eyes": Color(1.0, 0.08, 0.05), "chip": Color(1.0, 0.08, 0.05), "laser": Color(1.0, 0.15, 0.1),
 	},
 }
 const RANGED_MIN_DIST := 5.0
@@ -109,7 +116,9 @@ func _ready() -> void:
 	add_child(pivot)
 	_model = (load(_stats.model) as PackedScene).instantiate()
 	pivot.add_child(_model)
-	if _stats.has("chip"):
+	if _stats.has("eyes"):
+		_add_eyes(pivot, _stats.eyes)
+	elif _stats.has("chip"):
 		_add_chip(pivot, _stats.chip)
 	_tint = Combat.overlay_material(_stats.tint)
 	Combat.set_overlay(_model, _tint)
@@ -118,6 +127,21 @@ func _ready() -> void:
 	health.max_hp = _stats.hp
 	add_child(health)
 	health.died.connect(_on_died)
+
+
+## Androide: dois olhos vermelhos acesos no capacete.
+func _add_eyes(pivot: Node3D, color: Color) -> void:
+	var material := StandardMaterial3D.new()
+	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	material.albedo_color = color * 2.2
+	for x: float in [-0.055, 0.055]:
+		var eye := MeshInstance3D.new()
+		var box := BoxMesh.new()
+		box.size = Vector3(0.05, 0.022, 0.02)
+		eye.mesh = box
+		eye.material_override = material
+		eye.position = Vector3(x, 1.62, 0.16)
+		pivot.add_child(eye)
 
 
 ## O chip queimado: um brilho na cabeça (marca visual dos Corrompidos).
@@ -167,7 +191,12 @@ func fx_hit(amount: float, heavy: bool) -> void:
 	fx_flash()
 	var chest := global_position + Vector3.UP * 1.2
 	HitFx.damage_number(self, global_position + Vector3.UP * 2.0, amount, "heavy" if heavy else "hit")
-	HitFx.sparks(self, chest, Color(1.0, 0.75, 0.35) if kind != Kind.CORRUPTED else Color(1.0, 0.25, 0.15), 18 if heavy else 10)
+	var spark := Color(1.0, 0.75, 0.35)
+	if kind == Kind.CORRUPTED:
+		spark = Color(1.0, 0.25, 0.15)
+	elif kind == Kind.ANDROID:
+		spark = Color(0.6, 0.85, 1.0)
+	HitFx.sparks(self, chest, spark, 18 if heavy else 10)
 	Sound.play("hit_heavy" if heavy else "hit", chest)
 	Sound.play("enemy_hurt", chest)
 
@@ -250,7 +279,7 @@ func _chase() -> Vector3:
 	if dist > 0.01:
 		_facing = to / dist
 
-	if kind == Kind.RANGED:
+	if kind == Kind.RANGED or _stats.get("ranged", false):
 		if dist < RANGED_MIN_DIST:
 			return -_facing * _stats.speed * 0.8
 		if dist <= _stats.attack_range and _has_line_of_sight():
@@ -282,7 +311,7 @@ func _nav_velocity(target: Vector3) -> Vector3:
 
 ## Atirador entre tiros: anda de lado em volta do alvo, sempre olhando para ele.
 func _recover_move() -> Vector3:
-	if kind != Kind.RANGED or _target == null or _timer < 0.2:
+	if not (kind == Kind.RANGED or _stats.get("ranged", false)) or _target == null or _timer < 0.2:
 		return Vector3.ZERO
 	var to := Combat.flat(_target.global_position - global_position)
 	if to.length() < 0.01:
@@ -309,8 +338,11 @@ func _strike() -> void:
 	elif _target:
 		var from := global_position + Vector3.UP * 1.1 + _facing * 0.5
 		var dir := (_target.global_position + Vector3.UP * 1.0 - from).normalized()
-		Projectile.fire(self, from, dir, PROJECTILE_SPEED, _stats.damage,
-				GameConfig.LAYER_PLAYERS, Color(0.8, 0.3, 1.0), Vector3(0.35, 0.35, 0.35))
+		# Androide atira um raio de laser fino e comprido; os outros, prego/sucata.
+		var laser: Variant = _stats.get("laser")
+		Projectile.fire(self, from, dir, PROJECTILE_SPEED * (1.6 if laser else 1.0), _stats.damage,
+				GameConfig.LAYER_PLAYERS, laser if laser else Color(0.8, 0.3, 1.0),
+				Vector3(0.08, 0.08, 0.9) if laser else Vector3(0.35, 0.35, 0.35))
 
 
 func _has_line_of_sight() -> bool:

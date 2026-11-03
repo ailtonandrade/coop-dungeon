@@ -100,22 +100,38 @@ Nada aparece na tela: sem questlog, sem aviso, sem mensagem no chat.
   (some, luz verde, criaturas passam) quando o grupo sabe os fatos de `requires`.
 - **Entradas de masmorra** (`Entrance`) também têm `requires`: antes disso aparece "(trancado)".
 
-### O 1º elo (na vila)
+### O 1º elo (da vila até o Laboratório 4)
 
-`world/lore/historia_vila.tscn` (dentro do bloco da vila; dá para mover no editor):
+Na vila (`world/lore/historia_vila.tscn`, dentro do bloco da vila; dá para mover no editor):
 1. **Caderno da Dra. Helena Vasconcelos** (bioenergia, Sinapse) na casa abandonada do canto
-   nordeste da vila. Ler ensina `diario_helena`.
+   nordeste da vila. Ler ensina `diario_helena` (e traz a chave 70-R-ALFA-9).
 2. **Dona Alda** cumprimenta diferente, puxa assunto quando o grupo chega perto e ganha os
    assuntos "Helena" e "Coisas da Helena" (este destrava a **Caixa da Helena** na casa dela, com
    um amuleto e parafusos). Palavra secreta: "Davi". **Brando** lembra do filtro de água com "uma
    coisa viva lá dentro".
-3. **Zé Gato** (assunto "O código do caderno") reconhece o código rabiscado (70-R-ALFA-9) como chave de manutenção da Sinapse:
-   ensina `codigo_ze`, e o **portão do barraco do Rafael** (a outra casa vazia) abre.
-4. **Terminal do Rafael Toledo** (analista de infraestrutura, quem "deu a permissão"): ensina
+3. **Escombros** onde ficava o prédio antigo do laboratório (canto sudoeste da vila): no meio
+   do entulho, o **Ofício nº 0731/7**: "por determinação federal", o Laboratório 4 foi
+   transferido para o **Lixão Alto** e o prédio demolido (ensina `sabe_lab4`). Na margem, a
+   caneta: "não foi o governo. o governo nem existe mais."
+4. **Zé Gato** (assunto "O código do caderno") reconhece o código como chave de manutenção da
+   Sinapse, que abre os portões de serviço, e manda o grupo para o Lab 4 ("leva arma").
+
+No **Laboratório 4** (Lixão Alto, bloco 2,2, uns 190 m da vila; `tools/laboratorio_helena.gd`):
+5. Prédio de concreto sem teto, letreiro "SINAPSE · LAB 4" piscando, gangues em volta.
+   **Portão de serviço com teclado**: digitar a chave do caderno (`lab4_portao`).
+6. Dentro, **androides de segurança** (inimigo novo: lento, duro, laser vermelho) e o
+   **terminal do Rafael Toledo** (analista de infraestrutura, quem "deu a permissão"): ensina
    `log_rafael` e `sabe_nome_demiurgo`. A próxima pista aponta para **a Estação 3**.
-5. **Seu Gouveia** puxa assunto e conta dos depósitos de energia com o código D-3-M (assunto
+7. **Sala do servidor**: grade com **invasão de terminal** (minigame de senha: escolher a palavra
+   certa pelas pistas de semelhança, 4 tentativas). Dentro: o registro da transferência (a ordem
+   veio de "D3M"), um androide e um baú.
+8. **Seu Gouveia** puxa assunto e conta dos depósitos de energia com o código D-3-M (assunto
    "D-3-M"). Zé Gato lembra do nome piscando em robô de entrega. Palavra secreta do Zé Gato:
    "gato" (dá um anel, uma vez por mundo).
+
+**Portões com tranca** (`LoreGate.lock`): "fatos" (abre quando o grupo sabe `requires`), "codigo"
+(teclado: digitar `code`) e "invasao" (minigame de senha). Destravar ensina `unlock_fact`, que
+vai para o grupo todo (online também), e o portão abre para todos.
 
 Teste: `tests/lore_test.gd` joga a cadeia inteira como um jogador.
 

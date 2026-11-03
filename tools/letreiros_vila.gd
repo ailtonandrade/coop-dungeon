@@ -9,14 +9,13 @@ const SIGN := "res://world/prefabs/letreiro_neon.tscn"
 const SIGNS := [
 	["Letreiro_Cofre", "COFRE", Color(0.2, 0.95, 1.0), false, false, "cofre"],
 	["Letreiro_Bar", "BAR", Color(1.0, 0.25, 0.8), true, false, "copo"],
-	["Letreiro_Lanches", "LANCHES", Color(1.0, 0.8, 0.2), false, false, "lanche"],
 	["Letreiro_Oficina", "OFICINA", Color(1.0, 0.3, 0.2), false, false, "chave"],
 	["Letreiro_Mercado", "MERCADO", Color(0.35, 1.0, 0.5), false, true, "carrinho"],
 	["Letreiro_Mods", "MODS", Color(0.7, 0.4, 1.0), true, true, "chip"],
 ]
 const NEW_AT := {
 	"Letreiro_Cofre": Vector3(14, 2.75, 18.35), "Letreiro_Bar": Vector3(50, 2.75, 17.85),
-	"Letreiro_Lanches": Vector3(14, 2.75, 53.85), "Letreiro_Oficina": Vector3(50, 2.75, 54.35),
+	"Letreiro_Oficina": Vector3(50, 2.75, 54.35),
 	"Letreiro_Mercado": Vector3(25, 2.3, 28.4), "Letreiro_Mods": Vector3(39, 2.3, 28.4),
 }
 

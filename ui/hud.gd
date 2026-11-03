@@ -337,6 +337,15 @@ func _try_open_service(slot: int) -> void:
 	var player := _local_player(slot)
 	if player == null or _inventories.has(slot) or _services.has(slot) or player.building:
 		return
+	# Terminal de portão trancado (código ou invasão).
+	var gate := LoreGate.nearest_terminal(get_tree(), player.global_position)
+	if gate:
+		var lock := LockPanel.new()
+		_root.add_child(lock)
+		lock.open_for(slot, gate)
+		lock.close_requested.connect(_close_service.bind(slot))
+		_services[slot] = lock
+		return
 	var note := LoreNote.nearest(get_tree(), player.global_position)
 	if note and note.document():
 		var reader := LoreReader.new()
@@ -404,7 +413,7 @@ func _process_inventory_layout() -> void:
 	var column := view.x / GameConfig.MAX_PLAYERS
 	for panel: Control in _inventories.values() + _services.values():
 		# A leitura de documentos fica no meio da tela, não acima do cartão.
-		if panel is LoreReader:
+		if panel is LoreReader or panel is LockPanel:
 			panel.position = ((view - panel.size) / 2.0).max(Vector2(8, 8))
 			continue
 		if not is_instance_valid(panel.player):
