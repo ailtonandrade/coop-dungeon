@@ -187,6 +187,7 @@ godot --headless --path coop-dungeon -s tests/voice_test.gd                    #
 godot --headless --fixed-fps 60 --path coop-dungeon -s tests/chat_test.gd      # chat: Enter, digitar sem acionar o jogo, rápidas
 godot --headless --fixed-fps 60 --path coop-dungeon -s tests/skill_test.gd     # habilidades: treino pelo uso, efeitos, janela
 godot --headless --fixed-fps 60 --path coop-dungeon -s tests/props_test.gd     # fichas de peças: tipos, base no chão, física cai e para
+godot --headless --fixed-fps 60 --path coop-dungeon -s tests/updater_test.gd   # atualizador: versão nova, baixar, conferir, extrair (servidor falso)
 godot --headless --fixed-fps 60 --path coop-dungeon -s tests/god_test.gd       # modo construtor: física grava onde parou, desfazer, contêiner, cenas
 GODOT=godot coop-dungeon/tests/run_net_test.sh                                 # online: host + cliente (voz e chat), mapa adulterado e senha
 ```

@@ -198,6 +198,8 @@ func _build_overlay() -> void:
 	version.offset_left = 24
 	version.offset_bottom = -16
 	add_child(version)
+	# Versão nova no GitHub: cartão de aviso (e selo no canto depois de "Depois").
+	add_child(UpdatePanel.new())
 
 	var hints := UiSkin.label("A / Enter  confirmar      B / Esc  voltar", 15, UiSkin.TEXT, "SemiBold", 3)
 	hints.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_RIGHT)
