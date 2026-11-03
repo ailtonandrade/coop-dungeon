@@ -173,6 +173,10 @@ já colocou, inclusive para amigos conectados no seu mundo.)
 **Entrar e sair:** abra o chat (Enter) e digite **/construir**. Digite de novo para sair. O
 comando não vai para o chat da sala; o aviso "Modo construtor ligado" só aparece na sua tela.
 
+**Hora do mundo:** `/hora 20` (ou `/hora 6:30`) no chat muda o relógio do mundo na hora, para
+ver como fica o dia, o pôr do sol e a noite (postes acendem sozinhos de 18h40 a 5h40). Também
+só para o dono do jogo, rodando pelo editor; os amigos conectados veem a mesma hora.
+
 O herói continua andando (e correndo), não luta e as criaturas o ignoram. Embaixo aparece o
 seletor de peças e, no mundo, o **fantasma** translúcido da peça onde ela vai cair.
 

@@ -114,6 +114,18 @@ func _submit(text: String) -> void:
 		god.toggle(player.slot)
 		close()
 		return
+	# Dono do jogo: "/hora 20" (ou 20:30) muda a hora do mundo, para testar o dia e a noite.
+	var clock := DayNight.of(get_tree())
+	if player and god and god.allowed() and clock and text.strip_edges().to_lower().begins_with("/hora"):
+		var value := text.strip_edges().substr(5).strip_edges().replace("h", "")
+		var parts := value.split(":")
+		if parts.size() >= 1 and parts[0].is_valid_int():
+			clock.set_hour(int(parts[0]) + (int(parts[1]) / 60.0 if parts.size() > 1 and parts[1].is_valid_int() else 0.0))
+			Chat.local_note(Txt.t("Hora do mundo: %s") % clock.clock_text())
+		else:
+			Chat.local_note("Use /hora 20 ou /hora 6:30")
+		close()
+		return
 	if player and not Chat.clean_text(text).is_empty():
 		Chat.send(player, text)
 		Sound.play("ui_confirm")

@@ -102,11 +102,19 @@ func _ready() -> void:
 	minimap.offset_bottom = 24 + Minimap.SIZE
 	_root.add_child(minimap)
 
+	# Relógio do mundo, embaixo do minimapa: ícone de sol/lua e a hora.
+	var clock := ClockBadge.new()
+	clock.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
+	clock.offset_left = -24 - Minimap.SIZE
+	clock.offset_right = -24
+	clock.offset_top = 24 + Minimap.SIZE + 4
+	_root.add_child(clock)
+
 	_net_chip = PanelContainer.new()
 	_net_chip.add_theme_stylebox_override("panel", UiSkin.chip())
 	_net_chip.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
 	_net_chip.grow_horizontal = Control.GROW_DIRECTION_BEGIN
-	_net_chip.offset_top = 24 + Minimap.SIZE + 10
+	_net_chip.offset_top = 24 + Minimap.SIZE + 36
 	_net_chip.offset_right = -24
 	_net_chip.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_net_label = UiSkin.label("", 15, Color(0.75, 0.95, 1.0), "SemiBold", 4)

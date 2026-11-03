@@ -118,3 +118,9 @@ func _build_environment() -> void:
 	sun.add_to_group("sun")
 	Graphics.apply_sun(sun, Settings.graphics_quality)
 	add_child(sun)
+
+	# Relógio do mundo: a luz acompanha a hora (dia, pôr do sol, noite).
+	var clock := DayNight.new()
+	clock.name = "DayNight"
+	add_child(clock)
+	clock.setup(env, sun)

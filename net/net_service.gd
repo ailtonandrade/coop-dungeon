@@ -10,6 +10,8 @@ extends Node
 
 signal status_changed(text: String)
 signal peer_ready(peer_id: int)
+## Convidado: chegou a hora do mundo mandada pelo host (DayNight acerta o relógio).
+signal clock_received(hour: float)
 
 ## Versão do jogo (application/config/version): convidado e host precisam estar na mesma.
 var GAME_VERSION := str(ProjectSettings.get_setting("application/config/version", "0.0.0"))
@@ -441,6 +443,20 @@ func _reject(peer: int, reason: String) -> void:
 	get_tree().create_timer(0.5).timeout.connect(func() -> void:
 		if multiplayer.multiplayer_peer is ENetMultiplayerPeer:
 			multiplayer.multiplayer_peer.disconnect_peer(peer))
+
+
+## Host: manda a hora do mundo para quem já está jogando (relógio de dia e noite).
+func send_clock(hour: float) -> void:
+	if mode != Mode.HOST:
+		return
+	for peer in ready_peers():
+		_rpc_clock.rpc_id(peer, hour)
+
+
+@rpc("authority", "call_remote", "unreliable_ordered")
+func _rpc_clock(hour: float) -> void:
+	world["clock"] = hour
+	clock_received.emit(hour)
 
 
 @rpc("authority", "call_remote", "reliable")

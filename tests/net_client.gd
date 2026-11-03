@@ -119,6 +119,9 @@ func _process(_delta: float) -> bool:
 				var built := root.find_children("god_*", "", true, false).filter(func(n: Node) -> bool: return session_ids.has(String(n.name)))
 				_check(built.size() == 1 and built[0].scene_file_path.ends_with("barreira.tscn"), "vejo a barreira que o host colocou pelo modo construtor")
 				_check(root.get_node("Lore").knows("fato_do_host"), "fiquei sabendo do que o host descobriu (história do grupo)")
+				var clock: Node = root.find_children("DayNight", "", true, false)[0] if not root.find_children("DayNight", "", true, false).is_empty() else null
+				_check(clock != null and net.world.has("clock") and absf(wrapf(clock.hour - float(net.world.clock), -12.0, 12.0)) < 0.2,
+						"meu relógio segue a hora do host (%s)" % (clock.clock_text() if clock else "-"))
 				root.get_node("Lore").learn(["fato_do_cliente"])
 				_t0 = _now()
 				_step = 8
