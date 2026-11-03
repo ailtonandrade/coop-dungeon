@@ -1,5 +1,8 @@
 # Identidade e narrativa: Corrumpted
 
+> A lore completa (o D3M1URGO, a suspeita do grupo, a quest escondida e o clima) está em
+> [`LORE.md`](LORE.md).
+
 ## Decidido
 
 - **Nome:** *Corrumpted* (grafia estilizada, de propósito; em `GameConfig.GAME_TITLE`).
