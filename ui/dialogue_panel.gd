@@ -5,6 +5,7 @@ extends PanelContainer
 ## fatos da história, liberar portões/contêineres e dar itens (Lore, NpcDialogue).
 ## Se o NPC tem serviço (loja, cofre...), um botão abre a tela dele; fechar volta para cá.
 ##
+## A fala do NPC aparece digitando, com um tique baixinho (A, clique ou outra pergunta pula).
 ## Controle: direcional/analógico escolhe (◀ ▶ em ordem, ▲ ▼ a linha de cima/baixo) · A confirma ·
 ## B tchau · analógico direito rola a conversa. Cada controle mexe só na conversa do seu jogador
 ## (não usa o foco global do Godot). Teclado: digite e Enter, ou clique.
@@ -28,6 +29,14 @@ var _repeat := 0.0
 
 const REPEAT_DELAY := 0.3
 const REPEAT_RATE := 0.15
+## Fala do NPC aparece digitando: letras por segundo, e um tique baixinho a cada N letras.
+const TYPE_SPEED := 48.0
+const TYPE_SOUND_EVERY := 2
+
+## Letras já à mostra no histórico (o resto da última fala do NPC ainda está "digitando").
+var _shown := 0.0
+var _total := 0
+var _typed_since_sound := 0
 
 
 func open_for(p_player: Player, p_npc: WorldNpc) -> void:
@@ -63,6 +72,10 @@ func _build() -> void:
 	_log.custom_minimum_size = Vector2(480, 190)
 	_log.add_theme_font_size_override("normal_font_size", 16)
 	_log.add_theme_font_size_override("bold_font_size", 16)
+	# Clicar na conversa enquanto o NPC "digita" mostra a fala inteira.
+	_log.gui_input.connect(func(event: InputEvent) -> void:
+		if event is InputEventMouseButton and event.pressed and is_typing():
+			finish_typing())
 	column.add_child(_log)
 	_topics = HFlowContainer.new()
 	_topics.add_theme_constant_override("h_separation", 6)
@@ -165,17 +178,52 @@ func _bye() -> void:
 
 
 func _npc_says(text: String) -> void:
+	finish_typing()
 	_lines.append(Txt.t("[color=#f2e9cf][b]%s:[/b] %s[/color]") % [npc.npc_name, text.replace("[", "[lb]")])
 	_render()
+	# O nome aparece na hora; só a fala vai sendo digitada.
+	_shown += npc.npc_name.length() + 2
 
 
 func _player_says(text: String) -> void:
+	finish_typing()
 	_lines.append(Txt.t("[color=#8fd3ff]%s: %s[/color]") % [player.display_name, text.replace("[", "[lb]")])
 	_render()
+	finish_typing()
 
 
 func _render() -> void:
 	_log.text = "\n".join(_lines)
+	_total = _log.get_total_character_count()
+	_log.visible_characters = int(_shown)
+
+
+## Fala ainda aparecendo letra por letra?
+func is_typing() -> bool:
+	return int(_shown) < _total
+
+
+## Mostra o resto da fala de uma vez (apertou para pular, ou veio outra fala).
+func finish_typing() -> void:
+	_shown = float(_total)
+	if _log:
+		_log.visible_characters = -1
+
+
+func _process(delta: float) -> void:
+	if not is_typing():
+		return
+	var before := int(_shown)
+	_shown = minf(_shown + TYPE_SPEED * delta, float(_total))
+	var now := int(_shown)
+	_log.visible_characters = -1 if now >= _total else now
+	var text := _log.get_parsed_text()
+	for i in range(before, now):
+		if i < text.length() and text[i] != " " and text[i] != "\n":
+			_typed_since_sound += 1
+			if _typed_since_sound >= TYPE_SOUND_EVERY:
+				_typed_since_sound = 0
+				Sound.play("npc_type")
 
 
 ## Conversa recente (para os testes e para reabrir depois da loja).
@@ -199,6 +247,10 @@ func _physics_process(delta: float) -> void:
 		_bye()
 		return
 	if InputService.raw_just_pressed(player.slot, InputService.Action.JUMP):
+		# Ainda digitando: o primeiro A só mostra a fala inteira.
+		if is_typing():
+			finish_typing()
+			return
 		var buttons := _nav_buttons()
 		if _cursor < buttons.size():
 			buttons[_cursor].pressed.emit()

@@ -39,6 +39,8 @@ func _process(_delta: float) -> bool:
 	elif _frames == 64:
 		_check(not _talk._typing.visible and _talk.selected().text == "Coisas da Helena", "abre com o 1º assunto marcado e sem campo de digitar")
 		_check(root.gui_get_focus_owner() == null or not _talk.is_ancestor_of(root.gui_get_focus_owner()), "não usa o foco global (outro controle não mexe aqui)")
+		_check(_talk.is_typing(), "a saudação aparece digitando")
+		_talk._shown = 3.0  # segura a digitação no começo até o teste do A
 	elif _frames >= 70 and _frames < 70 + _steps.size() * 8:
 		var i := (_frames - 70) / 8
 		var phase := (_frames - 70) % 8
@@ -48,6 +50,13 @@ func _process(_delta: float) -> bool:
 			_pad(_steps[i][0], false)
 		elif phase == 4:
 			_check(_talk.selected().text == _steps[i][1], "%s (%s)" % [_steps[i][2], _talk.selected().text])
+	elif _frames == 122:
+		_talk._shown = 3.0
+		_pad(JOY_BUTTON_A, true)
+	elif _frames == 124:
+		_pad(JOY_BUTTON_A, false)
+	elif _frames == 126:
+		_check(not _talk.is_typing() and not "\n".join(_talk.history()).contains("gosto de moeda"), "A durante a digitação só mostra a fala inteira")
 	elif _frames == 130:
 		_pad(JOY_BUTTON_A, true)
 	elif _frames == 132:

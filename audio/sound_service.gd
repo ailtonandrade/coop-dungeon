@@ -189,9 +189,17 @@ func _fade(player: AudioStreamPlayer, target_db: float, stop_after: bool) -> voi
 		tween.tween_callback(player.stop)
 
 
-## Botões de qualquer tela: som ao focar (controle/teclado) e ao apertar.
+## Botões de qualquer tela: som ao focar (controle/teclado), ao passar o mouse e ao apertar.
+## Campos de texto: tique de tecla a cada letra digitada ou apagada.
 func _on_node_added(node: Node) -> void:
 	if node is BaseButton:
 		var button := node as BaseButton
 		button.focus_entered.connect(func() -> void: play("ui_move"))
+		button.mouse_entered.connect(func() -> void:
+			if not button.disabled and not button.has_focus():
+				play("ui_move"))
 		button.pressed.connect(func() -> void: play("ui_confirm"))
+	elif node is LineEdit:
+		(node as LineEdit).text_changed.connect(func(_text: String) -> void: play("ui_type"))
+	elif node is TextEdit:
+		(node as TextEdit).text_changed.connect(func() -> void: play("ui_type"))

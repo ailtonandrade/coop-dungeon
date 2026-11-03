@@ -242,7 +242,6 @@ def make_sfx():
         bubbles = mix(bubbles, at(bubble, i * 0.055 + rng.uniform(0, 0.02)))
     save(SFX, "potion", mix(bubbles, at(sparkle(0.4, 1400, 5) * 0.4, 0.25)))
     save(SFX, "revive", mix(sparkle(0.8, 1200, 8), chord([523, 659, 784], 0.8, "sine") * env(int(0.8 * RATE), 0.2, 0.6) * 0.6))
-    save(SFX, "pickup", mix(metal(1500, 0.18, 0.6), at(metal(2250, 0.2, 0.6), 0.06)))
     save(SFX, "loot_drop", mix(thump(0.08, 220, 120, 0.8) * 0.6, metal(1800, 0.15, 0.4) * 0.5))
     save(SFX, "loot_rare", mix(thump(0.08, 220, 120, 0.8) * 0.5, sparkle(0.6, 1500, 7)))
     save(SFX, "loot_unique", mix(thump(0.1, 180, 80, 1.0) * 0.5, sparkle(1.0, 1100, 12),
@@ -252,8 +251,6 @@ def make_sfx():
     creak = np.sign(np.sin(2 * np.pi * np.cumsum(wobble) / RATE)) * 0.4
     creak = bandpass(creak, 400, 2500) * env(len(creak), 0.05, 0.4, 2.0)
     jingle = sparkle(0.35, 2200, 5) * 0.5
-    save(SFX, "chest_open", mix(creak, at(thump(0.12, 160, 70, 1.0), 0.38), at(jingle, 0.42)))
-    save(SFX, "container_open", mix(metal(160, 0.9, 0.7) * 0.8, creak * 0.8, at(thump(0.2, 90, 40, 1.0), 0.4)))
     notes = [523, 659, 784, 1047]
     arp = np.zeros(int(1.6 * RATE))
     for i, f in enumerate(notes):
@@ -265,10 +262,8 @@ def make_sfx():
     for i, f in enumerate([800, 1000, 1200, 1600]):
         chip = mix(chip, at(blip(f, 0.06), i * 0.06))
     save(SFX, "chip_install", crush(mix(chip, at(sparkle(0.25, 2000, 4) * 0.5, 0.2)), 7, 2))
-    save(SFX, "ui_move", blip(1800, 0.03, "sine"), peak=0.6)
-    save(SFX, "ui_confirm", mix(blip(900, 0.06), at(blip(1350, 0.08), 0.05)) * 0.6, peak=0.7)
-    save(SFX, "ui_back", mix(blip(900, 0.06), at(blip(600, 0.08), 0.05)) * 0.6, peak=0.7)
-    save(SFX, "ui_error", onepole_lowpass(square(110, 0.18), 1500) * env(int(0.18 * RATE), 0.002, 0.15), peak=0.7)
+    make_ui()
+    make_loot_sounds()
     save(SFX, "refine_ok", mix(metal(620, 0.9, 1.3), at(sparkle(0.7, 1700, 8), 0.1)))
     fizz = bandpass(noise(0.5), 2000, 8000) * env(int(0.5 * RATE), 0.01, 0.3) * 0.5
     buzz = onepole_lowpass(square(150, 0.4), 1200) * env(int(0.4 * RATE), 0.005, 0.3)
@@ -286,6 +281,100 @@ def make_sfx():
         stutter = (np.floor(t(0.7) * 18) % 4 != 3).astype(float)
         save(SFX, "chip_burn_%d" % (i + 1), mix(glitch * stutter, thump(0.18, 120, 40, 1.0) * 0.6, at(bandpass(noise(0.3), 3000, 9000) * env(int(0.3 * RATE), 0.005, 0.2) * 0.4, 0.05)))
     save(SFX, "player_down", mix(sweep_sine(220, 55, 0.7, 0.6) * env(int(0.7 * RATE), 0.01, 0.6), onepole_lowpass(noise(0.7), 600) * env(int(0.7 * RATE), 0.01, 0.4) * 0.5, thump(0.2, 90, 35)))
+
+
+# Interface: tudo macio, curto e grave (nada de "plim"): toque de tecla de borracha e
+# "toc" abafado, como um botão bom de apertar.
+
+def soft_tick(body=420.0, seconds=0.035, air=0.25, seed=0):
+    """Tique macio: um corpinho grave que cai rápido + um sopro de ataque, filtrado."""
+    rng_ = np.random.default_rng(seed)
+    n = int(seconds * RATE)
+    tone = sweep_sine(body * 1.15, body * 0.85, seconds, 0.5) * env(n, 0.0015, seconds * 0.35)
+    snap = onepole_lowpass(rng_.uniform(-1, 1, n), 3200) * env(n, 0.0004, 0.006) * air
+    return onepole_lowpass(mix(tone, snap), 2600)
+
+
+def soft_thock(f0, f1, seconds=0.09, seed=0):
+    """"Toc" de confirmar: cai de f0 para f1, abafado, com um leve corpo de madeira."""
+    rng_ = np.random.default_rng(seed)
+    n = int(seconds * RATE)
+    tone = sweep_sine(f0, f1, seconds, 0.7) * env(n, 0.002, seconds * 0.4)
+    wood = bandpass(rng_.uniform(-1, 1, n), 500, 1800) * env(n, 0.0005, 0.012) * 0.35
+    return onepole_lowpass(mix(tone, wood), 2200)
+
+
+def key_click(seed, pitch=1.0):
+    """Tecla de teclado bom: estalinho curto de plástico + corpinho grave, cada um diferente."""
+    rng_ = np.random.default_rng(seed)
+    seconds = 0.04
+    n = int(seconds * RATE)
+    click = bandpass(rng_.uniform(-1, 1, n), 1800 * pitch, 5200 * pitch) * env(n, 0.0002, 0.004)
+    body = np.sin(2 * np.pi * (190 + rng_.uniform(-25, 25)) * pitch * t(seconds)) * env(n, 0.001, 0.012) * 0.6
+    return onepole_lowpass(mix(click * 0.7, body), 4500)
+
+
+# Saque: tudo abafado e "de verdade" (pano, madeira, metal grosso), nada de tom afinado.
+
+def rustle(seconds, seed, low=250, high=1800, grains=7):
+    """Remexer em coisas: uns sopros de ruído filtrado em sequência irregular (pano, papel)."""
+    rng_ = np.random.default_rng(seed)
+    n = int(seconds * RATE)
+    out = np.zeros(n)
+    for _ in range(grains):
+        start = rng_.uniform(0, seconds * 0.8)
+        length = rng_.uniform(0.04, 0.11)
+        g = int(length * RATE)
+        grain = bandpass(rng_.uniform(-1, 1, g), low * rng_.uniform(0.8, 1.2), high * rng_.uniform(0.8, 1.2))
+        grain *= np.sin(np.pi * np.linspace(0, 1, g)) ** 2 * rng_.uniform(0.4, 1.0)
+        a = int(start * RATE)
+        b = min(a + g, n)
+        out[a:b] += grain[:b - a]
+    return out
+
+
+def latch(seed, f=900):
+    """Trinco abafado: estalo curto de metal, sem anel longo."""
+    rng_ = np.random.default_rng(seed)
+    n = int(0.05 * RATE)
+    click = bandpass(rng_.uniform(-1, 1, n), f * 0.6, f * 2.5) * env(n, 0.0003, 0.008)
+    knock = sweep_sine(f * 0.3, f * 0.2, 0.05) * env(n, 0.0005, 0.012) * 0.5
+    return onepole_lowpass(mix(click, knock), 2800)
+
+
+def make_loot_sounds():
+    # Caixa/baú: trinco, a tampa batendo surda e a mão remexendo dentro.
+    chest = mix(latch(31, 800) * 0.8, at(thump(0.14, 110, 55, 0.4), 0.09),
+                at(rustle(0.5, 32) * 0.55, 0.2))
+    save(SFX, "chest_open", onepole_lowpass(onepole_lowpass(chest, 2000), 2400), peak=0.75)
+    # Contêiner de metal: trinco mais grosso, a porta pesada e o remexer.
+    box = mix(latch(33, 600), at(thump(0.22, 85, 40, 0.5), 0.1), at(metal(140, 0.35, 0.3) * 0.25, 0.1),
+              at(rustle(0.55, 34, 200, 1500) * 0.5, 0.28))
+    save(SFX, "container_open", onepole_lowpass(onepole_lowpass(box, 1800), 2000), peak=0.75)
+    # Pegar item: guardar na mochila (um "tuc" surdo + o pano da bolsa).
+    take = mix(thump(0.09, 150, 85, 0.3), at(rustle(0.16, 35, 300, 2000, 3) * 0.6, 0.01))
+    save(SFX, "pickup", onepole_lowpass(onepole_lowpass(take, 1800), 2200), peak=0.7)
+    # Moedas (parafusos): um punhado tilintando abafado dentro da mão, curtinho.
+    rng_ = np.random.default_rng(36)
+    coins = np.zeros(int(0.22 * RATE))
+    for i in range(4):
+        f = rng_.uniform(2400, 3400)
+        ping = partials(f, [1, 1.47, 2.1], [0.03, 0.02, 0.015], 0.08, [1.0, 0.5, 0.3])
+        coins = mix(coins, at(ping * rng_.uniform(0.4, 0.9), 0.015 + i * rng_.uniform(0.025, 0.045), 0.22))
+    coins = mix(onepole_lowpass(coins, 3000) * 0.6, thump(0.07, 160, 90, 0.2) * 0.5)
+    save(SFX, "coin_pickup", coins, peak=0.6)
+
+
+def make_ui():
+    save(SFX, "ui_move", soft_tick(440, seed=1), peak=0.5)
+    save(SFX, "ui_confirm", soft_thock(330, 210, seed=2), peak=0.6)
+    save(SFX, "ui_back", soft_thock(250, 160, seed=3), peak=0.6)
+    save(SFX, "ui_error", onepole_lowpass(square(110, 0.16), 900) * env(int(0.16 * RATE), 0.002, 0.08), peak=0.5)
+    for i in range(4):
+        save(SFX, "ui_type_%d" % (i + 1), key_click(10 + i), peak=0.5)
+    # Voz de NPC digitando: mais grave e abafada que a tecla, para não cansar numa fala longa.
+    for i in range(3):
+        save(SFX, "npc_type_%d" % (i + 1), onepole_lowpass(key_click(20 + i, 0.7), 2400), peak=0.5)
 
 
 # Música e ambiente (loops)
@@ -314,6 +403,12 @@ def make_ambience():
 if __name__ == "__main__":
     if subprocess.run(["ffmpeg", "-version"], capture_output=True).returncode != 0:
         sys.exit("Precisa do ffmpeg no PATH.")
+    if sys.argv[1:] == ["ui"]:
+        make_ui()
+        sys.exit(0)
+    if sys.argv[1:] == ["saque"]:
+        make_loot_sounds()
+        sys.exit(0)
     make_sfx()
     print("Música e ambiente:")
     make_ambience()
