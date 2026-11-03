@@ -41,6 +41,11 @@ const SHOOT_POSE_TIME := 0.35
 
 enum State { NORMAL, DODGING, ATTACKING, CLIMBING, DOWNED }
 
+## Distância de uma passada (um som de passo a cada uma).
+const STEP_STRIDE := 1.2
+var _step_last := Vector3.ZERO
+var _step_distance := 0.0
+
 static var _arc_mesh: ArrayMesh
 
 ## Máquina dona do jogador (id de rede) e o slot do controle nela.
@@ -225,6 +230,24 @@ func _process(delta: float) -> void:
 		else:
 			global_position = global_position.lerp(_net_pos, 1.0 - exp(-NET_SMOOTHING * delta))
 		rotation.y = lerp_angle(rotation.y, _net_yaw, 1.0 - exp(-NET_SMOOTHING * delta))
+	_footsteps()
+
+
+## Passos: um a cada passada andada no chão, em todas as máquinas, pelo quanto o herói se moveu
+## (sem nada pela rede). Correndo, as passadas vêm mais rápido sozinhas.
+func _footsteps() -> void:
+	var now := global_position
+	var moved := now - _step_last
+	_step_last = now
+	var flat_moved := Vector2(moved.x, moved.z).length()
+	var on_ground := absf(moved.y) < 0.03 and state in [State.NORMAL, State.ATTACKING]
+	if not on_ground or flat_moved > 1.0 or flat_moved < 0.001:
+		_step_distance = minf(_step_distance, STEP_STRIDE * 0.5)
+		return
+	_step_distance += flat_moved
+	if _step_distance >= STEP_STRIDE:
+		_step_distance -= STEP_STRIDE
+		Sound.play("step", now)
 
 
 func _physics_process(delta: float) -> void:

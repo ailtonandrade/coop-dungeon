@@ -15,12 +15,12 @@ const CROUCH := {
 	"UpperArm.L": 20.0, "UpperArm.R": 20.0,
 }
 const LEAP := {
-	"Torso": 4.0, "UpperLeg.L": -20.0, "UpperLeg.R": 8.0, "LowerLeg.L": 25.0, "LowerLeg.R": 35.0,
-	"UpperArm.L": -125.0, "UpperArm.R": -125.0, "LowerArm.L": -25.0, "LowerArm.R": -25.0,
+	"Torso": 4.0, "UpperLeg.L": -20.0, "UpperLeg.R": 8.0, "LowerLeg.L": 25.0, "LowerLeg.R": 30.0,
+	"UpperArm.L": -40.0, "UpperArm.R": -40.0, "LowerArm.L": -40.0, "LowerArm.R": -40.0,
 }
 const AIR := {
-	"Torso": -6.0, "UpperLeg.L": -55.0, "UpperLeg.R": -20.0, "LowerLeg.L": 85.0, "LowerLeg.R": 60.0,
-	"UpperArm.L": -80.0, "UpperArm.R": -80.0, "LowerArm.L": -35.0, "LowerArm.R": -35.0,
+	"Torso": -5.0, "UpperLeg.L": -40.0, "UpperLeg.R": -15.0, "LowerLeg.L": 60.0, "LowerLeg.R": 40.0,
+	"UpperArm.L": -25.0, "UpperArm.R": -25.0, "LowerArm.L": -35.0, "LowerArm.R": -35.0,
 }
 const HANG := {
 	"UpperArm.L": -165.0, "UpperArm.R": -165.0, "LowerArm.L": -10.0, "LowerArm.R": -10.0,
@@ -80,9 +80,13 @@ static func _build(keys: Array, skeleton: Skeleton3D, skeleton_path: NodePath) -
 		var offset := skeleton.get_bone_global_rest(leader).affine_inverse() * skeleton.get_bone_global_rest(index)
 		var parent := skeleton.get_bone_parent(index)
 		var parent_global := skeleton.get_bone_global_rest(parent) if parent != -1 else Transform3D.IDENTITY
+		# O pé vai para o fim da canela, mas fica no giro da pose parada (reto, sola para baixo):
+		# girar junto com a canela entortava o pé para o lado no meio do pulo.
+		var rest_basis := skeleton.get_bone_global_rest(index).basis
 		for key: Array in keys:
 			var leader_global := _posed_global(skeleton, leader, key[1])
-			var local := parent_global.affine_inverse() * (leader_global * offset)
+			var foot := Transform3D(rest_basis, (leader_global * offset).origin)
+			var local := parent_global.affine_inverse() * foot
 			animation.position_track_insert_key(position_track, key[0], local.origin)
 			animation.rotation_track_insert_key(rotation_track, key[0], Quaternion(local.basis.orthonormalized()))
 	return animation

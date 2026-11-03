@@ -50,6 +50,11 @@ func _process(_delta: float) -> bool:
 			var forward: Vector3 = root.get_node("InputService").view_forward
 			_check(aim.dot(Vector2(forward.x, forward.z)) > 0.99, "atacando, a mira é a frente da câmera")
 			_key(KEY_J, false)
+			# Câmera olhando reto para o horizonte: o tiro tem que sair reto (não uns graus para cima).
+			_camera()._pitch = 0.0
+		SECOND + 96:
+			var pitch: float = root.get_node("InputService").view_pitch
+			_check(absf(pitch) < 0.06, "olhando reto, o tiro sai reto (%.1f°)" % rad_to_deg(pitch))
 		SECOND + 100:
 			_check(root.get_node("InputService").get_aim(_p1().slot) == Vector2.ZERO, "sem atacar, o herói olha para onde anda")
 			root.get_node("InputService")._try_join(0)

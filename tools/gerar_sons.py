@@ -264,6 +264,7 @@ def make_sfx():
     save(SFX, "chip_install", crush(mix(chip, at(sparkle(0.25, 2000, 4) * 0.5, 0.2)), 7, 2))
     make_ui()
     make_loot_sounds()
+    make_steps()
     save(SFX, "refine_ok", mix(metal(620, 0.9, 1.3), at(sparkle(0.7, 1700, 8), 0.1)))
     fizz = bandpass(noise(0.5), 2000, 8000) * env(int(0.5 * RATE), 0.01, 0.3) * 0.5
     buzz = onepole_lowpass(square(150, 0.4), 1200) * env(int(0.4 * RATE), 0.005, 0.3)
@@ -365,6 +366,29 @@ def make_loot_sounds():
     save(SFX, "coin_pickup", coins, peak=0.6)
 
 
+# Passos no chão de terra batida e cascalho: baque surdo do calcanhar + o cascalho rangendo.
+
+def footstep(seed, weight=1.0):
+    rng_ = np.random.default_rng(seed)
+    heel = thump(0.07, 95 * rng_.uniform(0.9, 1.1), 55, 0.2) * 0.8 * weight
+    grit = bandpass(rng_.uniform(-1, 1, int(0.12 * RATE)), 700, 4000)
+    grit *= env(len(grit), 0.004, 0.035) * rng_.uniform(0.35, 0.5)
+    # Grãos soltos de cascalho logo depois.
+    crunch = rustle(0.12, seed + 100, 1200, 5000, 4) * 0.25
+    return onepole_lowpass(mix(heel, at(grit, 0.005), at(crunch, 0.02)), 3800)
+
+
+def make_steps():
+    for i in range(5):
+        save(SFX, "step_%d" % (i + 1), footstep(50 + i), peak=0.6)
+    # Pulo: o impulso dos dois pés (um passo mais firme e o raspar do cascalho), sem "boing".
+    push = mix(footstep(60, 1.3), at(footstep(61, 0.9) * 0.7, 0.035), at(rustle(0.15, 62, 400, 2500, 3) * 0.3, 0.02))
+    save(SFX, "jump_push", push, peak=0.65)
+    # Pouso: os dois pés juntos, mais pesado.
+    land = mix(thump(0.12, 85, 45, 0.3), at(footstep(63, 1.2), 0.01), at(footstep(64, 1.0) * 0.8, 0.03))
+    save(SFX, "land_feet", onepole_lowpass(land, 3000), peak=0.7)
+
+
 def make_ui():
     save(SFX, "ui_move", soft_tick(440, seed=1), peak=0.5)
     save(SFX, "ui_confirm", soft_thock(330, 210, seed=2), peak=0.6)
@@ -405,6 +429,9 @@ if __name__ == "__main__":
         sys.exit("Precisa do ffmpeg no PATH.")
     if sys.argv[1:] == ["ui"]:
         make_ui()
+        sys.exit(0)
+    if sys.argv[1:] == ["passos"]:
+        make_steps()
         sys.exit(0)
     if sys.argv[1:] == ["saque"]:
         make_loot_sounds()

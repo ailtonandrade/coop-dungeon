@@ -14,6 +14,10 @@ const SNAP_DISTANCE := 25.0
 const SHAKE_MAX_OFFSET := 0.6
 ## Inclinação da câmera atrás do herói em que a mira sai reta (a câmera começa assim).
 const BEHIND_PITCH_LEVEL := -0.3
+## Mira atrás do herói: até onde procura o alvo no meio da tela, e a altura de onde o tiro sai
+## (a mesma do Player._shoot_arrow).
+const AIM_DISTANCE := 60.0
+const SHOT_HEIGHT := 1.1
 
 var _focus := Vector3.ZERO
 var _distance := GameConfig.CAMERA_DIST_MIN
@@ -141,9 +145,29 @@ func _follow_behind(delta: float) -> void:
 	_place_listener(global_position)
 	InputService.view_yaw_deg = rad_to_deg(_yaw)
 	InputService.view_forward = -Vector3(look.z.x, 0.0, look.z.z).normalized()
-	# A câmera olha um pouco para baixo para ver o herói: essa inclinação é a mira "reta".
-	InputService.view_pitch = _pitch - BEHIND_PITCH_LEVEL
+	InputService.view_pitch = _aim_pitch(look, target)
 	InputService.set_aim_anchor(slot, _behind_player.global_position)
+
+
+## Inclinação do tiro para acertar o que está no meio da tela: a câmera fica acima e atrás do
+## herói, então copiar a inclinação dela fazia o tiro subir uns graus mesmo olhando reto.
+## Acha o ponto que a mira cobre (parede, chão, criatura ou longe) e mede a inclinação a partir
+## da altura de onde o tiro sai.
+func _aim_pitch(look: Basis, _target: Vector3) -> float:
+	var forward := -look.z
+	var origin := global_position
+	var far := origin + forward * AIM_DISTANCE
+	var query := PhysicsRayQueryParameters3D.create(origin, far, GameConfig.LAYER_SOLID | GameConfig.LAYER_ENEMIES)
+	query.exclude = [_behind_player.get_rid()]
+	var hit := get_world_3d().direct_space_state.intersect_ray(query)
+	var point: Vector3 = hit.position if not hit.is_empty() else far
+	var muzzle := _behind_player.global_position + Vector3.UP * SHOT_HEIGHT
+	var offset := point - muzzle
+	var flat := Vector2(offset.x, offset.z).length()
+	# Bem em cima do herói (mira colada nele): usa a inclinação da câmera mesmo.
+	if flat < 1.0:
+		return _pitch - BEHIND_PITCH_LEVEL
+	return atan2(offset.y, flat)
 
 
 func _turn(yaw: float, pitch: float) -> void:
