@@ -47,6 +47,10 @@ window/stretch/mode="canvas_items"
 
 enabled=PackedStringArray("res://addons/map_editor/plugin.cfg", "res://addons/item_editor/plugin.cfg")
 
+[gui]
+
+theme/custom="res://ui/skin/corrumpted_theme.tres"
+
 [layer_names]
 
 3d_physics/layer_1="world"
@@ -57,10 +61,6 @@ enabled=PackedStringArray("res://addons/map_editor/plugin.cfg", "res://addons/it
 [physics]
 
 common/physics_interpolation=true
-
-[gui]
-
-theme/custom="res://ui/skin/corrumpted_theme.tres"
 
 [rendering]
 
