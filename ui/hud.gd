@@ -94,6 +94,12 @@ func _ready() -> void:
 	hint.add_child(UiSkin.label("START / ESC  ·  menu e controles", 15, UiSkin.TEXT, "SemiBold", 4))
 	_root.add_child(hint)
 
+	# questLog: missões em andamento, embaixo da dica do menu.
+	var quest_log := QuestLog.new()
+	quest_log.position = Vector2(20, 64)
+	quest_log.custom_minimum_size = Vector2(300, 0)
+	_root.add_child(quest_log)
+
 	var minimap := Minimap.new()
 	minimap.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)
 	minimap.offset_left = -24 - Minimap.SIZE

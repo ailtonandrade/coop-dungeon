@@ -59,7 +59,8 @@ sabiam. E deixaram sinais de **como desligá-lo**, espalhados e incompletos:
 
 ## A "quest" que não é quest (estilo Mysterious Ornate Chest, do Tibia)
 
-A história principal **não tem questlog**, não avisa que avançou e não atualiza nada na tela.
+A história principal **não usa o questLog**, não avisa que avançou e não atualiza nada na tela.
+(O questLog existe para as missões secundárias dos NPCs: `docs/MISSOES.md`.)
 - Ela vai **destravando falas dos NPCs e acessos** que antes não existiam.
 - O jogador acha **itens-chave**: livros, diários, troféus, fotos, cartões de acesso, referências
   e easter eggs.

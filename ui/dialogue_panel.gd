@@ -22,6 +22,8 @@ var _typing: LineEdit
 var _service_button: Button
 var _bye_button: Button
 var _lines: PackedStringArray = []
+var _pending_quest: QuestDef = null
+const QUEST_COLOR := Color(1.0, 0.82, 0.3)
 var _guard := 0.2
 var _cursor := 0
 var _last_dir := Vector2i.ZERO
@@ -50,6 +52,7 @@ func open_for(p_player: Player, p_npc: WorldNpc) -> void:
 		Lore.learn(hello.teaches)
 	_refresh_topics()
 	Lore.facts_changed.connect(_refresh_topics)
+	Quests.quests_changed.connect(_refresh_topics)
 
 
 func _exit_tree() -> void:
@@ -117,15 +120,67 @@ func _refresh_topics() -> void:
 	for child in _topics.get_children():
 		child.queue_free()
 	var first: Button = null
+	# Missão oferecida esperando resposta: só aceitar ou recusar.
+	if _pending_quest:
+		_quest_button(Txt.t("Aceito"), _accept_quest.bind(_pending_quest))
+		_quest_button(Txt.t("Agora não"), func() -> void:
+			_player_says(Txt.t("Agora não."))
+			_pending_quest = null
+			_refresh_topics())
+		_after_refresh()
+		return
+	# Missões deste NPC (questLog): entregar, andamento e as que dá para pegar.
+	for quest in Quests.taken(npc.npc_name):
+		if Quests.state_of(quest.id) == "pronta":
+			_quest_button(Txt.t("» Entregar: %s") % Txt.t(quest.title), _turn_in_quest.bind(quest))
+		else:
+			_quest_button(Txt.t("» %s (em andamento)") % Txt.t(quest.title), func() -> void:
+				_player_says(Txt.t(quest.title))
+				_npc_says(Txt.t(quest.progress_text) if quest.progress_text else Txt.t("Ainda não terminou, né?")))
+	for quest in Quests.offers(npc.npc_name):
+		_quest_button(Txt.t("» Trabalho: %s") % Txt.t(quest.title), _offer_quest.bind(quest))
 	for topic in Lore.topics_for(npc.npc_name, player):
 		var button := _button(_topics, Txt.t(topic.button_text()), choose.bind(topic))
 		if first == null:
 			first = button
+	_after_refresh()
+
+
+func _after_refresh() -> void:
 	if InputService.device_of(player.slot) != InputService.KEYBOARD:
 		_cursor = 0
 		_show_cursor.call_deferred()
 	else:
 		_typing.grab_focus.call_deferred()
+
+
+## Botão de missão (cor de destaque, vem antes dos assuntos).
+func _quest_button(text: String, action: Callable) -> Button:
+	var button := _button(_topics, text, action)
+	button.add_theme_color_override("font_color", QUEST_COLOR)
+	button.set_meta("quest", true)
+	return button
+
+
+func _offer_quest(quest: QuestDef) -> void:
+	_player_says(Txt.t("Tem trabalho?"))
+	_npc_says(Txt.t(quest.offer_text) if quest.offer_text else Txt.t(quest.title))
+	_pending_quest = quest
+	_refresh_topics()
+
+
+func _accept_quest(quest: QuestDef) -> void:
+	_player_says(Txt.t("Aceito."))
+	_pending_quest = null
+	Quests.accept(quest.id)
+	Sound.play("chip_install")
+
+
+func _turn_in_quest(quest: QuestDef) -> void:
+	_player_says(Txt.t("Tá feito."))
+	_npc_says(Txt.t(quest.done_text) if quest.done_text else Txt.t("Valeu."))
+	Quests.turn_in(quest.id, player)
+	Sound.play("refine_ok")
 
 
 ## O jogador escolheu um assunto (botão ou palavra digitada).

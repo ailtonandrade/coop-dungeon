@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="QuestDef" format=3]
+
+[ext_resource type="Script" path="res://world/quests/quest_def.gd" id="1_def"]
+[ext_resource type="Script" path="res://world/quests/quest_objective.gd" id="2_obj"]
+
+[sub_resource type="Resource" id="Resource_punks"]
+script = ExtResource("2_obj")
+target = "punk"
+amount = 6
+
+[resource]
+script = ExtResource("1_def")
+id = "brando_ferro_de_gangue"
+title = "Ferro de gangue"
+giver = "Brando"
+offer_text = "Os bandidos de cano do pátio tão levando minha sucata e voltando pra cobrar 'pedágio' de quem passa. Derruba uns seis pra mim. Eu pago em parafuso e ainda afio tua arma de graça um dia."
+progress_text = "Ainda tem cano batendo lá no pátio. Tô ouvindo daqui."
+done_text = "Silêncio bom, esse. Toma o combinado. E não conta pra ninguém que eu paguei, senão vira fila."
+summary = "Brando quer o pátio livre dos bandidos de cano."
+objectives = Array[ExtResource("2_obj")]([SubResource("Resource_punks")])
+reward_gold = 150
+reward_xp = 120
+repeatable = true

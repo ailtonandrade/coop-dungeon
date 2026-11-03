@@ -375,6 +375,7 @@ func _on_died() -> void:
 	_animator.play("death", 0.0, true)
 	Loot.roll_drops(self, power + randi_range(0, 1), _stats.id)
 	_grant_xp()
+	Quests.on_kill(_stats.id)
 	died.emit(self)
 	get_tree().create_timer(1.5).timeout.connect(queue_free)
 

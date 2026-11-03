@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="QuestDef" format=3]
+
+[ext_resource type="Script" path="res://world/quests/quest_def.gd" id="1_def"]
+[ext_resource type="Script" path="res://world/quests/quest_objective.gd" id="2_obj"]
+
+[sub_resource type="Resource" id="Resource_androids"]
+script = ExtResource("2_obj")
+target = "androide"
+amount = 4
+
+[resource]
+script = ExtResource("1_def")
+id = "gouveia_guardas_de_lata"
+title = "Guardas de lata"
+giver = "Seu Gouveia"
+offer_text = "Aquelas coisas que guardam o laboratório... um dia elas vão descer o morro. Desliga quatro delas. Quero saber se sangram óleo ou se sangram outra coisa."
+progress_text = "Quatro. Não é muito. É o bastante pra eu dormir."
+done_text = "Óleo. Só óleo. ...Melhor assim. Pega isso, do cofre. Ninguém vem buscar mesmo."
+summary = "Seu Gouveia quer saber do que são feitos os guardas do Lab 4."
+objectives = Array[ExtResource("2_obj")]([SubResource("Resource_androids")])
+requires = Array[String](["lab4_portao"])
+reward_gold = 300
+reward_xp = 250
+reward_item = "life_amulet"

@@ -35,6 +35,7 @@ Voice="*res://audio/voice_chat.gd"
 Chat="*res://net/chat_service.gd"
 Updater="*res://core/updater.gd"
 Lore="*res://net/lore_service.gd"
+Quests="*res://net/quest_service.gd"
 
 [display]
 
