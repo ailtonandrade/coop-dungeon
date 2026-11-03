@@ -1,25 +1,26 @@
-[gd_scene format=3 uid="uid://btj6q3x5dqghc"]
+[gd_scene format=3]
 
 [ext_resource type="Texture2D" path="res://world/textures/ground_4d453d_615447.res" id="1_y326l"]
-[ext_resource type="Script" uid="uid://bbyjjd26mkvij" path="res://world/fade_occluder.gd" id="2_y326l"]
-[ext_resource type="PackedScene" uid="uid://cykmgapidtwdp" path="res://assets/props/Barrel.glb" id="3_t5grd"]
-[ext_resource type="PackedScene" uid="uid://cjysy3ae2mnrl" path="res://assets/props/Chest.glb" id="4_10agt"]
-[ext_resource type="Script" uid="uid://c0oc2dd2qakp7" path="res://world/world_npc.gd" id="5_2772y"]
+[ext_resource type="Script" path="res://world/fade_occluder.gd" id="2_y326l"]
+[ext_resource type="PackedScene" path="res://assets/props/Barrel.glb" id="3_t5grd"]
+[ext_resource type="PackedScene" path="res://assets/props/Chest.glb" id="4_10agt"]
+[ext_resource type="Script" path="res://world/world_npc.gd" id="5_2772y"]
 [ext_resource type="MeshLibrary" path="res://world/tiles/tiles.meshlib" id="5_y326l"]
-[ext_resource type="PackedScene" uid="uid://dpmlqyss4405t" path="res://assets/characters/Suit.glb" id="6_f5q74"]
+[ext_resource type="PackedScene" path="res://assets/characters/Suit.glb" id="6_f5q74"]
 [ext_resource type="PackedScene" path="res://world/prefabs/bau_de_saque.tscn" id="6_s4uig"]
-[ext_resource type="Script" uid="uid://b6ij75nosxtdt" path="res://world/container_item.gd" id="7_ffok1"]
-[ext_resource type="PackedScene" uid="uid://dmy2roidhlikd" path="res://assets/characters/Worker.glb" id="7_y8j3o"]
+[ext_resource type="Script" path="res://world/container_item.gd" id="7_ffok1"]
+[ext_resource type="PackedScene" path="res://assets/characters/Worker.glb" id="7_y8j3o"]
 [ext_resource type="PackedScene" path="res://world/prefabs/poste_de_luz.tscn" id="8_8ynnr"]
-[ext_resource type="PackedScene" uid="uid://dt1dftory4r1p" path="res://assets/characters/Beach.glb" id="8_t0nbh"]
+[ext_resource type="PackedScene" path="res://assets/characters/Beach.glb" id="8_t0nbh"]
 [ext_resource type="PackedScene" path="res://world/prefabs/carro_quebrado.tscn" id="9_1j7j7"]
-[ext_resource type="PackedScene" uid="uid://biycfshaiffwe" path="res://assets/characters/King.glb" id="9_ud5yq"]
+[ext_resource type="PackedScene" path="res://assets/characters/King.glb" id="9_ud5yq"]
 [ext_resource type="PackedScene" path="res://world/prefabs/pilha_de_pneus.tscn" id="10_25cto"]
 [ext_resource type="PackedScene" path="res://world/prefabs/barril.tscn" id="11_5qdrv"]
 [ext_resource type="PackedScene" path="res://world/prefabs/saco_de_lixo.tscn" id="12_s17pd"]
 [ext_resource type="PackedScene" path="res://world/prefabs/cone.tscn" id="13_cax8w"]
 [ext_resource type="PackedScene" path="res://world/prefabs/arbusto.tscn" id="14_0lrbf"]
 [ext_resource type="PackedScene" path="res://world/prefabs/bloco_de_concreto.tscn" id="15_ffok1"]
+[ext_resource type="PackedScene" path="res://world/prefabs/letreiro_neon.tscn" id="22_1j7j7"]
 [ext_resource type="PackedScene" path="res://world/lore/historia_vila.tscn" id="lore_historia_vila"]
 
 [sub_resource type="NavigationMesh" id="NavigationMesh_ffok1"]
@@ -339,42 +340,6 @@ script = ExtResource("7_ffok1")
 item_id = "iron_helmet"
 power = 2
 rarity = "rare"
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_oeamu"]
-albedo_color = Color(0.2, 0.95, 1, 1)
-emission_enabled = true
-emission = Color(0.2, 0.95, 1, 1)
-emission_energy_multiplier = 3.0
-
-[sub_resource type="BoxMesh" id="BoxMesh_63e1h"]
-size = Vector3(1.6, 0.35, 0.08)
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_vfcfh"]
-albedo_color = Color(1, 0.25, 0.8, 1)
-emission_enabled = true
-emission = Color(1, 0.25, 0.8, 1)
-emission_energy_multiplier = 3.0
-
-[sub_resource type="BoxMesh" id="BoxMesh_xl4y7"]
-size = Vector3(1.6, 0.35, 0.08)
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_mo6wq"]
-albedo_color = Color(1, 0.85, 0.2, 1)
-emission_enabled = true
-emission = Color(1, 0.85, 0.2, 1)
-emission_energy_multiplier = 3.0
-
-[sub_resource type="BoxMesh" id="BoxMesh_14m0m"]
-size = Vector3(1.6, 0.35, 0.08)
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_3nijq"]
-albedo_color = Color(0.2, 0.95, 1, 1)
-emission_enabled = true
-emission = Color(0.2, 0.95, 1, 1)
-emission_energy_multiplier = 3.0
-
-[sub_resource type="BoxMesh" id="BoxMesh_v5epx"]
-size = Vector3(1.6, 0.35, 0.08)
 
 [node name="Chunk" type="Node3D" unique_id=1626088061]
 
@@ -921,6 +886,8 @@ transform = Transform3D(-0.67568046, -0.005677991, -0.73717284, 0.008391623, -0.
 [node name="god_1793708953_4343" parent="Navigation" unique_id=1240843579 instance=ExtResource("9_1j7j7")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 27.635286, 0, 48.127262)
 
+[node name="HistoriaVila" parent="Navigation" unique_id=1499009231 instance=ExtResource("lore_historia_vila")]
+
 [node name="Npc_Sr_Gouveia" type="Node3D" parent="." unique_id=1417754578]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, 0, 12.5)
 script = ExtResource("5_2772y")
@@ -954,56 +921,34 @@ shop_items = PackedStringArray("sword", "axe", "bow", "longbow", "leather_hood",
 
 [node name="Neon" type="Node3D" parent="." unique_id=614537992]
 
-[node name="Placa_0" type="Node3D" parent="Neon" unique_id=532450821]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, 2.7, 18.35)
+[node name="Letreiro_Cofre" parent="Neon" unique_id=94754614 instance=ExtResource("22_1j7j7")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, 2.75, 18.35)
+text = "COFRE"
+color = Color(0.2, 0.95, 1, 1)
 
-[node name="Barra" type="MeshInstance3D" parent="Neon/Placa_0" unique_id=1372797415]
-material_override = SubResource("StandardMaterial3D_oeamu")
-mesh = SubResource("BoxMesh_63e1h")
+[node name="Letreiro_Bar" parent="Neon" unique_id=1232716209 instance=ExtResource("22_1j7j7")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 50, 2.75, 17.85)
+flicker = true
 
-[node name="Luz" type="OmniLight3D" parent="Neon/Placa_0" unique_id=488217675]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.6)
-light_color = Color(0.2, 0.95, 1, 1)
-light_energy = 1.5
-omni_range = 6.0
+[node name="Letreiro_Lanches" parent="Neon" unique_id=186777925 instance=ExtResource("22_1j7j7")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, 2.75, 53.85)
+text = "LANCHES"
+color = Color(1, 0.8, 0.2, 1)
 
-[node name="Placa_1" type="Node3D" parent="Neon" unique_id=1659204507]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 50, 2.7, 17.85)
+[node name="Letreiro_Oficina" parent="Neon" unique_id=1409855814 instance=ExtResource("22_1j7j7")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 50, 2.75, 54.35)
+text = "OFICINA"
+color = Color(1, 0.3, 0.2, 1)
 
-[node name="Barra" type="MeshInstance3D" parent="Neon/Placa_1" unique_id=1914898617]
-material_override = SubResource("StandardMaterial3D_vfcfh")
-mesh = SubResource("BoxMesh_xl4y7")
+[node name="Letreiro_Mercado" parent="Neon" unique_id=481394565 instance=ExtResource("22_1j7j7")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 25, 2.3, 28.4)
+text = "MERCADO"
+color = Color(0.35, 1, 0.5, 1)
+stand = true
 
-[node name="Luz" type="OmniLight3D" parent="Neon/Placa_1" unique_id=1585388263]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.6)
-light_color = Color(1, 0.25, 0.8, 1)
-light_energy = 1.5
-omni_range = 6.0
-
-[node name="Placa_2" type="Node3D" parent="Neon" unique_id=1278798644]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, 2.7, 53.85)
-
-[node name="Barra" type="MeshInstance3D" parent="Neon/Placa_2" unique_id=2059294721]
-material_override = SubResource("StandardMaterial3D_mo6wq")
-mesh = SubResource("BoxMesh_14m0m")
-
-[node name="Luz" type="OmniLight3D" parent="Neon/Placa_2" unique_id=534358414]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.6)
-light_color = Color(1, 0.85, 0.2, 1)
-light_energy = 1.5
-omni_range = 6.0
-
-[node name="Placa_3" type="Node3D" parent="Neon" unique_id=954341459]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 50, 2.7, 54.35)
-
-[node name="Barra" type="MeshInstance3D" parent="Neon/Placa_3" unique_id=2139373858]
-material_override = SubResource("StandardMaterial3D_3nijq")
-mesh = SubResource("BoxMesh_v5epx")
-
-[node name="Luz" type="OmniLight3D" parent="Neon/Placa_3" unique_id=430783445]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.6)
-light_color = Color(0.2, 0.95, 1, 1)
-light_energy = 1.5
-omni_range = 6.0
-
-[node name="HistoriaVila" parent="Navigation" instance=ExtResource("lore_historia_vila")]
+[node name="Letreiro_Mods" parent="Neon" unique_id=804782541 instance=ExtResource("22_1j7j7")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 39, 2.3, 28.4)
+text = "MODS"
+color = Color(0.7, 0.4, 1, 1)
+flicker = true
+stand = true

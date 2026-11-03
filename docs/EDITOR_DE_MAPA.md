@@ -199,3 +199,13 @@ seletor de peças e, no mundo, o **fantasma** translúcido da peça onde ela vai
 - Se tiver amigos conectados no seu mundo enquanto constrói, eles veem cada peça na hora. Quem
   tiver o mapa antigo precisa da versão nova do jogo depois (o mapa muda e o jogo confere).
 - Peças novas importadas no editor de mapa (Importar objeto 3D) aparecem no seletor.
+
+## Letreiro de neon
+
+Peça `world/prefabs/letreiro_neon.tscn` (no catálogo de peças e no `/construir`). Selecione no
+mapa e mude no Inspector: **Text**, **Color**, **Letter Height** (altura das letras), **Board**
+(placa escura atrás), **Flicker** (pisca de vez em quando, neon velho), **Stand** (pé de ferro até
+o chão, para barraca na rua) e o alcance/força da luz. A prévia atualiza no editor.
+
+De noite o neon brilha forte e pinta a parede e o chão na cor dele; de dia fica mais fraco. Os da
+vila (COFRE, BAR, LANCHES, OFICINA, MERCADO, MODS) foram postos por `tools/letreiros_vila.gd`.
