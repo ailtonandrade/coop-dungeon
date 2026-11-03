@@ -6,6 +6,7 @@ extends VBoxContainer
 ## cada mudança é salva sozinha e a prévia acompanha.
 
 const Tools := preload("res://addons/item_editor/item_tools.gd")
+const FitScene := preload("res://addons/item_editor/fit_scene.gd")
 const HERO := "res://assets/characters/Adventurer.glb"
 const SAVE_DELAY := 0.35
 const ICON_SIZE := 128
@@ -54,6 +55,8 @@ func _ready() -> void:
 		return
 	custom_minimum_size = Vector2(300, 0)
 	add_theme_constant_override("separation", 6)
+	if plugin:
+		plugin.scene_saved.connect(_on_scene_saved)
 
 	var title := Label.new()
 	title.text = "Itens do jogo"
@@ -371,6 +374,10 @@ func _build_adjust() -> void:
 		elif _current:
 			_status.text = "Importe um modelo 3D primeiro.")
 	_button(top, "Zerar", "Volta a correção do que está escolhido abaixo para o original.", _reset_adjust)
+	var fit_row := HBoxContainer.new()
+	add_child(fit_row)
+	_button(fit_row, "Ajustar no 3D (mão e coldre)", "Abre o herói segurando o item na vista 3D: selecione Arma (mão) ou ArmaGuardada (coldre) e use mover (W), girar (E) e escalar (R). Ctrl+S grava na ficha.", _open_fit)
+	_button(fit_row, "Salvar ajuste do 3D", "Grava na ficha o que foi ajustado na cena \"Ajustar no 3D\" (o Ctrl+S nela já faz isso).", _apply_fit)
 
 	_adjust_target = OptionButton.new()
 	_adjust_target.add_item("Corrigir o modelo (mão, chão e ícone)")
@@ -452,6 +459,53 @@ func _spin(parent: Control, low: float, high: float, step: float, suffix: String
 	box.custom_arrow_step = step * 10.0 if step < 1.0 else 15.0
 	parent.add_child(box)
 	return box
+
+
+## Ajustar no 3D
+
+func _open_fit() -> void:
+	if _current == null:
+		return
+	_save_now()
+	var path := FitScene.build(_current, self)
+	if EditorInterface.get_open_scenes().has(path):
+		EditorInterface.reload_scene_from_path(path)
+	EditorInterface.open_scene_from_path(path)
+	EditorInterface.set_main_screen_editor("3D")
+	var root := EditorInterface.get_edited_scene_root()
+	var arma := root.find_child("Arma", true, false) if root else null
+	if arma:
+		EditorInterface.get_selection().clear()
+		EditorInterface.get_selection().add_node(arma)
+	_status.text = "Selecione Arma (mão) ou ArmaGuardada (coldre) e use W mover · E girar · R escalar. Ctrl+S grava na ficha."
+
+
+func _apply_fit() -> void:
+	var root := EditorInterface.get_edited_scene_root()
+	if _current == null or root == null or root.get_meta("item_id", "") != _current.id:
+		_status.text = "Abra o \"Ajustar no 3D\" deste item primeiro."
+		return
+	var changed := FitScene.apply(_current, root)
+	if changed.is_empty():
+		_status.text = "Nada para gravar."
+		return
+	_changed()
+	_save_now()
+	_sync_adjust()
+	_status.text = "Gravado na ficha: %s." % changed
+
+
+## Ctrl+S na cena "Ajustar no 3D" grava o ajuste na ficha do item dela.
+func _on_scene_saved(path: String) -> void:
+	if path != FitScene.PATH:
+		return
+	var root := EditorInterface.get_edited_scene_root()
+	var id: String = root.get_meta("item_id", "") if root else ""
+	if id.is_empty():
+		return
+	if _current == null or _current.id != id:
+		_select(id)
+	_apply_fit()
 
 
 func _editing_mount() -> bool:

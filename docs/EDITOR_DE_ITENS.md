@@ -47,6 +47,18 @@ A seção **Ajustar modelo** do painel mexe ao vivo na prévia:
     escolhe no Inspector (*Mount Bone*: mão direita, cabeça, peito, quadril...).
 - **Zerar:** volta o que está escolhido ao original.
 
+### Ajustar no 3D (com as setas do Godot, sem digitar números)
+
+1. Escolha o item e clique **Ajustar no 3D (mão e coldre)**. Abre a cena `ajuste_no_3d.tscn`
+   com o herói parado na pose de referência, segurando o item.
+2. Na árvore da cena: **Arma** é o item na mão; **ArmaGuardada** é a cópia no coldre (só armas).
+3. Selecione um deles e use **W** (mover), **E** (girar) e **R** (escalar) direto na vista 3D.
+4. **Ctrl+S** (ou o botão **Salvar ajuste do 3D**) grava na ficha: encaixe na mão, tamanho do
+   modelo e ajuste do coldre. Escalar a *Arma* muda o tamanho do item em todo lugar (mão, chão,
+   ícone); escalar a *ArmaGuardada* não grava nada.
+
+A cena é montada de novo a cada clique (não vai para o Git), então sempre mostra a ficha atual.
+
 ## Armadura que veste o corpo (colete, jaqueta, calça)
 
 Dois jeitos:
