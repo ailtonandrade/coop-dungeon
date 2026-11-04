@@ -389,6 +389,18 @@ def make_steps():
     save(SFX, "land_feet", onepole_lowpass(land, 3000), peak=0.7)
 
 
+def make_quest_sounds():
+    """Missão: tudo abafado. Aceitar = carimbo surdo no papel; pronta = dois toques graves;
+    entregar = carimbo + o pano da bolsa (recebeu algo)."""
+    stamp = mix(thump(0.12, 120, 60, 0.25), at(rustle(0.12, 70, 300, 1600, 3) * 0.35, 0.01))
+    save(SFX, "quest_accept", onepole_lowpass(onepole_lowpass(stamp, 1600), 2000), peak=0.6)
+    knock = mix(soft_thock(220, 150, seed=71), at(soft_thock(260, 180, seed=72) * 0.8, 0.14))
+    save(SFX, "quest_ready", onepole_lowpass(knock, 1800), peak=0.55)
+    done = mix(thump(0.14, 110, 55, 0.25), at(rustle(0.25, 73, 300, 1800, 4) * 0.4, 0.05),
+               at(soft_thock(200, 140, seed=74) * 0.6, 0.18))
+    save(SFX, "quest_done", onepole_lowpass(onepole_lowpass(done, 1700), 2000), peak=0.6)
+
+
 def make_ui():
     save(SFX, "ui_move", soft_tick(440, seed=1), peak=0.5)
     save(SFX, "ui_confirm", soft_thock(330, 210, seed=2), peak=0.6)
@@ -454,6 +466,9 @@ if __name__ == "__main__":
         sys.exit("Precisa do ffmpeg no PATH.")
     if sys.argv[1:] == ["ui"]:
         make_ui()
+        sys.exit(0)
+    if sys.argv[1:] == ["missao"]:
+        make_quest_sounds()
         sys.exit(0)
     if sys.argv[1:] == ["chuva"]:
         make_rain()

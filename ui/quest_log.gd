@@ -17,8 +17,10 @@ func _ready() -> void:
 	Quests.quests_changed.connect(_rebuild)
 	Quests.quest_event.connect(func(id: String, state: String) -> void:
 		_flash[id] = 1.6
-		if state == "ativa" or state == "pronta":
-			Sound.play("chip_install")
+		if state == "pronta":
+			Sound.play("quest_ready")
+		elif state == "ativa":
+			Sound.play("quest_accept")
 		_rebuild())
 	_rebuild()
 

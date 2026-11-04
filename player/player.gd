@@ -42,7 +42,7 @@ const SHOOT_POSE_TIME := 0.35
 enum State { NORMAL, DODGING, ATTACKING, CLIMBING, DOWNED }
 
 ## Distância de uma passada (um som de passo a cada uma).
-const STEP_STRIDE := 1.2
+const STEP_STRIDE := 2.4
 var _step_last := Vector3.ZERO
 var _step_distance := 0.0
 

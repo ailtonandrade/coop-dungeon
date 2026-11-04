@@ -53,6 +53,10 @@ const EVENTS := {
 	"ui_back": {"files": ["ui_back"], "db": -15.0, "pitch": 0.03, "bus": "UI", "world": false, "gap": 0.04},
 	"ui_error": {"files": ["ui_error"], "db": -13.0, "bus": "UI", "world": false, "gap": 0.15},
 	"ui_type": {"files": ["ui_type_1", "ui_type_2", "ui_type_3", "ui_type_4"], "db": -21.0, "pitch": 0.06, "bus": "UI", "world": false, "gap": 0.02},
+	# Missões: abafado (aceitar, ficou pronta, entregar).
+	"quest_accept": {"files": ["quest_accept"], "db": -10.0, "bus": "UI", "world": false, "gap": 0.3},
+	"quest_ready": {"files": ["quest_ready"], "db": -10.0, "bus": "UI", "world": false, "gap": 0.3},
+	"quest_done": {"files": ["quest_done"], "db": -9.0, "bus": "UI", "world": false, "gap": 0.3},
 	# Fala de NPC aparecendo letra por letra.
 	"npc_type": {"files": ["npc_type_1", "npc_type_2", "npc_type_3"], "db": -22.0, "pitch": 0.08, "bus": "UI", "world": false, "gap": 0.045},
 }

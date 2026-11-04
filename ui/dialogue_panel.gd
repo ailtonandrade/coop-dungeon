@@ -176,14 +176,14 @@ func _accept_quest(quest: QuestDef) -> void:
 	_player_says(Txt.t("Aceito."))
 	_pending_quest = null
 	Quests.accept(quest.id, player)
-	Sound.play("chip_install")
+	Sound.play("quest_accept")
 
 
 func _turn_in_quest(quest: QuestDef) -> void:
 	_player_says(Txt.t("Tá feito."))
 	_npc_says(Txt.t(quest.done_text) if quest.done_text else Txt.t("Valeu."))
 	Quests.turn_in(quest.id, player)
-	Sound.play("refine_ok")
+	Sound.play("quest_done")
 
 
 ## O jogador escolheu um assunto (botão ou palavra digitada).
