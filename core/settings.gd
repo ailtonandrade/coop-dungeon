@@ -5,8 +5,9 @@ signal changed
 
 const PATH := "user://settings.cfg"
 
-## "fixed": norte sempre pra cima. "rotating": gira com a direção do herói.
-var minimap_mode := "fixed"
+## "camera": gira junto com a câmera (o que está pra cima na tela está pra cima no mapa).
+## "fixed": norte sempre pra cima.
+var minimap_mode := "camera"
 ## "iso": de cima, isométrica (padrão). "behind": atrás do herói, estilo GTA; só vale quando
 ## esta tela tem um jogador só (com mais gente no sofá volta para a de cima).
 var camera_mode := "iso"
@@ -54,7 +55,8 @@ func _ready() -> void:
 func _load() -> void:
 	var config := ConfigFile.new()
 	if config.load(PATH) == OK:
-		minimap_mode = config.get_value("hud", "minimap_mode", minimap_mode)
+		# Chave nova: o modo antigo ("rotating" pelo herói) deu lugar ao que segue a câmera.
+		minimap_mode = config.get_value("hud", "minimap_mode_v2", minimap_mode)
 		camera_mode = config.get_value("camera", "mode", camera_mode)
 		look_sensitivity = config.get_value("camera", "look_sensitivity", look_sensitivity)
 		ui_scale = config.get_value("display", "ui_scale", ui_scale)
@@ -75,7 +77,7 @@ func _load() -> void:
 
 
 func toggle_minimap_mode() -> void:
-	minimap_mode = "rotating" if minimap_mode == "fixed" else "fixed"
+	minimap_mode = "camera" if minimap_mode == "fixed" else "fixed"
 	_save()
 	changed.emit()
 
@@ -189,7 +191,7 @@ func toggle_camera_mode() -> void:
 
 func _save() -> void:
 	var config := ConfigFile.new()
-	config.set_value("hud", "minimap_mode", minimap_mode)
+	config.set_value("hud", "minimap_mode_v2", minimap_mode)
 	config.set_value("camera", "mode", camera_mode)
 	config.set_value("camera", "look_sensitivity", look_sensitivity)
 	config.set_value("display", "ui_scale", ui_scale)

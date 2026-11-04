@@ -2,7 +2,8 @@ class_name Minimap
 extends Control
 ## Minimapa: uma câmera de cima (ortográfica) desenha o terreno num SubViewport,
 ## e por cima vão os marcadores (heróis com a cor de cada um, inimigos em vermelho).
-## Modo fixo: norte pra cima. Modo rotativo: gira para a frente do herói ficar pra cima.
+## Modo câmera (padrão): gira junto com a câmera, então o que está pra cima na tela está pra
+## cima no mapa (na isométrica e na câmera atrás do herói). Modo fixo: norte pra cima.
 ## Segue o centro dos jogadores desta máquina, como a câmera principal.
 
 const SIZE := 260
@@ -11,6 +12,7 @@ const RANGE := 44.0
 ## Camada de render só para o mundo; o rótulo P1-P4 dos heróis fica fora do minimapa.
 const WORLD_LAYER := 1
 const ENEMY_COLOR := Color(1.0, 0.25, 0.2)
+const QUEST_COLOR := Color(1.0, 0.8, 0.28)
 ## Largura da moldura de metal em volta do mapa.
 const FRAME := 9
 
@@ -57,8 +59,8 @@ func _process(delta: float) -> void:
 			center += player.global_position
 		_focus = _focus.lerp(center / local.size(), 1.0 - exp(-8.0 * delta))
 	var target_yaw := 0.0
-	if Settings.minimap_mode == "rotating" and not local.is_empty():
-		target_yaw = local[0].rotation.y
+	if Settings.minimap_mode != "fixed":
+		target_yaw = deg_to_rad(InputService.view_yaw_deg)
 	_yaw = lerp_angle(_yaw, target_yaw, 1.0 - exp(-10.0 * delta))
 	# Olhando reto pra baixo; girar em Y define o que fica "pra cima" no mapa.
 	_camera.rotation = Vector3(-PI / 2.0, _yaw, 0.0)
@@ -97,13 +99,42 @@ func _draw_markers() -> void:
 		var points := PackedVector2Array([tip, point - forward * 6.0 + side * 7.0, point - forward * 6.0 - side * 7.0])
 		_markers.draw_colored_polygon(points, color)
 		_markers.draw_polyline(PackedVector2Array([points[0], points[1], points[2], points[0]]), Color.BLACK, 1.5)
+	_draw_quest_targets(inner)
 	_draw_frame()
-	# Norte: fixo no topo no modo fixo; gira junto no modo rotativo.
+	# Norte: na moldura (no contorno do mapa), girando em volta quando o mapa gira.
 	var north := _direction_on_map(Vector3.FORWARD)
-	var n_pos := Vector2(SIZE, SIZE) / 2.0 + north * (SIZE / 2.0 - FRAME - 14.0)
+	var n_pos := _on_frame(north)
 	_markers.draw_circle(n_pos, 11.0, UiSkin.INK)
 	_markers.draw_arc(n_pos, 11.0, 0.0, TAU, 20, UiSkin.BRASS, 2.0)
 	_markers.draw_string(UiSkin.font("Bold"), n_pos + Vector2(-11, 6), "N", HORIZONTAL_ALIGNMENT_CENTER, 22, 16, UiSkin.AMBER)
+
+
+## Ponto da moldura (no meio da faixa de metal) na direção `dir` a partir do centro.
+func _on_frame(dir: Vector2) -> Vector2:
+	var half := SIZE / 2.0 - FRAME / 2.0
+	var reach := half / maxf(absf(dir.x), absf(dir.y)) if dir != Vector2.ZERO else half
+	return Vector2(SIZE, SIZE) / 2.0 + dir * reach
+
+
+## Para onde ir nas missões do questLog: losango amarelo no lugar; longe, preso na borda,
+## apontando para lá.
+func _draw_quest_targets(inner: Rect2) -> void:
+	var local := _local_players()
+	var from := local[0].global_position if not local.is_empty() else _focus
+	for quest in Quests.tracked():
+		var target: Variant = Quests.target_of(quest, from)
+		if not target is Vector3:
+			continue
+		var point := _to_map(target)
+		var inside := inner.grow(-6).has_point(point)
+		if not inside:
+			var dir := (point - Vector2(SIZE, SIZE) / 2.0).normalized()
+			var half := inner.size.x / 2.0 - 8.0
+			point = Vector2(SIZE, SIZE) / 2.0 + dir * (half / maxf(absf(dir.x), absf(dir.y)))
+		var r := 7.0 if inside else 6.0
+		var diamond := PackedVector2Array([point + Vector2(0, -r), point + Vector2(r, 0), point + Vector2(0, r), point + Vector2(-r, 0)])
+		_markers.draw_colored_polygon(diamond, QUEST_COLOR)
+		_markers.draw_polyline(PackedVector2Array([diamond[0], diamond[1], diamond[2], diamond[3], diamond[0]]), Color.BLACK, 1.5)
 
 
 ## Moldura de metal rebitada por cima do mapa.

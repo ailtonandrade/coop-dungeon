@@ -33,7 +33,7 @@ func _update_texts() -> void:
 	# O nome de cada idioma fica sempre na língua dele (quem não entende a atual acha a sua).
 	_language_button.text = "%s: %s" % [Txt.t("Idioma"), Txt.LANGUAGES[Settings.current_language()]]
 	_graphics_button.text = Txt.t("Gráficos: %s") % Txt.t(Graphics.LABELS[Settings.graphics_quality])
-	_minimap_button.text = Txt.t("Minimapa: %s") % (Txt.t("rotativo (gira com o herói)") if Settings.minimap_mode == "rotating" else Txt.t("fixo (norte pra cima)"))
+	_minimap_button.text = Txt.t("Minimapa: %s") % (Txt.t("gira com a câmera") if Settings.minimap_mode != "fixed" else Txt.t("fixo (norte pra cima)"))
 
 
 func first_focus() -> Control:

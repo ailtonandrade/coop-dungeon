@@ -55,6 +55,10 @@ func _process(_delta: float) -> bool:
 		SECOND + 96:
 			var pitch: float = root.get_node("InputService").view_pitch
 			_check(absf(pitch) < 0.06, "olhando reto, o tiro sai reto (%.1f°)" % rad_to_deg(pitch))
+			# Minimapa gira com a câmera: a frente da câmera fica pra cima no mapa.
+			var minimap: Node = get_first_node_in_group("hud").find_children("*", "Control", true, false).filter(func(n: Node) -> bool: return n.get_script() == load("res://ui/minimap.gd"))[0]
+			var up: Vector2 = minimap._direction_on_map(root.get_node("InputService").view_forward)
+			_check(up.distance_to(Vector2(0, -1)) < 0.1, "minimapa: a frente da câmera atrás do herói fica pra cima (%s)" % up)
 		SECOND + 100:
 			_check(root.get_node("InputService").get_aim(_p1().slot) == Vector2.ZERO, "sem atacar, o herói olha para onde anda")
 			root.get_node("InputService")._try_join(0)
@@ -62,6 +66,10 @@ func _process(_delta: float) -> bool:
 			_check(get_nodes_in_group("players").size() == 2, "entrou o 2º jogador no sofá")
 			_check(not _camera().is_behind(), "com 2 na tela volta para a câmera de cima")
 			_check(is_equal_approx(root.get_node("InputService").view_yaw_deg, 45.0), "andar volta a ser pela câmera de cima")
+			var iso_map: Node = get_first_node_in_group("hud").find_children("*", "Control", true, false).filter(func(n: Node) -> bool: return n.get_script() == load("res://ui/minimap.gd"))[0]
+			var iso_forward := Vector3(0, 0, -1).rotated(Vector3.UP, deg_to_rad(45.0))
+			var iso_up: Vector2 = iso_map._direction_on_map(iso_forward)
+			_check(iso_up.distance_to(Vector2(0, -1)) < 0.15, "minimapa: na isométrica, o pra cima da tela é o pra cima do mapa (%s)" % iso_up)
 			root.get_node("Settings").camera_mode = "iso"
 			print("CÂMERA: ", "FALHOU" if _failed else "OK")
 			quit(1 if _failed else 0)

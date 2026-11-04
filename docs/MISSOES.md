@@ -48,6 +48,10 @@ do mundo e valem para os amigos online.
 
 - **questLog** no canto superior esquerdo: até 3 missões, título, objetivos (caixinha e contador)
   e, terminada, "Volte para <NPC>". Pisca quando muda.
+- **Para onde ir**: losango amarelo no minimapa no próximo passo da missão (acampamento mais perto
+  da classe a matar, o NPC para falar, o gatilho ou a área; pronta, o NPC que recebe). Longe, o
+  losango fica na borda do minimapa apontando a direção, e o questLog mostra a distância em metros.
+  As posições são lidas dos arquivos de todos os blocos, mesmo os que ainda não carregaram.
 - Progresso do grupo, no save do mundo, sincronizado online.
 
 ## As que já existem

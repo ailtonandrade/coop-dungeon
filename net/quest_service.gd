@@ -22,6 +22,7 @@ var _streamer: Node
 ## Recarrega as fichas (o editor de missões salvou uma nova).
 func reload() -> void:
 	_defs.clear()
+	_places.clear()
 	defs()
 	_apply_all_reactions()
 	quests_changed.emit()
@@ -300,6 +301,96 @@ func _give_item(item_id: String, player: Node, rarity := "common") -> void:
 		Loot.drop(player, item, Combat.flat(player.global_position) + Vector3(0.6, 0, 0))
 
 
+## Para onde ir (marcador no minimapa e distância no questLog)
+
+## Pontos do mapa inteiro, lidos dos arquivos dos blocos (sem carregar o bloco):
+## {"spawners": [[pos, kinds]], "npcs": {nome: pos}, "named": {nome do nó: pos}}.
+var _places := {}
+
+
+## Onde fica o próximo passo da missão, perto de `from` (null se não dá para saber).
+## Pronta: o NPC que recebe. Matar: o acampamento mais perto da classe. Falar: o NPC.
+## Interagir/chegar: o gatilho/a área.
+func target_of(quest: QuestDef, from: Vector3) -> Variant:
+	if state_of(quest.id) == "pronta":
+		return _places_map().npcs.get(quest.giver)
+	for i in quest.objectives.size():
+		if objective_done(quest, i):
+			continue
+		var objective := quest.objectives[i]
+		match objective.kind:
+			"matar":
+				var kind := _creature_kind(objective.target)
+				var best: Variant = null
+				var best_distance := INF
+				for spawner: Array in _places_map().spawners:
+					if (spawner[1] as PackedInt32Array).has(kind) and (spawner[0] as Vector3).distance_to(from) < best_distance:
+						best = spawner[0]
+						best_distance = (spawner[0] as Vector3).distance_to(from)
+				return best
+			"falar":
+				return _places_map().npcs.get(objective.npc)
+			"interagir", "chegar":
+				return _places_map().named.get(objective.target)
+	return null
+
+
+static func _creature_kind(creature_id: String) -> int:
+	for kind: int in Enemy.STATS:
+		if Enemy.STATS[kind].id == creature_id:
+			return kind
+	return -1
+
+
+func _places_map() -> Dictionary:
+	if not _places.is_empty() or not is_instance_valid(_streamer) or _streamer.get("world_map") == null:
+		return _places if not _places.is_empty() else {"spawners": [], "npcs": {}, "named": {}}
+	_places = {"spawners": [], "npcs": {}, "named": {}}
+	var map: WorldMap = _streamer.world_map
+	for coords: Vector2i in map.chunks:
+		_read_scene(String(map.chunks[coords]), map.chunk_origin(coords))
+	for id: String in map.interiors:
+		_read_scene(String(map.interiors[id].get("path", "")), map.interiors[id].get("origin", Vector3.ZERO))
+	return _places
+
+
+## Lê a cena do bloco pelo "estado" (nós e propriedades), sem montar nada.
+func _read_scene(path: String, origin: Vector3) -> void:
+	if path.is_empty() or not ResourceLoader.exists(path):
+		return
+	var state := (load(path) as PackedScene).get_state()
+	var xforms := {".": Transform3D(Basis.IDENTITY, origin)}
+	for i in state.get_node_count():
+		var node_path := String(state.get_node_path(i))
+		var parent_path := String(state.get_node_path(i, true))
+		var local := Transform3D.IDENTITY
+		var props := {}
+		for j in state.get_node_property_count(i):
+			props[state.get_node_property_name(i, j)] = state.get_node_property_value(i, j)
+		if props.get("transform") is Transform3D:
+			local = props.transform
+		elif props.get("position") is Vector3:
+			local.origin = props.position
+		var parent: Transform3D = xforms.get(parent_path, xforms["."]) if i > 0 else Transform3D.IDENTITY
+		var global: Transform3D = (parent * local) if i > 0 else xforms["."]
+		xforms[node_path] = global
+		var name := String(state.get_node_name(i))
+		var script: Variant = props.get("script")
+		var script_path: String = (script as Script).resource_path if script is Script else ""
+		if script_path.ends_with("creature_spawner.gd") and props.get("kinds") is PackedInt32Array:
+			_places.spawners.append([global.origin, props.kinds])
+		if props.has("npc_name"):
+			_places.npcs[String(props.npc_name)] = global.origin
+		var instance := state.get_node_instance(i)
+		var is_quest_piece := script_path.ends_with("quest_trigger.gd") or script_path.ends_with("quest_area.gd") \
+				or (instance != null and (instance.resource_path.ends_with("gatilho_de_missao.tscn") or instance.resource_path.ends_with("area_de_missao.tscn")))
+		_places.named[name] = global.origin
+		if is_quest_piece:
+			for key in ["trigger_id", "area_id"]:
+				if String(props.get(key, "")) != "":
+					_places.named[String(props[key])] = global.origin
+
+
 ## Reações nos objetos do mapa
 
 ## Faz (e guarda) uma reação: "sumir", "aparecer" ou "abrir" no nó de nome `target`.
@@ -317,6 +408,7 @@ func react(target: String, action: String) -> void:
 ## O mundo ligou o carregador de blocos: reações valem também nos blocos que chegarem depois.
 func attach(streamer: Node) -> void:
 	_streamer = streamer
+	_places.clear()
 	if not streamer.chunk_loaded.is_connected(_on_chunk_loaded):
 		streamer.chunk_loaded.connect(_on_chunk_loaded)
 	_apply_all_reactions()

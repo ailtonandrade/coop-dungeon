@@ -110,6 +110,12 @@ func _process(_delta: float) -> bool:
 		SECOND + 14:
 			_check(_quests.state_of("brando_ferro_de_gangue") == "ativa", "missão aceita (ativa)")
 			_check(_log().visible and _log_text().contains("FERRO DE GANGUE") and _log_text().contains("0/6"), "questLog mostra a missão e o contador")
+			var quest: Resource = _quests.def("brando_ferro_de_gangue")
+			var target: Variant = _quests.target_of(quest, _player().global_position)
+			var spawners: Array = _quests._places_map().spawners.filter(func(sp: Array) -> bool: return (sp[1] as PackedInt32Array).has(0))
+			_check(target is Vector3 and spawners.any(func(sp: Array) -> bool: return (sp[0] as Vector3).is_equal_approx(target)),
+					"o destino da missão é um acampamento de bandidos de cano (%s)" % str(target))
+			_check(_quests._places_map().npcs.has("Brando") and _quests._places_map().npcs.has("Zé Gato"), "o mapa inteiro é lido (NPCs de todos os blocos)")
 			# Criatura de outra classe não conta; a certa conta.
 			_quests.on_kill("atirador")
 			for i in 5:
@@ -121,6 +127,8 @@ func _process(_delta: float) -> bool:
 		SECOND + 18:
 			_check(_quests.state_of("brando_ferro_de_gangue") == "pronta" and _quests.count_of("brando_ferro_de_gangue", 0) == 6, "chegou a 6: pronta (não passa do total)")
 			_check(_log_text().contains("Volte para Brando"), "questLog manda voltar para o Brando")
+			var back: Variant = _quests.target_of(_quests.def("brando_ferro_de_gangue"), _player().global_position)
+			_check(back is Vector3 and (back as Vector3).distance_to(Vector3(50, 0, 48.5)) < 1.0, "pronta: o destino vira o Brando")
 			var talk: Node = _talk_panel()
 			var turn_in := _button(talk, "Entregar: Ferro de gangue")
 			_check(turn_in != null, "na conversa aparece entregar")

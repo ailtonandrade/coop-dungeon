@@ -9,6 +9,7 @@ const TEXT := Color(0.92, 0.9, 0.84)
 const DONE := Color(0.55, 0.95, 0.55)
 
 var _flash := {}  # id da missão -> tempo de destaque restante
+var _distance_check := 0.0
 
 
 func _ready() -> void:
@@ -26,6 +27,10 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
+	_distance_check -= delta
+	if _distance_check <= 0.0:
+		_distance_check = 0.5
+		_update_distances()
 	if _flash.is_empty():
 		return
 	for id: String in _flash.keys():
@@ -73,6 +78,12 @@ func _block(quest: QuestDef) -> Control:
 		diamond.draw_colored_polygon(PackedVector2Array([c + Vector2(0, -3), c + Vector2(3, 0), c + Vector2(0, 3), c + Vector2(-3, 0)]), Color(0, 0, 0, 0.6)))
 	head.add_child(diamond)
 	head.add_child(UiSkin.label(Txt.t(quest.title).to_upper(), 17, AMBER, "Bold", 3))
+	# Distância até o próximo passo (o losango amarelo do minimapa).
+	var distance := UiSkin.label("", 14, Color(AMBER, 0.75), "SemiBold", 2)
+	distance.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	distance.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	head.add_child(distance)
+	panel.set_meta("distance_label", distance)
 	if not quest.summary.is_empty():
 		column.add_child(UiSkin.label(Txt.t(quest.summary), 13, Color(TEXT, 0.7), "Regular", 2))
 	var ready := Quests.state_of(quest.id) == "pronta"
@@ -84,6 +95,23 @@ func _block(quest: QuestDef) -> Control:
 	if ready:
 		column.add_child(_line(false, Txt.t("Volte para %s") % quest.giver, AMBER))
 	return panel
+
+
+func _update_distances() -> void:
+	var from := Vector3.ZERO
+	var found := false
+	for player: Node3D in get_tree().get_nodes_in_group("players"):
+		if player.has_method("is_local") and player.is_local():
+			from = player.global_position
+			found = true
+			break
+	for block in get_children():
+		var label := block.get_meta("distance_label", null) as Label
+		var quest := Quests.def(String(block.get_meta("quest_id", "")))
+		if label == null or quest == null or not found:
+			continue
+		var target: Variant = Quests.target_of(quest, from)
+		label.text = ("%d m" % roundi(Vector2(target.x - from.x, target.z - from.z).length())) if target is Vector3 else ""
 
 
 func _line(done: bool, text: String, color := TEXT) -> Control:
