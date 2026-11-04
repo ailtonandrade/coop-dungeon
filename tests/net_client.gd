@@ -112,7 +112,7 @@ func _process(_delta: float) -> bool:
 				_step = 12
 		12:
 			# O host abre o baú da vila com o meu jogador: o aviso chega aqui.
-			if not net.world.get("containers", {}).is_empty():
+			if net.world.get("containers", {}).has("teste_rede_bau"):
 				_check(true, "baú que meu jogador abriu ficou aberto aqui também")
 				# Só a peça que o host pôs nesta sessão (o mapa já pode ter outras do construtor).
 				var session_ids: Array = net.session_edits.map(func(e: Dictionary) -> String: return e.id)
