@@ -1,5 +1,6 @@
 """Texturas da vila (low-poly, mas encardida): parede de tijolo com reboco caindo, contrapiso
-de cimento e manchas de sujeira. Tudo emenda nas bordas (repete sem costura).
+de cimento, manchas de sujeira, a tela do alambrado e o cano galvanizado enferrujado.
+Tudo emenda nas bordas (repete sem costura).
 Rodar: python3 tools/gerar_texturas.py
 """
 import os
@@ -107,8 +108,71 @@ def grime():
     save("sujeira.png", out)
 
 
+def save_rgba(name, rgba):
+    img = Image.fromarray(np.clip(rgba * 255, 0, 255).astype(np.uint8), "RGBA")
+    img.save(os.path.join(OUT, name))
+    print("  world/textures/" + name)
+
+
+def chain_link():
+    """Tela de alambrado: losangos de arame galvanizado (8 por repetição; no jogo a repetição
+    tem 0,5 m, losango de ~6 cm). Arame com brilho no meio, nós mais grossos nos cruzamentos e
+    pontos de ferrugem. Fundo transparente."""
+    s = 512
+    period = 64
+    y, x = np.mgrid[0:s, 0:s].astype(float)
+    # Distância até as duas famílias de diagonais (emendam: 512 é múltiplo de 64).
+    d1 = np.abs(((x + y) % period) - period / 2) - period / 2
+    d2 = np.abs(((x - y) % period) - period / 2) - period / 2
+    d1 = np.abs(d1) / np.sqrt(2)
+    d2 = np.abs(d2) / np.sqrt(2)
+    width = 3.1
+    wire1 = np.clip(1.0 - d1 / width, 0, 1)
+    wire2 = np.clip(1.0 - d2 / width, 0, 1)
+    knot = np.clip(1.0 - np.minimum(d1, d2) / (width * 1.6), 0, 1) * (np.minimum(wire1, wire2) > 0) * 1.0
+    alpha = np.clip(np.maximum(wire1, wire2) * 1.6 + knot * 0.6, 0, 1)
+    shine = np.maximum(wire1, wire2) ** 2
+    rust = np.clip((tile_noise(s, 6, 4, 31) - 0.55) * 3.0, 0, 1)
+    grey = np.stack([0.58 + 0.3 * shine, 0.6 + 0.3 * shine, 0.62 + 0.28 * shine], -1)
+    rust_color = np.stack([0.48 + 0.1 * shine, 0.27 + 0 * shine, 0.14 + 0 * shine], -1)
+    rgb = grey * (1 - rust[..., None]) + rust_color * rust[..., None]
+    save_rgba("alambrado.png", np.concatenate([rgb, alpha[..., None]], -1))
+
+
+def rust_patches():
+    """Manchas de ferrugem que multiplicam a cor (branco = limpo): ficam numa escala grande por
+    cima da tela, para não repetir a cada 50 cm; escorridos para baixo."""
+    s = 512
+    patches = tile_noise(s, 2, 5, 41)
+    drips = tile_noise(s, 6, 3, 42, stretch_y=0.08)
+    amount = np.clip((patches - 0.5) * 2.2, 0, 1) + np.clip((drips - 0.6) * 2.0, 0, 1) * 0.6
+    amount = np.clip(amount, 0, 1)
+    clean = np.array([1.0, 1.0, 1.0])
+    rust = np.array([0.78, 0.46, 0.26])
+    out = clean * (1 - amount[..., None]) + rust * amount[..., None]
+    save("ferrugem_manchas.png", out)
+
+
+def rusty_pipe():
+    """Cano galvanizado velho: cinza com manchas e escorridos de ferrugem e pontos escuros."""
+    s = 512
+    base = tile_noise(s, 8, 4, 51)
+    patches = np.clip((tile_noise(s, 3, 5, 52) - 0.48) * 2.5, 0, 1)
+    drips = np.clip((tile_noise(s, 7, 3, 53, stretch_y=0.06) - 0.55) * 2.5, 0, 1)
+    pits = np.clip((tile_noise(s, 24, 2, 54) - 0.8) * 5, 0, 1)
+    grey = np.stack([0.5 + base * 0.12, 0.52 + base * 0.12, 0.54 + base * 0.12], -1)
+    rust = np.stack([0.42 + base * 0.1, 0.22 + base * 0.05, 0.11 + base * 0.03], -1)
+    amount = np.clip(patches + drips * 0.7, 0, 1)[..., None]
+    out = grey * (1 - amount) + rust * amount
+    out *= (1 - pits[..., None] * 0.45)
+    save("cano_enferrujado.png", out)
+
+
 if __name__ == "__main__":
     os.makedirs(OUT, exist_ok=True)
     wall()
     floor()
     grime()
+    chain_link()
+    rust_patches()
+    rusty_pipe()

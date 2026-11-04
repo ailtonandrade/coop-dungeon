@@ -413,9 +413,13 @@ func _input_dir() -> Vector3:
 
 func _update_normal(delta: float, dir: Vector3) -> Vector3:
 	var moving := dir.length_squared() > 0.0001
-	var aiming := _aim_dir != Vector3.ZERO
+	# Segurando o tiro, o braço fica esticado entre um disparo e outro (atira na cadência da arma).
+	var holding_fire := _input.is_pressed(InputService.Action.RANGED) and ranged_damage() > 0.0 and not building
+	var aiming := _aim_dir != Vector3.ZERO or holding_fire
+	if holding_fire:
+		_shoot_pose = SHOOT_POSE_TIME
 	# Mirando, o herói olha para a mira; senão, para onde anda.
-	if aiming:
+	if _aim_dir != Vector3.ZERO:
 		_facing = _aim_dir
 	elif moving:
 		_facing = dir.normalized()

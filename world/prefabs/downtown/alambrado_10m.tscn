@@ -1,0 +1,15 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://world/props/models/alambrado_10m_modelo.tscn" id="1_y4wyg"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_3ooq1"]
+size = Vector3(10, 2.05, 0.1)
+
+[node name="Alambrado10m" type="StaticBody3D" unique_id=1200485333]
+metadata/prop_def = "res://world/props/alambrado_10m.tres"
+
+[node name="Modelo" type="Node3D" parent="." unique_id=421436969 instance=ExtResource("1_y4wyg")]
+
+[node name="Collision" type="CollisionShape3D" parent="." unique_id=1247992927]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.025, 0)
+shape = SubResource("BoxShape3D_3ooq1")

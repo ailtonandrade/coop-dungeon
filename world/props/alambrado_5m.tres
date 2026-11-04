@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="PropDef" format=3]
+
+[ext_resource type="PackedScene" path="res://world/props/models/alambrado_5m_modelo.tscn" id="1_8lv6t"]
+[ext_resource type="Script" path="res://props/prop_def.gd" id="2_l65mj"]
+
+[resource]
+script = ExtResource("2_l65mj")
+id = "alambrado_5m"
+display_name = "Alambrado 5 m"
+model = ExtResource("1_8lv6t")
+kind = "estrutura"

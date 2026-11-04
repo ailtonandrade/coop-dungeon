@@ -1,0 +1,15 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://world/props/models/alambrado_quebrado_modelo.tscn" id="1_ofkh4"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_6ds1v"]
+size = Vector3(5, 2.05, 0.1)
+
+[node name="AlambradoQuebrado" type="StaticBody3D" unique_id=816420603]
+metadata/prop_def = "res://world/props/alambrado_quebrado.tres"
+
+[node name="Modelo" type="Node3D" parent="." unique_id=1105742769 instance=ExtResource("1_ofkh4")]
+
+[node name="Collision" type="CollisionShape3D" parent="." unique_id=1855212881]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.025, 0)
+shape = SubResource("BoxShape3D_6ds1v")
