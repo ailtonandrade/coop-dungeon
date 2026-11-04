@@ -1,8 +1,8 @@
-[gd_resource type="ShaderMaterial" format=3]
+[gd_resource type="ShaderMaterial" format=3 uid="uid://rfmxn2etcynf"]
 
-[ext_resource type="Shader" path="res://world/materials/parede.gdshader" id="1_hphtk"]
-[ext_resource type="Texture2D" path="res://world/textures/sujeira.png" id="2_f7ew6"]
-[ext_resource type="Texture2D" path="res://world/textures/parede_tijolo_reboco.png" id="3_473kh"]
+[ext_resource type="Shader" uid="uid://dcwg3e5fu4uj4" path="res://world/materials/parede.gdshader" id="1_hphtk"]
+[ext_resource type="Texture2D" uid="uid://dnntrvdry1kqq" path="res://world/textures/sujeira.png" id="2_f7ew6"]
+[ext_resource type="Texture2D" uid="uid://dne1ndl6fasxr" path="res://world/textures/parede_tijolo_reboco.png" id="3_473kh"]
 
 [resource]
 render_priority = 0
@@ -10,5 +10,5 @@ shader = ExtResource("1_hphtk")
 shader_parameter/wall_texture = ExtResource("3_473kh")
 shader_parameter/grime = ExtResource("2_f7ew6")
 shader_parameter/tile = 9.75
-shader_parameter/ground_y = null
-shader_parameter/tint = null
+shader_parameter/ground_y = 0.0
+shader_parameter/tint = Color(1, 1, 1, 1)
