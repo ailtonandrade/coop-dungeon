@@ -164,9 +164,15 @@ func _aim_pitch(look: Basis, _target: Vector3) -> float:
 	var muzzle := _behind_player.global_position + Vector3.UP * SHOT_HEIGHT
 	var offset := point - muzzle
 	var flat := Vector2(offset.x, offset.z).length()
-	# Bem em cima do herói (mira colada nele): usa a inclinação da câmera mesmo.
+	# Mira em cima de criatura: a mira da tela fica vermelha.
+	InputService.aim_on_enemy = not hit.is_empty() and hit.collider is Node and (hit.collider as Node).is_in_group("enemies")
+	# Bem em cima do herói (mira colada nele): usa a inclinação e a frente da câmera mesmo.
 	if flat < 1.0:
+		InputService.view_aim = InputService.view_forward
 		return _pitch - BEHIND_PITCH_LEVEL
+	# A câmera fica do lado do ombro: o tiro sai do herói apontado para o ponto do meio da tela
+	# (sem isso caía uns palmos para o lado da mira).
+	InputService.view_aim = Vector3(offset.x, 0.0, offset.z).normalized()
 	return atan2(offset.y, flat)
 
 

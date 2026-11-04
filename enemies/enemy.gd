@@ -259,7 +259,12 @@ func _physics_process(delta: float) -> void:
 	velocity.x = desired.x + _knockback.x
 	velocity.z = desired.z + _knockback.z
 	velocity.y = 0.0 if is_on_floor() else velocity.y - GameConfig.GRAVITY * delta
+	var was_on_floor := is_on_floor()
+	var wanted_flat := Vector3(velocity.x, 0.0, velocity.z)
 	move_and_slide()
+	# Degrau baixo (piso, calçada, laje): sobe em vez de travar, como o herói.
+	if was_on_floor and wanted_flat.length() > 0.5:
+		Player.step_up(self, wanted_flat, delta)
 
 	if state == State.DEAD:
 		return

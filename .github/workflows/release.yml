@@ -1,15 +1,11 @@
-# Gera o release do jogo para baixar no GitHub.
-# Como usar: dois cliques em tools/lancar_release.bat (sobe a versão, faz a tag e manda), ou à mão:
-#   git tag v0.2.0
-#   git push origin v0.2.0
-# Os jogos já instalados avisam que tem versão nova e atualizam sozinhos (core/updater.gd).
-# O GitHub exporta Windows, Linux e Web com o Godot 4.7 e publica em Releases com os .zip.
-# Também dá para rodar à mão em Actions > Release > Run workflow (gera só os arquivos, sem release).
+# Exporta o jogo (Windows, Linux e Web) na nuvem, só para conferir/baixar os arquivos.
+# A versão para os jogadores agora é publicada por tools/lancar_release.bat, que exporta no seu
+# PC e publica no repositório PÚBLICO de downloads (ailtonandrade/corrumpted), onde os jogos
+# instalados procuram atualização. Por isso a tag não dispara mais este workflow (senão saía um
+# release duplicado aqui). Rode à mão: Actions > Release > Run workflow.
 name: Release
 
 on:
-  push:
-    tags: ["v*"]
   workflow_dispatch:
 
 permissions:

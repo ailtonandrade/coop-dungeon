@@ -69,6 +69,10 @@ var view_yaw_deg := GameConfig.CAMERA_YAW_DEG
 ## enquanto ataca ou atira; o analógico direito / o mouse giram a câmera.
 var behind_view := false
 var view_forward := Vector3.FORWARD
+## Câmera atrás do herói: direção (no chão) do herói até o ponto do meio da tela (a mira), e se a
+## mira está em cima de uma criatura.
+var view_aim := Vector3.FORWARD
+var aim_on_enemy := false
 ## Câmera atrás do herói: quanto a mira sobe (+) ou desce (-), em radianos (0 = reto).
 var view_pitch := 0.0
 
@@ -349,7 +353,7 @@ func get_aim(slot: int) -> Vector2:
 	if behind_view:
 		# Atrás do herói: ataca/atira para a frente da câmera; fora disso, olha para onde anda.
 		if is_pressed(slot, Action.MELEE) or is_pressed(slot, Action.RANGED):
-			return Vector2(view_forward.x, view_forward.z).normalized()
+			return Vector2(view_aim.x, view_aim.z).normalized()
 		return Vector2.ZERO
 	var device := _devices[slot]
 	if device == KEYBOARD:

@@ -57,6 +57,19 @@ func _process(_delta: float) -> bool:
 		SECOND + 96:
 			var pitch: float = root.get_node("InputService").view_pitch
 			_check(absf(pitch) < 0.06, "olhando reto, o tiro sai reto (%.1f°)" % rad_to_deg(pitch))
+			# O tiro sai do herói apontado para o que está no meio da tela (a mira), também na
+			# horizontal (a câmera fica do lado do ombro).
+			var cam: Camera3D = _camera()
+			var input2: Node = root.get_node("InputService")
+			var far: Vector3 = cam.global_position - cam.global_basis.z * 60.0
+			var hit: Dictionary = cam.get_world_3d().direct_space_state.intersect_ray(PhysicsRayQueryParameters3D.create(cam.global_position, far, 1 | 4 | 16))
+			var point: Vector3 = hit.position if not hit.is_empty() else far
+			var muzzle: Vector3 = _p1().global_position + Vector3.UP * 1.1
+			var shot_dir: Vector3 = (input2.view_aim * cos(input2.view_pitch) + Vector3.UP * sin(input2.view_pitch)).normalized()
+			var wanted: Vector3 = (point - muzzle).normalized()
+			_check(rad_to_deg(shot_dir.angle_to(wanted)) < 1.5, "o tiro vai para o ponto da mira (erro %.2f°)" % rad_to_deg(shot_dir.angle_to(wanted)))
+			var marks: Array = get_first_node_in_group("hud").find_children("*", "Control", true, false).filter(func(n: Node) -> bool: return n.get_script() == load("res://ui/crosshair.gd"))
+			_check(marks.size() == 1 and marks[0].visible, "mira (círculo) no meio da tela na câmera atrás do herói")
 			# Minimapa gira com a câmera: a frente da câmera fica pra cima no mapa.
 			var minimap: Node = get_first_node_in_group("hud").find_children("*", "Control", true, false).filter(func(n: Node) -> bool: return n.get_script() == load("res://ui/minimap.gd"))[0]
 			var up: Vector2 = minimap._direction_on_map(root.get_node("InputService").view_forward)
