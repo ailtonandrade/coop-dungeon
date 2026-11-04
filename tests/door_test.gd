@@ -31,12 +31,21 @@ func _process(_delta: float) -> bool:
 				door.lock = specs[i][2]
 				if specs[i][0] == "PortaMetal":
 					door.requires.assign(["chave_metal"])
+				if specs[i][0] == "TampaEsgoto":
+					door.link_id = "esgoto_teste"
 				if specs[i][0] == "PortaCasebre":
 					door.code = "42"
 					door.teaches.assign(["entrou_casebre"])
 				chunk.add_child(door)
 				door.global_position = base + Vector3(i * 4.0, 0, 0)
 				_doors[specs[i][0]] = door
+			# Lá embaixo (aqui, só mais longe): a escada de saída ligada à tampa.
+			var exit: Node3D = (load("res://world/prefabs/portas/escada_de_saida.tscn") as PackedScene).instantiate()
+			exit.name = "EscadaSaida"
+			exit.link_id = "esgoto_teste"
+			chunk.add_child(exit)
+			exit.global_position = base + Vector3(-6, 0, -12)
+			_doors["EscadaSaida"] = exit
 			# Missão: abrir a porta de madeira.
 			var obj: Resource = load("res://world/quests/quest_objective.gd").new()
 			obj.kind = "interagir"
@@ -86,6 +95,21 @@ func _process(_delta: float) -> bool:
 		SECOND + 250:
 			var lid: Node3D = _doors.TampaEsgoto
 			_check(lid.open and lid._leaf.position.x > 0.9, "tampa de esgoto desliza")
+			_check(lid.get_node("Escada").visible, "aberta, aparece a escadinha lá dentro")
+			_player().teleport_to(lid.global_position + Vector3(0.3, 0, 0.3))
+		SECOND + 255:
+			_player()._pick_up()
+			_check(_player().state == _player().State.LADDER, "F no buraco aberto: começa a descer a escada")
+		SECOND + 275:
+			_check(_player().global_position.y < _doors.TampaEsgoto.global_position.y - 0.5, "desce pelo buraco (some no chão)")
+		SECOND + 370:
+			var exit: Node3D = _doors.EscadaSaida
+			_check(_player().state == _player().State.NORMAL and _player().global_position.distance_to(exit.global_position) < 1.2, "chegou lá embaixo, no pé da escada de saída")
+			_player()._pick_up()
+		SECOND + 500:
+			var lid2: Node3D = _doors.TampaEsgoto
+			_check(_player().state == _player().State.NORMAL and Vector2(_player().global_position.x - lid2.global_position.x, _player().global_position.z - lid2.global_position.z).length() < 1.6 \
+					and absf(_player().global_position.y - lid2.global_position.y) < 0.3, "subiu a escada e saiu pelo buraco, do lado da tampa")
 			print("PORTAS: " + ("FALHOU" if _failed else "OK"))
 			quit(1 if _failed else 0)
 	return false

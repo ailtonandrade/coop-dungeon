@@ -363,7 +363,7 @@ static func _creature_kind(creature_id: String) -> int:
 func _places_map() -> Dictionary:
 	if not _places.is_empty() or not is_instance_valid(_streamer) or _streamer.get("world_map") == null:
 		return _places if not _places.is_empty() else {"spawners": [], "npcs": {}, "named": {}}
-	_places = {"spawners": [], "npcs": {}, "named": {}}
+	_places = {"spawners": [], "npcs": {}, "named": {}, "links": {}}
 	var map: WorldMap = _streamer.world_map
 	for coords: Vector2i in map.chunks:
 		_read_scene(String(map.chunks[coords]), map.chunk_origin(coords))
@@ -403,6 +403,20 @@ func _read_scene(path: String, origin: Vector3) -> void:
 		var is_quest_piece := script_path.ends_with("quest_trigger.gd") or script_path.ends_with("quest_area.gd") \
 				or (instance != null and (instance.resource_path.ends_with("gatilho_de_missao.tscn") or instance.resource_path.ends_with("area_de_missao.tscn")))
 		_places.named[name] = global.origin
+		# Passagens (alçapão/esgoto/escada) ligadas pelo link_id: as duas pontas.
+		var door_script := script_path.ends_with("world/door.gd") or (instance != null and instance.resource_path.begins_with("res://world/prefabs/portas/"))
+		if door_script and String(props.get("link_id", "")) != "":
+			var style := String(props.get("style", ""))
+			if style.is_empty() and instance != null:
+				var inner := instance.get_state()
+				for k in inner.get_node_property_count(0):
+					if inner.get_node_property_name(0, k) == "style":
+						style = String(inner.get_node_property_value(0, k))
+			var links: Dictionary = _places.get("links", {})
+			var list: Array = links.get(String(props.link_id), [])
+			list.append([global.origin, style, -global.basis.z])
+			links[String(props.link_id)] = list
+			_places["links"] = links
 		if is_quest_piece:
 			for key in ["trigger_id", "area_id"]:
 				if String(props.get(key, "")) != "":

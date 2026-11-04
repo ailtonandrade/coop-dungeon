@@ -250,3 +250,20 @@ acrescenta o que faltar): arraste no editor ou mova/apague pelo `/construir`.
 - **Sujeira** (`world/textures/sujeira.png`) por cima do toldo, das mesas, caixotes e bancas.
 - **Ar de poluição**: neblina de poeira o tempo todo (`DayNight.FOG_DENSITY`, mais densa com
   chuva) e grãos de poeira boiando em volta dos heróis (somem quase todos com a chuva).
+
+## Portas, tampa de esgoto e alçapão (categoria Portas)
+
+Peças em `world/prefabs/portas/` (coloque pelo `/construir` ou no editor): **porta de madeira**,
+**porta de metal**, **porta de casebre**, **tampa de esgoto**, **alçapão** e **escada de saída**.
+Ponha a porta no chão, no meio do vão. No Inspector:
+- **Style** e **Opening**: abre para dentro, para fora, desliza para a esquerda ou para a direita
+  (tampa/alçapão: desliza de lado ou levanta). A animação já vem pronta.
+- **Lock**: `livre` (abre com LB / F), `fatos` (trancada até o grupo saber **Requires**),
+  `codigo` (teclado: **Code**) ou `invasao` (minigame de senha).
+- **Unlock Fact**: fato que o grupo ganha ao abrir (vazio = `abriu_<nome>`); **Teaches**: fatos
+  a mais. Abriu, fica aberta para todos (online também, e no save). **Door Id** (vazio = nome):
+  abrir conta como objetivo "interagir" de missão.
+- **Passagem (alçapão/esgoto ↔ lá embaixo)**: a tampa (ou o alçapão) e uma **escada de saída** com o
+  mesmo **Link Id** ficam ligados. Aberta, aparece a escadinha no buraco; LB / F ali desce a
+  escada e o herói chega no pé da escada de saída; LB / F na escada de saída sobe e sai pelo
+  buraco lá de cima. A escada de saída pode ficar num interior, numa área longe, em outro bloco.

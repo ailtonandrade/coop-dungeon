@@ -17,7 +17,7 @@ extends Node3D
 const RANGE := 1.9
 const ANIM_TIME := 0.7
 
-@export_enum("madeira", "metal", "casebre", "esgoto") var style := "madeira":
+@export_enum("madeira", "metal", "casebre", "esgoto", "alcapao", "escada") var style := "madeira":
 	set(value):
 		style = value
 		_rebuild()
@@ -35,6 +35,9 @@ const ANIM_TIME := 0.7
 ## Id para missões ("interagir"); vazio = nome do nó.
 @export var door_id := ""
 @export var prompt := "Abrir"
+## Passagem: tampa de esgoto/alçapão aberto e escada de saída com o mesmo `link_id` ficam
+## ligados: descer por um sai no pé do outro; subir pela escada sai pelo buraco de cima.
+@export var link_id := ""
 
 var open := false
 var _leaf: Node3D
@@ -79,8 +82,10 @@ func _build() -> void:
 	_body = StaticBody3D.new()
 	_body.set_meta("door_part", true)
 	add_child(_body)
-	if style == "esgoto":
+	if style in ["esgoto", "alcapao"]:
 		_build_manhole()
+	elif style == "escada":
+		_build_exit_ladder()
 	else:
 		_build_door()
 	_label = Label3D.new()
@@ -155,30 +160,87 @@ func _build_door() -> void:
 	_body.add_child(_collision)
 
 
-## Tampa de esgoto: aro no chão, buraco escuro e a tampa redonda com grade em relevo.
+## Escada de saída (lá embaixo): escada de pé até o teto, com o vão da tampa em cima.
+func _build_exit_ladder() -> void:
+	_leaf = Node3D.new()
+	_leaf.set_meta("door_part", true)
+	add_child(_leaf)
+	_ladder_mesh(self, Vector3(0, 0, 0), 3.2)
+	var frame := _material(Color(0.2, 0.2, 0.2), 0.8)
+	_box(self, Vector3(1.2, 0.08, 1.2), Vector3(0, 3.25, 0.25), frame)
+	_box(self, Vector3(0.9, 0.06, 0.9), Vector3(0, 3.2, 0.25), _material(Color(0.6, 0.6, 0.55) * 1.4, 0.9))
+
+
+## Escada de ferro (dois trilhos e degraus), de `bottom` subindo `height`.
+func _ladder_mesh(parent: Node3D, bottom: Vector3, height: float) -> Node3D:
+	var ladder := Node3D.new()
+	ladder.name = "Escada"
+	ladder.set_meta("door_part", true)
+	ladder.position = bottom
+	parent.add_child(ladder)
+	var iron := _material(Color(0.32, 0.3, 0.27), 0.6, 0.7)
+	for x: float in [-0.22, 0.22]:
+		var rail := MeshInstance3D.new()
+		var box := BoxMesh.new()
+		box.size = Vector3(0.05, height, 0.05)
+		rail.mesh = box
+		rail.material_override = iron
+		rail.position = Vector3(x, height / 2.0, 0)
+		ladder.add_child(rail)
+	var rung_count := int(height / 0.3)
+	for i in rung_count:
+		var rung := MeshInstance3D.new()
+		var rung_box := BoxMesh.new()
+		rung_box.size = Vector3(0.44, 0.035, 0.035)
+		rung.mesh = rung_box
+		rung.material_override = iron
+		rung.position = Vector3(0, 0.25 + i * 0.3, 0)
+		ladder.add_child(rung)
+	return ladder
+
+
+## Tampa de esgoto (redonda) ou alçapão (madeira, quadrado): aro no chão, buraco escuro, a
+## tampa e, lá dentro, a escadinha (aparece com a tampa aberta).
 func _build_manhole() -> void:
-	var radius := 0.45
+	var radius := 0.45 if style == "esgoto" else 0.5
 	var iron := _material(Color(0.24, 0.24, 0.25), 0.6, 0.7)
 	var ring := MeshInstance3D.new()
-	var ring_mesh := CylinderMesh.new()
-	ring_mesh.top_radius = radius + 0.1
-	ring_mesh.bottom_radius = radius + 0.1
-	ring_mesh.height = 0.04
-	ring.mesh = ring_mesh
-	ring.material_override = _material(Color(0.2, 0.2, 0.2), 0.8)
+	# Esgoto: aro redondo de ferro. Alçapão: moldura quadrada de madeira.
+	if style == "esgoto":
+		var ring_mesh := CylinderMesh.new()
+		ring_mesh.top_radius = radius + 0.1
+		ring_mesh.bottom_radius = radius + 0.1
+		ring_mesh.height = 0.04
+		ring.mesh = ring_mesh
+		ring.material_override = _material(Color(0.2, 0.2, 0.2), 0.8)
+	else:
+		var frame_mesh := BoxMesh.new()
+		frame_mesh.size = Vector3(radius * 2.0 + 0.2, 0.04, radius * 2.0 + 0.2)
+		ring.mesh = frame_mesh
+		ring.material_override = _material(Color(0.26, 0.18, 0.1), 0.9)
 	ring.position.y = 0.01
 	ring.set_meta("door_part", true)
 	add_child(ring)
 	var hole := MeshInstance3D.new()
-	var hole_mesh := CylinderMesh.new()
-	hole_mesh.top_radius = radius
-	hole_mesh.bottom_radius = radius
-	hole_mesh.height = 0.05
-	hole.mesh = hole_mesh
+	if style == "esgoto":
+		var hole_mesh := CylinderMesh.new()
+		hole_mesh.top_radius = radius
+		hole_mesh.bottom_radius = radius
+		hole_mesh.height = 0.05
+		hole.mesh = hole_mesh
+	else:
+		var square := BoxMesh.new()
+		square.size = Vector3(radius * 2.0, 0.05, radius * 2.0)
+		hole.mesh = square
 	hole.material_override = _material(Color(0.01, 0.01, 0.01), 1.0)
 	hole.position.y = 0.012
 	hole.set_meta("door_part", true)
 	add_child(hole)
+	# Escadinha descendo pelo buraco (só com link: tem para onde ir).
+	if not link_id.is_empty():
+		# A ponta sai uns 35 cm do buraco (corrimão para segurar), o resto fica lá embaixo.
+		var inside := _ladder_mesh(self, Vector3(0, -2.4, -radius + 0.08), 2.75)
+		inside.visible = false
 	# A tampa gira na borda (levanta) ou desliza de lado.
 	var hinge := Node3D.new()
 	hinge.set_meta("door_part", true)
@@ -186,22 +248,31 @@ func _build_manhole() -> void:
 	add_child(hinge)
 	_leaf = hinge
 	var offset := Vector3(0, 0, radius) if opening in ["dentro", "fora"] else Vector3.ZERO
-	var lid := MeshInstance3D.new()
-	var lid_mesh := CylinderMesh.new()
-	lid_mesh.top_radius = radius
-	lid_mesh.bottom_radius = radius
-	lid_mesh.height = 0.05
-	lid_mesh.radial_segments = 24
-	lid.mesh = lid_mesh
-	lid.material_override = iron
-	lid.position = offset + Vector3(0, 0.04, 0)
-	hinge.add_child(lid)
-	var relief := _material(Color(0.3, 0.3, 0.31), 0.5, 0.8)
-	for i in 5:
-		var z := -radius * 0.6 + i * radius * 0.3
-		var length := 2.0 * sqrt(maxf(radius * radius * 0.81 - z * z, 0.01))
-		_box(hinge, Vector3(length, 0.015, 0.03), offset + Vector3(0, 0.072, z), relief)
-		_box(hinge, Vector3(0.03, 0.015, length), offset + Vector3(z, 0.072, 0), relief)
+	if style == "esgoto":
+		var lid := MeshInstance3D.new()
+		var lid_mesh := CylinderMesh.new()
+		lid_mesh.top_radius = radius
+		lid_mesh.bottom_radius = radius
+		lid_mesh.height = 0.05
+		lid_mesh.radial_segments = 24
+		lid.mesh = lid_mesh
+		lid.material_override = iron
+		lid.position = offset + Vector3(0, 0.04, 0)
+		hinge.add_child(lid)
+		var relief := _material(Color(0.3, 0.3, 0.31), 0.5, 0.8)
+		for i in 5:
+			var z := -radius * 0.6 + i * radius * 0.3
+			var length := 2.0 * sqrt(maxf(radius * radius * 0.81 - z * z, 0.01))
+			_box(hinge, Vector3(length, 0.015, 0.03), offset + Vector3(0, 0.072, z), relief)
+			_box(hinge, Vector3(0.03, 0.015, length), offset + Vector3(z, 0.072, 0), relief)
+	else:
+		# Alçapão: tábuas com duas travessas e uma argola.
+		var wood := _material(Color(0.4, 0.28, 0.17), 0.9)
+		for i in 4:
+			_box(hinge, Vector3(radius * 2.0 / 4.0 - 0.02, 0.05, radius * 2.0), offset + Vector3(-radius + radius * 2.0 / 4.0 * (i + 0.5), 0.04, 0), wood)
+		for z: float in [-radius * 0.55, radius * 0.55]:
+			_box(hinge, Vector3(radius * 2.0, 0.03, 0.1), offset + Vector3(0, 0.08, z), _material(Color(0.28, 0.18, 0.1), 0.9))
+		_box(hinge, Vector3(0.12, 0.03, 0.03), offset + Vector3(0, 0.1, radius * 0.75), _material(Color(0.25, 0.25, 0.26), 0.4, 0.8))
 	_collision = CollisionShape3D.new()
 	var shape := BoxShape3D.new()
 	shape.size = Vector3(radius * 2.0, 0.1, radius * 2.0)
@@ -282,13 +353,16 @@ func force_open() -> void:
 
 
 func _refresh(instant := false) -> void:
-	var now: bool = get_node("/root/Lore").knows(unlock_fact)
+	var now: bool = get_node("/root/Lore").knows(unlock_fact) or style == "escada"
+	var inside := get_node_or_null("Escada") as Node3D
+	if inside and style != "escada":
+		inside.visible = now
 	if now == open:
 		return
 	open = now
 	_label.visible = false
 	if _collision:
-		_collision.set_deferred("disabled", open if style != "esgoto" else true)
+		_collision.set_deferred("disabled", open if not style in ["esgoto", "alcapao", "escada"] else true)
 	var target := _open_xform() if open else _closed_xform
 	if instant:
 		_leaf.transform = target
@@ -309,7 +383,7 @@ func _refresh(instant := false) -> void:
 ## Onde a folha (ou a tampa) fica aberta.
 func _open_xform() -> Transform3D:
 	var t := _closed_xform
-	if style == "esgoto":
+	if style in ["esgoto", "alcapao", "escada"]:
 		match opening:
 			"dentro", "fora":
 				return Transform3D(Basis(Vector3.RIGHT, -1.9), t.origin)
@@ -334,8 +408,57 @@ func _chunk() -> Node:
 	return node
 
 
+## Passagens (alçapão/esgoto aberto com link, escada de saída) ao alcance, ou null.
+static func nearest_passage(tree: SceneTree, position: Vector3) -> Door:
+	var best: Door = null
+	var best_distance := RANGE
+	for door: Door in tree.get_nodes_in_group("doors"):
+		if not door.is_passage():
+			continue
+		var distance := Vector2(door.global_position.x - position.x, door.global_position.z - position.z).length()
+		if distance < best_distance:
+			best = door
+			best_distance = distance
+	return best
+
+
+func is_passage() -> bool:
+	return not link_id.is_empty() and open and style in ["esgoto", "alcapao", "escada"]
+
+
+## O outro lado da passagem: [posição, estilo, frente] (procura no mapa inteiro), ou [].
+func partner() -> Array:
+	for door: Door in get_tree().get_nodes_in_group("doors"):
+		if door != self and door.link_id == link_id:
+			return [door.global_position, door.style, -door.global_basis.z]
+	var places: Dictionary = get_node("/root/Quests")._places_map()
+	for entry: Array in places.get("links", {}).get(link_id, []):
+		if (entry[0] as Vector3).distance_to(global_position) > 0.5:
+			return entry
+	return []
+
+
+## Host: leva o herói para o outro lado (desce pelo buraco ou sobe a escada).
+func pass_through(player: Node) -> void:
+	var other := partner()
+	if other.is_empty():
+		get_node("/root/Chat").local_note(Txt.t("Não dá para passar: não acho o outro lado (Link Id)."))
+		return
+	var there: Vector3 = other[0]
+	var forward: Vector3 = (other[2] as Vector3) if other.size() > 2 else Vector3.BACK
+	if style == "escada":
+		# Sobe a escada daqui e sai pelo buraco lá de cima, um passo ao lado.
+		player.use_ladder(global_position, false, there + Vector3(0.9, 0, 0.6), true, there)
+	else:
+		# Desce pelo buraco e chega lá embaixo descendo a escada, na frente dela.
+		player.use_ladder(global_position, true, there + forward * 0.7, false, there)
+
+
 func _process(delta: float) -> void:
-	if Engine.is_editor_hint() or _label == null or open:
+	if Engine.is_editor_hint() or _label == null:
+		return
+	if open and not is_passage():
+		_label.visible = false
 		return
 	_check -= delta
 	if _check > 0.0:
@@ -350,4 +473,6 @@ func _process(delta: float) -> void:
 	if near:
 		var key: String = get_node("/root/InputService").hint(get_node("/root/InputService").Action.PICKUP)
 		var verb := Txt.t("Trancada") if is_locked() else (Txt.t("Teclado") if lock == "codigo" else (Txt.t("Terminal") if lock == "invasao" else Txt.t(prompt)))
+		if is_passage():
+			verb = Txt.t("Subir") if style == "escada" else Txt.t("Descer")
 		_label.text = "%s · %s" % [verb, key]

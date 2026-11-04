@@ -39,7 +39,7 @@ const PROGRESS_SYNC_TIME := 5.0
 ## Depois de atirar, por quanto tempo as pernas correm com a animação de "correr atirando".
 const SHOOT_POSE_TIME := 0.35
 
-enum State { NORMAL, DODGING, ATTACKING, CLIMBING, DOWNED }
+enum State { NORMAL, DODGING, ATTACKING, CLIMBING, DOWNED, LADDER }
 
 ## Distância de uma passada (um som de passo a cada uma).
 const STEP_STRIDE := 2.4
@@ -300,6 +300,9 @@ func _physics_process(delta: float) -> void:
 		State.CLIMBING:
 			_update_climb(delta)
 			return
+		State.LADDER:
+			_update_ladder(delta)
+			return
 		State.DOWNED:
 			_update_downed(delta)
 
@@ -505,6 +508,64 @@ func _update_climb(delta: float) -> void:
 	if t >= 1.0:
 		state = State.NORMAL
 		velocity = Vector3.ZERO
+
+
+## Escada de alçapão / esgoto: desce (ou sobe) pela escada e sai do outro lado.
+## Fase 1: some pelo buraco (desce) ou sobe a escada até o teto. Fase 2: do outro lado, chega
+## descendo a escada de baixo ou sai do buraco de cima e dá um passo para o lado.
+const LADDER_TIME := 0.9
+const LADDER_ARRIVE_TIME := 0.8
+var _ladder := {}
+
+
+## Host: começa a passagem. `start`: pé da escada aqui; `down`: descendo (alçapão no chão) ou
+## subindo (escada para o teto); `arrive`: onde fica de pé do outro lado; `out_of_hole`: chega
+## saindo de um buraco no chão (senão, descendo uma escada do teto).
+func use_ladder(start: Vector3, down: bool, arrive: Vector3, out_of_hole: bool, arrive_column := Vector3.INF) -> void:
+	if state == State.DOWNED or state == State.LADDER:
+		return
+	state = State.LADDER
+	velocity = Vector3.ZERO
+	_move = Vector3.ZERO
+	_ladder = {"phase": 0, "t": 0.0, "from": Vector3(start.x, global_position.y, start.z),
+		"to": start + (Vector3.DOWN * 1.9 if down else Vector3.UP * 2.6), "arrive": arrive, "out_of_hole": out_of_hole,
+		"column": arrive if arrive_column == Vector3.INF else arrive_column}
+	_animator.play("climb", LADDER_TIME, true, 0.08)
+	_fx("fx_sound", ["step"])
+
+
+func _update_ladder(delta: float) -> void:
+	_ladder.t = float(_ladder.t) + delta
+	if int(_ladder.phase) == 0:
+		var k := clampf(float(_ladder.t) / LADDER_TIME, 0.0, 1.0)
+		global_position = (_ladder.from as Vector3).lerp(_ladder.to, ease(k, 0.8))
+		if k >= 1.0:
+			var arrive: Vector3 = _ladder.arrive
+			var streamer := WorldStreamer.of(self)
+			if streamer:
+				streamer.load_now(arrive)
+			# Chega pela escada do outro lado: de baixo do buraco (sai do chão) ou do teto.
+			var column: Vector3 = _ladder.column
+			_ladder.from = column + (Vector3.DOWN * 1.8 if _ladder.out_of_hole else Vector3.UP * 2.5)
+			_ladder.phase = 1
+			_ladder.t = 0.0
+			global_position = _ladder.from
+			reset_physics_interpolation()
+			_animator.play("climb", LADDER_ARRIVE_TIME, true, 0.05)
+		return
+	var k2 := clampf(float(_ladder.t) / LADDER_ARRIVE_TIME, 0.0, 1.0)
+	var from: Vector3 = _ladder.from
+	var to: Vector3 = _ladder.arrive
+	var rise := clampf(k2 / 0.7, 0.0, 1.0)
+	var step := clampf((k2 - 0.7) / 0.3, 0.0, 1.0)
+	# Sobe/desce reto na escada e no fim dá o passo para fora.
+	var column := Vector3(from.x, lerpf(from.y, to.y, ease(rise, 0.6)), from.z)
+	global_position = Vector3(lerpf(column.x, to.x, step), column.y, lerpf(column.z, to.z, step))
+	if k2 >= 1.0:
+		global_position = to
+		state = State.NORMAL
+		velocity = Vector3.ZERO
+		_ladder = {}
 
 
 ## Corpo a corpo
@@ -864,6 +925,11 @@ func apply_inventory_command(command: String, args: Array) -> void:
 
 ## Pega do chão o item mais perto (qualquer um do time pode pegar; quem pegar primeiro leva).
 func _pick_up() -> void:
+	# Alçapão/esgoto aberto ou escada de saída: passa para o outro lado.
+	var passage := Door.nearest_passage(get_tree(), global_position)
+	if passage:
+		passage.pass_through(self)
+		return
 	var loot := Loot.nearest(get_tree(), global_position)
 	if loot:
 		if give_item(loot.item):
