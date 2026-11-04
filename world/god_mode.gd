@@ -24,6 +24,10 @@ const AHEAD := 2.5
 const REMOVE_RADIUS := 1.6
 ## Encaixe de estrutura: grade sem vizinha e distância máxima até a vizinha.
 const GRID := 0.5
+## Ajuste de altura: passo normal e fino (Shift), e o dedo que peça chata sobe sozinha.
+const LIFT_STEP := 0.05
+const LIFT_FINE := 0.01
+const FLAT_LIFT := 0.02
 const SNAP_REACH := 1.6
 ## Peça física que não parar sozinha em tanto tempo é gravada onde estiver.
 const SETTLE_MAX := 6.0
@@ -44,6 +48,8 @@ var _settling: Array = []
 var _undo: Array[String] = []
 ## Peça pega para mudar de lugar (G / ▲): o nó no mundo e a altura dele acima do chão.
 var _carrying: Node3D = null
+## Altura extra da peça (PgUp/PgDn, Shift+rodinha; R3/L3 no controle). Home zera.
+var _lift := 0.0
 var _carry_lift := 0.0
 var _hud: CanvasLayer
 var _title: Label
@@ -165,6 +171,13 @@ func _in_category(category: String) -> Array[int]:
 		if _catalog[i].category == category:
 			result.append(i)
 	return result
+
+
+## Sobe/desce a peça (antes de colocar). Mostra a altura na barra do construtor.
+func change_lift(delta_m: float) -> void:
+	_lift = snappedf(clampf(_lift + delta_m, -3.0, 30.0), 0.01)
+	Sound.play("ui_move")
+	_refresh_hud()
 
 
 func rotate_piece(step_deg: float) -> void:
@@ -344,7 +357,7 @@ func drop_carried(point: Vector3) -> bool:
 	if target_chunk == null or old_chunk == null:
 		Sound.play("ui_error")
 		return false
-	var wanted := Transform3D(Basis(Vector3.UP, _yaw) * Basis.from_scale(node.global_basis.get_scale()), point + Vector3.UP * _carry_lift)
+	var wanted := Transform3D(Basis(Vector3.UP, _yaw) * Basis.from_scale(node.global_basis.get_scale()), point + Vector3.UP * (_carry_lift + _lift))
 	if kind_of_node(node) == "estrutura":
 		var snapped := placement(point)
 		wanted = Transform3D(snapped.basis * Basis.from_scale(node.global_basis.get_scale()), snapped.origin)
@@ -433,7 +446,7 @@ func placement(point: Vector3) -> Transform3D:
 		return _snap_structure(point, box)
 	if kind != "fisico":
 		point = _floor_below(point)
-	return Transform3D(basis, point)
+	return Transform3D(basis, point + Vector3.UP * _lift)
 
 
 func _current_kind() -> String:
@@ -529,8 +542,11 @@ func _snap_structure(point: Vector3, box: AABB) -> Transform3D:
 	var half := box.size / 2.0
 	var center_local := box.get_center()
 	var want := point + Vector3.UP * half.y
+	# Sem vizinha: grade, na altura do chão + o ajuste de altura (PgUp/PgDn). Peça bem chata (rua,
+	# calçada, piso) sobe um dedo sozinha para não piscar com o chão.
+	var flat := FLAT_LIFT if box.size.y < 0.15 else 0.0
 	var best := Transform3D(Basis(Vector3.UP, snappedf(_yaw, PI / 2.0)),
-			Vector3(snappedf(point.x, GRID), point.y, snappedf(point.z, GRID)))
+			Vector3(snappedf(point.x, GRID), point.y + _lift + flat, snappedf(point.z, GRID)))
 	var best_distance := SNAP_REACH + maxf(box.size.x, box.size.z) * 0.5
 	for neighbor in _structures_near(point, 14.0):
 		var n_xform := neighbor.global_transform.orthonormalized()
@@ -626,9 +642,15 @@ func _unhandled_input(event: InputEvent) -> void:
 				if _target_ok:
 					place_at(_target)
 			MOUSE_BUTTON_WHEEL_UP:
-				select_next(-1)
+				if event.shift_pressed:
+					change_lift(LIFT_STEP)
+				else:
+					select_next(-1)
 			MOUSE_BUTTON_WHEEL_DOWN:
-				select_next(1)
+				if event.shift_pressed:
+					change_lift(-LIFT_STEP)
+				else:
+					select_next(1)
 		get_viewport().set_input_as_handled()
 	elif event is InputEventKey and event.pressed and not event.echo:
 		match event.physical_keycode:
@@ -650,6 +672,12 @@ func _unhandled_input(event: InputEvent) -> void:
 					cancel_carry()
 				elif _target_ok:
 					remove_near(_target)
+			KEY_PAGEUP:
+				change_lift(LIFT_FINE if event.shift_pressed else LIFT_STEP)
+			KEY_PAGEDOWN:
+				change_lift(-(LIFT_FINE if event.shift_pressed else LIFT_STEP))
+			KEY_HOME:
+				change_lift(-_lift)
 			KEY_G:
 				if _target_ok or _carrying:
 					grab_near(_target)
@@ -683,6 +711,11 @@ func _read_pad() -> void:
 		remove_near(_target)
 	if InputService.raw_just_pressed(slot, InputService.Action.ARTIFACT) and not _loot_panel.visible:
 		open_loot_editor(_container_near(_target) if _target_ok else null)
+	for stick: JoyButton in [JOY_BUTTON_RIGHT_STICK, JOY_BUTTON_LEFT_STICK]:
+		var pressed := Input.is_joy_button_pressed(device, stick)
+		if pressed and not _pad_was.get(stick, false):
+			change_lift(LIFT_STEP if stick == JOY_BUTTON_RIGHT_STICK else -LIFT_STEP)
+		_pad_was[stick] = pressed
 	for button: JoyButton in [JOY_BUTTON_DPAD_LEFT, JOY_BUTTON_DPAD_RIGHT, JOY_BUTTON_DPAD_DOWN, JOY_BUTTON_DPAD_UP]:
 		var down := Input.is_joy_button_pressed(device, button)
 		if down and not _pad_was.get(button, false):
@@ -966,6 +999,8 @@ func _refresh_hud() -> void:
 		_title.text = Txt.t("MODO CONSTRUTOR · mudando de lugar: %s") % String(_carrying.name)
 		_hint.text = ("Clique larga aqui · R gira · G ou Delete desiste" if keyboard else "X larga aqui · Y gira · ▲ ou B desiste")
 		return
-	_hint.text = (Txt.t("Clique coloca · Q/E ou rodinha troca · V categoria · R gira · Z desfaz · Delete apaga · G pega e muda de lugar · F conteúdo do contêiner · %s no chat sai") % COMMAND if keyboard
-			else Txt.t("X coloca · ◀ ▶ troca · ▼ categoria · Y gira · B desfaz · LB apaga · ▲ pega e muda de lugar · RB conteúdo do contêiner · %s no chat sai") % COMMAND)
+	_hint.text = (Txt.t("Clique coloca · Q/E ou rodinha troca · V categoria · R gira · PgUp/PgDn altura (Shift fino, Home zera) · Z desfaz · Delete apaga · G pega e muda de lugar · F conteúdo do contêiner · %s no chat sai") % COMMAND if keyboard
+			else Txt.t("X coloca · ◀ ▶ troca · ▼ categoria · Y gira · R3/L3 altura · B desfaz · LB apaga · ▲ pega e muda de lugar · RB conteúdo do contêiner · %s no chat sai") % COMMAND)
+	if absf(_lift) > 0.001:
+		_title.text += Txt.t(" · altura %+.2f m") % _lift
 	_hint.text += "\nGrava direto nas cenas dos blocos (mapa oficial)."

@@ -191,6 +191,7 @@ seletor de peças e, no mundo, o **fantasma** translúcido da peça onde ela vai
 | Trocar peça (dentro da categoria) | Q / E ou rodinha | direcional ◀ ▶ |
 | Próxima categoria (pasta) | V (Shift+V volta) | direcional ▼ |
 | Girar 45° | R (Shift+R volta) | Y |
+| Subir / descer a peça | PgUp / PgDn (5 cm; Shift = 1 cm), Shift + rodinha; Home zera | R3 / L3 |
 | Desfazer a última | Z | B |
 | Apagar a peça no cursor (do construtor **ou do mapa**) | Delete | LB |
 | Pegar a peça no cursor e mudar de lugar | G (larga com clique; G/Delete desiste) | ▲ (larga com X; ▲/B desiste) |
@@ -206,7 +207,8 @@ seletor de peças e, no mundo, o **fantasma** translúcido da peça onde ela vai
   onde você larga (não cai), gira de 90 em 90 e **encaixa na estrutura vizinha**: chegue perto
   da ponta de uma parede e a nova cola do lado, sem fresta; mire em cima e vira outro andar;
   gire 90° perto da ponta e fecha o canto. Longe de outra estrutura, prende numa grade de meio
-  metro. Peças de pack com nome de parede/piso/telhado/janela já entram como estrutura; dá
+  metro (na altura escolhida com PgUp/PgDn; rua, calçada e piso, por serem chatos, sobem 2 cm
+  sozinhos para não piscar com o chão). Peças de pack com nome de parede/piso/telhado/janela/rua já entram como estrutura; dá
   para trocar o tipo na ficha (Importar objeto 3D).
 - Peça **fixa** comum (barreira, poste, caixa...) solta no ar desce até o chão, ou até o que
   estiver embaixo (mesa, laje).
