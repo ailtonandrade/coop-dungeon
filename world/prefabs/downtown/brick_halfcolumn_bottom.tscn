@@ -1,0 +1,16 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://assets/props/packs/DownTown/Brick_HalfColumn_Bottom.gltf" id="1_cbv77"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_y5e5x"]
+size = Vector3(1.1088499, 2.9999995, 0.27626592)
+
+[node name="BrickHalfColumnBottom" type="StaticBody3D" unique_id=50074057]
+metadata/prop_def = "res://world/props/brick_halfcolumn_bottom.tres"
+
+[node name="Modelo" type="Node3D" parent="." unique_id=1614898628 instance=ExtResource("1_cbv77")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.097429)
+
+[node name="Collision" type="CollisionShape3D" parent="." unique_id=1690800256]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.4999998, 0)
+shape = SubResource("BoxShape3D_y5e5x")

@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="PropDef" format=3]
+
+[ext_resource type="PackedScene" path="res://assets/props/packs/DownTown/Decal_Only.gltf" id="1_yxl3b"]
+[ext_resource type="Script" path="res://props/prop_def.gd" id="2_erqxm"]
+
+[resource]
+script = ExtResource("2_erqxm")
+id = "decal_only"
+display_name = "Decal Only"
+model = ExtResource("1_yxl3b")

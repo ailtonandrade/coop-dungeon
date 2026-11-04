@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="PropDef" format=3]
+
+[ext_resource type="PackedScene" path="res://assets/props/packs/Zombie/Environment/glTF/Street_T.gltf" id="1_uwb5p"]
+[ext_resource type="Script" path="res://props/prop_def.gd" id="2_f726u"]
+
+[resource]
+script = ExtResource("2_f726u")
+id = "street_t"
+display_name = "Street T"
+model = ExtResource("1_uwb5p")
+kind = "estrutura"

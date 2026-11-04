@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="PropDef" format=3]
+
+[ext_resource type="PackedScene" path="res://assets/props/packs/DownTown/Brick_HalfColumn_Bottom.gltf" id="1_jhbie"]
+[ext_resource type="Script" path="res://props/prop_def.gd" id="2_xiakr"]
+
+[resource]
+script = ExtResource("2_xiakr")
+id = "brick_halfcolumn_bottom"
+display_name = "Brick HalfColumn Bottom"
+model = ExtResource("1_jhbie")
+kind = "estrutura"

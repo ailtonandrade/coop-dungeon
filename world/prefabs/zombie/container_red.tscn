@@ -1,0 +1,16 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://assets/props/packs/Zombie/Environment/glTF/Container_Red.gltf" id="1_53cl4"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_k6h1a"]
+size = Vector3(5.7079926, 2.6034606, 2.559406)
+
+[node name="ContainerRed" type="StaticBody3D" unique_id=141908463]
+metadata/prop_def = "res://world/props/container_red.tres"
+
+[node name="Modelo" type="Node3D" parent="." unique_id=338441431 instance=ExtResource("1_53cl4")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.023858547, 0.0094375685, -0.0065416098)
+
+[node name="Collision" type="CollisionShape3D" parent="." unique_id=1049496456]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.3017303, 0)
+shape = SubResource("BoxShape3D_k6h1a")

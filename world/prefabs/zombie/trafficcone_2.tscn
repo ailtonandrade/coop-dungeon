@@ -1,0 +1,16 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://assets/props/packs/Zombie/Environment/glTF/TrafficCone_2.gltf" id="1_f1qar"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_lmbi4"]
+size = Vector3(0.59540343, 0.7355925, 0.59540343)
+
+[node name="TrafficCone2" type="StaticBody3D" unique_id=2114475534]
+metadata/prop_def = "res://world/props/trafficcone_2.tres"
+
+[node name="Modelo" type="Node3D" parent="." unique_id=835280342 instance=ExtResource("1_f1qar")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.9802322e-08, 0.008247445, -5.9604645e-08)
+
+[node name="Collision" type="CollisionShape3D" parent="." unique_id=1641501070]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.36779624, 0)
+shape = SubResource("BoxShape3D_lmbi4")

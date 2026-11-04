@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="PropDef" format=3]
+
+[ext_resource type="PackedScene" path="res://assets/props/packs/DownTown/Decal_ArrowTurnLeft.gltf" id="1_oivu0"]
+[ext_resource type="Script" path="res://props/prop_def.gd" id="2_boodq"]
+
+[resource]
+script = ExtResource("2_boodq")
+id = "decal_arrowturnleft"
+display_name = "Decal ArrowTurnLeft"
+model = ExtResource("1_oivu0")

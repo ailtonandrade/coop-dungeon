@@ -1,0 +1,16 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://assets/props/packs/DownTown/Brick_RedWhite_DoubleWindow.gltf" id="1_f1vn0"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_smc82"]
+size = Vector3(4, 3.0000005, 0.27733958)
+
+[node name="BrickRedWhiteDoubleWindow" type="StaticBody3D" unique_id=307696569]
+metadata/prop_def = "res://world/props/brick_redwhite_doublewindow.tres"
+
+[node name="Modelo" type="Node3D" parent="." unique_id=215319560 instance=ExtResource("1_f1vn0")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.10302073)
+
+[node name="Collision" type="CollisionShape3D" parent="." unique_id=1025469585]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5000002, 0)
+shape = SubResource("BoxShape3D_smc82")

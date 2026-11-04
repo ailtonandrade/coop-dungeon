@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="PropDef" format=3]
+
+[ext_resource type="PackedScene" path="res://assets/props/packs/DownTown/Decal_Crosswalk.gltf" id="1_7ebdl"]
+[ext_resource type="Script" path="res://props/prop_def.gd" id="2_b6s78"]
+
+[resource]
+script = ExtResource("2_b6s78")
+id = "decal_crosswalk"
+display_name = "Decal Crosswalk"
+model = ExtResource("1_7ebdl")
