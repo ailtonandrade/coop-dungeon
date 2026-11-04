@@ -1,8 +1,8 @@
-[gd_resource type="Resource" script_class="NpcDialogue" format=3]
+[gd_resource type="Resource" script_class="NpcDialogue" format=3 uid="uid://dd12qcfcy883r"]
 
-[ext_resource type="Script" path="res://world/lore/dialogue_line.gd" id="1_6n6e7"]
-[ext_resource type="Script" path="res://world/lore/npc_dialogue.gd" id="2_yakfx"]
-[ext_resource type="Script" path="res://world/lore/dialogue_topic.gd" id="3_wfuau"]
+[ext_resource type="Script" uid="uid://dnhyh523llq6t" path="res://world/lore/dialogue_line.gd" id="1_6n6e7"]
+[ext_resource type="Script" uid="uid://b6bfbhf4t0iu8" path="res://world/lore/npc_dialogue.gd" id="2_yakfx"]
+[ext_resource type="Script" uid="uid://ln5ljsnanjta" path="res://world/lore/dialogue_topic.gd" id="3_wfuau"]
 
 [sub_resource type="Resource" id="Resource_n676m"]
 script = ExtResource("1_6n6e7")
