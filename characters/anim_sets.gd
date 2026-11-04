@@ -30,6 +30,10 @@ const HUMANOID := {
 		"punch": ["Punch_Right"],
 		"hit": ["HitRecieve", "HitRecieve_2"],
 		"death": ["Death"],
+		# Gestos dos NPCs.
+		"wave": ["Wave"],
+		"fidget": ["Interact", "Idle_Neutral"],
+		"idle_alt": ["Idle_Neutral", "Idle"],
 	},
 }
 
