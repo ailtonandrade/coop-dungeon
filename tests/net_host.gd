@@ -80,13 +80,15 @@ func _process(_delta: float) -> bool:
 		6:
 			if int(_remote.inventory.gold) < 500:
 				_check(true, "cliente comprou do comerciante e o host cobrou (%d moedas)" % _remote.inventory.gold)
-				# Baú da vila: o jogador do cliente abre (o host decide e avisa o cliente).
+				# Um baú da vila (o mais perto do comerciante; o mapa muda pelo construtor): o jogador
+				# do cliente abre, o host decide e avisa o cliente.
 				var chest: Node = null
 				for container in get_nodes_in_group("containers"):
-					if container.container_id == "vila_bau_inicial":
+					if not container.is_locked() and (chest == null or container.global_position.distance_to(_remote.global_position) < chest.global_position.distance_to(_remote.global_position)):
 						chest = container
-				_remote.teleport_to(Vector3(39, 0, 42.5))
-				_check(chest != null and chest.open_by(_remote), "jogador do cliente abriu o baú da vila (no host)")
+				if chest != null:
+					_remote.teleport_to(chest.global_position + Vector3(0.6, 0, 0.6))
+				_check(chest != null and chest.open_by(_remote), "jogador do cliente abriu um baú da vila (no host: %s)" % (chest.container_id if chest else "nenhum"))
 				# O jogador do cliente vai para a outra ponta do mapa; o do host fica na vila.
 				var streamer := get_first_node_in_group("world_streamer")
 				streamer.load_now(FAR_POINT)
