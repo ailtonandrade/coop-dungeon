@@ -343,6 +343,11 @@ func _try_open_service(slot: int) -> void:
 	var player := _local_player(slot)
 	if player == null or _inventories.has(slot) or _services.has(slot) or player.building:
 		return
+	# Gatilho de missão (alavanca, terminal, caixa, ponto escondido).
+	var trigger := QuestTrigger.nearest(get_tree(), player.global_position)
+	if trigger:
+		trigger.use(player)
+		return
 	# Terminal de portão trancado (código ou invasão).
 	var gate := LoreGate.nearest_terminal(get_tree(), player.global_position)
 	if gate:

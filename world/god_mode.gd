@@ -101,12 +101,14 @@ func start(p_slot: int) -> void:
 	InputService.builder_slot = slot
 	_rebuild_ghost()
 	_hud.visible = true
+	QuestArea.show_markers = true
 	_refresh_hud()
 	Chat.local_note(Txt.t("Modo construtor ligado (%s de novo para sair).") % COMMAND)
 
 
 func stop() -> void:
 	cancel_carry()
+	QuestArea.show_markers = false
 	if not active:
 		return
 	if _loot_panel.visible:
@@ -892,6 +894,15 @@ func _rebuild_ghost() -> void:
 		copy.transform = _relative(source, mesh)
 		_ghost.add_child(copy)
 	source.free()
+	# Peça montada por código (gatilho e área de missão, letreiro...): uma caixinha marca o lugar.
+	if _ghost.get_child_count() == 0:
+		var marker := MeshInstance3D.new()
+		var box := BoxMesh.new()
+		box.size = Vector3(0.6, 0.3, 0.6)
+		marker.mesh = box
+		marker.material_override = _ghost_material
+		marker.position.y = 0.15
+		_ghost.add_child(marker)
 
 
 static func _relative(root: Node, node: Node3D) -> Transform3D:

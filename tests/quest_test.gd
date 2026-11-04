@@ -11,6 +11,73 @@ var _failed := false
 var _quests: Node
 var _gold := 0
 var _xp := 0
+var _area: Node3D
+var _trigger: Node3D
+var _box_trigger: Node3D
+var _door: StaticBody3D
+
+const QUEST_TRIGGER := preload("res://world/quests/quest_trigger.gd")
+
+
+## Missões montadas no teste (sem arquivo): uma começa na área, pede para falar duas palavras em
+## ordem com o Zé Gato e usar um gatilho que some com uma porta; outra começa num gatilho.
+func _setup_custom() -> void:
+	var def_script: Script = load("res://world/quests/quest_def.gd")
+	var obj_script: Script = load("res://world/quests/quest_objective.gd")
+	var talk_obj: Resource = obj_script.new()
+	talk_obj.kind = "falar"
+	talk_obj.npc = "Zé Gato"
+	talk_obj.keywords = PackedStringArray(["sinal", "antena"])
+	talk_obj.replies = PackedStringArray(["Que sinal? ...Tá, eu ouvi também. Pergunta da antena.", "A antena da torre velha. Ninguém sobe lá faz tempo."])
+	var use_obj: Resource = obj_script.new()
+	use_obj.kind = "interagir"
+	use_obj.target = "gatilho_teste"
+	use_obj.reaction = "sumir"
+	use_obj.reaction_target = "PortaTeste"
+	var quest: Resource = def_script.new()
+	quest.id = "teste_area"
+	quest.title = "Teste da área"
+	quest.start = "area"
+	quest.start_target = "area_teste"
+	quest.objectives.assign([talk_obj, use_obj])
+	quest.reward_gold = 50
+	quest.reward_xp = 10
+	_quests.defs()["teste_area"] = quest
+	var second: Resource = def_script.new()
+	second.id = "teste_gatilho"
+	second.title = "Teste do gatilho"
+	second.start = "gatilho"
+	second.start_target = "caixa_inicio"
+	second.start_item = "pouch"
+	second.objectives.assign([use_obj.duplicate()])
+	_quests.defs()["teste_gatilho"] = second
+	var chunk: Node3D = get_first_node_in_group("world_streamer").chunk_at(_player().global_position)[0]
+	var base: Vector3 = _player().global_position
+	_area = load("res://world/quests/quest_area.gd").new()
+	_area.name = "area_teste"
+	chunk.add_child(_area)
+	_area.global_position = base + Vector3(6, 0, 4)
+	_trigger = QUEST_TRIGGER.new()
+	_trigger.name = "gatilho_teste"
+	chunk.add_child(_trigger)
+	_trigger.global_position = base + Vector3(-5, 0, 5)
+	_box_trigger = QUEST_TRIGGER.new()
+	_box_trigger.name = "caixa_inicio"
+	_box_trigger.look = "caixa"
+	chunk.add_child(_box_trigger)
+	_box_trigger.global_position = base + Vector3(-8, 0, -4)
+	_door = StaticBody3D.new()
+	_door.name = "PortaTeste"
+	chunk.add_child(_door)
+	_door.global_position = base + Vector3(-5, 0, 8)
+
+
+func _hud() -> Node:
+	return get_first_node_in_group("hud")
+
+
+func _count(item_id: String) -> int:
+	return _player().inventory.all_items().filter(func(e: Array) -> bool: return e[1] is Dictionary and e[1].get("id") == item_id).size()
 
 
 func _process(_delta: float) -> bool:
@@ -69,6 +136,41 @@ func _process(_delta: float) -> bool:
 			_check(root.get_node("NetService").world.get("quests", {}).has("brando_ferro_de_gangue"), "missões ficam no save do mundo")
 			root.get_node("Lore").learn(["lab4_portao"])
 			_check(_quests.offers("Seu Gouveia").size() == 1, "depois do Lab 4, o Seu Gouveia tem trabalho")
+			_hud()._close_service(0)
+			_setup_custom()
+		SECOND + 26:
+			# Entrar na área começa a missão sozinha.
+			_player().teleport_to(_area.global_position)
+		SECOND + 40:
+			_check(_quests.state_of("teste_area") == "ativa", "entrar na área começa a missão (sem NPC)")
+			_check(_log_text().contains("TESTE DA ÁREA"), "e ela entra no questLog")
+			_talk("Zé Gato")
+		SECOND + 46:
+			var talk: Node = _talk_panel()
+			_check(_button(talk, "Sinal") != null and _button(talk, "Antena") == null, "só a próxima palavra vira botão")
+			talk.say("antena")
+			_check(_quests.count_of("teste_area", 0) == 0, "palavra fora de ordem não vale")
+			talk.say("e o sinal?")
+			_check(_quests.count_of("teste_area", 0) == 1 and "\n".join(talk.history()).contains("Que sinal"), "a primeira palavra: ele revela algo")
+			talk.say("antena")
+			_check(_quests.objective_done(_quests.def("teste_area"), 0) and "\n".join(talk.history()).contains("torre velha"), "a segunda (que dependia da primeira): objetivo cumprido")
+			_hud()._close_service(0)
+			_gold = _player().inventory.gold
+			_player().teleport_to(_trigger.global_position + Vector3(0, 0, 0.8))
+		SECOND + 60:
+			_check(_door.visible, "porta ainda lá antes do gatilho")
+			_hud()._try_open_service(0)
+		SECOND + 64:
+			_check(not _door.visible and _door.collision_layer == 0, "usar o gatilho: a porta some (reação)")
+			_check(_quests.state_of("teste_area") == "entregue" and _player().inventory.gold == _gold + 50, "missão sem NPC conclui na hora, com recompensa")
+			_check(root.get_node("NetService").world.get("quest_reactions", {}).get("PortaTeste") == "sumir", "a reação fica no save do mundo")
+			_check(QUEST_TRIGGER.nearest(self, _trigger.global_position) == null, "gatilho de uso único não aparece mais")
+			# Missão que começa num gatilho e dá um item.
+			_player().teleport_to(_box_trigger.global_position + Vector3(0, 0, 0.8))
+		SECOND + 78:
+			var before := _count("pouch")
+			_hud()._try_open_service(0)
+			_check(_quests.state_of("teste_gatilho") == "ativa" and _count("pouch") == before + 1, "gatilho começa outra missão e entrega o item inicial")
 			print("MISSÕES: " + ("FALHOU" if _failed else "OK"))
 			quit(1 if _failed else 0)
 	return false

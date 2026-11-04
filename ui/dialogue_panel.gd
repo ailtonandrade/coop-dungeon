@@ -139,6 +139,9 @@ func _refresh_topics() -> void:
 				_npc_says(Txt.t(quest.progress_text) if quest.progress_text else Txt.t("Ainda não terminou, né?")))
 	for quest in Quests.offers(npc.npc_name):
 		_quest_button(Txt.t("» Trabalho: %s") % Txt.t(quest.title), _offer_quest.bind(quest))
+	# Objetivo de missão "falar": a próxima palavra vira botão (quem joga no controle não digita).
+	for word in Quests.next_words(npc.npc_name):
+		_quest_button(word.capitalize(), say.bind(word))
 	for topic in Lore.topics_for(npc.npc_name, player):
 		var button := _button(_topics, Txt.t(topic.button_text()), choose.bind(topic))
 		if first == null:
@@ -172,7 +175,7 @@ func _offer_quest(quest: QuestDef) -> void:
 func _accept_quest(quest: QuestDef) -> void:
 	_player_says(Txt.t("Aceito."))
 	_pending_quest = null
-	Quests.accept(quest.id)
+	Quests.accept(quest.id, player)
 	Sound.play("chip_install")
 
 
@@ -195,6 +198,13 @@ func choose(topic: DialogueTopic) -> void:
 func say(text: String) -> void:
 	var clean := Lore.normalize(text)
 	if clean.is_empty():
+		return
+	# Palavra de missão (na ordem): o NPC vai revelando.
+	var quest_reply := Quests.talk(npc.npc_name, text, player)
+	if not quest_reply.is_empty():
+		_player_says(text)
+		_npc_says(Txt.t(quest_reply))
+		Sound.play("ui_confirm")
 		return
 	var topic := Lore.answer(npc.npc_name, text, player)
 	if topic:

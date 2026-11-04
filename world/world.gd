@@ -22,6 +22,7 @@ func _ready() -> void:
 	_build_environment()
 	_add_god_mode()
 	_streamer.world_map = world_map
+	Quests.attach(_streamer)
 	_players.spawn_position = _debug_spawn_point(_saved_spot(world_map.spawn_point))
 	_streamer.load_now(_players.spawn_position)
 	# Mundo pronto: libera entrar no jogo e avisa o host (se for cliente).

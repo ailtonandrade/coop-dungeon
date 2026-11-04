@@ -76,6 +76,16 @@ func _refresh() -> void:
 		streamer.bake_navigation.call_deferred(chunk, true)
 
 
+## Abre de vez (reação de missão "abrir").
+func force_open() -> void:
+	requires = []
+	lock = "fatos"
+	unlock_fact = ""
+	if _prompt:
+		_prompt.visible = false
+	_refresh()
+
+
 ## Fatos para abrir: os de requires e, com terminal, o de destravar.
 func needs() -> Array:
 	var all: Array = requires.duplicate()
