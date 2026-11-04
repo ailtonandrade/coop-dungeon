@@ -914,6 +914,9 @@ func _rebuild_ghost() -> void:
 		source = scene.instantiate() if scene else null
 	if source == null:
 		return
+	# Peças que se montam por código (porta...): monta o visual para o fantasma.
+	if source.has_method("ghost_build"):
+		source.ghost_build()
 	var model: Variant = source.get("model")
 	if source is LootContainer and model is PackedScene:
 		var visual := (model as PackedScene).instantiate() as Node3D

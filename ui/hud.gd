@@ -352,6 +352,18 @@ func _try_open_service(slot: int) -> void:
 	var player := _local_player(slot)
 	if player == null or _inventories.has(slot) or _services.has(slot) or player.building:
 		return
+	# Porta / tampa de esgoto: livre abre; código ou invasão abre o terminal.
+	var door := Door.nearest(get_tree(), player.global_position)
+	if door:
+		if door.needs_terminal():
+			var door_lock := LockPanel.new()
+			_root.add_child(door_lock)
+			door_lock.open_for(slot, door)
+			door_lock.close_requested.connect(_close_service.bind(slot))
+			_services[slot] = door_lock
+		else:
+			door.use(player)
+		return
 	# Gatilho de missão (alavanca, terminal, caixa, ponto escondido).
 	var trigger := QuestTrigger.nearest(get_tree(), player.global_position)
 	if trigger:
