@@ -96,6 +96,9 @@ func _ready() -> void:
 	hint.add_child(_menu_hint)
 	_root.add_child(hint)
 
+	# Mira no meio da tela (só na câmera atrás do herói).
+	_root.add_child(Crosshair.new())
+
 	# questLog: missões em andamento, embaixo da dica do menu.
 	var quest_log := QuestLog.new()
 	quest_log.position = Vector2(20, 64)
