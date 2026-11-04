@@ -34,11 +34,15 @@ func _ready() -> void:
 ## Modo construtor do dono do jogo: só rodando pelo editor do Godot. O arquivo nem vai no jogo
 ## exportado (filtro de exportação), por isso é carregado pelo caminho, se existir.
 const GOD_MODE := "res://world/god_mode.gd"
+const QUEST_EDITOR := "res://world/quest_editor.gd"
 
 
 func _add_god_mode() -> void:
 	if OS.has_feature("editor") and ResourceLoader.exists(GOD_MODE):
 		add_child((load(GOD_MODE) as Script).new())
+	# Editor de missões dentro do jogo (/missoes): também só no projeto, fora do exportado.
+	if OS.has_feature("editor") and ResourceLoader.exists(QUEST_EDITOR):
+		add_child((load(QUEST_EDITOR) as Script).new())
 
 
 ## Quem manda no mundo (host ou sofá offline) volta onde o personagem ativo parou neste mundo.

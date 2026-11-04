@@ -114,6 +114,12 @@ func _submit(text: String) -> void:
 		god.toggle(player.slot)
 		close()
 		return
+	# Editor de missões do dono do jogo (/missoes): só existe no projeto.
+	var quest_editor := get_tree().get_first_node_in_group("quest_editor")
+	if player and quest_editor and quest_editor.is_command(text) and quest_editor.allowed():
+		quest_editor.toggle(player.slot)
+		close()
+		return
 	# Dono do jogo: "/chuva" liga ou desliga a chuva.
 	var weather := Weather.of(get_tree())
 	if player and god and god.allowed() and weather and text.strip_edges().to_lower() == "/chuva":
