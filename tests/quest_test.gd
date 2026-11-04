@@ -141,7 +141,17 @@ func _process(_delta: float) -> bool:
 			_check(_player().progress.xp + _player().progress.level * 100000 > _xp, "e experiência")
 			_check(not _log().visible, "some do questLog")
 			_check(_button(_talk_panel(), "Trabalho: Ferro de gangue") != null, "repetível: o Brando oferece de novo")
+			# Com espera para repetir: some e ele avisa quanto falta; passou o tempo, volta.
+			var ferro: Resource = _quests.def("brando_ferro_de_gangue")
+			ferro.repeat_cooldown = 5
+			_check(_quests.offers("Brando").is_empty() and _quests.waiting("Brando").has(ferro), "com espera, não oferece logo depois de entregar")
+			_check(_quests.cooldown_left(ferro) > 240 and _quests.cooldown_left(ferro) <= 300, "faltam ~5 minutos (%d s)" % _quests.cooldown_left(ferro))
+			_talk_panel()._refresh_topics()
 			_check(root.get_node("NetService").world.get("quests", {}).has("brando_ferro_de_gangue"), "missões ficam no save do mundo")
+			_check(_button(_talk_panel(), "volte em 5 min") != null, "na conversa: \"volte em 5 min\"")
+			root.get_node("NetService").world.quests["brando_ferro_de_gangue"]["done_at"] = int(Time.get_unix_time_from_system()) - 301
+			_check(_quests.offers("Brando").has(ferro) and _quests.cooldown_left(ferro) == 0, "passou a espera: oferece de novo")
+			ferro.repeat_cooldown = 0
 			root.get_node("Lore").learn(["lab4_portao"])
 			_check(_quests.offers("Seu Gouveia").size() == 1, "depois do Lab 4, o Seu Gouveia tem trabalho")
 			_hud()._close_service(0)

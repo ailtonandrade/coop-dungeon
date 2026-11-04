@@ -13,6 +13,7 @@ extends CanvasLayer
 const COMMAND := "/missoes"
 const DIR := "res://world/quests/"
 const PANEL_W := 760
+const FACTS_HELP := "Fato = uma etiqueta de \"o grupo já descobriu isso\" (ex.: diario_helena, lab4_portao).\nÉ o mesmo de ler um documento, ouvir um NPC ou abrir um portão. Separe por vírgula.\nUse para ligar missões entre si e com a história: uma missão ensina, a outra só aparece depois."
 
 var active := false
 var slot := -1
@@ -136,8 +137,8 @@ func _build() -> void:
 	_text("offer_text", "Fala ao oferecer / aviso ao começar")
 	_text("progress_text", "Fala em andamento")
 	_text("done_text", "Fala ao entregar")
-	_line("requires", "Requer fatos (separe por vírgula)")
-	_line("teaches", "Ensina fatos ao concluir")
+	_line("requires", "Só aparece se o grupo já sabe (fatos)").tooltip_text = FACTS_HELP
+	_line("teaches", "Ao concluir, o grupo passa a saber (fatos)").tooltip_text = FACTS_HELP
 	_section("Objetivos")
 	_objectives_box = VBoxContainer.new()
 	_objectives_box.add_theme_constant_override("separation", 10)
@@ -148,6 +149,7 @@ func _build() -> void:
 	_spin("reward_xp", "Experiência", 0, 100000)
 	_item("reward_item", "Item (para quem entrega)")
 	_check("repeatable", "Repetível")
+	_spin("repeat_cooldown", "Espera para repetir (minutos)", 0, 10080)
 
 	var bottom := HBoxContainer.new()
 	bottom.add_theme_constant_override("separation", 10)
@@ -250,7 +252,7 @@ func _add_objective(objective: QuestObjective) -> void:
 	_check("show_buttons", "Palavra vira botão (controle)", column, row)
 	_line("label", "Nome no questLog (opcional)", Callable(), column, row)
 	_item("gives_item", "Ao cumprir: dá item", column, row)
-	_line("teaches", "Ao cumprir: ensina fatos", Callable(), column, row)
+	_line("teaches", "Ao cumprir, o grupo passa a saber (fatos)", Callable(), column, row).tooltip_text = FACTS_HELP
 	_option("reaction", "Ao cumprir: reação", QuestObjective.REACTIONS, column, row)
 	_line("reaction_target", "Objeto que reage (nome do nó)", _pick_object.bind(row), column, row)
 	_small_button(column, "Tirar objetivo", func() -> void:
@@ -352,6 +354,7 @@ func _fill(quest: QuestDef, path: String) -> void:
 	_fields.reward_xp.value = quest.reward_xp
 	_select(_fields.reward_item, quest.reward_item)
 	_fields.repeatable.button_pressed = quest.repeatable
+	_fields.repeat_cooldown.value = quest.repeat_cooldown
 	for row in _objective_rows:
 		row.box.queue_free()
 	_objective_rows.clear()
@@ -389,6 +392,7 @@ func build() -> QuestDef:
 	quest.reward_xp = int(_fields.reward_xp.value)
 	quest.reward_item = _selected(_fields.reward_item)
 	quest.repeatable = _fields.repeatable.button_pressed
+	quest.repeat_cooldown = int(_fields.repeat_cooldown.value)
 	var objectives: Array[QuestObjective] = []
 	for row in _objective_rows:
 		var o := QuestObjective.new()

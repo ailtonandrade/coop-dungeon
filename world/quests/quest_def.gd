@@ -43,3 +43,5 @@ extends Resource
 @export var reward_item := ""
 ## Dá para pegar de novo depois de entregar.
 @export var repeatable := false
+## Repetível: minutos (de verdade) de espera depois de entregar até poder pegar de novo.
+@export_range(0, 10080) var repeat_cooldown := 0

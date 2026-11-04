@@ -139,6 +139,13 @@ func _refresh_topics() -> void:
 				_npc_says(Txt.t(quest.progress_text) if quest.progress_text else Txt.t("Ainda não terminou, né?")))
 	for quest in Quests.offers(npc.npc_name):
 		_quest_button(Txt.t("» Trabalho: %s") % Txt.t(quest.title), _offer_quest.bind(quest))
+	# Repetível esperando a vez: ele avisa quando volta a ter trabalho.
+	for quest in Quests.waiting(npc.npc_name):
+		var minutes := ceili(Quests.cooldown_left(quest) / 60.0)
+		var button := _quest_button(Txt.t("» %s (volte em %d min)") % [Txt.t(quest.title), minutes], func() -> void:
+			_player_says(Txt.t("Tem trabalho?"))
+			_npc_says(Txt.t("Agora não. Volta daqui a uns %d minutos.") % ceili(Quests.cooldown_left(quest) / 60.0)))
+		button.modulate = Color(1, 1, 1, 0.6)
 	# Objetivo de missão "falar": a próxima palavra vira botão (quem joga no controle não digita).
 	for word in Quests.next_words(npc.npc_name):
 		_quest_button(word.capitalize(), say.bind(word))

@@ -28,7 +28,20 @@ Peças de missão (coloque pelo **/construir**, categoria **Missoes**, ou no edi
 - **Item ao começar** (ex.: o NPC te entrega algo), falas (oferecer, andamento, entregar), resumo.
 - **Volta para entregar**: com NPC, termina voltando nele; sem, conclui sozinha na hora.
 - **Requer fatos** (só aparece depois) e **Ensina fatos** (ao concluir), para ligar com a história.
-- **Recompensa**: parafusos e experiência para cada um do grupo, item para quem entrega; repetível.
+- **Recompensa**: parafusos e experiência para cada um do grupo, item para quem entrega; repetível,
+  com **espera para repetir** em minutos (o NPC diz "volte em X min" enquanto isso).
+
+### O que são "fatos"
+
+Um fato é uma etiqueta de "o grupo já descobriu isso", com um nome (`diario_helena`,
+`lab4_portao`, `sabe_nome_demiurgo`...). É o mesmo sistema da história escondida: ler um
+documento, ouvir certa fala de NPC, abrir um portão por código ou concluir uma missão grava um
+fato no save do mundo, para o grupo todo. Na missão:
+- **Só aparece se o grupo já sabe**: a missão fica escondida até o grupo ter aqueles fatos
+  (ex.: "Guardas de lata" exige `lab4_portao`, então só aparece depois de abrirem o Lab 4);
+- **Ao concluir / ao cumprir, o grupo passa a saber**: grava fatos novos, que podem liberar outra
+  missão, uma fala nova de NPC, um portão ou um contêiner.
+Assim dá para encadear missões (uma libera a outra) e ligar com a história sem programar nada.
 
 ## Objetivos (QuestObjective)
 

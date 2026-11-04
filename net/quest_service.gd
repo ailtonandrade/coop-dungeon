@@ -76,7 +76,24 @@ func available(quest: QuestDef) -> bool:
 	if not Lore.knows_all(quest.requires):
 		return false
 	var state := state_of(quest.id)
-	return state.is_empty() or (state == "entregue" and quest.repeatable)
+	return state.is_empty() or (state == "entregue" and quest.repeatable and cooldown_left(quest) <= 0)
+
+
+## Repetível já entregue: segundos que faltam para poder pegar de novo (0 = já pode).
+func cooldown_left(quest: QuestDef) -> int:
+	if not quest.repeatable or state_of(quest.id) != "entregue" or quest.repeat_cooldown <= 0:
+		return 0
+	var done_at := int(states().get(quest.id, {}).get("done_at", 0))
+	return maxi(done_at + quest.repeat_cooldown * 60 - int(Time.get_unix_time_from_system()), 0)
+
+
+## Repetíveis deste NPC esperando a vez (para ele dizer "volta mais tarde").
+func waiting(npc_name: String) -> Array[QuestDef]:
+	var result: Array[QuestDef] = []
+	for quest: QuestDef in defs().values():
+		if quest.start == "npc" and quest.giver == npc_name and Lore.knows_all(quest.requires) and cooldown_left(quest) > 0:
+			result.append(quest)
+	return result
 
 
 ## Missões deste NPC que dá para pegar na conversa.
@@ -275,6 +292,7 @@ func _complete(quest: QuestDef, player: Node) -> void:
 	if not all.has(quest.id):
 		return
 	all[quest.id]["state"] = "entregue"
+	all[quest.id]["done_at"] = int(Time.get_unix_time_from_system())
 	_store(all)
 	for member: Node in get_tree().get_nodes_in_group("players"):
 		if quest.reward_gold > 0 and member.has_method("give_item"):
