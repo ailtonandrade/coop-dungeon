@@ -84,7 +84,21 @@ static func chamfer_points(r: Rect2, cut: float) -> PackedVector2Array:
 
 
 ## Etiqueta de botão do controle (círculo colorido com a letra).
+## Teclas do teclado (desenhadas como tecla quadrada, não como botão redondo do controle).
+const KEYBOARD_KEYS := ["J", "K", "C", "E", "Q", "F", "I", "Esc", "Shift", "Espaço"]
+
+
 static func draw_button_hint(canvas: CanvasItem, center: Vector2, button: String, radius := 9.0) -> void:
+	if button in KEYBOARD_KEYS:
+		var f_key := font("Bold")
+		var key_size := 12 if button.length() == 1 else 8
+		var width := radius * 2.0 if button.length() == 1 else radius * 2.0 + float(button.length() - 1) * 4.0
+		var rect := Rect2(center - Vector2(width / 2.0, radius), Vector2(width, radius * 2.0))
+		canvas.draw_rect(rect.grow(1.5), INK)
+		canvas.draw_rect(rect, Color(0.82, 0.8, 0.74))
+		canvas.draw_rect(Rect2(rect.position + Vector2(0, rect.size.y - 3), Vector2(rect.size.x, 3)), Color(0.55, 0.53, 0.48))
+		canvas.draw_string(f_key, Vector2(rect.position.x, center.y + key_size * 0.33), button, HORIZONTAL_ALIGNMENT_CENTER, rect.size.x, key_size, INK)
+		return
 	var color: Color = BUTTON_COLORS.get(button, DIM)
 	canvas.draw_circle(center, radius + 1.5, INK)
 	canvas.draw_circle(center, radius, color.darkened(0.35))

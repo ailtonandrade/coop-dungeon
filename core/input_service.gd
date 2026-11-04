@@ -301,6 +301,45 @@ func device_of(slot: int) -> int:
 	return _devices[slot]
 
 
+## Nome do botão de uma ação no aparelho de cada jogador (para as dicas na tela).
+const KEY_NAMES := {
+	Action.MELEE: "J", Action.RANGED: "K", Action.DODGE: "C", Action.POTION: "E", Action.ARTIFACT: "Q",
+	Action.PAUSE: "Esc", Action.JUMP: "Espaço", Action.SPRINT: "Shift", Action.INVENTORY: "I", Action.PICKUP: "F",
+}
+const PAD_NAMES := {
+	Action.MELEE: "X", Action.RANGED: "RT", Action.DODGE: "B", Action.POTION: "Y", Action.ARTIFACT: "RB",
+	Action.PAUSE: "Start", Action.JUMP: "A", Action.SPRINT: "LB", Action.INVENTORY: "Back", Action.PICKUP: "LB",
+}
+
+
+## Botão da ação para o jogador desta vaga: tecla no teclado, botão no controle.
+func button_name(action: Action, slot: int) -> String:
+	var keyboard := slot >= 0 and slot < _devices.size() and _devices[slot] == KEYBOARD
+	return String(KEY_NAMES.get(action, "?") if keyboard else PAD_NAMES.get(action, "?"))
+
+
+## Dica de botão para o que é da tela toda (avisos no mundo, menu): todos no teclado, só a tecla;
+## todos no controle, só o botão; teclado e controle juntos no sofá, os dois ("LB / F").
+func hint(action: Action) -> String:
+	var keyboard := false
+	var pad := false
+	for slot in active_slots():
+		if _devices[slot] == KEYBOARD:
+			keyboard = true
+		else:
+			pad = true
+	if not keyboard and not pad:
+		return "%s / %s" % [PAD_NAMES.get(action, "?"), KEY_NAMES.get(action, "?")]
+	if keyboard and pad:
+		return "%s / %s" % [PAD_NAMES.get(action, "?"), KEY_NAMES.get(action, "?")]
+	return String(KEY_NAMES.get(action, "?") if keyboard else PAD_NAMES.get(action, "?"))
+
+
+## Troca "LB / F" (o texto escrito com os dois) pelo certo para quem está jogando agora.
+func pickup_text(text: String) -> String:
+	return text.replace("LB / F", hint(Action.PICKUP))
+
+
 ## Mira (twin-stick) já no chão do mundo: Vector2(x, z) de comprimento 1, ou zero se não mira.
 ## Controle: analógico direito. Teclado: o mouse, só com um botão dele apertado (atacando ou
 ## atirando); fora disso o herói olha para onde anda.

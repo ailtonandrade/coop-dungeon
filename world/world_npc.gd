@@ -96,7 +96,7 @@ func _process(_delta: float) -> void:
 			if Vector2(offset.x, offset.z).length() <= TALK_RANGE:
 				near = true
 				break
-	_label.text = _title + (Txt.t("\n[LB / F] falar") if near else "")
+	_label.text = _title + (InputService.pickup_text(Txt.t("\n[LB / F] falar")) if near else "")
 	# Puxa assunto sozinho quando o grupo chega perto depois de descobrir algo (uma vez).
 	if near:
 		var line: DialogueLine = Lore.approach_line(npc_name)

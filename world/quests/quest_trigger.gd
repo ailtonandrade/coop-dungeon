@@ -80,6 +80,8 @@ func _process(delta: float) -> void:
 			if player.has_method("is_local") and player.is_local() and player.global_position.distance_to(global_position) < RANGE + 0.6:
 				near = true
 	_label.visible = near
+	if near:
+		_label.text = Txt.t(prompt) + "  ·  " + get_node("/root/InputService").hint(get_node("/root/InputService").Action.PICKUP)
 	var marker := get_node_or_null("Marcador") as Node3D
 	if marker:
 		marker.visible = look != "invisivel" or QuestArea.show_markers

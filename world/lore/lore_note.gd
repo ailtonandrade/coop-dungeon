@@ -69,7 +69,7 @@ func _process(_delta: float) -> void:
 		if player.is_local() and Combat.flat(player.global_position - global_position).length() <= READ_RANGE:
 			near = true
 			break
-	_label.text = ("[LB / F] ler" if look != "terminal" else "[LB / F] acessar") if near else ""
+	_label.text = get_node("/root/InputService").pickup_text("[LB / F] ler" if look != "terminal" else "[LB / F] acessar") if near else ""
 
 
 ## Documento mais perto do ponto que dá para ler, ou null.

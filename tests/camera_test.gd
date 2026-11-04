@@ -43,6 +43,8 @@ func _process(_delta: float) -> bool:
 			var moved := ((_p1().global_position - _start) * Vector3(1, 0, 1)).normalized()
 			var forward: Vector3 = root.get_node("InputService").view_forward
 			_check(moved.dot(forward) > 0.95 and absf(moved.dot(Vector3(0, 0, -1))) < 0.2, "câmera girada: W segue a nova frente (%s)" % moved)
+			var only_keyboard: Node = root.get_node("InputService")
+			_check(only_keyboard.hint(only_keyboard.Action.PAUSE) == "Esc" and only_keyboard.hint(only_keyboard.Action.PICKUP) == "F", "só teclado: dica só com a tecla (Esc, F)")
 			# Atacar: mira para a frente da câmera.
 			_key(KEY_J, true)
 		SECOND + 92:
@@ -64,6 +66,9 @@ func _process(_delta: float) -> bool:
 			root.get_node("InputService")._try_join(0)
 		SECOND + 130:
 			_check(get_nodes_in_group("players").size() == 2, "entrou o 2º jogador no sofá")
+			var input: Node = root.get_node("InputService")
+			_check(input.hint(input.Action.PAUSE) == "Start / Esc" and input.hint(input.Action.PICKUP) == "LB / F", "teclado e controle no sofá: dica com os dois")
+			_check(input.button_name(input.Action.MELEE, 0) == "J" and input.button_name(input.Action.MELEE, 1) == "X", "cada cartão com o botão do seu aparelho (J no teclado, X no controle)")
 			_check(not _camera().is_behind(), "com 2 na tela volta para a câmera de cima")
 			_check(is_equal_approx(root.get_node("InputService").view_yaw_deg, 45.0), "andar volta a ser pela câmera de cima")
 			var iso_map: Node = get_first_node_in_group("hud").find_children("*", "Control", true, false).filter(func(n: Node) -> bool: return n.get_script() == load("res://ui/minimap.gd"))[0]

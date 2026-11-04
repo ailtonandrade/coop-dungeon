@@ -44,7 +44,7 @@ const EVENTS := {
 	"refine_ok": {"files": ["refine_ok"], "db": -3.0, "bus": "UI", "world": false},
 	"refine_fail": {"files": ["refine_fail"], "db": -3.0, "bus": "UI", "world": false},
 	# Progressão
-	"level_up": {"files": ["level_up"], "db": -1.0},
+	"level_up": {"files": ["level_up"], "db": -7.0},
 	"chip_install": {"files": ["chip_install"], "db": -4.0, "bus": "UI", "world": false},
 	# Interface
 	# Interface: macio e baixinho (passar por cima/focar, apertar, voltar, digitar).

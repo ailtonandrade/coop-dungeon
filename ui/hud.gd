@@ -28,6 +28,7 @@ var _card_row: HBoxContainer
 var _wave_label: Label
 var _net_label: Label
 var _net_chip: PanelContainer
+var _menu_hint: Label
 var _pause: Control
 var _pause_info: Label
 var _resume_button: Button
@@ -91,7 +92,8 @@ func _ready() -> void:
 	hint.add_theme_stylebox_override("panel", UiSkin.chip())
 	hint.position = Vector2(20, 18)
 	hint.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	hint.add_child(UiSkin.label("START / ESC  ·  menu e controles", 15, UiSkin.TEXT, "SemiBold", 4))
+	_menu_hint = UiSkin.label("START / ESC  ·  menu e controles", 15, UiSkin.TEXT, "SemiBold", 4)
+	hint.add_child(_menu_hint)
 	_root.add_child(hint)
 
 	# questLog: missões em andamento, embaixo da dica do menu.
@@ -138,6 +140,9 @@ func _ready() -> void:
 
 
 func _process(_delta: float) -> void:
+	# "START / ESC": só Esc no teclado, só Start no controle; os dois com teclado e controle no sofá.
+	if _menu_hint:
+		_menu_hint.text = Txt.t("START / ESC  ·  menu e controles").replace("START / ESC", InputService.hint(InputService.Action.PAUSE).to_upper())
 	if _pause.visible and NetService.internet and NetService.internet.state != _shown_internet_state:
 		_shown_internet_state = NetService.internet.state
 		_update_pause_info()

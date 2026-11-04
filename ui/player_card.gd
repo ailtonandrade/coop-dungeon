@@ -190,11 +190,13 @@ func _draw_level_badge(center: Vector2) -> void:
 
 
 func _draw_hotbar() -> void:
+	# Botões do aparelho deste jogador (tecla no teclado, botão no controle).
+	var slot: int = player.slot if player.is_local() else -1
 	var entries := [
-		["X", player.equipped("melee"), 0.0, 0.0],
-		["RT", player.equipped("ranged"), 0.0, 0.0],
-		["Y", "potion", player.potion_cooldown, player.potion_cooldown_total()],
-		["B", "dodge", player.dodge_cooldown_left(), GameConfig.DODGE_COOLDOWN * player.cooldown_factor()],
+		[InputService.button_name(InputService.Action.MELEE, slot), player.equipped("melee"), 0.0, 0.0],
+		[InputService.button_name(InputService.Action.RANGED, slot), player.equipped("ranged"), 0.0, 0.0],
+		[InputService.button_name(InputService.Action.POTION, slot), "potion", player.potion_cooldown, player.potion_cooldown_total()],
+		[InputService.button_name(InputService.Action.DODGE, slot), "dodge", player.dodge_cooldown_left(), GameConfig.DODGE_COOLDOWN * player.cooldown_factor()],
 	]
 	var x := BAR.position.x
 	for entry: Array in entries:

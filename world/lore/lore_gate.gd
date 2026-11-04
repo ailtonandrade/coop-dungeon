@@ -58,6 +58,8 @@ func _process(delta: float) -> void:
 					and Vector2(player.global_position.x - terminal_position().x, player.global_position.z - terminal_position().z).length() < TERMINAL_RANGE:
 				near = true
 	_prompt.visible = near
+	if near:
+		_prompt.text = get_node("/root/InputService").pickup_text("TECLADO · LB / F" if lock == "codigo" else "TERMINAL · LB / F")
 
 
 func _refresh() -> void:

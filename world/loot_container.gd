@@ -164,7 +164,7 @@ func _process(_delta: float) -> void:
 			if player.is_local() and _flat(player.global_position - global_position).length() <= open_range:
 				near = true
 				break
-	_label.text = (Txt.t("%s\n(trancado)") % Txt.t(title) if is_locked() else Txt.t("%s\n[LB / F] abrir") % Txt.t(title)) if near else ""
+	_label.text = (Txt.t("%s\n(trancado)") % Txt.t(title) if is_locked() else InputService.pickup_text(Txt.t("%s\n[LB / F] abrir")) % Txt.t(title)) if near else ""
 
 
 func _region_power() -> int:

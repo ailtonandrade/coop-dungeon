@@ -257,7 +257,7 @@ def make_sfx():
         note = onepole_lowpass(square(f, 0.22) * 0.5 + saw(f * 2, 0.22) * 0.3, 3500) * env(int(0.22 * RATE), 0.004, 0.18)
         arp = mix(arp, at(note, i * 0.09))
     pad_chord = chord([523, 659, 784, 1047], 1.2) * env(int(1.2 * RATE), 0.05, 1.0, 3.0)
-    save(SFX, "level_up", echo(mix(arp, at(onepole_lowpass(pad_chord, 2500) * 0.8, 0.36), at(sparkle(0.9, 1600, 10) * 0.7, 0.4)), 0.11, 0.3))
+    make_level_up()
     chip = np.zeros(int(0.4 * RATE))
     for i, f in enumerate([800, 1000, 1200, 1600]):
         chip = mix(chip, at(blip(f, 0.06), i * 0.06))
@@ -389,6 +389,17 @@ def make_steps():
     save(SFX, "land_feet", onepole_lowpass(land, 3000), peak=0.7)
 
 
+def make_level_up():
+    """Subir de nível: um "pupp" grave e abafado (bolha surda), com um sopro curto embaixo."""
+    seconds = 0.32
+    n = int(seconds * RATE)
+    body = sweep_sine(210, 95, seconds, 0.45) * env(n, 0.004, seconds * 0.35)
+    breath = onepole_lowpass(noise(0.12), 900) * env(int(0.12 * RATE), 0.01, 0.05) * 0.25
+    tail = sweep_sine(140, 120, 0.25, 1.0) * env(int(0.25 * RATE), 0.02, 0.12) * 0.25
+    pupp = mix(body, at(breath, 0.0), at(tail, 0.05))
+    save(SFX, "level_up", onepole_lowpass(onepole_lowpass(pupp, 1200), 1500), peak=0.6)
+
+
 def make_quest_sounds():
     """Missão: tudo abafado. Aceitar = carimbo surdo no papel; pronta = dois toques graves;
     entregar = carimbo + o pano da bolsa (recebeu algo)."""
@@ -466,6 +477,9 @@ if __name__ == "__main__":
         sys.exit("Precisa do ffmpeg no PATH.")
     if sys.argv[1:] == ["ui"]:
         make_ui()
+        sys.exit(0)
+    if sys.argv[1:] == ["nivel"]:
+        make_level_up()
         sys.exit(0)
     if sys.argv[1:] == ["missao"]:
         make_quest_sounds()
