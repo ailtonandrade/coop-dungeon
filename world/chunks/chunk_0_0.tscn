@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://dqxmho4xel6qh"]
 
 [ext_resource type="Texture2D" path="res://world/textures/ground_4d453d_615447.res" id="1_y326l"]
-[ext_resource type="Material" path="res://world/materials/parede.tres" id="2_s6l2a"]
+[ext_resource type="Material" uid="uid://rfmxn2etcynf" path="res://world/materials/parede.tres" id="2_s6l2a"]
 [ext_resource type="Script" uid="uid://bbyjjd26mkvij" path="res://world/fade_occluder.gd" id="2_y326l"]
 [ext_resource type="PackedScene" uid="uid://cykmgapidtwdp" path="res://assets/props/Barrel.glb" id="3_t5grd"]
 [ext_resource type="PackedScene" uid="uid://cjysy3ae2mnrl" path="res://assets/props/Chest.glb" id="4_10agt"]
@@ -1344,6 +1344,10 @@ transform = Transform3D(-0.711879, 0.3161612, -0.6271128, 0.22381373, 0.94851124
 [node name="Mesh" type="MeshInstance3D" parent="Navigation/Escombros/Tijolo26" unique_id=1318355062]
 material_override = ExtResource("2_s6l2a")
 mesh = SubResource("BoxMesh_awvpa")
+
+[node name="Pallet" type="StaticBody3D" parent="Navigation" unique_id=979092781 instance=ExtResource("30_68aof")]
+transform = Transform3D(0.25881907, 0, 0.9659258, 0, 1, 0, -0.9659258, 0, 0.25881907, 19.5, 0, 29.300001)
+metadata/prop_def = "res://world/props/zombie_pallet.tres"
 
 [node name="Npc_Sr_Gouveia" type="Node3D" parent="." unique_id=1417754578]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, 0, 12.5)
