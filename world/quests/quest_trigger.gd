@@ -19,6 +19,8 @@ const RANGE := 1.9
 ## Mensagem ao usar (só para quem usou; vazio = nenhuma).
 @export_multiline var message := ""
 @export var single_use := true
+## Fatos que o grupo passa a saber ao usar.
+@export var teaches: Array[String] = []
 
 var _label: Label3D
 var _check := 0.0
@@ -64,6 +66,8 @@ func use(player: Node) -> void:
 		get_node("/root/Chat").local_note(Txt.t(message))
 	if single_use:
 		get_node("/root/Lore").learn(["gatilho_" + id()])
+	if not teaches.is_empty():
+		get_node("/root/Lore").learn(teaches)
 	get_node("/root/Quests").interact(id(), player)
 
 

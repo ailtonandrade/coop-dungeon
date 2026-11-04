@@ -263,6 +263,10 @@ func _update_region() -> void:
 		return
 	_region = region
 	_banner.show_region(region)
+	# Fato automático de região: "visitou_<id da região>" (ex.: visitou_colinas), para missões e
+	# falas que dependem de o grupo já ter ido lá.
+	if not region.id.is_empty():
+		Lore.learn(["visitou_%s" % region.id])
 
 ## Controle que acabou de entrar: escolhe o personagem antes de nascer.
 func open_character_select(slot: int) -> void:

@@ -36,7 +36,10 @@ func _process(_delta: float) -> bool:
 			_check(current_scene.find_child("CadernoHelena", true, false) != null and current_scene.find_child("OficioTransferencia", true, false) != null and _box != null,
 					"a história da vila está no mapa (caderno, ofício no entulho, caixa)")
 			_check(current_scene.find_child("PortaoRafael", true, false) == null, "o portão não fica mais no meio da vila")
-			_check(_lore.facts().is_empty() and _box.is_locked(), "mundo novo: nada descoberto, caixa trancada")
+			# Só o fato automático da região onde nasceu (visitou_vila).
+			var discovered: Array = _lore.facts().keys().filter(func(f: String) -> bool: return not f.begins_with("visitou_"))
+			_check(discovered.is_empty() and _box.is_locked(), "mundo novo: nada descoberto, caixa trancada")
+			_check(_lore.knows("visitou_vila"), "entrar numa região grava o fato visitou_<região>")
 			# Para o teste não depender de sobreviver aos androides do laboratório.
 			_player().health.max_hp = 99999.0
 			_player().health.hp = 99999.0

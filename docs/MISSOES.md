@@ -43,6 +43,15 @@ fato no save do mundo, para o grupo todo. Na missão:
   missão, uma fala nova de NPC, um portão ou um contêiner.
 Assim dá para encadear missões (uma libera a outra) e ligar com a história sem programar nada.
 
+De onde vêm os fatos:
+- **Documento** lido (campo Teaches da ficha do documento; vazio = o id dele);
+- **Fala de NPC**: assunto da conversa com Teaches (e cumprimentos/puxar assunto);
+- **Portão com código ou invasão**: o fato de destravar (Unlock Fact);
+- **Missão** concluída ou objetivo cumprido (Ensina / passa a saber);
+- **Área de missão** ao entrar e **gatilho de missão** ao usar (campo Teaches da peça);
+- **Região**: sozinho, `visitou_<id da região>` na primeira vez que o grupo entra
+  (`visitou_vila`, `visitou_planicie`, `visitou_bosque`, `visitou_colinas`, `visitou_caverna`).
+
 ## Objetivos (QuestObjective)
 
 | Tipo | O que é |

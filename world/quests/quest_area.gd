@@ -10,6 +10,8 @@ extends Node3D
 static var show_markers := false
 
 @export var area_id := ""
+## Fatos que o grupo passa a saber ao entrar (ex.: achou_esconderijo).
+@export var teaches: Array[String] = []
 @export_range(0.5, 30.0, 0.1) var radius := 3.0:
 	set(value):
 		radius = value
@@ -49,6 +51,8 @@ func _process(delta: float) -> void:
 				and absf(player.global_position.y - global_position.y) < 4.0:
 			who = player
 	if who and not _inside:
+		if not teaches.is_empty():
+			get_node("/root/Lore").learn(teaches)
 		get_node("/root/Quests").reach(id(), who)
 	_inside = who != null
 
