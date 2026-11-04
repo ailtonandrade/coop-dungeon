@@ -24,6 +24,10 @@ const KIND_NAMES := {
 ## Tamanho e giro do modelo dentro da peça (a base sempre fica no chão).
 @export_range(0.01, 100.0, 0.01, "or_greater") var scale := 1.0
 @export var rotation_deg := Vector3.ZERO
+## Colisão: "caixa" envolve a peça toda (rápida; boa para caixote, carro, muro); "malha" segue o
+## formato do modelo (só o cano e a placa de um semáforo: dá para passar por baixo); "auto" usa
+## malha nas peças fixas altas (placa de rua, semáforo, poste com braço) e caixa no resto.
+@export_enum("auto", "caixa", "malha") var collision := "auto"
 
 @export_group("Físico")
 @export_range(0.1, 2000.0, 0.1, "suffix:kg") var mass := 10.0
@@ -45,6 +49,19 @@ static func looks_structural(model_name: String) -> bool:
 		if lower.contains(word):
 			return true
 	return false
+
+
+## Altura a partir da qual uma peça fixa usa a colisão da malha no modo "auto".
+const TALL_FOR_MESH_COLLISION := 2.4
+
+
+## A colisão desta peça segue a malha? (`height` = altura do modelo na peça.)
+func uses_mesh_collision(height: float) -> bool:
+	if collision == "malha":
+		return true
+	if collision == "caixa":
+		return false
+	return kind == "fixo" and height > TALL_FOR_MESH_COLLISION
 
 
 func kind_name() -> String:

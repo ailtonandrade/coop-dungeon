@@ -288,7 +288,9 @@ static func build(def: PropDef) -> Node3D:
 		model.owner = root
 	else:
 		model.free()
-	if def.kind in ["fixo", "fisico", "estrutura"]:
+	if def.kind in ["fixo", "estrutura"] and def.uses_mesh_collision(box.size.y) and model.get_parent() == root:
+		_mesh_collision(root, model)
+	elif def.kind in ["fixo", "fisico", "estrutura"]:
 		var shape := BoxShape3D.new()
 		shape.size = box.size.max(Vector3.ONE * 0.05)
 		var collision := CollisionShape3D.new()
@@ -298,6 +300,35 @@ static func build(def: PropDef) -> Node3D:
 		root.add_child(collision)
 		collision.owner = root
 	return root
+
+
+## Colisão no formato do modelo: uma forma de malha (triângulos) por pedaço do modelo, no mesmo
+## lugar dele. Só para peça parada (estática).
+static func _mesh_collision(root: Node3D, model: Node3D) -> void:
+	var index := 0
+	for mesh: MeshInstance3D in model.find_children("*", "MeshInstance3D", true, false):
+		if mesh.mesh == null:
+			continue
+		var shape := mesh.mesh.create_trimesh_shape()
+		if shape == null:
+			continue
+		var collision := CollisionShape3D.new()
+		collision.name = "Collision" if index == 0 else "Collision%d" % (index + 1)
+		collision.shape = shape
+		collision.transform = _transform_to(root, mesh)
+		root.add_child(collision)
+		collision.owner = root
+		index += 1
+
+
+static func _transform_to(ancestor: Node3D, node: Node3D) -> Transform3D:
+	var xform := Transform3D.IDENTITY
+	var current: Node = node
+	while current and current != ancestor:
+		if current is Node3D:
+			xform = (current as Node3D).transform * xform
+		current = current.get_parent()
+	return xform
 
 
 ## O modelo como cena: a própria (glb/gltf/fbx) ou uma cena gerada com a malha (.obj).

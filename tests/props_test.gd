@@ -58,6 +58,21 @@ func _initialize() -> void:
 			_check(absf(box.position.y + model.position.y) < 0.02, "%s: base do modelo no chão" % kind)
 		node.free()
 
+	# Peça fixa alta (placa de rua): colisão no formato do modelo, dá para passar por baixo da placa.
+	var sign: Resource = load("res://props/prop_def.gd").new()
+	sign.id = "teste_placa"
+	sign.model = load("res://assets/props/packs/Zombie/Environment/glTF/TownSign.gltf")
+	sign.kind = "fixo"
+	var sign_node: Node3D = builder.build(sign)
+	var shape: Shape3D = (sign_node.get_node("Collision") as CollisionShape3D).shape
+	_check(shape is ConcavePolygonShape3D, "peça fixa alta usa colisão da malha (%s)" % shape.get_class())
+	sign_node.free()
+	sign.collision = "caixa"
+	sign_node = builder.build(sign)
+	_check((sign_node.get_node("Collision") as CollisionShape3D).shape is BoxShape3D, "dá para forçar caixa na ficha")
+	sign_node.free()
+	_check(not def.uses_mesh_collision(0.8), "barril (baixo) continua com caixa")
+
 
 func _process(_delta: float) -> bool:
 	_frames += 1
