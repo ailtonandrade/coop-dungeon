@@ -6,13 +6,15 @@ extends Node
 ## navegador), o botão abre a página da versão para baixar à mão.
 ##
 ## Versões: a do jogo é application/config/version (project.godot); a do GitHub é a tag do
-## release mais recente ("v0.2.0"). O release é feito por tools/lancar_release.bat.
+## release mais recente ("v0.2.0") no repositório de downloads. O release é feito por
+## tools/lancar_release.bat (exporta no seu PC e publica lá).
 ##
 ## Rodando pelo editor do Godot (cópia de desenvolvimento) só avisa: atualize pelo Git.
 
 signal changed
 
-const REPO := "ailtonandrade/coop-dungeon"
+## Repositório PÚBLICO só de downloads (as versões prontas; o código fica em coop-dungeon).
+const REPO := "ailtonandrade/corrumpted"
 const LATEST_URL := "https://api.github.com/repos/%s/releases/latest" % REPO
 ## Confere de novo de tempos em tempos (o limite da API do GitHub sem login é 60 por hora).
 const CHECK_INTERVAL := 30.0 * 60.0

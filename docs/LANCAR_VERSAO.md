@@ -1,25 +1,40 @@
 # Lançar versão nova (e como o jogo atualiza sozinho)
 
+## Onde ficam as versões
+
+- **`ailtonandrade/coop-dungeon`**: o código do projeto (pode ser privado). Aqui ficam o modo
+  construtor, o editor de missões, os editores do Godot, testes e docs.
+- **`ailtonandrade/corrumpted`**: repositório **público só de downloads**. Cada versão é um
+  release com `Corrumpted-vX.Y.Z-Windows.zip`, `-Linux.zip` e `-Web.zip`, e o README de como
+  jogar (`tools/release_readme.md`). É aqui que os jogos instalados procuram versão nova.
+  O jogo exportado **não leva** o `/construir`, o `/missoes`, o gravador de mapa nem os editores
+  (filtro de exportação em `export_presets.cfg`).
+
 ## Lançar
 
-Dois cliques em **`tools/lancar_release.bat`** (Windows, precisa do Git instalado):
+Dois cliques em **`tools/lancar_release.bat`** (Windows). Precisa, uma vez:
+- **Git** e **GitHub CLI** (`gh`, https://cli.github.com) logado: `gh auth login`;
+- **Godot 4.7** com os **modelos de exportação** (no Godot: Editor > Gerenciar modelos de
+  exportação > Baixar e instalar). Na primeira vez o bat pergunta onde está o `.exe` do Godot
+  (arraste o arquivo para a janela) e guarda.
 
-1. Ele pega o que tem de novo no GitHub e mostra as mudanças que ainda não foram enviadas
-   (elas vão junto, inclusive as peças do modo construtor nas cenas dos blocos).
+O que ele faz:
+1. Pega o que tem de novo no GitHub e mostra as mudanças que ainda não foram enviadas (elas vão
+   junto, inclusive as peças do modo construtor nas cenas dos blocos).
 2. Pergunta o número da versão nova (Enter aceita a sugestão: a atual + 1 no último número) e
    uma linha do que mudou.
-3. Grava a versão no projeto (`application/config/version` no `project.godot`), faz o commit,
-   cria a tag `v<versão>` e manda tudo. O navegador abre na página de Actions.
-4. Em uns 5 minutos o GitHub exporta Windows, Linux e Web e publica em **Releases**
-   (`.github/workflows/release.yml`).
+3. Grava a versão no `project.godot`, exporta Windows, Linux e Web com o seu Godot e compacta.
+4. Faz o commit, a tag `v<versão>` e manda o código para o `coop-dungeon`.
+5. Cria o `corrumpted` na primeira vez (público, com o README) e publica a versão lá. O navegador
+   abre na página da versão.
 
-Sem o bat: mude a versão no `project.godot`, faça commit e push, e mande a tag
-(`git tag v0.2.0` e `git push origin v0.2.0`). A exportação usa sempre o número da tag.
+O workflow do GitHub (`.github/workflows/release.yml`) continua para exportar na nuvem à mão
+(Actions > Release > Run workflow), mas não publica mais nada.
 
 ## Como o jogo dos jogadores atualiza
 
 `core/updater.gd` (serviço `Updater`):
-- Ao abrir o jogo e a cada 30 minutos, consulta o release mais recente no GitHub.
+- Ao abrir o jogo e a cada 30 minutos, consulta o release mais recente em `ailtonandrade/corrumpted`.
 - Tendo versão maior que a do jogo, o menu principal mostra o cartão **NOVA VERSÃO
   DISPONÍVEL** com as novidades, **Atualizar agora** e **Depois**. "Depois" deixa um selo no
   canto do menu ("⬆ Versão X disponível") que abre o cartão de novo.
