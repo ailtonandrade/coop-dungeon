@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="PropDef" format=3]
+
+[ext_resource type="PackedScene" path="res://assets/props/packs/DownTown/Brick_Inset.gltf" id="1_ec2jb"]
+[ext_resource type="Script" path="res://props/prop_def.gd" id="2_8rbxi"]
+
+[resource]
+script = ExtResource("2_8rbxi")
+id = "brick_inset"
+display_name = "Brick Inset"
+model = ExtResource("1_ec2jb")
+kind = "estrutura"

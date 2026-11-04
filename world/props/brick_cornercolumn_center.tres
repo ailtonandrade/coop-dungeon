@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="PropDef" format=3]
+
+[ext_resource type="PackedScene" path="res://assets/props/packs/DownTown/Brick_CornerColumn_Center.gltf" id="1_5dauc"]
+[ext_resource type="Script" path="res://props/prop_def.gd" id="2_jgraw"]
+
+[resource]
+script = ExtResource("2_jgraw")
+id = "brick_cornercolumn_center"
+display_name = "Brick CornerColumn Center"
+model = ExtResource("1_5dauc")
+kind = "estrutura"

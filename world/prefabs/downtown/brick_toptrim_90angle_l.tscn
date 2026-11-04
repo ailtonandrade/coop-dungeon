@@ -1,0 +1,16 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://assets/props/packs/DownTown/Brick_TopTrim_90Angle_L.gltf" id="1_j4pgt"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_gr1gj"]
+size = Vector3(0.706197, 3.0000005, 0.7)
+
+[node name="BrickTopTrim90AngleL" type="StaticBody3D" unique_id=36155431]
+metadata/prop_def = "res://world/props/brick_toptrim_90angle_l.tres"
+
+[node name="Modelo" type="Node3D" parent="." unique_id=603298094 instance=ExtResource("1_j4pgt")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.6469015, 0, 0.35)
+
+[node name="Collision" type="CollisionShape3D" parent="." unique_id=796623707]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5000002, 0)
+shape = SubResource("BoxShape3D_gr1gj")

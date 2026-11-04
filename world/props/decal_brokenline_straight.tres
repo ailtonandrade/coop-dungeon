@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="PropDef" format=3]
+
+[ext_resource type="PackedScene" path="res://assets/props/packs/DownTown/Decal_BrokenLine_Straight.gltf" id="1_2dnpn"]
+[ext_resource type="Script" path="res://props/prop_def.gd" id="2_vjlje"]
+
+[resource]
+script = ExtResource("2_vjlje")
+id = "decal_brokenline_straight"
+display_name = "Decal BrokenLine Straight"
+model = ExtResource("1_2dnpn")

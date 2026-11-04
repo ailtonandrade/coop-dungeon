@@ -1,0 +1,16 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://assets/props/packs/Zombie/Environment/glTF/Street_Straight_Crack1.gltf" id="1_447xb"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_0eudx"]
+size = Vector3(8, 0.28516734, 8)
+
+[node name="StreetStraightCrack1" type="StaticBody3D" unique_id=937984322]
+metadata/prop_def = "res://world/props/street_straight_crack1.tres"
+
+[node name="Modelo" type="Node3D" parent="." unique_id=1442204743 instance=ExtResource("1_447xb")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.16516736, 0)
+
+[node name="Collision" type="CollisionShape3D" parent="." unique_id=310905727]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.14258367, 0)
+shape = SubResource("BoxShape3D_0eudx")

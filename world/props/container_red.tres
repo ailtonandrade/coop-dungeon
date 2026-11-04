@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="PropDef" format=3]
+
+[ext_resource type="PackedScene" path="res://assets/props/packs/Zombie/Environment/glTF/Container_Red.gltf" id="1_2wakl"]
+[ext_resource type="Script" path="res://props/prop_def.gd" id="2_0quoc"]
+
+[resource]
+script = ExtResource("2_0quoc")
+id = "container_red"
+display_name = "Container Red"
+model = ExtResource("1_2wakl")

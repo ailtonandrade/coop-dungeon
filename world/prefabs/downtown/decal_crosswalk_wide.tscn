@@ -1,0 +1,16 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://assets/props/packs/DownTown/Decal_Crosswalk_Wide.gltf" id="1_6tjhh"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_m0cxc"]
+size = Vector3(4.666265, 0.05, 11.415751)
+
+[node name="DecalCrosswalkWide" type="StaticBody3D" unique_id=1741259310]
+metadata/prop_def = "res://world/props/decal_crosswalk_wide.tres"
+
+[node name="Modelo" type="Node3D" parent="." unique_id=41861186 instance=ExtResource("1_6tjhh")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.3841858e-07, 0.14800002, 0)
+
+[node name="Collision" type="CollisionShape3D" parent="." unique_id=2108205192]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.9993396e-06, 0)
+shape = SubResource("BoxShape3D_m0cxc")

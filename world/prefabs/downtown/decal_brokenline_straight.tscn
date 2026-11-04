@@ -1,0 +1,16 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://assets/props/packs/DownTown/Decal_BrokenLine_Straight.gltf" id="1_ah31k"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_i5uyo"]
+size = Vector3(6, 0.05, 0.19999981)
+
+[node name="DecalBrokenLineStraight" type="StaticBody3D" unique_id=1371651849]
+metadata/prop_def = "res://world/props/decal_brokenline_straight.tres"
+
+[node name="Modelo" type="Node3D" parent="." unique_id=886455398 instance=ExtResource("1_ah31k")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.13000001, 0)
+
+[node name="Collision" type="CollisionShape3D" parent="." unique_id=1637200265]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.9993396e-06, 0)
+shape = SubResource("BoxShape3D_i5uyo")

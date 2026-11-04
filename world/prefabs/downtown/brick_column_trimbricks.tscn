@@ -1,0 +1,16 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://assets/props/packs/DownTown/Brick_Column_TrimBricks.gltf" id="1_yhs7j"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_aywjn"]
+size = Vector3(0.6513682, 3.000828, 0.6359546)
+
+[node name="BrickColumnTrimBricks" type="StaticBody3D" unique_id=250087969]
+metadata/prop_def = "res://world/props/brick_column_trimbricks.tres"
+
+[node name="Modelo" type="Node3D" parent="." unique_id=520370976 instance=ExtResource("1_yhs7j")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.1743159, 0.0020582639, 0.20257133)
+
+[node name="Collision" type="CollisionShape3D" parent="." unique_id=631279096]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.500414, 0)
+shape = SubResource("BoxShape3D_aywjn")

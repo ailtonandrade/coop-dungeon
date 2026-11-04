@@ -1,0 +1,16 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://assets/props/packs/DownTown/Cornice_Trim_R.gltf" id="1_qhmpy"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_5o8md"]
+size = Vector3(2.52784, 0.9983842, 0.6278399)
+
+[node name="CorniceTrimR" type="StaticBody3D" unique_id=1634869539]
+metadata/prop_def = "res://world/props/cornice_trim_r.tres"
+
+[node name="Modelo" type="Node3D" parent="." unique_id=1966875768 instance=ExtResource("1_qhmpy")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.26391995, 0, -0.21391994)
+
+[node name="Collision" type="CollisionShape3D" parent="." unique_id=963068462]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.4991921, 0)
+shape = SubResource("BoxShape3D_5o8md")

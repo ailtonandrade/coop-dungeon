@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="PropDef" format=3]
+
+[ext_resource type="PackedScene" path="res://assets/props/packs/Zombie/Environment/glTF/Street_Straight_Crack2.gltf" id="1_fuisc"]
+[ext_resource type="Script" path="res://props/prop_def.gd" id="2_cjhmv"]
+
+[resource]
+script = ExtResource("2_cjhmv")
+id = "street_straight_crack2"
+display_name = "Street Straight Crack2"
+model = ExtResource("1_fuisc")
+kind = "estrutura"

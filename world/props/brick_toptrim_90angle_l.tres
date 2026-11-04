@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="PropDef" format=3]
+
+[ext_resource type="PackedScene" path="res://assets/props/packs/DownTown/Brick_TopTrim_90Angle_L.gltf" id="1_yuknp"]
+[ext_resource type="Script" path="res://props/prop_def.gd" id="2_uhybq"]
+
+[resource]
+script = ExtResource("2_uhybq")
+id = "brick_toptrim_90angle_l"
+display_name = "Brick TopTrim 90Angle L"
+model = ExtResource("1_yuknp")
+kind = "estrutura"

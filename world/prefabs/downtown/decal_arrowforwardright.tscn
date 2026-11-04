@@ -1,0 +1,16 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://assets/props/packs/DownTown/Decal_ArrowForwardRight.gltf" id="1_a7ica"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_2so5i"]
+size = Vector3(1.7758837, 0.05, 2.674592)
+
+[node name="DecalArrowForwardRight" type="StaticBody3D" unique_id=745889718]
+metadata/prop_def = "res://world/props/decal_arrowforwardright.tres"
+
+[node name="Modelo" type="Node3D" parent="." unique_id=1944439830 instance=ExtResource("1_a7ica")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.47024897, 0.13000001, 0.03647268)
+
+[node name="Collision" type="CollisionShape3D" parent="." unique_id=1953721982]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.9993396e-06, 0)
+shape = SubResource("BoxShape3D_2so5i")

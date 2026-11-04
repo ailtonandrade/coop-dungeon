@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="PropDef" format=3]
+
+[ext_resource type="PackedScene" path="res://assets/props/packs/Zombie/Environment/glTF/TownSign.gltf" id="1_dqmmx"]
+[ext_resource type="Script" path="res://props/prop_def.gd" id="2_jmdr7"]
+
+[resource]
+script = ExtResource("2_jmdr7")
+id = "townsign"
+display_name = "TownSign"
+model = ExtResource("1_dqmmx")

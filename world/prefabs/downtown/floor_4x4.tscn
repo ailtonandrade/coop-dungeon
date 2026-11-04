@@ -1,0 +1,16 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://assets/props/packs/DownTown/Floor_4x4.gltf" id="1_2v82g"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_xqrqx"]
+size = Vector3(4, 0.10001, 4)
+
+[node name="Floor4x4" type="StaticBody3D" unique_id=1360237416]
+metadata/prop_def = "res://world/props/floor_4x4.tres"
+
+[node name="Modelo" type="Node3D" parent="." unique_id=510258184 instance=ExtResource("1_2v82g")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.1, 0)
+
+[node name="Collision" type="CollisionShape3D" parent="." unique_id=1926592878]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.050005, 0)
+shape = SubResource("BoxShape3D_xqrqx")
