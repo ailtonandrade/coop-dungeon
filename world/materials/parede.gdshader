@@ -7,7 +7,7 @@ render_mode cull_back;
 uniform sampler2D wall_texture : source_color, filter_linear_mipmap, repeat_enable;
 uniform sampler2D grime : source_color, filter_linear_mipmap, repeat_enable;
 // Metros de parede por repetição da textura.
-uniform float tile = 3.0;
+uniform float tile = 9.75;
 uniform float ground_y = 0.0;
 // Cor geral (para variar casa a casa).
 uniform vec3 tint : source_color = vec3(1.0);
@@ -35,7 +35,7 @@ void fragment() {
 	float height = world_pos.y - ground_y;
 	float splash = 1.0 - smoothstep(0.0, 0.7, height + (texture(grime, uv * 0.7).r - 0.5) * 0.4);
 	color = mix(color, color * vec3(0.55, 0.47, 0.38), splash * 0.75);
-	color *= mix(1.0, texture(grime, uv / 2.5).r, 0.6);
+	color *= mix(1.0, texture(grime, uv / 7.0).r, 0.6);
 	ALBEDO = color;
 	ROUGHNESS = 0.95;
 	SPECULAR = 0.2;

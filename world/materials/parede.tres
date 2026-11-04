@@ -9,6 +9,6 @@ render_priority = 0
 shader = ExtResource("1_hphtk")
 shader_parameter/wall_texture = ExtResource("3_473kh")
 shader_parameter/grime = ExtResource("2_f7ew6")
-shader_parameter/tile = null
+shader_parameter/tile = 9.75
 shader_parameter/ground_y = null
 shader_parameter/tint = null

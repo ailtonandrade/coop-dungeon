@@ -14,6 +14,7 @@ func _initialize() -> void:
 	wall.shader = load("res://world/materials/parede.gdshader")
 	wall.set_shader_parameter("wall_texture", load("res://world/textures/parede_tijolo_reboco.png"))
 	wall.set_shader_parameter("grime", load("res://world/textures/sujeira.png"))
+	wall.set_shader_parameter("tile", 9.75)
 	ResourceSaver.save(wall, WALL)
 	var floor := StandardMaterial3D.new()
 	floor.albedo_texture = load("res://world/textures/contrapiso.png")

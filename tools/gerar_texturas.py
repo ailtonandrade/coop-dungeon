@@ -39,37 +39,42 @@ def save(name, rgb):
     print("  world/textures/" + name)
 
 
+# Parede: ~10 m por repetição (WALL_METERS), para o desenho do reboco não ficar se repetindo.
+WALL_METERS = 9.75
+WALL_SIZE = 2048
+
+
 def wall():
-    # 3 m de parede por textura: tijolo baiano/maciço 0,375 x 0,15 m (8 por fileira, 20 fileiras).
-    s = SIZE
-    cols, rows = 8, 20
+    # Tijolo maciço 0,375 x 0,15 m: 26 por fileira e 65 fileiras em 9,75 m.
+    s = WALL_SIZE
+    cols, rows = 26, 65
     bw, bh = s / cols, s / rows
     y, x = np.mgrid[0:s, 0:s].astype(float)
     row = (y // bh).astype(int)
     shift = (row % 2) * (bw / 2)
     bx = ((x + shift) % bw)
     by = y % bh
-    mortar = (bx < 3) | (by < 3)
+    mortar = (bx < 4) | (by < 4)
     brick_id = ((x + shift) // bw).astype(int) % cols + row * cols
     tone = rng.uniform(0.82, 1.12, cols * rows + cols)[brick_id]
     brick = np.stack([0.5 * tone, 0.27 * tone, 0.19 * tone], -1)
-    grain = tile_noise(s, 16, 3, 1)[..., None]
+    grain = tile_noise(s, 52, 3, 1)[..., None]
     brick *= 0.85 + 0.3 * grain
     mortar_c = np.array([0.5, 0.48, 0.44])
     base = np.where(mortar[..., None], mortar_c, brick)
     # Reboco (cimento) cobrindo boa parte, caindo em placas: onde o ruído passa do limite.
-    cover = tile_noise(s, 2, 4, 2)
+    cover = tile_noise(s, 4, 5, 2)
     plaster_mask = cover > 0.5
     edge = (cover > 0.46) & ~plaster_mask
-    plaster_tone = 0.5 + 0.14 * tile_noise(s, 6, 4, 3)
+    plaster_tone = 0.5 + 0.14 * tile_noise(s, 18, 4, 3)
     plaster = np.stack([plaster_tone * 1.0, plaster_tone * 0.96, plaster_tone * 0.86], -1)
     out = np.where(plaster_mask[..., None], plaster, base)
     out = np.where(edge[..., None], out * 0.72, out)  # beirada quebrada do reboco
     # Manchas de umidade e fuligem escorrendo (riscos verticais).
-    drips = tile_noise(s, 6, 3, 4, stretch_y=0.08)
-    patches = tile_noise(s, 2, 3, 5)
+    drips = tile_noise(s, 18, 3, 4, stretch_y=0.08)
+    patches = tile_noise(s, 5, 3, 5)
     stains = np.clip((drips - 0.5) * 2.5, 0, 1) * np.clip((patches - 0.3) * 2, 0, 1)
-    mold = np.clip((tile_noise(s, 3, 4, 6) - 0.62) * 3, 0, 1)
+    mold = np.clip((tile_noise(s, 8, 4, 6) - 0.62) * 3, 0, 1)
     out = out * (1 - 0.5 * stains[..., None]) + np.array([0.1, 0.1, 0.07]) * 0.5 * stains[..., None]
     out = out * (1 - 0.35 * mold[..., None]) + np.array([0.16, 0.2, 0.12]) * 0.35 * mold[..., None]
     save("parede_tijolo_reboco.png", out)
