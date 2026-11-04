@@ -222,6 +222,8 @@ static func bake_navigation_now(nav: NavigationRegion3D) -> int:
 static func navigation_source(nav: NavigationRegion3D) -> NavigationMeshSourceGeometryData3D:
 	var nav_mesh := nav.navigation_mesh
 	nav_mesh.geometry_parsed_geometry_type = NavigationMesh.PARSED_GEOMETRY_STATIC_COLLIDERS
+	# Criaturas sobem degrau de piso/calçada/laje como os heróis (Enemy/Player.STEP_HEIGHT).
+	nav_mesh.agent_max_climb = maxf(nav_mesh.agent_max_climb, 0.5)
 	nav_mesh.geometry_collision_mask = GameConfig.LAYER_WORLD
 	var source := NavigationMeshSourceGeometryData3D.new()
 	NavigationServer3D.parse_source_geometry_data(nav_mesh, source, nav)

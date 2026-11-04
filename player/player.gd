@@ -314,12 +314,55 @@ func _physics_process(delta: float) -> void:
 		velocity.y = 0.0
 	else:
 		velocity.y -= GameConfig.GRAVITY * delta
+	var was_on_floor := is_on_floor()
+	var wanted_flat := Vector3(velocity.x, 0.0, velocity.z)
 	move_and_slide()
+	if was_on_floor and wanted_flat.length() > 0.5:
+		_step_up(wanted_flat, delta)
 	_push_props(delta)
 
 	if state != State.DOWNED:
 		var target_basis := Basis.looking_at(_facing)
 		basis = basis.slerp(target_basis, minf(GameConfig.PLAYER_TURN_SPEED * delta, 1.0)).orthonormalized()
+
+
+## Degrau: andando contra uma bordinha baixa (piso, calçada, laje de até STEP_HEIGHT), o herói
+## sobe nela em vez de travar. Confere se cabe lá em cima antes.
+const STEP_HEIGHT := 0.36
+
+
+func _step_up(wanted: Vector3, delta: float) -> void:
+	step_up(self, wanted, delta)
+
+
+## Degrau para qualquer corpo que anda (herói e criaturas).
+static func step_up(body: CharacterBody3D, wanted: Vector3, delta: float) -> void:
+	var blocked := false
+	for i in body.get_slide_collision_count():
+		var normal := body.get_slide_collision(i).get_normal()
+		if absf(normal.y) < 0.3 and normal.dot(wanted.normalized()) < -0.3:
+			blocked = true
+	if not blocked:
+		return
+	var ahead := wanted.normalized() * maxf(wanted.length() * delta, 0.12)
+	var start := body.global_transform
+	# Sobe, anda um pouco e procura o chão: só vale se nada bate lá em cima.
+	if body.test_move(start, Vector3.UP * STEP_HEIGHT):
+		return
+	var raised := start.translated(Vector3.UP * STEP_HEIGHT)
+	if body.test_move(raised, ahead):
+		return
+	var space := body.get_world_3d().direct_space_state
+	var probe := raised.origin + ahead + Vector3.UP * 0.05
+	var query := PhysicsRayQueryParameters3D.create(probe, probe + Vector3.DOWN * (STEP_HEIGHT + 0.1), GameConfig.LAYER_SOLID)
+	query.exclude = [body.get_rid()]
+	var hit := space.intersect_ray(query)
+	if hit.is_empty() or (hit.normal as Vector3).y < 0.7:
+		return
+	var rise: float = (hit.position as Vector3).y - body.global_position.y
+	if rise < 0.01 or rise > STEP_HEIGHT:
+		return
+	body.global_position = Vector3(body.global_position.x + ahead.x, (hit.position as Vector3).y + 0.01, body.global_position.z + ahead.z)
 
 
 ## Empurra peças físicas (cone, barril...) em que o herói esbarra andando. Só o host simula.
