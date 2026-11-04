@@ -165,11 +165,12 @@ func is_targetable() -> bool:
 	return state != State.DEAD
 
 
-func take_hit(amount: float, knockback := Vector3.ZERO) -> void:
+## `ranged`: tiro (prego) em vez de golpe; muda só o som.
+func take_hit(amount: float, knockback := Vector3.ZERO, ranged := false) -> void:
 	if state == State.DEAD or not health.take_hit(amount):
 		return
 	# Número, faísca e som em todas as máquinas (o golpe que mata também mostra o número).
-	_broadcast("fx_hit", [amount, knockback.length() >= HEAVY_KNOCKBACK])
+	_broadcast("fx_hit", [amount, knockback.length() >= HEAVY_KNOCKBACK, ranged])
 	_knockback = Combat.flat(knockback)
 	if state == State.DEAD:
 		return
@@ -187,7 +188,7 @@ func _broadcast(method: String, args: Array) -> void:
 		callv(method, args)
 
 
-func fx_hit(amount: float, heavy: bool) -> void:
+func fx_hit(amount: float, heavy: bool, ranged := false) -> void:
 	fx_flash()
 	var chest := global_position + Vector3.UP * 1.2
 	HitFx.damage_number(self, global_position + Vector3.UP * 2.0, amount, "heavy" if heavy else "hit")
@@ -197,7 +198,10 @@ func fx_hit(amount: float, heavy: bool) -> void:
 	elif kind == Kind.ANDROID:
 		spark = Color(0.6, 0.85, 1.0)
 	HitFx.sparks(self, chest, spark, 18 if heavy else 10)
-	Sound.play("hit_heavy" if heavy else "hit", chest)
+	if ranged:
+		Sound.play("nail_hit", chest)
+	else:
+		Sound.play("hit_heavy" if heavy else "hit", chest)
 	Sound.play("enemy_hurt", chest)
 
 

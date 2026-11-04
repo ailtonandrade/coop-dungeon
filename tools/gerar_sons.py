@@ -213,43 +213,88 @@ def chord(freqs, seconds, wave_="saw"):
 
 
 def nail_shot(seed):
-    """Pregador pneumático: estalo seco do pistão (corpo grave curto + transiente), rajada de ar
-    comprimido, tique abafado do prego entrando no cano e o "pssh" do escape, com um eco curto
-    de rua. Nada de anel metálico comprido (soava como laser)."""
+    """Pregador pneumático, abafado e realista: ESTALO seco na frente (transiente curtíssimo, de
+    banda larga), pistão batendo (grave curto), rajada de ar comprimido e escape; depois eco leve
+    de rua (duas batidas nas paredes, abafadas) e uma cauda curta de ambiente. Nada de anel."""
     r = np.random.default_rng(100 + seed)
-    total = 0.42
-    # Pistão batendo: grave curto que cai rápido + estalo de banda larga.
-    knock = sweep_sine(r.uniform(260, 320), r.uniform(90, 110), 0.07, 0.5) * env(int(0.07 * RATE), 0.0005, 0.025)
-    crack_n = r.uniform(-1, 1, int(0.012 * RATE))
-    crack = onepole_lowpass(crack_n, 7000) * env(len(crack_n), 0.0002, 0.004) * 1.6
-    # Ar comprimido saindo de uma vez (banda média, ataque instantâneo).
-    burst_n = r.uniform(-1, 1, int(0.06 * RATE))
-    burst = bandpass(burst_n, 900, 5500) * env(len(burst_n), 0.0008, 0.018) * 0.9
-    # Prego/driver: tique curto e abafado (ressonância amortecida, sem cauda).
-    tick = partials(r.uniform(1700, 2100), [1, 2.3, 3.9], [0.02, 0.012, 0.008], 0.03, [1.0, 0.5, 0.25])
-    tick = onepole_lowpass(tick * env(len(tick), 0.0003, 0.01), 4500) * 0.35
-    # Escape do ar depois do tiro: chiado baixo descendo.
-    exhaust_n = r.uniform(-1, 1, int(0.22 * RATE))
-    sweep = np.linspace(5200, 1800, len(exhaust_n))
-    exhaust = onepole_lowpass(exhaust_n, sweep) - onepole_lowpass(exhaust_n, 700)
-    exhaust *= env(len(exhaust_n), 0.01, 0.12, 3.0) * 0.22
-    shot = mix(drive(mix(knock * 1.2, crack), 1.8), burst, tick, at(exhaust, 0.025))
-    # Eco curto (parede de lata do ferro-velho), abafado.
-    slap = onepole_lowpass(shot, 2200) * 0.16
-    out = mix(shot, at(slap, 0.055), at(slap * 0.45, 0.12))
+    total = 0.75
+    crack_n = r.uniform(-1, 1, int(0.006 * RATE))
+    crack = (crack_n - onepole_lowpass(crack_n, 900)) * env(len(crack_n), 0.0001, 0.0018) * 2.6
+    snap_n = r.uniform(-1, 1, int(0.02 * RATE))
+    snap = bandpass(snap_n, 700, 4200) * env(len(snap_n), 0.0002, 0.006) * 1.4
+    knock = sweep_sine(r.uniform(230, 280), r.uniform(80, 95), 0.09, 0.5) * env(int(0.09 * RATE), 0.0004, 0.03) * 1.3
+    burst_n = r.uniform(-1, 1, int(0.07 * RATE))
+    burst = bandpass(burst_n, 600, 4000) * env(len(burst_n), 0.0006, 0.022) * 0.8
+    exhaust_n = r.uniform(-1, 1, int(0.2 * RATE))
+    exhaust = onepole_lowpass(exhaust_n, np.linspace(3800, 1200, len(exhaust_n))) - onepole_lowpass(exhaust_n, 500)
+    exhaust *= env(len(exhaust_n), 0.008, 0.1, 3.0) * 0.18
+    shot = mix(drive(mix(crack, snap, knock), 2.2), burst, at(exhaust, 0.02))
+    # Abafado: corta o chiado de cima.
+    shot = onepole_lowpass(onepole_lowpass(shot, 6500), 8000)
+    # Eco leve: duas reflexões (parede perto e longe), mais escuras e baixas.
+    slap1 = onepole_lowpass(shot, 1800) * 0.28
+    slap2 = onepole_lowpass(shot, 1100) * 0.14
+    # Cauda curta de ambiente (ruído decaindo, bem grave).
+    tail_n = r.uniform(-1, 1, int(0.5 * RATE))
+    tail = onepole_lowpass(tail_n, 900) * env(len(tail_n), 0.01, 0.22, 3.5) * 0.09
+    out = mix(shot, at(slap1, 0.07), at(slap2, 0.16), at(tail, 0.02))
     return pad(out, max(0.0, total - len(out) / RATE))[: int(total * RATE)]
+
+
+def nail_impact_wall(seed):
+    """Prego batendo em parede/chão: "tok" seco e abafado com um pouquinho de poeira e cacos.
+    Sem ressonância (nada de plim)."""
+    r = np.random.default_rng(200 + seed)
+    knock = sweep_sine(r.uniform(380, 460), r.uniform(150, 190), 0.04, 0.6) * env(int(0.04 * RATE), 0.0003, 0.012)
+    tick_n = r.uniform(-1, 1, int(0.008 * RATE))
+    tick = bandpass(tick_n, 1200, 4500) * env(len(tick_n), 0.0001, 0.002) * 0.9
+    dust_n = r.uniform(-1, 1, int(0.12 * RATE))
+    dust = bandpass(dust_n, 400, 2200) * env(len(dust_n), 0.002, 0.04, 3.0) * 0.35
+    grains = np.zeros(int(0.2 * RATE))
+    for _ in range(4):
+        g_n = r.uniform(-1, 1, int(0.006 * RATE))
+        g = bandpass(g_n, 1500, 5000) * env(len(g_n), 0.0002, 0.002) * r.uniform(0.08, 0.18)
+        start = int(r.uniform(0.03, 0.15) * RATE)
+        grains[start:start + len(g)] += g[: len(grains) - start]
+    out = mix(drive(mix(knock, tick), 1.6), dust, grains)
+    return onepole_lowpass(out, 5000)
+
+
+def nail_impact_body(seed):
+    """Prego entrando no corpo (sucata, couro, carne): baque grave e curto, abafado."""
+    r = np.random.default_rng(300 + seed)
+    thud = sweep_sine(r.uniform(170, 200), r.uniform(70, 85), 0.07, 0.6) * env(int(0.07 * RATE), 0.0005, 0.025)
+    slap_n = r.uniform(-1, 1, int(0.04 * RATE))
+    slap = onepole_lowpass(slap_n, 1100) * env(len(slap_n), 0.0003, 0.012) * 0.7
+    out = drive(mix(thud * 1.2, slap), 2.0)
+    return onepole_lowpass(out, 3500)
+
+
+def swing_heavy():
+    """Golpe final do combo: o mesmo "swaaash" de ar, mais longo e encorpado, SEM baque grave
+    no fim (antes tinha uma senoide descendo que soava como "pumm")."""
+    n_sec = 0.36
+    n = int(n_sec * RATE)
+    k = np.linspace(0, 1, n)
+    center = 260 + (1500 - 260) * np.sin(np.pi * k) ** 1.5
+    body = bandpass(noise(n_sec), center * 0.5, center * 1.5)
+    shape = np.sin(np.pi * k) ** 1.4
+    return body * shape
 
 
 def make_nail_shots():
     for i in range(3):
         save(SFX, "nail_shot_%d" % (i + 1), nail_shot(i))
+    for i in range(3):
+        save(SFX, "nail_impact_%d" % (i + 1), nail_impact_wall(i))
+        save(SFX, "nail_body_%d" % (i + 1), nail_impact_body(i))
 
 
 def make_sfx():
     print("Efeitos:")
     for i in range(3):
         save(SFX, "swing_%d" % (i + 1), whoosh(rng.uniform(0.15, 0.21), 500 + 120 * i, 2600 - 200 * i))
-    save(SFX, "swing_heavy", whoosh(0.3, 300, 1700, heavy=True))
+    save(SFX, "swing_heavy", swing_heavy())
     for i in range(3):
         f0 = 150 + 25 * i
         save(SFX, "hit_%d" % (i + 1), mix(thump(0.16, f0, 50), 0.25 * metal(900 + 200 * i, 0.12, 0.5)))
@@ -257,7 +302,6 @@ def make_sfx():
     for i in range(2):
         save(SFX, "metal_%d" % (i + 1), metal(380 + 90 * i, 0.7))
     make_nail_shots()
-    save(SFX, "nail_impact", mix(metal(2600, 0.05), thump(0.05, 300, 120, 1.0) * 0.5))
     hiss = bandpass(noise(0.12), 1500, 6000) * env(int(0.12 * RATE), 0.001, 0.06)
     save(SFX, "enemy_shot", mix(thump(0.1, 120, 60, 1.0), metal(1500, 0.08), hiss * 0.7))
     for i in range(2):
@@ -522,6 +566,9 @@ if __name__ == "__main__":
         sys.exit(0)
     if sys.argv[1:] == ["tiro"]:
         make_nail_shots()
+        sys.exit(0)
+    if sys.argv[1:] == ["golpe"]:
+        save(SFX, "swing_heavy", swing_heavy())
         sys.exit(0)
     if sys.argv[1:] == ["saque"]:
         make_loot_sounds()

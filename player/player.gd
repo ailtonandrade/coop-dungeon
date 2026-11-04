@@ -185,7 +185,7 @@ func teleport_to(target: Vector3) -> void:
 	reset_physics_interpolation()
 
 
-func take_hit(amount: float, knockback := Vector3.ZERO) -> void:
+func take_hit(amount: float, knockback := Vector3.ZERO, _ranged := false) -> void:
 	# A rolada dá invulnerabilidade, como no gênero (e esquivar treina Resiliência).
 	if state == State.DODGING:
 		train("resiliencia", 0.5)

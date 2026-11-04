@@ -201,13 +201,18 @@ func _column_hit(from: Vector3, to: Vector3) -> Node3D:
 
 
 func _on_body_entered(body: Node3D) -> void:
-	if is_queued_for_deletion():
+	# Cliente: depois do primeiro acerto o prego some e segue invisível até o host apagar.
+	if is_queued_for_deletion() or not visible:
 		return
+	# Bateu em parede/chão (não em alguém): "tok" abafado, em cada máquina. Quem leva o tiro toca
+	# o próprio som de acerto (avisado pelo host).
+	if not body.has_method("take_hit"):
+		Sound.play("projectile_hit", global_position)
 	if not multiplayer.is_server():
 		visible = false
 		return
 	if body.has_method("take_hit"):
-		body.take_hit(damage, velocity.normalized() * knockback)
+		body.take_hit(damage, velocity.normalized() * knockback, true)
 		# Tiro de herói que acertou: treina a habilidade à distância dele.
 		var replicator := NetReplicator.of(self)
 		var shooter: Node = replicator.get_entity(_shooter) if replicator and _shooter != -1 else null
