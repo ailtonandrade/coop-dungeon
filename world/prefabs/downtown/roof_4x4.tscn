@@ -1,0 +1,16 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://assets/props/packs/DownTown/Roof_4x4.gltf" id="1_t0mx3"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_qg8t5"]
+size = Vector3(4, 0.05, 4)
+
+[node name="Roof4x4" type="StaticBody3D" unique_id=177973258]
+metadata/prop_def = "res://world/props/roof_4x4.tres"
+
+[node name="Modelo" type="Node3D" parent="." unique_id=1248116370 instance=ExtResource("1_t0mx3")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.2, 0)
+
+[node name="Collision" type="CollisionShape3D" parent="." unique_id=774371736]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.9993396e-06, 0)
+shape = SubResource("BoxShape3D_qg8t5")

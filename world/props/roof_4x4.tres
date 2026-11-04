@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="PropDef" format=3]
+
+[ext_resource type="PackedScene" path="res://assets/props/packs/DownTown/Roof_4x4.gltf" id="1_nmkvq"]
+[ext_resource type="Script" path="res://props/prop_def.gd" id="2_aqyhn"]
+
+[resource]
+script = ExtResource("2_aqyhn")
+id = "roof_4x4"
+display_name = "Roof 4x4"
+model = ExtResource("1_nmkvq")
+kind = "estrutura"

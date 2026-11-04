@@ -1,0 +1,16 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://assets/props/packs/DownTown/Floor_Inset.gltf" id="1_611n4"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_jhies"]
+size = Vector3(2, 0.10001, 1.3333333)
+
+[node name="FloorInset" type="StaticBody3D" unique_id=1622160472]
+metadata/prop_def = "res://world/props/floor_inset.tres"
+
+[node name="Modelo" type="Node3D" parent="." unique_id=409281182 instance=ExtResource("1_611n4")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.1, 0.33333337)
+
+[node name="Collision" type="CollisionShape3D" parent="." unique_id=1630405327]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.050005, 0)
+shape = SubResource("BoxShape3D_jhies")

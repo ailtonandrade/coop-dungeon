@@ -48,12 +48,13 @@
 [ext_resource type="PackedScene" path="res://world/prefabs/downtown/brick_cornercolumn_top.tscn" id="37_q861x"]
 [ext_resource type="PackedScene" path="res://world/prefabs/zombie/townsign.tscn" id="38_rheya"]
 [ext_resource type="PackedScene" path="res://world/prefabs/zombie/trafficcone_1.tscn" id="39_ph1nh"]
+[ext_resource type="PackedScene" path="res://world/prefabs/downtown/floor_4x4.tscn" id="40_6komr"]
 [ext_resource type="PackedScene" path="res://world/prefabs/zombie/trafficcone_2.tscn" id="40_mpuvm"]
 [ext_resource type="PackedScene" path="res://world/prefabs/zombie/container_red.tscn" id="40_ph1nh"]
 [ext_resource type="PackedScene" path="res://world/prefabs/pallet.tscn" id="41_6komr"]
 [ext_resource type="PackedScene" path="res://world/lore/historia_vila.tscn" id="lore_historia_vila"]
 
-[sub_resource type="NavigationMesh" id="NavigationMesh_rheya"]
+[sub_resource type="NavigationMesh" id="NavigationMesh_ph1nh"]
 geometry_collision_mask = 1
 agent_height = 2.0
 filter_baking_aabb = AABB(0, -5, 0, 64, 30, 64)
@@ -454,7 +455,7 @@ size = Vector3(0.24, 0.1, 0.12)
 [node name="Chunk" type="Node3D" unique_id=1626088061]
 
 [node name="Navigation" type="NavigationRegion3D" parent="." unique_id=1661683158]
-navigation_mesh = SubResource("NavigationMesh_rheya")
+navigation_mesh = SubResource("NavigationMesh_ph1nh")
 
 [node name="Ground" type="StaticBody3D" parent="Navigation" unique_id=1389150052]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 32, -0.5, 32)
@@ -1427,6 +1428,45 @@ transform = Transform3D(-0.70710677, 0, 0.70710677, 0, 1, 0, -0.70710677, 0, -0.
 
 [node name="god_1793802947_8619" parent="Navigation" unique_id=810387015 instance=ExtResource("36_q861x")]
 transform = Transform3D(1.1924881e-08, 0, -1, 0, 1, 0, 1, 0, 1.1924881e-08, 35.5, 0.12, 40.5)
+
+[node name="god_1793804365_1927" parent="Navigation" unique_id=1360237416 instance=ExtResource("40_6komr")]
+transform = Transform3D(1, 0, 5.563627e-08, 0, 1, 0, -5.563627e-08, 0, 1, 49.5, 0.12, 42.5)
+
+[node name="god_1793804367_5614" parent="Navigation" unique_id=767918040 instance=ExtResource("40_6komr")]
+transform = Transform3D(1, 0, 5.563627e-08, 0, 1, 0, -5.563627e-08, 0, 1, 49.5, 0.12, 38.5)
+
+[node name="god_1793804375_1616" parent="Navigation" unique_id=913523364 instance=ExtResource("40_6komr")]
+transform = Transform3D(1, 0, 5.563627e-08, 0, 1, 0, -5.563627e-08, 0, 1, 49.5, 0.12, 34.5)
+
+[node name="god_1793804391_9109" parent="Navigation" unique_id=1079784066 instance=ExtResource("40_6komr")]
+transform = Transform3D(1, 0, 5.563627e-08, 0, 1, 0, -5.563627e-08, 0, 1, 45.5, 0.12, 34.5)
+
+[node name="god_1793804406_6609" parent="Navigation" unique_id=1995270097 instance=ExtResource("40_6komr")]
+transform = Transform3D(1, 0, 5.563627e-08, 0, 1, 0, -5.563627e-08, 0, 1, 41.5, 0.12, 34.5)
+
+[node name="god_1793804410_2677" parent="Navigation" unique_id=1508083292 instance=ExtResource("40_6komr")]
+transform = Transform3D(1, 0, 5.563627e-08, 0, 1, 0, -5.563627e-08, 0, 1, 37.5, 0.12, 34.5)
+
+[node name="god_1793804422_1925" parent="Navigation" unique_id=2015642114 instance=ExtResource("40_6komr")]
+transform = Transform3D(1, 0, 5.563627e-08, 0, 1, 0, -5.563627e-08, 0, 1, 33.5, 0.12, 34.5)
+
+[node name="god_1793804424_2263" parent="Navigation" unique_id=1478406935 instance=ExtResource("40_6komr")]
+transform = Transform3D(1, 0, 5.563627e-08, 0, 1, 0, -5.563627e-08, 0, 1, 29.5, 0.12, 34.5)
+
+[node name="god_1793804432_1376" parent="Navigation" unique_id=948407939 instance=ExtResource("40_6komr")]
+transform = Transform3D(1, 0, 5.563627e-08, 0, 1, 0, -5.563627e-08, 0, 1, 25.5, 0.12, 34.5)
+
+[node name="god_1793804433_1900" parent="Navigation" unique_id=1702713484 instance=ExtResource("40_6komr")]
+transform = Transform3D(1, 0, 5.563627e-08, 0, 1, 0, -5.563627e-08, 0, 1, 21.5, 0.12, 34.5)
+
+[node name="god_1793804435_5539" parent="Navigation" unique_id=699915423 instance=ExtResource("40_6komr")]
+transform = Transform3D(1, 0, 5.563627e-08, 0, 1, 0, -5.563627e-08, 0, 1, 17.5, 0.12, 34.5)
+
+[node name="god_1793804437_5794" parent="Navigation" unique_id=202260453 instance=ExtResource("40_6komr")]
+transform = Transform3D(1, 0, 5.563627e-08, 0, 1, 0, -5.563627e-08, 0, 1, 13.5, 0.12, 34.5)
+
+[node name="god_1793804439_5834" parent="Navigation" unique_id=284877739 instance=ExtResource("40_6komr")]
+transform = Transform3D(1, 0, 5.563627e-08, 0, 1, 0, -5.563627e-08, 0, 1, 9.5, 0.12, 34.5)
 
 [node name="Npc_Sr_Gouveia" type="Node3D" parent="." unique_id=1417754578]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, 0, 12.5)
