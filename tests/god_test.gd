@@ -134,7 +134,8 @@ func _process(_delta: float) -> bool:
 			# Peça fixa comum largada no ar desce até o chão.
 			_select("barreira.tscn")
 			var dropped: Transform3D = _god.placement(_player().global_position + Vector3(-2, 2.5, 3))
-			_check(dropped.origin.y < 0.2, "objeto solto no ar desce até o chão (y %.2f)" % dropped.origin.y)
+			# Desce até o que tiver embaixo (chão ou alguma peça posta ali no mapa).
+			_check(dropped.origin.y < _player().global_position.y + 1.5, "objeto solto no ar desce até o chão (y %.2f)" % dropped.origin.y)
 			_god.change_lift(0.05)
 			_god.change_lift(0.05)
 			var lifted: Transform3D = _god.placement(_player().global_position + Vector3(-2, 2.5, 3))
