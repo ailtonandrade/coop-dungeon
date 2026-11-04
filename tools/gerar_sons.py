@@ -212,6 +212,39 @@ def chord(freqs, seconds, wave_="saw"):
     return out / (len(freqs) * 2)
 
 
+def nail_shot(seed):
+    """Pregador pneumático: estalo seco do pistão (corpo grave curto + transiente), rajada de ar
+    comprimido, tique abafado do prego entrando no cano e o "pssh" do escape, com um eco curto
+    de rua. Nada de anel metálico comprido (soava como laser)."""
+    r = np.random.default_rng(100 + seed)
+    total = 0.42
+    # Pistão batendo: grave curto que cai rápido + estalo de banda larga.
+    knock = sweep_sine(r.uniform(260, 320), r.uniform(90, 110), 0.07, 0.5) * env(int(0.07 * RATE), 0.0005, 0.025)
+    crack_n = r.uniform(-1, 1, int(0.012 * RATE))
+    crack = onepole_lowpass(crack_n, 7000) * env(len(crack_n), 0.0002, 0.004) * 1.6
+    # Ar comprimido saindo de uma vez (banda média, ataque instantâneo).
+    burst_n = r.uniform(-1, 1, int(0.06 * RATE))
+    burst = bandpass(burst_n, 900, 5500) * env(len(burst_n), 0.0008, 0.018) * 0.9
+    # Prego/driver: tique curto e abafado (ressonância amortecida, sem cauda).
+    tick = partials(r.uniform(1700, 2100), [1, 2.3, 3.9], [0.02, 0.012, 0.008], 0.03, [1.0, 0.5, 0.25])
+    tick = onepole_lowpass(tick * env(len(tick), 0.0003, 0.01), 4500) * 0.35
+    # Escape do ar depois do tiro: chiado baixo descendo.
+    exhaust_n = r.uniform(-1, 1, int(0.22 * RATE))
+    sweep = np.linspace(5200, 1800, len(exhaust_n))
+    exhaust = onepole_lowpass(exhaust_n, sweep) - onepole_lowpass(exhaust_n, 700)
+    exhaust *= env(len(exhaust_n), 0.01, 0.12, 3.0) * 0.22
+    shot = mix(drive(mix(knock * 1.2, crack), 1.8), burst, tick, at(exhaust, 0.025))
+    # Eco curto (parede de lata do ferro-velho), abafado.
+    slap = onepole_lowpass(shot, 2200) * 0.16
+    out = mix(shot, at(slap, 0.055), at(slap * 0.45, 0.12))
+    return pad(out, max(0.0, total - len(out) / RATE))[: int(total * RATE)]
+
+
+def make_nail_shots():
+    for i in range(3):
+        save(SFX, "nail_shot_%d" % (i + 1), nail_shot(i))
+
+
 def make_sfx():
     print("Efeitos:")
     for i in range(3):
@@ -223,10 +256,7 @@ def make_sfx():
     save(SFX, "hit_heavy", mix(thump(0.26, 110, 38, 1.0), 0.5 * metal(520, 0.4)))
     for i in range(2):
         save(SFX, "metal_%d" % (i + 1), metal(380 + 90 * i, 0.7))
-    for i in range(2):
-        hiss = bandpass(noise(0.09), 2500, 9000) * env(int(0.09 * RATE), 0.001, 0.04)
-        clack = metal(2100 + 300 * i, 0.06, 1.2)
-        save(SFX, "nail_shot_%d" % (i + 1), mix(thump(0.08, 160, 80, 1.2) * 0.8, clack, hiss * 0.8))
+    make_nail_shots()
     save(SFX, "nail_impact", mix(metal(2600, 0.05), thump(0.05, 300, 120, 1.0) * 0.5))
     hiss = bandpass(noise(0.12), 1500, 6000) * env(int(0.12 * RATE), 0.001, 0.06)
     save(SFX, "enemy_shot", mix(thump(0.1, 120, 60, 1.0), metal(1500, 0.08), hiss * 0.7))
@@ -489,6 +519,9 @@ if __name__ == "__main__":
         sys.exit(0)
     if sys.argv[1:] == ["passos"]:
         make_steps()
+        sys.exit(0)
+    if sys.argv[1:] == ["tiro"]:
+        make_nail_shots()
         sys.exit(0)
     if sys.argv[1:] == ["saque"]:
         make_loot_sounds()

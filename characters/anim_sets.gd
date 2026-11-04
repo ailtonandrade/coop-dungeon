@@ -22,6 +22,7 @@ const HUMANOID := {
 		"move_shoot": ["Run_Shoot", "Run"],
 		"jump": ["Jump"],
 		"fall": ["Fall", "Jump"],
+		"land": ["Land"],
 		"climb": ["Climb", "Interact"],
 		"roll": ["Roll"],
 		"slash": ["Sword_Slash", "Punch_Right"],

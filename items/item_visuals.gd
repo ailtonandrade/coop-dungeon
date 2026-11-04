@@ -11,6 +11,13 @@ extends RefCounted
 ## então funciona com qualquer personagem que use o mesmo esqueleto (os Quaternius atuais).
 
 const METAL := Color(0.72, 0.74, 0.78)
+## Tinta de ferramenta de obra, gasta, e peças das armas improvisadas.
+const TOOL_YELLOW := Color(0.74, 0.58, 0.16)
+const TOOL_RED := Color(0.62, 0.2, 0.12)
+const RUBBER := Color(0.12, 0.12, 0.13)
+const GUNMETAL := Color(0.3, 0.31, 0.33)
+const BRASS := Color(0.72, 0.56, 0.28)
+const TAPE := Color(0.22, 0.24, 0.27)
 const WOOD := Color(0.5, 0.33, 0.18)
 const ATTACH_META := "equipment_piece"
 
@@ -21,9 +28,11 @@ const MOUNTS := {
 	"dagger": ["Wrist.R", Vector3(0.0, -0.06, 0.04), Vector3(80, 0, 0)],
 	"axe": ["Wrist.R", Vector3(0.0, -0.06, 0.04), Vector3(80, 0, 0)],
 	"hammer": ["Wrist.R", Vector3(0.0, -0.06, 0.04), Vector3(80, 0, 0)],
-	"bow": ["Wrist.L", Vector3(0.0, -0.06, 0.02), Vector3(0, 0, 0)],
-	"longbow": ["Wrist.L", Vector3(0.0, -0.06, 0.02), Vector3(0, 0, 0)],
-	"crossbow": ["Wrist.L", Vector3(0.0, -0.08, 0.06), Vector3(0, 0, 0)],
+	# Armas de longe na mão direita, como pistola: as animações de tiro (Gun_Shoot, Run_Shoot,
+	# Idle_Gun_Pointing) apontam o braço direito.
+	"bow": ["Wrist.R", Vector3(0.0, -0.07, 0.03), Vector3(180, 0, 0)],
+	"longbow": ["Wrist.R", Vector3(0.0, -0.07, 0.03), Vector3(180, 0, 0)],
+	"crossbow": ["Wrist.R", Vector3(0.0, -0.07, 0.03), Vector3(180, 0, 0)],
 	# Na pose de referência (Idle) o alto do crânio fica ~0,2 m acima do osso Head.
 	"hood": ["Head", Vector3(0.0, 0.17, -0.01), Vector3.ZERO],
 	"helmet": ["Head", Vector3(0.0, 0.17, -0.01), Vector3.ZERO],
@@ -67,15 +76,15 @@ static func build(item: Dictionary) -> Node3D:
 		"hammer":
 			_box(root, Vector3(0.05, 0.8, 0.05), Vector3(0, 0.3, 0), WOOD)
 			_box(root, Vector3(0.34, 0.18, 0.18), Vector3(0, 0.66, 0), METAL.darkened(0.15), shine)
-		"bow", "longbow":
-			var s := 1.3 if look == "longbow" else 1.0
-			_box(root, Vector3(0.05, 0.16, 0.05), Vector3.ZERO, WOOD)
-			_box(root, Vector3(0.04, 0.38 * s, 0.04), Vector3(0, 0.24 * s, 0.06), WOOD, shine, Vector3(-25, 0, 0))
-			_box(root, Vector3(0.04, 0.38 * s, 0.04), Vector3(0, -0.24 * s, 0.06), WOOD, shine, Vector3(25, 0, 0))
-			_box(root, Vector3(0.01, 0.78 * s, 0.01), Vector3(0, 0, 0.14), Color(0.9, 0.9, 0.85))
+		# Armas de longe: ferramentas de obra viradas arma. Cabo (onde a mão segura) na origem,
+		# cano para +Y e o cabo descendo para +Z (na mão, com o giro do encaixe, o cano aponta
+		# para a frente e o cabo para baixo).
+		"bow":
+			_nail_gun(root, shine)
+		"longbow":
+			_rivet_rifle(root, shine)
 		"crossbow":
-			_box(root, Vector3(0.07, 0.07, 0.55), Vector3(0, 0, 0.12), WOOD)
-			_box(root, Vector3(0.6, 0.05, 0.05), Vector3(0, 0, 0.32), METAL.darkened(0.2), shine)
+			_nail_launcher(root, shine)
 		# Capuz e capacete por cima do crânio, sem cobrir o rosto (frente = +Z).
 		"hood":
 			_box(root, Vector3(0.23, 0.1, 0.26), Vector3.ZERO, color, shine)
@@ -367,6 +376,51 @@ static func _coins(root: Node3D, color: Color, amount: int) -> void:
 			mesh.position = Vector3(cos(angle) * radius, 0.012, sin(angle) * radius)
 			mesh.rotation = Vector3(rng.randf_range(-0.25, 0.25), 0, rng.randf_range(-0.25, 0.25))
 		root.add_child(mesh)
+
+
+## Peça de arma no espaço dela: tamanho e posição em (lado, frente, baixo).
+static func _part(root: Node3D, size: Vector3, pos: Vector3, color: Color, glow := Color.BLACK, tilt := 0.0) -> void:
+	_box(root, size, pos, color, glow, Vector3(tilt, 0, 0))
+
+
+## Pistola de pregos (pregador pneumático): corpo amarelo gasto, bico de aço, pente de pregos
+## em fita e a mangueira de ar cortada atrás.
+static func _nail_gun(root: Node3D, shine: Color) -> void:
+	_part(root, Vector3(0.065, 0.24, 0.085), Vector3(0, 0.06, -0.075), TOOL_YELLOW, shine)
+	_part(root, Vector3(0.07, 0.07, 0.07), Vector3(0, -0.06, -0.07), TOOL_YELLOW.darkened(0.25))
+	_part(root, Vector3(0.04, 0.09, 0.045), Vector3(0, 0.22, -0.09), GUNMETAL)
+	_part(root, Vector3(0.05, 0.02, 0.06), Vector3(0, 0.27, -0.08), GUNMETAL.darkened(0.3))
+	_part(root, Vector3(0.05, 0.06, 0.13), Vector3(0, -0.01, 0.02), RUBBER, Color.BLACK, -12.0)
+	_part(root, Vector3(0.055, 0.03, 0.05), Vector3(0, 0.0, 0.07), TAPE, Color.BLACK, -12.0)
+	_part(root, Vector3(0.022, 0.2, 0.035), Vector3(0, 0.09, -0.015), BRASS, Color.BLACK, 8.0)
+	_part(root, Vector3(0.012, 0.03, 0.04), Vector3(0, 0.035, -0.02), GUNMETAL)
+	_part(root, Vector3(0.025, 0.07, 0.025), Vector3(0, -0.11, -0.06), RUBBER, Color.BLACK, 20.0)
+
+
+## Rifle de rebites: rebitadeira com cano de cano d'água, coronha de madeira e fita isolante.
+static func _rivet_rifle(root: Node3D, shine: Color) -> void:
+	_part(root, Vector3(0.07, 0.26, 0.09), Vector3(0, 0.08, -0.08), TOOL_RED, shine)
+	_part(root, Vector3(0.036, 0.34, 0.036), Vector3(0, 0.36, -0.1), GUNMETAL)
+	_part(root, Vector3(0.05, 0.04, 0.05), Vector3(0, 0.5, -0.1), GUNMETAL.darkened(0.3))
+	_part(root, Vector3(0.045, 0.05, 0.045), Vector3(0, 0.3, -0.1), TAPE)
+	_part(root, Vector3(0.05, 0.06, 0.12), Vector3(0, -0.01, 0.02), RUBBER, Color.BLACK, -12.0)
+	_part(root, Vector3(0.055, 0.24, 0.07), Vector3(0, -0.17, -0.06), WOOD, Color.BLACK, -6.0)
+	_part(root, Vector3(0.06, 0.04, 0.1), Vector3(0, -0.29, -0.04), WOOD.darkened(0.3))
+	_part(root, Vector3(0.024, 0.16, 0.04), Vector3(0, 0.12, -0.02), BRASS, Color.BLACK, 6.0)
+	_part(root, Vector3(0.03, 0.06, 0.03), Vector3(0, 0.12, -0.14), GUNMETAL)
+
+
+## Lança-pregos: pregador grande com cilindro de gás (botijão verde) amarrado embaixo do cano.
+static func _nail_launcher(root: Node3D, shine: Color) -> void:
+	_part(root, Vector3(0.085, 0.3, 0.1), Vector3(0, 0.08, -0.085), TOOL_YELLOW.darkened(0.15), shine)
+	_part(root, Vector3(0.05, 0.16, 0.05), Vector3(0, 0.3, -0.1), GUNMETAL)
+	_part(root, Vector3(0.065, 0.03, 0.065), Vector3(0, 0.38, -0.1), GUNMETAL.darkened(0.3))
+	_part(root, Vector3(0.075, 0.22, 0.075), Vector3(0, 0.17, 0.0), Color(0.22, 0.4, 0.26))
+	_part(root, Vector3(0.08, 0.025, 0.08), Vector3(0, 0.12, 0.0), TAPE)
+	_part(root, Vector3(0.08, 0.025, 0.08), Vector3(0, 0.23, 0.0), TAPE)
+	_part(root, Vector3(0.05, 0.06, 0.13), Vector3(0, -0.02, 0.03), RUBBER, Color.BLACK, -12.0)
+	_part(root, Vector3(0.03, 0.16, 0.03), Vector3(0, -0.13, -0.06), GUNMETAL, Color.BLACK, -10.0)
+	_part(root, Vector3(0.06, 0.03, 0.09), Vector3(0, -0.21, -0.05), RUBBER)
 
 
 static func _box(parent: Node3D, size: Vector3, pos: Vector3, color: Color, glow := Color.BLACK,

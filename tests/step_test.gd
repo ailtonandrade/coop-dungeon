@@ -8,12 +8,23 @@ var _frames := 0
 var _failed := false
 var _start := Vector3.ZERO
 var _max_y := 0.0
+var _fell_on_step := false
+var _left_slab := false
+var _air_anims := {}
 
 
 func _process(_delta: float) -> bool:
 	_frames += 1
 	if _frames > SECOND + 10 and _frames < SECOND + 130 and not get_nodes_in_group("players").is_empty():
 		_max_y = maxf(_max_y, _player().global_position.y)
+		# Depois de subir, continua andando e desce do piso: isso não é queda.
+		var y: float = _player().global_position.y
+		if _max_y > 0.18 and y < 0.05:
+			_left_slab = true
+		if _max_y > 0.18 and _player()._animator.current == "fall":
+			_fell_on_step = true
+	if _frames > SECOND + 205 and _frames < SECOND + 260:
+		_air_anims[_player()._animator.current] = true
 	match _frames:
 		1:
 			root.get_node("SaveService").use_test_storage("test_saves_step")
@@ -35,6 +46,7 @@ func _process(_delta: float) -> bool:
 		SECOND + 130:
 			_key(KEY_W, false)
 			_check(_max_y > 0.18, "subiu no piso de 22 cm (de lado) andando (y %.2f)" % _max_y)
+			_check(_left_slab and not _fell_on_step, "desceu do piso andando, sem pose de queda")
 			# Parede alta (1,2 m) ao lado: não sobe sozinho.
 			var forward: Vector3 = root.get_node("InputService").view_forward
 			_player().teleport_to(Vector3(60, 0, 20) + forward.cross(Vector3.UP) * 8.0)
@@ -43,6 +55,12 @@ func _process(_delta: float) -> bool:
 		SECOND + 200:
 			_key(KEY_W, false)
 			_check(_player().global_position.y < 0.6, "parede alta continua barrando (y %.2f)" % _player().global_position.y)
+		SECOND + 204:
+			_key(KEY_SPACE, true)
+		SECOND + 208:
+			_key(KEY_SPACE, false)
+		SECOND + 262:
+			_check(_air_anims.has("jump") and _air_anims.has("fall"), "pulo mostra pulo e depois queda (%s)" % ", ".join(_air_anims.keys()))
 			print("DEGRAU: " + ("FALHOU" if _failed else "OK"))
 			quit(1 if _failed else 0)
 	return false

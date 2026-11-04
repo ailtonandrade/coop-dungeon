@@ -38,6 +38,8 @@ const SLASH_IMPACT := 0.4
 const PROGRESS_SYNC_TIME := 5.0
 ## Depois de atirar, por quanto tempo as pernas correm com a animação de "correr atirando".
 const SHOOT_POSE_TIME := 0.35
+## Tempo no ar antes de virar a pose de queda (descer degrau ou quina não chega nisso).
+const FALL_POSE_DELAY := 0.22
 
 enum State { NORMAL, DODGING, ATTACKING, CLIMBING, DOWNED, LADDER }
 
@@ -135,6 +137,9 @@ func _ready() -> void:
 			_input = NetService.remote_input(owner_peer, slot)
 	collision_layer = GameConfig.LAYER_PLAYERS
 	collision_mask = GameConfig.LAYER_SOLID | GameConfig.LAYER_ENEMIES
+	# Descendo um degrau (meio-fio, piso) o herói continua grudado no chão, andando, em vez de
+	# "cair" 20 cm. Pulando (subindo) o encaixe não vale.
+	floor_snap_length = STEP_HEIGHT + 0.06
 	health.max_hp = GameConfig.PLAYER_MAX_HP
 	add_child(health)
 	health.died.connect(_on_died)
@@ -268,10 +273,14 @@ func _physics_process(delta: float) -> void:
 	_anim_lock = maxf(_anim_lock - delta, 0.0)
 	_shoot_pose = maxf(_shoot_pose - delta, 0.0)
 	_coyote = GameConfig.COYOTE_TIME if is_on_floor() else maxf(_coyote - delta, 0.0)
-	# Pousou depois de um tempo no ar (pulo, queda de um muro): baque no chão.
+	# Pousou depois de um tempo no ar (pulo, queda de um muro): baque no chão e, parado, amortece
+	# dobrando os joelhos.
 	if is_on_floor():
 		if _air_time > 0.35:
 			_fx("fx_sound", ["land"])
+			if _air_time > 0.5 and state == State.NORMAL and Combat.flat(_move).length() < 0.5:
+				_animator.play("land", 0.28, true, 0.05)
+				_anim_lock = 0.22
 		_air_time = 0.0
 	else:
 		_air_time += delta
@@ -443,9 +452,12 @@ func _update_normal(delta: float, dir: Vector3) -> Vector3:
 
 	var target := dir * move_speed() * _strafe_factor(dir) * (GameConfig.SPRINT_FACTOR if is_sprinting() else 1.0)
 	_move = _move.move_toward(target, GameConfig.PLAYER_ACCEL * delta)
+	# Pose de queda só no ar de verdade (pulo, muro, buraco): um tropeço de degrau não conta.
 	if not grounded:
-		if not _animator.is_playing("jump"):
-			_animator.play("fall", 0.0, false, 0.12)
+		if not _animator.is_playing("jump") and _air_time > FALL_POSE_DELAY:
+			_animator.play("fall", 0.0, false, 0.2)
+		elif not _animator.is_playing("jump") and _anim_lock == 0.0:
+			_animator.play(_locomotion_anim(aiming))
 	elif _anim_lock == 0.0:
 		_animator.play(_locomotion_anim(aiming))
 	return _move
@@ -789,7 +801,8 @@ func _shoot_arrow() -> void:
 	var aim := Combat.nearest_in_cone(global_position, _facing, enemies, GameConfig.ARROW_RANGE, cone)
 	if aim and not aimed:
 		_facing = Combat.flat(aim.global_position - global_position).normalized()
-	var from := global_position + Vector3.UP * 1.1 + _facing * 0.6
+	# Sai do bico da arma (mão direita, braço esticado na altura do peito).
+	var from := global_position + Vector3.UP * 1.3 + _facing * 0.7 + _facing.cross(Vector3.UP) * 0.12
 	var dir := _facing
 	# Isométrica: não dá para mirar para cima/baixo, então o tiro sai reto e acerta qualquer
 	# criatura na mesma reta (rasteira, alta ou voando). Atrás do herói: vai para onde mira.
@@ -800,7 +813,7 @@ func _shoot_arrow() -> void:
 		dir = Combat.flat(aim.global_position - from).normalized() if flat_aim \
 				else (aim.global_position + Vector3.UP * 1.0 - from).normalized()
 	Projectile.fire(self, from, dir, GameConfig.ARROW_SPEED, ranged_damage(),
-			GameConfig.LAYER_ENEMIES, Color(1.0, 0.95, 0.7), Vector3(0.1, 0.1, 0.7), flat_aim)
+			GameConfig.LAYER_ENEMIES, Color(0.78, 0.78, 0.8), Vector3(0.03, 0.03, 0.25), flat_aim, "nail")
 	# Parado, o corpo todo atira; andando, as pernas continuam correndo (Run_Shoot e direções).
 	_shoot_pose = SHOOT_POSE_TIME
 	if Combat.flat(_move).length() < 0.5 and is_on_floor():

@@ -18,6 +18,7 @@ var _shooter := -1
 ## (de COLUMN_BELOW abaixo até COLUMN_ABOVE acima), não só na altura exata do tiro.
 var _column := false
 var _target_group := "enemies"
+var _nail := false
 
 const COLUMN_RADIUS := 0.55
 const COLUMN_BELOW := 1.6
@@ -26,11 +27,11 @@ const COLUMN_ABOVE := 4.0
 
 ## Dispara (só o host chama). `shooter` é qualquer nó dentro da fase.
 static func fire(shooter: Node, from: Vector3, direction: Vector3, speed: float, p_damage: float,
-		target_layer: int, color: Color, size := Vector3(0.1, 0.1, 0.7), column := false) -> void:
+		target_layer: int, color: Color, size := Vector3(0.1, 0.1, 0.7), column := false, style := "") -> void:
 	NetReplicator.of(shooter).spawn("projectile", {
 		"shooter": shooter.get_meta("net_id", -1),
 		"from": from, "velocity": direction.normalized() * speed, "damage": p_damage,
-		"target_layer": target_layer, "color": color, "size": size, "column": column,
+		"target_layer": target_layer, "color": color, "size": size, "column": column, "style": style,
 	})
 
 
@@ -53,6 +54,10 @@ static func build(data: Dictionary) -> Projectile:
 	collision.shape = sphere
 	projectile.add_child(collision)
 
+	projectile._nail = data.get("style", "") == "nail"
+	if projectile._nail:
+		projectile._build_nail(color)
+		return projectile
 	var box := BoxMesh.new()
 	box.size = data.size
 	var material := StandardMaterial3D.new()
@@ -67,11 +72,99 @@ static func build(data: Dictionary) -> Projectile:
 	return projectile
 
 
+## Prego: haste fina de aço com cabeça e ponta quente, e um rastro de ar bem fraco atrás
+## (sem brilho de laser).
+func _build_nail(color: Color) -> void:
+	var steel := StandardMaterial3D.new()
+	steel.albedo_color = color
+	steel.metallic = 0.8
+	steel.roughness = 0.35
+	steel.emission_enabled = true
+	steel.emission = color
+	steel.emission_energy_multiplier = 0.35
+	# A frente do projétil é -Z (Basis.looking_at).
+	_mesh_part(Vector3(0.022, 0.022, 0.2), Vector3(0, 0, 0), steel)
+	_mesh_part(Vector3(0.05, 0.05, 0.012), Vector3(0, 0, 0.1), steel)
+	var hot := StandardMaterial3D.new()
+	hot.albedo_color = Color(1.0, 0.75, 0.4)
+	hot.emission_enabled = true
+	hot.emission = Color(1.0, 0.6, 0.25)
+	hot.emission_energy_multiplier = 1.5
+	_mesh_part(Vector3(0.018, 0.018, 0.04), Vector3(0, 0, -0.11), hot)
+	var trail := StandardMaterial3D.new()
+	trail.albedo_color = Color(0.85, 0.85, 0.82, 0.18)
+	trail.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	trail.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	_mesh_part(Vector3(0.012, 0.012, 0.7), Vector3(0, 0, 0.45), trail)
+
+
+func _mesh_part(size: Vector3, pos: Vector3, material: Material) -> void:
+	var box := BoxMesh.new()
+	box.size = size
+	var mesh := MeshInstance3D.new()
+	mesh.mesh = box
+	mesh.material_override = material
+	mesh.position = pos
+	add_child(mesh)
+
+
+## Clarão do bico (rápido, pequeno) e uma baforada de ar/poeira que sobe e some. Só visual,
+## em cada máquina.
+func _muzzle_flash() -> void:
+	var parent := get_parent()
+	if parent == null:
+		return
+	var dir := velocity.normalized()
+	var spot := _from - dir * 0.05
+	var light := OmniLight3D.new()
+	light.light_color = Color(1.0, 0.8, 0.5)
+	light.light_energy = 1.6
+	light.omni_range = 2.5
+	light.shadow_enabled = false
+	parent.add_child(light)
+	light.global_position = spot
+	var flash := MeshInstance3D.new()
+	var sphere := SphereMesh.new()
+	sphere.radius = 0.07
+	sphere.height = 0.1
+	flash.mesh = sphere
+	var hot := StandardMaterial3D.new()
+	hot.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	hot.albedo_color = Color(1.0, 0.85, 0.55)
+	flash.material_override = hot
+	parent.add_child(flash)
+	flash.global_position = spot + dir * 0.04
+	var puff := MeshInstance3D.new()
+	var cloud := SphereMesh.new()
+	cloud.radius = 0.09
+	cloud.height = 0.18
+	puff.mesh = cloud
+	var smoke := StandardMaterial3D.new()
+	smoke.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	smoke.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	smoke.albedo_color = Color(0.75, 0.73, 0.68, 0.35)
+	puff.material_override = smoke
+	parent.add_child(puff)
+	puff.global_position = spot
+	var tween := parent.create_tween().set_parallel(true)
+	tween.tween_property(light, "light_energy", 0.0, 0.07)
+	tween.tween_property(flash, "scale", Vector3.ONE * 0.2, 0.05)
+	tween.tween_property(puff, "scale", Vector3.ONE * 2.6, 0.45).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
+	tween.tween_property(puff, "global_position", spot + dir * 0.25 + Vector3.UP * 0.18, 0.45)
+	tween.tween_property(smoke, "albedo_color:a", 0.0, 0.45)
+	tween.chain().tween_callback(func() -> void:
+		light.queue_free()
+		flash.queue_free()
+		puff.queue_free())
+
+
 func _ready() -> void:
 	global_transform = Transform3D(Basis.looking_at(velocity.normalized()), _from)
 	reset_physics_interpolation()
 	# Nasce em todas as máquinas: o disparo soa em todas.
 	Sound.play("shot" if _from_player else "enemy_shot", _from)
+	if _nail:
+		_muzzle_flash()
 	body_entered.connect(_on_body_entered)
 
 

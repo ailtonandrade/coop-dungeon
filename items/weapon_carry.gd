@@ -10,8 +10,8 @@ extends RefCounted
 ##   o lado direito do personagem é -X). Para criar um novo, acrescente aqui.
 ## - DEFAULT_HOLSTER: coldre de cada tipo de arma (look). Arma sem tipo conhecido: corpo a corpo
 ##   nas costas, à distância cruzada nas costas.
-## - AXIS_FIX: tipos de arma cujo modelo não fica "cabo na origem, ponta para +Y" (a besta é
-##   comprida em +Z); o giro deixa ela no padrão antes de ir para o coldre.
+## - AXIS_FIX: tipos de arma cujo modelo não fica "cabo na origem, ponta para +Y"; o giro deixa
+##   ela no padrão antes de ir para o coldre.
 ## - Ficha do item (ItemDef): "holster" escolhe outro coldre e holster_position/holster_rotation
 ##   ajustam fino, como o encaixe da mão.
 
@@ -29,12 +29,10 @@ const HOLSTERS := {
 
 const DEFAULT_HOLSTER := {
 	"sword": "costas", "hammer": "costas", "axe": "cintura_esquerda", "dagger": "cintura_direita",
-	"bow": "costas_cruzado", "longbow": "costas_cruzado", "crossbow": "costas_cruzado",
+	"bow": "cintura_direita", "longbow": "costas_cruzado", "crossbow": "costas_cruzado",
 }
 
-const AXIS_FIX := {
-	"crossbow": Vector3(-90, 0, 0),
-}
+const AXIS_FIX := {}
 
 ## Malhas que vêm presas em alguns modelos de personagem (o Swat e o Suit trazem uma pistola):
 ## escondidas, quem decide a arma é o equipamento.

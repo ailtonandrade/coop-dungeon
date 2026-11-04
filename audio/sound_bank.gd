@@ -18,7 +18,7 @@ const EVENTS := {
 	"hit": {"files": ["hit_1", "hit_2", "hit_3"], "db": -3.0, "pitch": 0.12, "gap": 0.03},
 	"hit_heavy": {"files": ["hit_heavy", "metal_1"], "db": -1.0, "pitch": 0.06},
 	"enemy_hurt": {"files": ["kenney_enemy_hurt"], "db": -10.0, "pitch": 0.15, "gap": 0.05},
-	"shot": {"files": ["nail_shot_1", "nail_shot_2"], "db": -4.0, "pitch": 0.08},
+	"shot": {"files": ["nail_shot_1", "nail_shot_2", "nail_shot_3"], "db": -5.0, "pitch": 0.05},
 	"enemy_shot": {"files": ["enemy_shot"], "db": -5.0, "pitch": 0.1},
 	"projectile_hit": {"files": ["nail_impact"], "db": -8.0, "pitch": 0.15, "gap": 0.04},
 	"player_hurt": {"files": ["player_hurt_1", "player_hurt_2"], "db": -2.0, "pitch": 0.08, "gap": 0.08},
