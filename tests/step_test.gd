@@ -24,18 +24,20 @@ func _process(_delta: float) -> bool:
 		10:
 			root.get_node("InputService")._try_join(-1)
 		SECOND:
-			_player().teleport_to(Vector3(30, 0, 40))
+			_player().teleport_to(Vector3(60, 0, 20))
 		SECOND + 10:
 			var forward: Vector3 = root.get_node("InputService").view_forward
-			_slab(_player().global_position + forward * 2.5, 0.25, forward)
-			_slab(_player().global_position + forward * 2.5 + Vector3(0, 0, 0) + forward.cross(Vector3.UP) * 8.0, 1.2, forward)
+			# Piso de 22 cm (como o Floor 4x4 carimbado) e chegando meio de lado: a quina bate na
+			# parte redonda da cápsula.
+			_slab(_player().global_position + forward * 2.5, 0.22, forward.rotated(Vector3.UP, deg_to_rad(40)))
+			_slab(_player().global_position + forward * 2.5 + Vector3(60, 0, 20) + forward.cross(Vector3.UP) * 8.0, 1.2, forward)
 			_key(KEY_W, true)
 		SECOND + 130:
 			_key(KEY_W, false)
-			_check(_max_y > 0.2, "subiu no piso de 25 cm andando (y %.2f)" % _max_y)
+			_check(_max_y > 0.18, "subiu no piso de 22 cm (de lado) andando (y %.2f)" % _max_y)
 			# Parede alta (1,2 m) ao lado: não sobe sozinho.
 			var forward: Vector3 = root.get_node("InputService").view_forward
-			_player().teleport_to(Vector3(30, 0, 40) + forward.cross(Vector3.UP) * 8.0)
+			_player().teleport_to(Vector3(60, 0, 20) + forward.cross(Vector3.UP) * 8.0)
 		SECOND + 140:
 			_key(KEY_W, true)
 		SECOND + 200:

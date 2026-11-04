@@ -336,17 +336,31 @@ func _step_up(wanted: Vector3, delta: float) -> void:
 
 
 ## Degrau para qualquer corpo que anda (herói e criaturas).
-static func step_up(body: CharacterBody3D, wanted: Vector3, delta: float) -> void:
-	var blocked := false
+static func step_up(body: CharacterBody3D, wanted: Vector3, _delta: float) -> void:
+	# Contato que barra: a quina do degrau bate na parte redonda da cápsula, então a normal sai
+	# inclinada (não é chão, mas nem sempre é parede reta). Pega a que mais vai contra o passo.
+	var dir := wanted.normalized()
+	var best := 0.0
+	var push := Vector3.ZERO
+	var contact := Vector3.ZERO
 	for i in body.get_slide_collision_count():
-		var normal := body.get_slide_collision(i).get_normal()
-		if absf(normal.y) < 0.3 and normal.dot(wanted.normalized()) < -0.3:
-			blocked = true
-	if not blocked:
+		var collision := body.get_slide_collision(i)
+		var normal := collision.get_normal()
+		if normal.y >= 0.7:
+			continue
+		var flat := Vector3(normal.x, 0.0, normal.z).normalized()
+		var against := -flat.dot(dir)
+		if against > 0.3 and against > best:
+			best = against
+			push = -flat
+			contact = collision.get_position()
+	if push == Vector3.ZERO:
 		return
-	var ahead := wanted.normalized() * maxf(wanted.length() * delta, 0.12)
 	var start := body.global_transform
-	# Sobe, anda um pouco e procura o chão: só vale se nada bate lá em cima.
+	# Anda até o meio da cápsula ficar em cima do degrau (passa um pouco da quina).
+	var to_edge := Vector3(contact.x - start.origin.x, 0.0, contact.z - start.origin.z).dot(push)
+	var ahead := push * clampf(to_edge + 0.08, 0.08, 0.6)
+	# Sobe, anda e procura o chão: só vale se nada bate lá em cima.
 	if body.test_move(start, Vector3.UP * STEP_HEIGHT):
 		return
 	var raised := start.translated(Vector3.UP * STEP_HEIGHT)
@@ -360,7 +374,7 @@ static func step_up(body: CharacterBody3D, wanted: Vector3, delta: float) -> voi
 	if hit.is_empty() or (hit.normal as Vector3).y < 0.7:
 		return
 	var rise: float = (hit.position as Vector3).y - body.global_position.y
-	if rise < 0.01 or rise > STEP_HEIGHT:
+	if rise < 0.03 or rise > STEP_HEIGHT:
 		return
 	body.global_position = Vector3(body.global_position.x + ahead.x, (hit.position as Vector3).y + 0.01, body.global_position.z + ahead.z)
 
