@@ -15,15 +15,47 @@ function Falha($texto) {
     exit 1
 }
 
+# Programas de fora (git, gh, Godot) escrevem avisos no canal de erro mesmo quando dá certo; no
+# PowerShell do Windows, com "Stop", isso derruba o script. Então: roda com "Continue" e decide
+# só pelo código de saída.
+function Rodar([string]$exe, [string[]]$argumentos, [string]$log = "") {
+    $antes = $ErrorActionPreference
+    $ErrorActionPreference = "Continue"
+    try {
+        if ($log) { & $exe @argumentos *> $log } else { & $exe @argumentos 2>&1 | ForEach-Object { "$_" } | Write-Host }
+        return $LASTEXITCODE
+    } finally {
+        $ErrorActionPreference = $antes
+    }
+}
+
+# Só o código de saída, sem mostrar nada (para perguntas: "existe?", "está logado?").
+function Testar([string]$exe, [string[]]$argumentos) {
+    $antes = $ErrorActionPreference
+    $ErrorActionPreference = "Continue"
+    try {
+        & $exe @argumentos *> $null
+        return $LASTEXITCODE
+    } finally {
+        $ErrorActionPreference = $antes
+    }
+}
+
+# Godot no Windows é programa de janela: chamado direto, não espera terminar. Start-Process
+# -Wait espera, e as mensagens vão para o log.
+function RodarGodot([string[]]$argumentos, [string]$log) {
+    $p = Start-Process -FilePath $godot -ArgumentList $argumentos -Wait -PassThru -NoNewWindow -WorkingDirectory (Get-Location).Path `
+        -RedirectStandardOutput $log -RedirectStandardError "$log.erros.txt"
+    return $p.ExitCode
+}
+
 # (Nome diferente de "git": no PowerShell maiúscula e minúscula são iguais e a função chamaria a si mesma.)
 function RodarGit {
-    & git.exe @args
-    if ($LASTEXITCODE -ne 0) { Falha "O comando 'git $($args -join ' ')' não deu certo (veja a mensagem acima)." }
+    if ((Rodar "git.exe" $args) -ne 0) { Falha "O comando 'git $($args -join ' ')' não deu certo (veja a mensagem acima)." }
 }
 
 function RodarGh {
-    & gh.exe @args
-    if ($LASTEXITCODE -ne 0) { Falha "O comando 'gh $($args -join ' ')' não deu certo (veja a mensagem acima)." }
+    if ((Rodar "gh.exe" $args) -ne 0) { Falha "O comando 'gh $($args -join ' ')' não deu certo (veja a mensagem acima)." }
 }
 
 Write-Host ""
@@ -35,8 +67,7 @@ if (-not (Get-Command git.exe -ErrorAction SilentlyContinue)) { Falha "Git não 
 if (-not (Get-Command gh.exe -ErrorAction SilentlyContinue)) {
     Falha "GitHub CLI (gh) não encontrado. Instale em https://cli.github.com, rode 'gh auth login' uma vez e rode este arquivo de novo."
 }
-& gh.exe auth status *> $null
-if ($LASTEXITCODE -ne 0) { Falha "O GitHub CLI não está logado. Abra um terminal, rode 'gh auth login' e depois rode este arquivo de novo." }
+if ((Testar "gh.exe" @("auth", "status")) -ne 0) { Falha "O GitHub CLI não está logado. Abra um terminal, rode 'gh auth login' e depois rode este arquivo de novo." }
 
 # Godot: o caminho fica guardado depois da primeira vez.
 $godot = ""
@@ -53,6 +84,9 @@ if (-not $godot -or -not (Test-Path $godot)) {
 }
 New-Item -ItemType Directory -Force -Path $configDir | Out-Null
 Set-Content -Path $godotFile -Value $godot -Encoding UTF8
+# A versão "console" do Godot (mesma pasta) mostra os erros e espera certinho; usa se tiver.
+$console = Get-ChildItem -Path (Split-Path $godot) -Filter "*console*.exe" -ErrorAction SilentlyContinue | Select-Object -First 1
+if ($console) { $godot = $console.FullName }
 Write-Host "  Godot: $godot"
 
 Write-Host "  Pegando o que tem de novo no GitHub..."
@@ -65,7 +99,10 @@ $partes = $atual.Split(".")
 while ($partes.Count -lt 3) { $partes += "0" }
 $sugestao = "{0}.{1}.{2}" -f $partes[0], $partes[1], ([int]$partes[2] + 1)
 
-$mudancas = (& git.exe status --short)
+$antes = $ErrorActionPreference
+$ErrorActionPreference = "Continue"
+$mudancas = (& git.exe status --short 2>$null)
+$ErrorActionPreference = $antes
 if ($mudancas) {
     Write-Host ""
     Write-Host "  Estas mudanças ainda não foram enviadas e vão junto nesta versão:" -ForegroundColor Yellow
@@ -78,8 +115,7 @@ $nova = Read-Host "  Número da versão nova (Enter = $sugestao)"
 if ([string]::IsNullOrWhiteSpace($nova)) { $nova = $sugestao }
 $nova = $nova.Trim().TrimStart("v")
 if ($nova -notmatch '^\d+\.\d+\.\d+$') { Falha "Use o formato 1.2.3 (só números e pontos)." }
-& gh.exe release view "v$nova" --repo $releaseRepo *> $null
-if ($LASTEXITCODE -eq 0) { Falha "A versão $nova já foi publicada. Escolha outro número." }
+if ((Testar "gh.exe" @("release", "view", "v$nova", "--repo", $releaseRepo)) -eq 0) { Falha "A versão $nova já foi publicada. Escolha outro número." }
 
 $novidades = Read-Host "  O que mudou nesta versão? (uma linha, opcional)"
 if ([string]::IsNullOrWhiteSpace($novidades)) { $novidades = "Versão $nova" }
@@ -103,7 +139,7 @@ Write-Host "  Exportando com o Godot (pode levar uns minutos)..."
 $build = Join-Path (Get-Location) "build"
 if (Test-Path $build) { Remove-Item -Recurse -Force $build }
 New-Item -ItemType Directory -Force -Path "$build\windows", "$build\linux", "$build\web" | Out-Null
-& $godot --headless --path . --import *> "$build\importar.log"
+RodarGodot @("--headless", "--path", '"."', "--import") "$build\importar.log" | Out-Null
 $alvos = @(
     @{ preset = "Windows"; saida = "$build\windows\Corrumpted.exe"; zip = "Windows" },
     @{ preset = "Linux"; saida = "$build\linux\Corrumpted.x86_64"; zip = "Linux" },
@@ -112,7 +148,7 @@ $alvos = @(
 $zips = @()
 foreach ($alvo in $alvos) {
     Write-Host "    $($alvo.preset)..."
-    & $godot --headless --path . --export-release $alvo.preset $alvo.saida *> "$build\exportar_$($alvo.zip).log"
+    RodarGodot @("--headless", "--path", '"."', "--export-release", $alvo.preset, "`"$($alvo.saida)`"") "$build\exportar_$($alvo.zip).log" | Out-Null
     if (-not (Test-Path $alvo.saida)) {
         Falha "Não deu para exportar $($alvo.preset). Veja build\exportar_$($alvo.zip).log. (Faltam os modelos de exportação? No Godot: Editor > Gerenciar modelos de exportação > Baixar e instalar.)"
     }
@@ -131,8 +167,7 @@ RodarGit push --quiet origin HEAD
 RodarGit push --quiet origin "v$nova"
 
 # Repositório público de downloads: cria na primeira vez (com o README de como jogar).
-& gh.exe repo view $releaseRepo *> $null
-if ($LASTEXITCODE -ne 0) {
+if ((Testar "gh.exe" @("repo", "view", $releaseRepo)) -ne 0) {
     Write-Host "  Criando o repositório público $releaseRepo ..."
     RodarGh repo create $releaseRepo --public --description "Corrumpted: baixe aqui a versão mais nova do jogo" --add-readme
     Start-Sleep -Seconds 3
@@ -140,10 +175,13 @@ if ($LASTEXITCODE -ne 0) {
 $readme = Join-Path (Get-Location) "tools\release_readme.md"
 if (Test-Path $readme) {
     $conteudo = [Convert]::ToBase64String([System.IO.File]::ReadAllBytes($readme))
+    $antes = $ErrorActionPreference
+    $ErrorActionPreference = "Continue"
     $sha = (& gh.exe api "repos/$releaseRepo/contents/README.md" --jq ".sha" 2>$null)
+    $ErrorActionPreference = $antes
     $campos = @("-X", "PUT", "repos/$releaseRepo/contents/README.md", "-f", "message=Como jogar (versão $nova)", "-f", "content=$conteudo")
     if ($sha) { $campos += @("-f", "sha=$sha") }
-    & gh.exe api @campos *> $null
+    Testar "gh.exe" $campos | Out-Null
 }
 
 Write-Host "  Publicando a versão $nova em $releaseRepo ..."
