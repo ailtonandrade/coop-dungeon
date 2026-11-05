@@ -49,7 +49,7 @@ func open_for(p_player: Player, p_npc: WorldNpc) -> void:
 	var hello := Lore.greeting(npc.npc_name)
 	_npc_says(Txt.t(hello.text) if hello else Txt.t("Olá."))
 	if hello:
-		Lore.learn(hello.teaches)
+		Lore.learn(hello.teaches, "conversa|" + npc.npc_name)
 	_refresh_topics()
 	Lore.facts_changed.connect(_refresh_topics)
 	Quests.quests_changed.connect(_refresh_topics)

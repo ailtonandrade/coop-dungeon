@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="FactDef" format=3]
+
+[ext_resource type="Script" path="res://world/lore/fact_def.gd" id="1_fact"]
+
+[resource]
+script = ExtResource("1_fact")
+id = "sabe_lab4"
+title = "O Laboratório 4 foi transferido"
+description = "O Lab 4 foi para as instalações do Lixão Alto, depois do Pátio dos Contêineres. Entra-se pelo portão de serviço, com chave de manutenção."
+source = "Ofício nº 0731/7, no entulho"

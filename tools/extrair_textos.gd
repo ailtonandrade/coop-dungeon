@@ -3,7 +3,7 @@ extends SceneTree
 ## idioma), mantendo as traduções que já existem. Rode depois de escrever textos novos:
 ##   godot --headless --path . -s tools/extrair_textos.gd
 ## Pega: textos do código (.gd, menos testes/ferramentas/addons), nomes dos itens, regiões,
-## documentos e conversas da história, e textos das cenas da interface.
+## documentos, conversas e fichas de fatos da história, e textos das cenas da interface.
 
 const CSV := "res://locale/textos.csv"
 const LANGS := ["en"]
@@ -38,6 +38,12 @@ func _initialize() -> void:
 		_add(dialogue.unknown)
 		_add(dialogue.farewell)
 		_add(dialogue.service_button)
+	for file in DirAccess.get_files_at("res://world/lore/facts"):
+		if file.ends_with(".tres"):
+			var fact: Resource = load("res://world/lore/facts/" + file)
+			_add(fact.title)
+			_add(fact.description)
+			_add(fact.source)
 	var old := _read_existing()
 	var file := FileAccess.open(CSV, FileAccess.WRITE)
 	file.store_csv_line(PackedStringArray(["keys"] + LANGS))

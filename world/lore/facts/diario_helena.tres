@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="FactDef" format=3]
+
+[ext_resource type="Script" path="res://world/lore/fact_def.gd" id="1_fact"]
+
+[resource]
+script = ExtResource("1_fact")
+id = "diario_helena"
+title = "O caderno da Helena"
+description = "A Dra. Helena viu a Sinapse usar gente doente como combustível. Não beber da Estação 3. Código de manutenção: 70-R-ALFA-9."
+source = "Caderno de capa vermelha, na casa da Helena"

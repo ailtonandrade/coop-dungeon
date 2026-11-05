@@ -8,11 +8,18 @@ signal facts_changed
 
 const BOOK_PATH := "res://world/lore/lore.tres"
 const NPC_DIR := "res://world/lore/npcs"
+const FACT_DIR := "res://world/lore/facts"
+## Fatos internos (região visitada, gatilho usado, porta aberta, item entregue): não aparecem
+## no Conhecimento (a não ser que tenham ficha sem `hidden`).
+const INTERNAL_PREFIXES := ["visitou_", "gatilho_", "abriu_", "item_"]
+const MAX_SOURCE := 120
 
 var _book: LoreBook
 ## Falas de "puxar assunto" já ditas nesta sessão (não repetem).
 var _said := {}
 var _dialogues := {}  # nome do NPC -> NpcDialogue
+var _fact_defs := {}  # id -> FactDef
+var _fact_defs_loaded := false
 
 
 func book() -> LoreBook:
@@ -37,17 +44,97 @@ func allowed(requires: Array, forbids: Array) -> bool:
 	return knows_all(requires) and not forbids.any(func(id: String) -> bool: return knows(id))
 
 
-## Grava fatos novos (qualquer máquina pode pedir; quem grava é o host).
-func learn(ids: Array) -> void:
+## Grava fatos novos (qualquer máquina pode pedir; quem grava é o host). `source` = de onde veio,
+## "tipo|nome" (documento, conversa, missao, porta, terminal, lugar, objeto), para a tela de
+## Conhecimento.
+func learn(ids: Array, source := "") -> void:
 	var fresh := ids.filter(func(id: Variant) -> bool: return id is String and not id.is_empty() and not knows(id))
 	if fresh.is_empty():
 		return
+	source = source.left(MAX_SOURCE)
 	if multiplayer.is_server():
-		_add(fresh)
+		_add(fresh, source)
 		if NetService.is_online():
-			_rpc_learned.rpc(fresh)
+			_rpc_learned.rpc(fresh, source)
 	else:
-		_rpc_request.rpc_id(1, fresh)
+		_rpc_request.rpc_id(1, fresh, source)
+
+
+## Conhecimento (tela na roda do inventário): fatos que o grupo sabe, com ficha (FactDef) ou não.
+
+func fact_def(id: String) -> FactDef:
+	if not _fact_defs_loaded:
+		_fact_defs_loaded = true
+		if DirAccess.dir_exists_absolute(FACT_DIR):
+			for file in DirAccess.get_files_at(FACT_DIR):
+				file = file.trim_suffix(".remap")
+				if file.ends_with(".tres"):
+					var found := load(FACT_DIR.path_join(file)) as FactDef
+					if found and not found.id.is_empty():
+						_fact_defs[found.id] = found
+	return _fact_defs.get(id)
+
+
+## Fato que vale mostrar ao jogador (sem os marcadores internos nem os de ficha escondida).
+func is_visible_fact(id: String) -> bool:
+	var found := fact_def(id)
+	if found:
+		return not found.hidden
+	for prefix: String in INTERNAL_PREFIXES:
+		if id.begins_with(prefix):
+			return false
+	return true
+
+
+## Fatos para a tela, do mais novo para o mais antigo.
+func known_facts() -> Array[String]:
+	var result: Array[String] = []
+	for id: Variant in facts().keys():
+		if id is String and is_visible_fact(id):
+			result.push_front(id)
+	return result
+
+
+func fact_title(id: String) -> String:
+	var found := fact_def(id)
+	if found and not found.title.is_empty():
+		return Txt.t(found.title)
+	return id.replace("_", " ").capitalize()
+
+
+func fact_description(id: String) -> String:
+	var found := fact_def(id)
+	return Txt.t(found.description) if found else ""
+
+
+## De onde veio: o que a ficha diz ou, sem isso, o que ficou gravado quando o grupo aprendeu.
+func fact_source(id: String) -> String:
+	var found := fact_def(id)
+	if found and not found.source.is_empty():
+		return Txt.t(found.source)
+	var raw: Variant = facts().get(id)
+	return source_text(raw if raw is String else "")
+
+
+static func source_text(raw: String) -> String:
+	var kind := raw.get_slice("|", 0)
+	var what := Txt.t(raw.get_slice("|", 1)) if raw.contains("|") else ""
+	match kind:
+		"documento":
+			return Txt.t("Lendo: %s") % what if not what.is_empty() else Txt.t("Lendo um documento")
+		"conversa":
+			return Txt.t("Conversa com %s") % what if not what.is_empty() else Txt.t("Numa conversa")
+		"missao":
+			return Txt.t("Missão: %s") % what if not what.is_empty() else Txt.t("Numa missão")
+		"porta":
+			return Txt.t("Abrindo uma porta")
+		"terminal":
+			return Txt.t("Invadindo um terminal")
+		"lugar":
+			return Txt.t("Explorando o lugar")
+		"objeto":
+			return Txt.t("Examinando algo")
+	return Txt.t("Não lembra de onde")
 
 
 func document(id: String) -> LoreDocument:
@@ -153,7 +240,7 @@ static func has_item(player: Node, item_id: String) -> bool:
 ## O jogador ouviu a resposta: o grupo aprende os fatos e, se o assunto dá item, o host entrega
 ## (uma vez por mundo).
 func heard(npc_name: String, topic: DialogueTopic, player: Node) -> void:
-	learn(topic.teaches)
+	learn(topic.teaches, "conversa|" + npc_name)
 	if topic.gives_item.is_empty() or not ItemDB.has(topic.gives_item):
 		return
 	var given := "item_%s_%s" % [PropBuilder.id_from(npc_name), topic.gives_item]
@@ -185,10 +272,11 @@ func _rpc_give(net_id: int, item_id: String, fact: String) -> void:
 		_give(player, item_id, fact)
 
 
-func _add(fresh: Array) -> void:
+## Cada fato guarda de onde veio ("tipo|nome") ou true (saves antigos, ou sem origem).
+func _add(fresh: Array, source := "") -> void:
 	var known := facts()
 	for id: String in fresh:
-		known[id] = true
+		known[id] = source if not source.is_empty() else true
 	NetService.world["facts"] = known
 	if multiplayer.is_server() and NetService.world.has("id"):
 		SaveService.save_world(NetService.world)
@@ -196,11 +284,11 @@ func _add(fresh: Array) -> void:
 
 
 @rpc("any_peer", "call_remote", "reliable")
-func _rpc_request(ids: Array) -> void:
+func _rpc_request(ids: Array, source: String) -> void:
 	if multiplayer.is_server():
-		learn(ids.filter(func(id: Variant) -> bool: return id is String and id.length() <= 64))
+		learn(ids.filter(func(id: Variant) -> bool: return id is String and id.length() <= 64), source)
 
 
 @rpc("authority", "call_remote", "reliable")
-func _rpc_learned(ids: Array) -> void:
-	_add(ids)
+func _rpc_learned(ids: Array, source: String) -> void:
+	_add(ids, source)

@@ -4,7 +4,7 @@ extends PanelContainer
 ## próximo. Sobem com o uso (acertar com a arma, aguentar dano, apanhar). Na roda dos painéis
 ## do inventário: RB / Q passa para o próximo.
 ##
-## Controle: RB volta ao inventário · B / Back fecha. Teclado: Q · Shift / I.
+## Controle: RB vai ao conhecimento · B / Back fecha. Teclado: Q · Shift / I.
 
 signal close_requested
 signal switch_requested
@@ -48,7 +48,7 @@ func _build() -> void:
 		row.draw.connect(_draw_row.bind(row, id))
 		column.add_child(row)
 		_rows.append(row)
-	column.add_child(UiSkin.label("Sobem usando · RB/Q inventário · B fecha", 13, Color(1, 1, 1, 0.6), "Regular", 3))
+	column.add_child(UiSkin.label("Sobem usando · RB/Q conhecimento · B fecha", 13, Color(1, 1, 1, 0.6), "Regular", 3))
 
 
 func _refresh() -> void:

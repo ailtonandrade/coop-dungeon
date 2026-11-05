@@ -50,7 +50,7 @@ locale/      traduções (textos.csv: chave em português, coluna por idioma); v
 props/       fichas de peças do cenário (PropDef), montagem da peça pronta (PropBuilder) e
              peça física (PhysicsProp, simulada pelo host)
 ui/          menu principal (com a vila 3D ao fundo: MenuBackdrop), HUD (PlayerCard, RegionBanner),
-             inventário, Chip pirata (ChipPanel), Habilidades (SkillsPanel), escolha de personagem (CharacterSelect, com
+             inventário, Chip pirata (ChipPanel), Habilidades (SkillsPanel), Conhecimento (KnowledgePanel), escolha de personagem (CharacterSelect, com
              CharacterPreview), ChatBox (chat do mundo), configurações (SettingsPanel, no menu e na pausa), tela de serviço
              (ServicePanel), minimapa
 ui/skin/     visual da interface: texturas das molduras, corrumpted_theme.tres (tema do projeto

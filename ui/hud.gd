@@ -406,7 +406,8 @@ func _toggle_inventory(slot: int) -> void:
 	_open_panel(slot, InventoryPanel.new(), player)
 
 
-## Abre no lugar do inventário um painel do jogador (inventário, chip pirata ou habilidades);
+## Abre no lugar do inventário um painel do jogador (inventário, chip pirata, habilidades ou
+## conhecimento);
 ## RB/Q passa para o próximo.
 func _open_panel(slot: int, panel: Control, player: Player) -> void:
 	_root.add_child(panel)
@@ -424,12 +425,14 @@ func _switch_panel(slot: int) -> void:
 	current.keep_blocked = true
 	current.queue_free()
 	_inventories.erase(slot)
-	# Roda: Inventário -> Chip pirata -> Habilidades -> Inventário.
+	# Roda: Inventário -> Chip pirata -> Habilidades -> Conhecimento -> Inventário.
 	var next: Control = InventoryPanel.new()
 	if current is InventoryPanel:
 		next = ChipPanel.new()
 	elif current is ChipPanel:
 		next = SkillsPanel.new()
+	elif current is SkillsPanel:
+		next = KnowledgePanel.new()
 	_open_panel(slot, next, player)
 
 
@@ -478,7 +481,7 @@ func _try_open_service(slot: int) -> void:
 		reader.open_for(slot, note.document(), note.look == "terminal")
 		reader.close_requested.connect(_close_service.bind(slot))
 		_services[slot] = reader
-		Lore.learn(note.document().facts())
+		Lore.learn(note.document().facts(), "documento|" + note.document().title)
 		return
 	var npc := WorldNpc.nearest(get_tree(), player.global_position)
 	if npc == null:

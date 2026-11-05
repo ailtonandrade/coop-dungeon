@@ -52,7 +52,7 @@ func _process(delta: float) -> void:
 			who = player
 	if who and not _inside:
 		if not teaches.is_empty():
-			get_node("/root/Lore").learn(teaches)
+			get_node("/root/Lore").learn(teaches, "lugar|")
 		get_node("/root/Quests").reach(id(), who)
 	_inside = who != null
 

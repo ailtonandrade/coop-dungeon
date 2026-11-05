@@ -145,3 +145,21 @@ Teste: `tests/lore_test.gd` joga a cadeia inteira como um jogador.
   some no combate comum.
 - Lugares com memória: parquinho enferrujado, escola vazia, outdoor de comida "saudável" da
   Sinapse, praça com uma única árvore viva que os assentamentos protegem.
+
+## Conhecimento (tela do jogador)
+
+Na roda dos painéis do inventário (I / Shift, depois RB / Q: Inventário → Chip → Habilidades →
+**Conhecimento**) o jogador vê os fatos que o grupo já sabe, do mais novo para o mais antigo, com
+o título e **de onde veio**.
+
+- **Ficha do fato** (`FactDef`): um arquivo por fato em `res://world/lore/facts/<id>.tres`
+  (no editor: botão direito na pasta → Novo Recurso → FactDef). Campos: `id` (o mesmo de
+  teaches/requires/unlock_fact), `title`, `description` (opcional), `source` (onde se obtém) e
+  `hidden` (marcador interno que não aparece).
+- **Sem ficha**: aparece com o id ("Codigo Ze") e a origem gravada na hora em que o grupo aprendeu
+  ("Lendo: Caderno de capa vermelha", "Conversa com Zé Gato", "Missão: Ferro de gangue",
+  "Abrindo uma porta", "Invadindo um terminal"...). O save guarda `facts[id] = "tipo|nome"`
+  (saves antigos têm `true` e mostram "Não lembra de onde").
+- Ficam de fora os marcadores internos `visitou_*`, `gatilho_*`, `abriu_*` e `item_*` (a não
+  ser que ganhem ficha sem `hidden`).
+- Textos das fichas entram na tradução (`tools/extrair_textos.gd`).

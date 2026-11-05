@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="FactDef" format=3]
+
+[ext_resource type="Script" path="res://world/lore/fact_def.gd" id="1_fact"]
+
+[resource]
+script = ExtResource("1_fact")
+id = "log_rafael"
+title = "O log do Rafael"
+description = "O Rafael deu acesso administrativo à malha de abastecimento. A Atualização 7.0 não foi vírus."
+source = "Terminal pessoal do Rafael"

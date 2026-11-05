@@ -343,14 +343,14 @@ func use(_player: Node) -> void:
 		get_node("/root/Sound").play("ui_error", global_position)
 		get_node("/root/Chat").local_note(Txt.t("Trancada."))
 		return
-	get_node("/root/Lore").learn([unlock_fact])
+	get_node("/root/Lore").learn([unlock_fact], "porta|")
 
 
 ## Abre de vez (reação de missão "abrir").
 func force_open() -> void:
 	lock = "livre"
 	requires = []
-	get_node("/root/Lore").learn([unlock_fact])
+	get_node("/root/Lore").learn([unlock_fact], "porta|")
 
 
 func _refresh(instant := false) -> void:
@@ -373,7 +373,7 @@ func _refresh(instant := false) -> void:
 		tween.tween_property(_leaf, "transform", target, ANIM_TIME)
 	if open and not instant:
 		# Abriu agora: fatos a mais (também quando abriu pelo teclado) e conta para missões.
-		get_node("/root/Lore").learn(teaches)
+		get_node("/root/Lore").learn(teaches, "porta|")
 		get_node("/root/Quests").interact(id(), null)
 	var streamer := get_tree().get_first_node_in_group("world_streamer")
 	var chunk := _chunk()

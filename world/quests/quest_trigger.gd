@@ -67,7 +67,7 @@ func use(player: Node) -> void:
 	if single_use:
 		get_node("/root/Lore").learn(["gatilho_" + id()])
 	if not teaches.is_empty():
-		get_node("/root/Lore").learn(teaches)
+		get_node("/root/Lore").learn(teaches, "objeto|")
 	get_node("/root/Quests").interact(id(), player)
 
 

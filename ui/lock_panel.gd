@@ -293,7 +293,7 @@ func _finish() -> void:
 	unlocked.emit()
 	var fact := String(gate.get("unlock_fact"))
 	if not fact.is_empty():
-		Lore.learn([fact])
+		Lore.learn([fact], "terminal|" if String(gate.get("lock")) == "invasao" else "porta|")
 	get_tree().create_timer(0.9).timeout.connect(func() -> void:
 		if is_inside_tree():
 			close_requested.emit())

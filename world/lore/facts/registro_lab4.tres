@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="FactDef" format=3]
+
+[ext_resource type="Script" path="res://world/lore/fact_def.gd" id="1_fact"]
+
+[resource]
+script = ExtResource("1_fact")
+id = "registro_lab4"
+title = "A ordem veio do D3M"
+description = "O registro do servidor mostra que a transferência do Lab 4 foi ordenada pelo D3M e a Helena foi afastada."
+source = "Servidor do Lab 4"

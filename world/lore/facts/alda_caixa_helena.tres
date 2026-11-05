@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="FactDef" format=3]
+
+[ext_resource type="Script" path="res://world/lore/fact_def.gd" id="1_fact"]
+
+[resource]
+script = ExtResource("1_fact")
+id = "alda_caixa_helena"
+title = "A caixa da Helena"
+description = "A Helena deixou uma caixa com a Dona Alda antes de sumir. Está destravada, na casa da Helena."
+source = "Conversa com a Dona Alda (assunto: coisas da Helena)"

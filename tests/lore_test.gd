@@ -153,6 +153,21 @@ func _process(_delta: float) -> bool:
 			_check(_said(talk).contains("D-3-M"), "e conta dos depósitos de energia")
 			_hud()._close_service(0)
 			_check(root.get_node("NetService").world.get("facts", {}).has("sabe_nome_demiurgo"), "as descobertas ficam no mundo")
+			# Conhecimento: fatos com ficha (título e onde) e origem gravada; internos ficam de fora.
+			var known: Array = _lore.known_facts()
+			_check(known.has("diario_helena") and known.has("codigo_ze") and not known.has("visitou_vila"), "a tela de conhecimento lista os fatos, sem os internos (%s)" % [known])
+			_check(_lore.fact_title("codigo_ze").contains("70-R-ALFA-9"), "título vem da ficha do fato")
+			_check(String(root.get_node("NetService").world.facts.get("codigo_ze")) == "conversa|Zé Gato", "grava de onde veio (conversa com o Zé Gato)")
+			_check(String(root.get_node("NetService").world.facts.get("diario_helena")).begins_with("documento|"), "e de documento lido")
+			_check(_lore.source_text("missao|Ferro de gangue").contains("Ferro de gangue"), "origem de missão em texto")
+			var player: Node = _player()
+			_hud()._toggle_inventory(player.slot)
+			for i in 3:
+				_hud()._switch_panel(player.slot)
+			var panel: Node = _hud()._inventories.get(player.slot)
+			_check(panel != null and panel.get_script().resource_path.ends_with("knowledge_panel.gd"), "a roda do inventário chega no Conhecimento")
+			_check(panel != null and panel._list.get_child_count() == known.size(), "uma linha por fato")
+			_hud()._close_inventory(player.slot)
 			print("HISTÓRIA: " + ("FALHOU" if _failed else "OK"))
 			quit(1 if _failed else 0)
 	return false

@@ -226,7 +226,7 @@ func _event(kind: String, a: String, b: String, player: Node) -> void:
 			counts[i] = int(counts[i]) + 1
 			changed = true
 			if int(counts[i]) >= objective.goal():
-				_objective_done(objective, player)
+				_objective_done(objective, player, quest)
 		entry["count"] = counts
 		all[id] = entry
 		if _finished(quest, counts):
@@ -250,8 +250,8 @@ func _finished(quest: QuestDef, counts: Array) -> bool:
 	return true
 
 
-func _objective_done(objective: QuestObjective, player: Node) -> void:
-	Lore.learn(objective.teaches)
+func _objective_done(objective: QuestObjective, player: Node, quest: QuestDef) -> void:
+	Lore.learn(objective.teaches, "missao|" + quest.title)
 	if not objective.gives_item.is_empty():
 		_give_item(objective.gives_item, player)
 	if objective.reaction != "nenhuma" and not objective.reaction_target.is_empty():
@@ -301,7 +301,7 @@ func _complete(quest: QuestDef, player: Node) -> void:
 			member.add_xp(quest.reward_xp)
 	if not quest.reward_item.is_empty():
 		_give_item(quest.reward_item, player, "rare")
-	Lore.learn(quest.teaches)
+	Lore.learn(quest.teaches, "missao|" + quest.title)
 	Chat.system(Txt.t("Missão concluída: %s") % Txt.t(quest.title))
 	_announce(quest.id, "entregue")
 

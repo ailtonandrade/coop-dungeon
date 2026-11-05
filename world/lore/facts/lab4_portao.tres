@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="FactDef" format=3]
+
+[ext_resource type="Script" path="res://world/lore/fact_def.gd" id="1_fact"]
+
+[resource]
+script = ExtResource("1_fact")
+id = "lab4_portao"
+title = "Entrou no Laboratório 4"
+description = "O portão de serviço abriu com 70-R-ALFA-9."
+source = "Portão de serviço do Laboratório 4"
