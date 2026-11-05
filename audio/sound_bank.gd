@@ -58,7 +58,8 @@ const EVENTS := {
 	"refine_fail": {"files": ["refine_fail"], "db": -3.0, "bus": "UI", "world": false},
 	# Progressão
 	"level_up": {"files": ["level_up"], "db": -7.0},
-	"chip_install": {"files": ["chip_install"], "db": -4.0, "bus": "UI", "world": false},
+	# Gastar ponto de chip: baque curto e abafado (antes era um 'plim' com notas).
+	"chip_install": {"files": ["nail_body_1"], "db": -6.0, "pitch": 0.05, "bus": "UI", "world": false},
 	# Interface
 	# Interface: macio e baixinho (passar por cima/focar, apertar, voltar, digitar).
 	"ui_move": {"files": ["ui_move"], "db": -20.0, "pitch": 0.05, "bus": "UI", "world": false, "gap": 0.04},

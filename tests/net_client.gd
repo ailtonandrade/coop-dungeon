@@ -68,7 +68,12 @@ func _process(_delta: float) -> bool:
 		6:
 			_key(KEY_F, false)
 			var path := _find_in_bag("iron_helmet")
-			if not path.is_empty():
+			var worn: Variant = _me.inventory.equipment.get("head")
+			# Cabeça vazia: o elmo pego já entra equipado; com algo na cabeça, vai para a mochila.
+			if worn and worn.id == "iron_helmet":
+				_check(true, "elmo chegou na minha cópia do inventário (já equipado)")
+				_step = 7
+			elif not path.is_empty():
 				_check(true, "elmo chegou na minha cópia do inventário")
 				_me.request_inventory("equip", [path])
 				_step = 7
