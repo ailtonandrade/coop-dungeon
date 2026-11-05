@@ -220,7 +220,8 @@ func _setup_aim_arm() -> void:
 
 ## Criaturas podem mirar neste herói (não está caído nem construindo).
 func is_targetable() -> bool:
-	return state != State.DOWNED and not building and not BaseManager.safe_at(global_position) and not editor_shield()
+	return state != State.DOWNED and not building and not base_building and not BaseManager.safe_at(global_position) \
+			and not editor_shield()
 
 
 const EDITOR_SHIELD := "owner_editor_shield"
@@ -258,8 +259,9 @@ func teleport_to(target: Vector3) -> void:
 
 
 func take_hit(amount: float, knockback := Vector3.ZERO, _ranged := false) -> void:
-	# Zona segura da base, ou o dono com um editor aberto: nada fere.
-	if BaseManager.safe_at(global_position) or editor_shield():
+	# Zona segura da base, construindo a base (/construir) ou o dono com um editor aberto
+	# (/editar, /missoes): nada fere e as criaturas não miram. Pausa e inventário não protegem.
+	if BaseManager.safe_at(global_position) or base_building or editor_shield():
 		return
 	# A rolada dá invulnerabilidade, como no gênero (e esquivar treina Resiliência).
 	if state == State.DODGING:

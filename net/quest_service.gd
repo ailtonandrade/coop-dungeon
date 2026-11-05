@@ -12,14 +12,26 @@ extends Node
 signal quests_changed
 ## Uma missão mudou de estado ("ativa", "pronta", "entregue"): para a tela dar destaque.
 signal quest_event(quest_id: String, state: String)
+## Mudou a missão rastreada (tela de missões).
+signal focus_changed
 
 const DIR := "res://world/quests"
 
 var _defs := {}  # id -> QuestDef
 var _streamer: Node
+var _focus_id := ""
 var _marks := {}
 var _marks_at := -1.0
 const MARKS_REFRESH := 0.5
+
+
+func _ready() -> void:
+	# Missão que acabou de começar vira a rastreada; a rastreada que terminou dá a vez.
+	quest_event.connect(func(id: String, state: String) -> void:
+		if state == "ativa":
+			set_focus(id)
+		elif state == "entregue" and id == _focus_id:
+			set_focus(""))
 
 
 ## Recarrega as fichas (o editor de missões salvou uma nova).
@@ -79,6 +91,9 @@ func tracked() -> Array[QuestDef]:
 func available(quest: QuestDef) -> bool:
 	if not Lore.knows_all(quest.requires):
 		return false
+	for previous: String in quest.after:
+		if state_of(previous) != "entregue":
+			return false
 	var state := state_of(quest.id)
 	return state.is_empty() or (state == "entregue" and quest.repeatable and cooldown_left(quest) <= 0)
 
@@ -234,11 +249,35 @@ func next_steps() -> Array[QuestDef]:
 	return result
 
 
-## O que o minimapa e o mapa apontam: as em andamento e os próximos passos.
+## As em andamento e os próximos passos (o rastreador mostra todas).
 func guided() -> Array[QuestDef]:
 	var result := tracked()
 	result.append_array(next_steps())
 	return result
+
+
+## Missão RASTREADA (a que o minimapa, o mapa e o destaque do rastreador seguem): a escolhida na
+## tela de missões, se ainda está em andamento ou é próximo passo; senão a primeira (principais
+## primeiro). Null se não tem nenhuma. Cada máquina escolhe a sua.
+func focus() -> QuestDef:
+	var list := guided()
+	if list.is_empty():
+		return null
+	for quest in list:
+		if quest.id == _focus_id:
+			return quest
+	return list[0]
+
+
+func set_focus(id: String) -> void:
+	_focus_id = id
+	focus_changed.emit()
+
+
+## O que o minimapa e o mapa apontam: só a rastreada.
+func pointed() -> Array[QuestDef]:
+	var quest := focus()
+	return [quest] if quest else ([] as Array[QuestDef])
 
 
 ## Como começar uma missão ainda não pega ("Fale com Dona Alda").

@@ -158,7 +158,7 @@ func _draw_quest_targets(inner: Rect2) -> void:
 			var reach := inner.size.x / 2.0 - 10.0
 			at = Vector2(SIZE, SIZE) / 2.0 + away * (reach / maxf(absf(away.x), absf(away.y)))
 		WorldMapPanel.draw_quest_mark(_markers, at, String(marks[npc_name]), 8.0)
-	for quest in Quests.guided():
+	for quest in Quests.pointed():
 		var target: Variant = Quests.target_of(quest, from)
 		if not target is Vector3:
 			continue

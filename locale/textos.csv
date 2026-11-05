@@ -80,6 +80,7 @@ Saves straight into the chunk scenes (official map)."
 + Novo personagem (%d/%d),+ New character (%d/%d)
 + Objetivo,
 +%d chip,+%d chip
++%d na tela de missões,+%d on the quests screen
 +%s de armadura,+%s armor
 +%s%% de cura da poção,+%s%% potion healing
 +%s%% de dano,+%s%% damage
@@ -424,6 +425,7 @@ Equipamento,Equipment
 Esc,
 Escada,Ladder
 Escasso,Scarce
+"Escolha qual rastrear na tela de missões (inventário, RB/Q)","Choose which to track on the quests screen (inventory, RB/Q)"
 Escopeta de cano serrado,Sawed-off shotgun
 "Escrito a lápis, nas folhas que sobraram","Written in pencil, on the pages that were left"
 Espaço,Space
@@ -640,6 +642,9 @@ Missão,Quest
 Missão concluída: %s,Quest complete: %s
 Missão pronta: %s · volte para %s,Quest ready: %s · go back to %s
 Missão: %s,Quest: %s
+"Missões que precisam estar entregues antes desta aparecer (vírgula). Principal que vem depois
+vira o PRÓXIMO PASSO assim que a anterior termina: aparece no rastreador, o minimapa aponta e o NPC ganha ""!"".
+Duas que vêm depois da mesma: as duas aparecem e o jogador escolhe qual rastrear.",
 Mochila,Backpack
 Mochila cheia,Backpack full
 Mochila de lona,Canvas backpack
@@ -685,6 +690,7 @@ Nenhum NPC no mapa.,
 Nenhum gatilho de missão no mapa (ponha pelo /editar).,
 "Nenhum mundo ainda. Crie um em ""Novo mundo"".","No worlds yet. Create one in ""New world""."
 Nenhum personagem ainda: crie um.,No characters yet: create one.
+Nenhuma outra missão ainda.,
 Nenhuma peça em world/prefabs,No pieces in world/prefabs
 Nenhuma receita ainda (o terminal de base libera no nível %d).,No recipes yet (the base terminal unlocks at level %d).
 Nenhuma área de missão no mapa (ponha pelo /editar).,
@@ -777,6 +783,7 @@ P%d · segure Y (ou Espaço),P%d · hold Y (or Space)
 PESSOAS NA SALA,PEOPLE IN THE ROOM
 PRINCIPAIS CONCLUÍDAS,MAIN QUESTS COMPLETED
 PRÓXIMO PASSO,NEXT STEP
+PRÓXIMOS PASSOS,NEXT STEPS
 Palavra vira botão (controle),
 Palavras em ordem (vírgula),
 "Papel timbrado, molhado e pisado no meio do entulho","Letterhead paper, wet and trampled in the rubble"
@@ -952,6 +959,7 @@ VOZ,VOICE
 VSync: %s,VSync: %s
 Vai com Deus. E ferve a água!,Go with God. And boil the water!
 Vem comigo!,Follow me!
+Vem depois de (missões),
 Vender,Sell
 Vendeu %s (+%d),Sold %s (+%d)
 Ver mercadorias,See the goods
@@ -1130,9 +1138,11 @@ ze,
 "Ô, meu filho! Chega mais, que ferrugem não espera ninguém.","Oh, my son! Come closer, rust waits for no one."
 área segura,safe area
 âmbar,amber
+▲▼ escolhe · A/Espaço rastreia · RB/Q inventário · B fecha,▲▼ choose · A/Space track · RB/Q inventory · B closes
 ◀ ▶ escolhe · A entra · B desiste,◀ ▶ choose · A join · B cancel
 ◀ ▶ visual · Y cor do chip · X sorteia nome · A entra · B volta,◀ ▶ look · Y chip color · X random name · A join · B back
 ◆ %d ponto de chip para gastar · %s,◆ %d chip point to spend · %s
 ◆ %d pontos de chip para gastar · %s,◆ %d chip points to spend · %s
+◆ RASTREANDO,◆ TRACKING
 ◢ CANAL // MUNDO,◢ CHANNEL // WORLD
 ⬆ Versão %s disponível · atualizar,⬆ Version %s available · update

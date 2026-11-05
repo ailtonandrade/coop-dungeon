@@ -55,6 +55,15 @@ func _process(_delta: float) -> bool:
 			var needs: Array[String] = ["sabe_quem_sou"]
 			next_quest.requires = needs
 			quests.defs()["teste_proximo"] = next_quest
+			# Outra que vem DEPOIS da primeira missão (campo "Vem depois de"), com outro NPC.
+			var other := QuestDef.new()
+			other.id = "teste_outro"
+			other.title = "Teste outro"
+			other.category = "principal"
+			other.giver = "Zé Gato"
+			var previous: Array[String] = ["quem_sou_eu"]
+			other.after = previous
+			quests.defs()["teste_outro"] = other
 			_check(quests.next_steps().is_empty(), "antes do diário: sem próximo passo")
 			var alda: Node = _npc("Dona Alda")
 			_check(alda != null and not alda._title.contains("Sucateiro"), "antes de conversar, só o nome em cima (%s)" % (alda._title if alda else ""))
@@ -76,8 +85,13 @@ func _process(_delta: float) -> bool:
 			var shown: Array = banner._queue.map(func(entry: Array) -> String: return String(entry[0]) + " " + String(entry[1]))
 			shown.append(banner._kicker.text + " " + banner._title.text)
 			_check(shown.any(func(t: String) -> bool: return t.contains("MISSÃO CONCLUÍDA") and t.contains("Quem sou eu")), "aviso grande: missão concluída (%s)" % [shown])
-			_check(shown.any(func(t: String) -> bool: return t.contains("PRÓXIMO PASSO") and t.contains("Teste próximo")), "e o próximo passo")
+			_check(shown.any(func(t: String) -> bool: return t.contains("PRÓXIMO") and t.contains("Teste próximo")), "e o próximo passo")
 			_check(quests.next_steps().has(quests.def("teste_proximo")), "a próxima missão principal vira próximo passo")
+			_check(quests.next_steps().has(quests.def("teste_outro")), "\"vem depois de\" a primeira: também vira próximo passo")
+			_check(shown.any(func(t: String) -> bool: return t.contains("PRÓXIMOS PASSOS") and t.contains("Teste outro")), "o aviso lista os dois próximos passos")
+			# Escolher qual rastrear: o minimapa/mapa só apontam para a escolhida.
+			quests.set_focus("teste_outro")
+			_check(quests.pointed().size() == 1 and quests.pointed()[0].id == "teste_outro", "rastrear a outra: o minimapa aponta só para ela")
 			var alda: Node = _npc("Dona Alda")
 			var target: Variant = quests.target_of(quests.def("teste_proximo"), p.global_position)
 			_check(target is Vector3 and (target as Vector3).distance_to(alda.global_position) < 1.0, "o minimapa aponta para quem dá a missão")
@@ -85,7 +99,7 @@ func _process(_delta: float) -> bool:
 			for label: Label in _hud().find_children("*", "Label", true, false):
 				if label.is_visible_in_tree():
 					log_text += label.text + "\n"
-			_check(log_text.contains("PRÓXIMO PASSO") and log_text.contains("Fale com Dona Alda"), "o questLog mostra o próximo passo")
+			_check(log_text.contains("PRÓXIMO PASSO") and log_text.contains("Fale com Dona Alda") and log_text.contains("Fale com Zé Gato"), "o questLog mostra os dois próximos passos")
 			_hud()._close_service(p.slot)
 			alda._process(1.0)
 			_check(alda._quest_mark.text == "!", "\"!\" em cima de quem tem missão para dar")
@@ -104,6 +118,12 @@ func _process(_delta: float) -> bool:
 			var panel: Node = _hud()._inventories.get(p.slot)
 			_check(panel != null and panel.get_script().resource_path.ends_with("quests_panel.gd"), "a roda chega na tela de missões")
 			_check(panel != null and panel._header.text.contains("1 principais"), "conta as principais feitas (%s)" % (panel._header.text if panel else ""))
+			if panel:
+				var ids: Array = panel._choices.map(func(c: Array) -> String: return c[0])
+				_check(ids.has("teste_proximo") and ids.has("teste_outro"), "a tela de missões lista os próximos passos para rastrear (%s)" % [ids])
+				panel._cursor = ids.find("teste_proximo")
+				panel._track()
+				_check(root.get_node("Quests").focus().id == "teste_proximo", "escolher na tela de missões muda a rastreada")
 			_hud()._close_inventory(p.slot)
 			# Item de missão no mapa + missão que começa ao pegar o item.
 			var quest := QuestDef.new()

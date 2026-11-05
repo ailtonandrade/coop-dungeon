@@ -49,8 +49,13 @@ func _on_quest_event(id: String, state: String) -> void:
 			# Depois de concluir: para onde a história segue.
 			(func() -> void:
 				var next := Quests.next_steps()
-				if not next.is_empty():
+				if next.size() == 1:
 					_queue.append([Txt.t("PRÓXIMO PASSO"), "★ " + Txt.t(next[0].title), Quests.start_hint(next[0]), AMBER])
+				elif next.size() > 1:
+					var titles := PackedStringArray()
+					for step in next:
+						titles.append("★ " + Txt.t(step.title))
+					_queue.append([Txt.t("PRÓXIMOS PASSOS"), " · ".join(titles), Txt.t("Escolha qual rastrear na tela de missões (inventário, RB/Q)"), AMBER])
 			).call_deferred()
 
 

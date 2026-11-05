@@ -1109,13 +1109,6 @@ func _build_hud() -> void:
 	_hint = UiSkin.label("", 14, UiSkin.DIM, "Regular", 3)
 	_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	column.add_child(_hint)
-	# Saída que não depende do chat: clicar fecha o construtor.
-	var leave := Button.new()
-	leave.text = "Sair do construtor"
-	leave.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	leave.focus_mode = Control.FOCUS_NONE
-	leave.pressed.connect(stop)
-	column.add_child(leave)
 	_build_loot_panel()
 	_build_name_panel()
 

@@ -42,6 +42,8 @@ Peças de missão (coloque pelo **/editar**, categoria **Missoes**, ou no editor
     um *Item de missão* do mapa, ganhou, comprou ou já começou com ele, como o diário da mochila).
 - **Item ao começar** (ex.: o NPC te entrega algo), falas (oferecer, andamento, entregar), resumo.
 - **Volta para entregar**: com NPC, termina voltando nele; sem, conclui sozinha na hora.
+- **Vem depois de** (missões que precisam estar entregues; botão "lista"): o jeito mais simples de
+  encadear a história. Principal que vem depois vira o PRÓXIMO PASSO assim que a anterior termina.
 - **Requer fatos** (só aparece depois) e **Ensina fatos** (ao concluir), para ligar com a história.
 - **Recompensa**: parafusos e experiência para cada um do grupo, item para quem entrega; repetível,
   com **espera para repetir** em minutos (o NPC diz "volte em X min" enquanto isso).
@@ -117,6 +119,8 @@ do mundo e valem para os amigos online.
   principal e pedir o fato que a anterior ensina.
 - **Ofício do NPC** (sucateiro, mecânico...) só aparece em cima da cabeça depois que o grupo
   conversa com ele uma vez (fato interno `conheceu_<nome>`).
+- **Rastrear**: o rastreador mostra todas (em andamento e próximos passos), a rastreada em destaque;
+  o minimapa e o mapa apontam só para ela. Escolhe na tela de missões (▲▼ e A / Espaço ou clique).
 - **Tela de missões** na roda do inventário (I / Shift, depois RB / Q até "missões"): as em
   andamento com os objetivos e as concluídas, separadas em principais e secundárias.
 

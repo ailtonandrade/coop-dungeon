@@ -15,6 +15,7 @@ const DIR := "res://world/quests/"
 const PANEL_W := 760
 const START_HELP := "npc: oferecida na conversa com o NPC.\narea / gatilho: id da área ou do gatilho de missão (ponha pelo /editar, categoria Missoes).\nitem: id do item; começa quando alguém do grupo tem o item (pegou do chão, de um Item de missão\ndo mapa, ganhou, ou já tinha, como o diário da mochila). \"perto\" lista os itens."
 const TARGET_HELP := "matar: classe da criatura · falar: use o campo NPC · interagir: id do gatilho · chegar: id da área\nler: id do item de ler (diário, carta) ou do documento da história (vale o do mapa também)\nusar: id do item que se usa pelo inventário (ficha do item: Uso > usable)\npegar: id do item que precisa ter. \"perto\" abre a lista."
+const AFTER_HELP := "Missões que precisam estar entregues antes desta aparecer (vírgula). Principal que vem depois\nvira o PRÓXIMO PASSO assim que a anterior termina: aparece no rastreador, o minimapa aponta e o NPC ganha \"!\".\nDuas que vêm depois da mesma: as duas aparecem e o jogador escolhe qual rastrear."
 const FACTS_HELP := "Fato = uma etiqueta de \"o grupo já descobriu isso\" (ex.: diario_helena, lab4_portao).\nÉ o mesmo de ler um documento, ouvir um NPC ou abrir um portão. Separe por vírgula.\nUse para ligar missões entre si e com a história: uma missão ensina, a outra só aparece depois."
 
 var active := false
@@ -151,6 +152,8 @@ func _build() -> void:
 	_text("offer_text", "Fala ao oferecer / aviso ao começar")
 	_text("progress_text", "Fala em andamento")
 	_text("done_text", "Fala ao entregar")
+	_line("after", "Vem depois de (missões)").tooltip_text = AFTER_HELP
+	_small_button(_fields.after.get_parent(), "lista", _choose_after)
 	_line("requires", "Só aparece se o grupo já sabe (fatos)").tooltip_text = FACTS_HELP
 	_line("teaches", "Ao concluir, o grupo passa a saber (fatos)").tooltip_text = FACTS_HELP
 	_section("Objetivos")
@@ -367,6 +370,7 @@ func _fill(quest: QuestDef, path: String) -> void:
 	_fields.offer_text.text = quest.offer_text
 	_fields.progress_text.text = quest.progress_text
 	_fields.done_text.text = quest.done_text
+	_fields.after.text = ", ".join(quest.after)
 	_fields.requires.text = ", ".join(quest.requires)
 	_fields.teaches.text = ", ".join(quest.teaches)
 	_fields.reward_gold.value = quest.reward_gold
@@ -406,6 +410,7 @@ func build() -> QuestDef:
 	quest.offer_text = _fields.offer_text.text
 	quest.progress_text = _fields.progress_text.text
 	quest.done_text = _fields.done_text.text
+	quest.after = _list_of(_fields.after.text)
 	quest.requires = _list_of(_fields.requires.text)
 	quest.teaches = _list_of(_fields.teaches.text)
 	quest.reward_gold = int(_fields.reward_gold.value)
@@ -544,6 +549,34 @@ func npcs_by_region() -> Dictionary:
 
 func _choose_npc(edit: LineEdit) -> void:
 	_choose_grouped(edit, npcs_by_region(), "Nenhum NPC no mapa.")
+
+
+## "lista" do "Vem depois de": escolhe uma missão e junta à lista (principais primeiro).
+func _choose_after() -> void:
+	var menu := PopupMenu.new()
+	var own := PropBuilder.id_from(_fields.id.text)
+	var quests: Array = Quests.defs().values()
+	quests.sort_custom(func(a: QuestDef, b: QuestDef) -> bool:
+		return (a.category == "principal") != (b.category == "principal") and a.category == "principal" \
+				or ((a.category == "principal") == (b.category == "principal") and a.id < b.id))
+	for quest: QuestDef in quests:
+		if quest.id == own:
+			continue
+		menu.add_item("%s%s  (%s)" % ["★ " if quest.category == "principal" else "", quest.title, quest.id])
+		menu.set_item_metadata(menu.item_count - 1, quest.id)
+	if menu.item_count == 0:
+		menu.free()
+		_status.text = "Nenhuma outra missão ainda."
+		return
+	menu.index_pressed.connect(func(index: int) -> void:
+		var list := _list_of(_fields.after.text)
+		var picked := String(menu.get_item_metadata(index))
+		if not list.has(picked):
+			list.append(picked)
+		_fields.after.text = ", ".join(list))
+	menu.popup_hide.connect(menu.queue_free, CONNECT_DEFERRED)
+	add_child(menu)
+	menu.popup(Rect2i(Vector2i(get_viewport().get_mouse_position()), Vector2i(320, 0)))
 
 
 ## Ficha que muda com o tipo

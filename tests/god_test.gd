@@ -181,10 +181,8 @@ func _process(_delta: float) -> bool:
 			_check(not _god.active, "/editar fecha depois de dar nome à área")
 			_command()
 			_check(_god.active, "e abre de novo")
-			for button: Button in _god._hud.find_children("*", "Button", true, false):
-				if button.text == "Sair do construtor":
-					button.pressed.emit()
-			_check(not _god.active, "o botão Sair do construtor fecha")
+			_command()
+			_check(not _god.active, "fecha de novo")
 			var chat_box: Node = get_first_node_in_group("hud")._chat
 			chat_box.open_typing(0)
 			chat_box._submit("\\editar")

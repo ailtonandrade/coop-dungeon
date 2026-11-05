@@ -17,6 +17,7 @@ func _ready() -> void:
 	add_theme_constant_override("separation", 10)
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	Quests.quests_changed.connect(_rebuild)
+	Quests.focus_changed.connect(_rebuild)
 	# Fato novo pode liberar o próximo passo da história.
 	Lore.facts_changed.connect(_rebuild)
 	Quests.quest_event.connect(func(id: String, state: String) -> void:
@@ -43,20 +44,30 @@ func _process(delta: float) -> void:
 	for block in get_children():
 		var id := String(block.get_meta("quest_id", ""))
 		var glow := clampf(float(_flash.get(id, 0.0)), 0.0, 1.0)
-		block.modulate = Color(1.0 + glow * 0.6, 1.0 + glow * 0.5, 1.0 + glow * 0.1)
+		var alpha := 0.6 if block.has_meta("dim") else 1.0
+		block.modulate = Color(1.0 + glow * 0.6, 1.0 + glow * 0.5, 1.0 + glow * 0.1, alpha)
 
 
 func _rebuild() -> void:
 	for child in get_children():
 		child.queue_free()
-	var quests := Quests.tracked()
-	var next := Quests.next_steps()
-	visible = not quests.is_empty() or not next.is_empty()
-	for i in mini(quests.size(), MAX):
-		add_child(_block(quests[i]))
-	# Próximo passo da história (missão principal que já dá para pegar): onde começar.
-	if not next.is_empty() and quests.size() < MAX:
-		add_child(_next_block(next[0]))
+	# Todas (em andamento e próximos passos), a RASTREADA primeiro e em destaque; as outras mais
+	# apagadas. Qual rastrear se escolhe na tela de missões (roda do inventário).
+	var list := Quests.guided()
+	visible = not list.is_empty()
+	var focus := Quests.focus()
+	if focus:
+		list.erase(focus)
+		list.push_front(focus)
+	for i in mini(list.size(), MAX):
+		var quest := list[i]
+		var block := _block(quest) if not Quests.state_of(quest.id).is_empty() else _next_block(quest)
+		if quest != focus:
+			block.set_meta("dim", true)
+			block.modulate.a = 0.6
+		add_child(block)
+	if list.size() > MAX:
+		add_child(UiSkin.label(Txt.t("+%d na tela de missões") % (list.size() - MAX), 12, Color(TEXT, 0.6), "Regular", 2))
 
 
 func _block(quest: QuestDef) -> Control:

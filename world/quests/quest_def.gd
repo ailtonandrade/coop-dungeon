@@ -35,6 +35,9 @@ extends Resource
 @export var objectives: Array[QuestObjective] = []
 ## Só aparece quando o grupo sabe estes fatos.
 @export var requires: Array[String] = []
+## Vem depois destas missões (ids): só aparece quando todas já foram entregues. Missão
+## principal que vem depois vira o "próximo passo" (rastreador, minimapa, "!" no NPC).
+@export var after: Array[String] = []
 ## Fatos que o grupo passa a saber ao concluir.
 @export var teaches: Array[String] = []
 

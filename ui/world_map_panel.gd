@@ -113,6 +113,9 @@ func _draw_markers() -> void:
 	var font := UiSkin.font("Bold")
 	var regular := UiSkin.font("Regular")
 	var inner := _map_rect
+	# Antes de a tela ter tamanho (primeiro quadro), não desenha.
+	if inner.size.x <= 0.0 or inner.size.y <= 0.0:
+		return
 	# Blocos do mapa com o nome da região (aparece até onde o terreno não está carregado).
 	var streamer := get_tree().get_first_node_in_group("world_streamer")
 	var world_map: WorldMap = streamer.world_map if streamer else null
@@ -164,7 +167,7 @@ func _draw_markers() -> void:
 	# Para onde ir nas missões.
 	var player := _player()
 	var from := player.global_position if player else _center
-	for quest in Quests.guided():
+	for quest in Quests.pointed():
 		var target: Variant = Quests.target_of(quest, from)
 		if not target is Vector3:
 			continue
