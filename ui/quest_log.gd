@@ -105,7 +105,7 @@ func _block(quest: QuestDef) -> Control:
 	if not quest.summary.is_empty():
 		column.add_child(UiSkin.label(Txt.t(quest.summary), 13, Color(TEXT, 0.7), "Regular", 2))
 	var ready := Quests.state_of(quest.id) == "pronta"
-	for i in quest.objectives.size():
+	for i in Quests.shown_objectives(quest):
 		var objective := quest.objectives[i]
 		var count := Quests.count_of(quest.id, i)
 		var goal := objective.goal()

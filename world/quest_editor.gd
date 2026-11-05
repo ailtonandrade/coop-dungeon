@@ -15,6 +15,7 @@ const DIR := "res://world/quests/"
 const PANEL_W := 760
 const START_HELP := "npc: oferecida na conversa com o NPC.\narea / gatilho: id da área ou do gatilho de missão (ponha pelo /editar, categoria Missoes).\nitem: id do item; começa quando alguém do grupo tem o item (pegou do chão, de um Item de missão\ndo mapa, ganhou, ou já tinha, como o diário da mochila). \"perto\" lista os itens."
 const TARGET_HELP := "matar: classe da criatura · falar: use o campo NPC · interagir: id do gatilho · chegar: id da área\nler: id do item de ler (diário, carta) ou do documento da história (vale o do mapa também)\nusar: id do item que se usa pelo inventário (ficha do item: Uso > usable)\npegar: id do item que precisa ter. \"perto\" abre a lista."
+const OFFER_WORDS_HELP := "Opcional. O jogador diz estas palavras ao NPC, na ordem (viram botões na conversa), e ele responde\ncada uma; depois da última vem a fala de oferecer e Aceito / Agora não. Vazio = aparece direto como \"Trabalho\"."
 const AFTER_HELP := "Missões que precisam estar entregues antes desta aparecer (vírgula). Principal que vem depois\nvira o PRÓXIMO PASSO assim que a anterior termina: aparece no rastreador, o minimapa aponta e o NPC ganha \"!\".\nDuas que vêm depois da mesma: as duas aparecem e o jogador escolhe qual rastrear."
 const FACTS_HELP := "Fato = uma etiqueta de \"o grupo já descobriu isso\" (ex.: diario_helena, lab4_portao).\nÉ o mesmo de ler um documento, ouvir um NPC ou abrir um portão. Separe por vírgula.\nUse para ligar missões entre si e com a história: uma missão ensina, a outra só aparece depois."
 
@@ -148,6 +149,8 @@ func _build() -> void:
 	_fields.start.item_selected.connect(func(_index: int) -> void: _refresh_start_form())
 	_fields.giver.text_changed.connect(func(_text: String) -> void: _refresh_start_form())
 	_fields.return_to_giver.toggled.connect(func(_on: bool) -> void: _refresh_start_form())
+	_line("offer_keywords", "Palavras antes da oferta (vírgula, na ordem)").tooltip_text = OFFER_WORDS_HELP
+	_text("offer_replies", "Respostas a essas palavras (uma por linha)")
 	_item("start_item", "Item ao começar")
 	_text("offer_text", "Fala ao oferecer / aviso ao começar")
 	_text("progress_text", "Fala em andamento")
@@ -157,6 +160,7 @@ func _build() -> void:
 	_line("requires", "Só aparece se o grupo já sabe (fatos)").tooltip_text = FACTS_HELP
 	_line("teaches", "Ao concluir, o grupo passa a saber (fatos)").tooltip_text = FACTS_HELP
 	_section("Objetivos")
+	_check("objectives_in_order", "Objetivos em ordem (um libera o próximo)")
 	_objectives_box = VBoxContainer.new()
 	_objectives_box.add_theme_constant_override("separation", 10)
 	_form.add_child(_objectives_box)
@@ -368,6 +372,9 @@ func _fill(quest: QuestDef, path: String) -> void:
 	_fields.return_to_giver.button_pressed = quest.return_to_giver
 	_select(_fields.start_item, quest.start_item)
 	_fields.offer_text.text = quest.offer_text
+	_fields.offer_keywords.text = ", ".join(quest.offer_keywords)
+	_fields.offer_replies.text = "\n".join(quest.offer_replies)
+	_fields.objectives_in_order.button_pressed = quest.objectives_in_order
 	_fields.progress_text.text = quest.progress_text
 	_fields.done_text.text = quest.done_text
 	_fields.after.text = ", ".join(quest.after)
@@ -408,6 +415,13 @@ func build() -> QuestDef:
 	quest.return_to_giver = _fields.return_to_giver.button_pressed
 	quest.start_item = _selected(_fields.start_item)
 	quest.offer_text = _fields.offer_text.text
+	quest.offer_keywords = PackedStringArray(_list_of(_fields.offer_keywords.text))
+	var offer_replies := PackedStringArray()
+	for line in String(_fields.offer_replies.text).split("\n"):
+		if not line.strip_edges().is_empty():
+			offer_replies.append(line.strip_edges())
+	quest.offer_replies = offer_replies
+	quest.objectives_in_order = _fields.objectives_in_order.button_pressed
 	quest.progress_text = _fields.progress_text.text
 	quest.done_text = _fields.done_text.text
 	quest.after = _list_of(_fields.after.text)
@@ -601,6 +615,8 @@ func _refresh_start_form() -> void:
 	var returns := start == "npc" or not giver.is_empty()
 	_show_row(_fields.return_to_giver, returns)
 	_show_row(_fields.offer_text, true, "Fala ao oferecer" if start == "npc" else "Aviso ao começar (no chat)")
+	_show_row(_fields.offer_keywords, start == "npc")
+	_show_row(_fields.offer_replies, start == "npc")
 	var talks: bool = not giver.is_empty() and _fields.return_to_giver.button_pressed
 	_show_row(_fields.progress_text, talks)
 	_show_row(_fields.done_text, talks)

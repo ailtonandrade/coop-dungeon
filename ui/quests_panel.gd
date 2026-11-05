@@ -151,7 +151,7 @@ func _row(quest: QuestDef, finished: bool, focused := false) -> Control:
 	if finished:
 		column.add_child(UiSkin.label(Txt.t("Concluída"), 12, UiSkin.SAFE, "Regular", 2))
 		return box
-	for i in quest.objectives.size():
+	for i in Quests.shown_objectives(quest):
 		var objective := quest.objectives[i]
 		var goal := objective.goal()
 		var count := mini(Quests.count_of(quest.id, i), goal)

@@ -42,6 +42,10 @@ Peças de missão (coloque pelo **/editar**, categoria **Missoes**, ou no editor
     um *Item de missão* do mapa, ganhou, comprou ou já começou com ele, como o diário da mochila).
 - **Item ao começar** (ex.: o NPC te entrega algo), falas (oferecer, andamento, entregar), resumo.
 - **Volta para entregar**: com NPC, termina voltando nele; sem, conclui sozinha na hora.
+- **Palavras antes da oferta** (começa por NPC): o jogador diz as palavras ao NPC, na ordem (viram
+  botões), ele responde cada uma e só depois oferece a missão (Aceito / Agora não).
+- **Objetivos em ordem** (ligado por padrão): cada objetivo só aparece no questLog e só conta depois
+  que o anterior terminou; desligado, todos valem ao mesmo tempo.
 - **Vem depois de** (missões que precisam estar entregues; botão "lista"): o jeito mais simples de
   encadear a história. Principal que vem depois vira o PRÓXIMO PASSO assim que a anterior termina.
 - **Requer fatos** (só aparece depois) e **Ensina fatos** (ao concluir), para ligar com a história.

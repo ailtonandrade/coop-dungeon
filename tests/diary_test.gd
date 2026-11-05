@@ -156,6 +156,47 @@ func _process(_delta: float) -> bool:
 			_check(p.inventory.has_item_id("dagger"), "pegar põe o item direto na mochila")
 			_check(not _piece.visible, "e o item some do mapa")
 			_check(quests.state_of("teste_pegar") == "entregue", "início \"item\" + objetivo \"pegar\" (%s)" % quests.state_of("teste_pegar"))
+			# Conversa antes da oferta (palavra "sucata") e objetivos em ordem.
+			var ordered := QuestDef.new()
+			ordered.id = "teste_ordem"
+			ordered.title = "Teste ordem"
+			ordered.giver = "Zé Gato"
+			ordered.offer_keywords = PackedStringArray(["sucata"])
+			ordered.offer_replies = PackedStringArray(["Sucata se vende, mas mostra serviço antes."])
+			ordered.offer_text = "Limpa o pátio pra mim."
+			var talk_goal := QuestObjective.new()
+			talk_goal.kind = "falar"
+			talk_goal.npc = "Zé Gato"
+			talk_goal.keywords = PackedStringArray(["patio"])
+			talk_goal.replies = PackedStringArray(["Tá cheio de cano lá."])
+			var kill_goal := QuestObjective.new()
+			kill_goal.kind = "matar"
+			kill_goal.target = "punk"
+			kill_goal.amount = 1
+			var goals: Array[QuestObjective] = [talk_goal, kill_goal]
+			ordered.objectives = goals
+			quests.defs()["teste_ordem"] = ordered
+			var ze: Node = _npc("Zé Gato")
+			p.teleport_to(ze.global_position + Vector3(0, 0, 1.5))
+			_hud()._try_open_service(p.slot)
+		SECOND + 50:
+			var p := _player()
+			var quests: Node = root.get_node("Quests")
+			var talk: Node = _hud()._services.get(p.slot)
+			var labels: Array = talk._topics.get_children().map(func(b: Node) -> String: return String(b.get("text")))
+			_check(labels.has("Sucata") and not labels.any(func(t: String) -> bool: return t.contains("Teste ordem")), "antes da palavra, o Zé não oferece: botão \"Sucata\" (%s)" % [labels])
+			talk.say("sucata")
+			_check(talk._pending_quest != null and talk._pending_quest.id == "teste_ordem", "dita a palavra, ele oferece (Aceito / Agora não)")
+			talk._accept_quest(talk._pending_quest)
+			_check(quests.state_of("teste_ordem") == "ativa", "aceitou")
+			_check(quests.shown_objectives(quests.def("teste_ordem")) == [0], "em ordem: só o 1º objetivo aparece")
+			quests.on_kill("punk")
+			_check(quests.count_of("teste_ordem", 1) == 0, "matar antes da hora não conta")
+			talk.say("patio")
+			_check(quests.objective_done(quests.def("teste_ordem"), 0) and quests.shown_objectives(quests.def("teste_ordem")) == [0, 1], "falou: libera o próximo")
+			quests.on_kill("punk")
+			_check(quests.state_of("teste_ordem") == "pronta", "agora o objetivo conta e a missão fica pronta")
+			_hud()._close_service(p.slot)
 			print("DIÁRIO: " + ("FALHOU" if _failed else "OK"))
 			quit(1 if _failed else 0)
 	return false

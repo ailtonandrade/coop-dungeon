@@ -458,6 +458,7 @@ Falar (voz),Talk (voice)
 Falar com %s,Talk to %s
 Falar com (NPC),
 Fale com %s,Talk to %s
+"Fale com %s sobre ""%s""","Talk to %s about ""%s"""
 Fall,
 Falou.,Later.
 Falta id ou título.,
@@ -760,6 +761,7 @@ O terminal de base libera no nível %d.,The base terminal unlocks at level %d.
 O upgrade falhou,The upgrade failed
 O upgrade falhou (-%d),The upgrade failed (-%d)
 Objetivos,Objectives
+Objetivos em ordem (um libera o próximo),
 Objeto que reage (nome do nó),
 Offline: Local,Offline: Local
 Ofício nº 0731/7 · Ministério da Segurança Sanitária,Official letter no. 0731/7 · Ministry of Sanitary Security
@@ -770,6 +772,8 @@ Onde conseguir,Where to get
 Onde: %s,Where: %s
 Online: entra pelo código do mundo ou IP,Online: join by world code or IP
 Online: entra pelo código ou IP e aparece na rede local,"Online: join by code or IP, shown on the local network"
+"Opcional. O jogador diz estas palavras ao NPC, na ordem (viram botões na conversa), e ele responde
+cada uma; depois da última vem a fala de oferecer e Aceito / Agora não. Vazio = aparece direto como ""Trabalho"".",
 Operário,Laborer
 Ou entre pelo código do mundo (ou IP) que o host passar:,Or join with the world code (or IP) the host gives you:
 P%d %s · chip pirata,P%d %s · pirate chip
@@ -785,6 +789,7 @@ PRINCIPAIS CONCLUÍDAS,MAIN QUESTS COMPLETED
 PRÓXIMO PASSO,NEXT STEP
 PRÓXIMOS PASSOS,NEXT STEPS
 Palavra vira botão (controle),
+"Palavras antes da oferta (vírgula, na ordem)",
 Palavras em ordem (vírgula),
 "Papel timbrado, molhado e pisado no meio do entulho","Letterhead paper, wet and trampled in the rubble"
 Parafusos,Bolts
@@ -855,6 +860,7 @@ Resolução: %s,Resolution: %s
 Resolução: do monitor (%d×%d),Resolution: monitor's (%d×%d)
 Respingos,
 "Respostas (uma por linha, na ordem)",
+Respostas a essas palavras (uma por linha),
 Resumo (linha no questLog),
 Retirar,Withdraw
 Retirou %s,Withdrew %s

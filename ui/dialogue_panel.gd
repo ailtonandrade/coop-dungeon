@@ -141,7 +141,12 @@ func _refresh_topics() -> void:
 				_player_says(Txt.t(quest.title))
 				_npc_says(Txt.t(quest.progress_text) if quest.progress_text else Txt.t("Ainda não terminou, né?")))
 	for quest in Quests.offers(npc.npc_name):
-		_quest_button(Txt.t("» Trabalho: %s") % Txt.t(quest.title), _offer_quest.bind(quest))
+		# Conversa antes da oferta: a próxima palavra vira botão; dita a última, ele oferece.
+		var word := Quests.offer_word(quest)
+		if not word.is_empty():
+			_quest_button(word.capitalize(), say.bind(word))
+		else:
+			_quest_button(Txt.t("» Trabalho: %s") % Txt.t(quest.title), _offer_quest.bind(quest))
 	# Repetível esperando a vez: ele avisa quando volta a ter trabalho.
 	for quest in Quests.waiting(npc.npc_name):
 		var minutes := ceili(Quests.cooldown_left(quest) / 60.0)
@@ -208,6 +213,20 @@ func choose(topic: DialogueTopic) -> void:
 func say(text: String) -> void:
 	var clean := Lore.normalize(text)
 	if clean.is_empty():
+		return
+	# Conversa antes da oferta de uma missão (na ordem): depois da última, ele oferece.
+	var offered := Quests.offer_talk(npc.npc_name, text)
+	if not offered.is_empty():
+		_player_says(text)
+		if not String(offered[1]).is_empty():
+			_npc_says(Txt.t(offered[1]))
+		Sound.play("ui_confirm")
+		if offered[2]:
+			var quest: QuestDef = offered[0]
+			if not quest.offer_text.is_empty():
+				_npc_says(Txt.t(quest.offer_text))
+			_pending_quest = quest
+		_refresh_topics()
 		return
 	# Palavra de missão (na ordem): o NPC vai revelando.
 	var quest_reply := Quests.talk(npc.npc_name, text, player)

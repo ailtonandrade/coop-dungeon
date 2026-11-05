@@ -24,6 +24,12 @@ extends Resource
 @export var return_to_giver := true
 ## Item que o grupo recebe ao começar (quem aceitou/ativou).
 @export var start_item := ""
+## Começa por NPC: palavras que o jogador diz ao NPC, NA ORDEM, antes de ele oferecer a missão
+## (viram botões na conversa, ou se digita). Vazio = a missão aparece direto como "Trabalho".
+@export var offer_keywords: PackedStringArray = []
+## Resposta do NPC a cada palavra de `offer_keywords` (mesma ordem). Depois da última, ele diz a
+## fala de oferecer e vêm Aceito / Agora não.
+@export var offer_replies: PackedStringArray = []
 ## Fala ao oferecer (npc) ou aviso ao começar sozinha (area/gatilho).
 @export_multiline var offer_text := ""
 ## Fala se o jogador voltar antes de terminar.
@@ -33,6 +39,9 @@ extends Resource
 ## Uma linha para o questLog.
 @export var summary := ""
 @export var objectives: Array[QuestObjective] = []
+## Objetivos em ordem: cada um só aparece no questLog e só conta depois que o anterior terminou
+## (a história vai se desenrolando). Desligado: todos valem ao mesmo tempo.
+@export var objectives_in_order := true
 ## Só aparece quando o grupo sabe estes fatos.
 @export var requires: Array[String] = []
 ## Vem depois destas missões (ids): só aparece quando todas já foram entregues. Missão

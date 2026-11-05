@@ -77,6 +77,58 @@ func objective_done(quest: QuestDef, index: int) -> bool:
 	return count_of(quest.id, index) >= quest.objectives[index].goal()
 
 
+## Objetivo que vale agora: em ordem, só o primeiro que falta; senão, todos os que faltam.
+func objective_open(quest: QuestDef, index: int) -> bool:
+	if objective_done(quest, index):
+		return false
+	if not quest.objectives_in_order:
+		return true
+	for i in index:
+		if not objective_done(quest, i):
+			return false
+	return true
+
+
+## Objetivos que aparecem no questLog: em ordem, os já feitos e o atual (os próximos ficam
+## escondidos até chegar a vez); senão, todos.
+func shown_objectives(quest: QuestDef) -> Array[int]:
+	var result: Array[int] = []
+	for i in quest.objectives.size():
+		result.append(i)
+		if quest.objectives_in_order and not objective_done(quest, i):
+			break
+	return result
+
+
+## Conversa antes da oferta: quantas palavras o jogador já disse a este NPC (desta máquina).
+var _offer_steps := {}
+
+
+func offer_step(quest: QuestDef) -> int:
+	return int(_offer_steps.get(quest.id, 0))
+
+
+## Próxima palavra para destravar a oferta, ou "" se não tem (ou já foi tudo dito).
+func offer_word(quest: QuestDef) -> String:
+	var step := offer_step(quest)
+	return quest.offer_keywords[step] if step < quest.offer_keywords.size() else ""
+
+
+## O jogador disse `said` ao NPC: se é a próxima palavra da conversa antes da oferta de alguma
+## missão dele, avança e devolve [missão, resposta, terminou?]; senão [].
+func offer_talk(npc_name: String, said: String) -> Array:
+	var clean := " %s " % Lore.normalize(said)
+	for quest in offers(npc_name):
+		var word := Lore.normalize(offer_word(quest))
+		if word.is_empty() or not clean.contains(" %s " % word):
+			continue
+		var step := offer_step(quest)
+		_offer_steps[quest.id] = step + 1
+		var reply := quest.offer_replies[step] if step < quest.offer_replies.size() else ""
+		return [quest, reply, step + 1 >= quest.offer_keywords.size()]
+	return []
+
+
 ## Missões em andamento ou prontas para entregar (para o questLog): principais primeiro.
 func tracked() -> Array[QuestDef]:
 	var result: Array[QuestDef] = []
@@ -205,7 +257,7 @@ func check_items(player: Node) -> void:
 			continue
 		for i in quest.objectives.size():
 			var objective := quest.objectives[i]
-			if objective.kind == "pegar" and not objective_done(quest, i) and Lore.has_item(player, objective.target):
+			if objective.kind == "pegar" and objective_open(quest, i) and Lore.has_item(player, objective.target):
 				targets[objective.target] = true
 	for item_id: String in targets:
 		_event("pegar", item_id, "", player)
@@ -284,6 +336,8 @@ func pointed() -> Array[QuestDef]:
 func start_hint(quest: QuestDef) -> String:
 	match quest.start:
 		"npc":
+			if not quest.offer_keywords.is_empty():
+				return Txt.t("Fale com %s sobre \"%s\"") % [quest.giver, offer_word(quest) if not offer_word(quest).is_empty() else quest.offer_keywords[-1]]
 			return Txt.t("Fale com %s") % quest.giver
 		"area":
 			return Txt.t("Vá até o local marcado")
@@ -312,7 +366,7 @@ func talk(npc_name: String, said: String, player: Node = null) -> String:
 			continue
 		for i in quest.objectives.size():
 			var objective := quest.objectives[i]
-			if objective.kind != "falar" or objective.npc != npc_name or objective_done(quest, i):
+			if objective.kind != "falar" or objective.npc != npc_name or not objective_open(quest, i):
 				continue
 			var step := count_of(quest.id, i)
 			var word := Lore.normalize(objective.keywords[step]) if step < objective.keywords.size() else ""
@@ -334,7 +388,7 @@ func next_words(npc_name: String) -> PackedStringArray:
 			continue
 		for i in quest.objectives.size():
 			var objective := quest.objectives[i]
-			if objective.kind == "falar" and objective.npc == npc_name and objective.show_buttons and not objective_done(quest, i):
+			if objective.kind == "falar" and objective.npc == npc_name and objective.show_buttons and objective_open(quest, i):
 				var step := count_of(quest.id, i)
 				if step < objective.keywords.size():
 					words.append(objective.keywords[step])
@@ -362,6 +416,9 @@ func _event(kind: String, a: String, b: String, player: Node) -> void:
 		for i in quest.objectives.size():
 			var objective := quest.objectives[i]
 			if objective.kind != kind or int(counts[i]) >= objective.goal():
+				continue
+			# Em ordem: só conta o primeiro que falta.
+			if quest.objectives_in_order and range(i).any(func(j: int) -> bool: return int(counts[j]) < quest.objectives[j].goal()):
 				continue
 			var hit := false
 			match kind:
