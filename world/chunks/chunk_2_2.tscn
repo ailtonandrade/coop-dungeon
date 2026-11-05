@@ -11,7 +11,10 @@
 [ext_resource type="Script" path="res://world/lore/lore_gate.gd" id="9_g0x7c"]
 [ext_resource type="Script" path="res://world/lore/lore_note.gd" id="10_ulptm"]
 [ext_resource type="PackedScene" path="res://world/prefabs/bau_de_saque.tscn" id="11_wo1hb"]
+[ext_resource type="Script" path="res://world/loot_container.gd" id="12_g0x7c"]
 [ext_resource type="PackedScene" path="res://world/prefabs/letreiro_neon.tscn" id="12_ph60n"]
+[ext_resource type="PackedScene" path="res://assets/props/Chest.glb" id="13_ulptm"]
+[ext_resource type="Script" path="res://world/neon_sign.gd" id="15_wo1hb"]
 
 [sub_resource type="NavigationMesh" id="NavigationMesh_qbd6y"]
 geometry_collision_mask = 1
@@ -246,18 +249,6 @@ size = Vector3(2.5, 3.6, 0.35)
 [sub_resource type="BoxMesh" id="BoxMesh_5yigl"]
 size = Vector3(2.5, 3.6, 0.35)
 
-[sub_resource type="BoxMesh" id="BoxMesh_ywbqq"]
-size = Vector3(0.4, 0.3, 16.4)
-
-[sub_resource type="BoxMesh" id="BoxMesh_vtp1u"]
-size = Vector3(0.4, 0.3, 16.4)
-
-[sub_resource type="BoxMesh" id="BoxMesh_hti4u"]
-size = Vector3(0.4, 0.3, 16.4)
-
-[sub_resource type="BoxMesh" id="BoxMesh_ok3xg"]
-size = Vector3(7, 0.25, 4)
-
 [sub_resource type="PlaneMesh" id="PlaneMesh_evry4"]
 size = Vector2(21.6, 15.6)
 
@@ -434,6 +425,12 @@ size = Vector3(0.97240865, 0.47057253, 0.6641793)
 
 [sub_resource type="BoxMesh" id="BoxMesh_p3k24"]
 size = Vector3(0.4128188, 0.40630084, 0.41416046)
+
+[sub_resource type="BoxMesh" id="BoxMesh_ph60n"]
+size = Vector3(22.5, 0.3, 16.5)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_yecox"]
+size = Vector3(22.5, 0.3, 16.5)
 
 [node name="Chunk" type="Node3D" unique_id=1797311643]
 
@@ -672,7 +669,7 @@ mesh = SubResource("BoxMesh_ac6bu")
 [node name="Pallet_24_9" type="StaticBody3D" parent="Navigation" unique_id=1380162466]
 transform = Transform3D(-0.88554823, 0, 0.4645474, 0, 1, 0, -0.4645474, 0, -0.88554823, 24.32527, 0, 9.06887)
 
-[node name="Pallet2" parent="Navigation/Pallet_24_9" unique_id=807508658 instance=ExtResource("4_8a7x5")]
+[node name="Pallet2" type="Node3D" parent="Navigation/Pallet_24_9" unique_id=807508658 instance=ExtResource("4_8a7x5")]
 
 [node name="Collision" type="CollisionShape3D" parent="Navigation/Pallet_24_9" unique_id=1581088424]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.009804308, 0.072285146, 0)
@@ -796,34 +793,6 @@ shape = SubResource("BoxShape3D_hjqc7")
 [node name="Mesh" type="MeshInstance3D" parent="Navigation/Laboratorio4/ServidorFrenteB" unique_id=455855101]
 material_override = SubResource("StandardMaterial3D_g5gt2")
 mesh = SubResource("BoxMesh_5yigl")
-
-[node name="Viga" type="Node3D" parent="Navigation/Laboratorio4" unique_id=1993765227]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 3.75, 0)
-
-[node name="Mesh" type="MeshInstance3D" parent="Navigation/Laboratorio4/Viga" unique_id=1737879320]
-material_override = SubResource("StandardMaterial3D_g5gt2")
-mesh = SubResource("BoxMesh_ywbqq")
-
-[node name="Viga2" type="Node3D" parent="Navigation/Laboratorio4" unique_id=1123284733]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.5, 3.75, 0)
-
-[node name="Mesh" type="MeshInstance3D" parent="Navigation/Laboratorio4/Viga2" unique_id=1208359972]
-material_override = SubResource("StandardMaterial3D_g5gt2")
-mesh = SubResource("BoxMesh_vtp1u")
-
-[node name="Viga3" type="Node3D" parent="Navigation/Laboratorio4" unique_id=123888923]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.5, 3.75, 0)
-
-[node name="Mesh" type="MeshInstance3D" parent="Navigation/Laboratorio4/Viga3" unique_id=523192315]
-material_override = SubResource("StandardMaterial3D_g5gt2")
-mesh = SubResource("BoxMesh_hti4u")
-
-[node name="LajeQuebrada" type="Node3D" parent="Navigation/Laboratorio4" unique_id=195738383]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.5, 3.7, 6)
-
-[node name="Mesh" type="MeshInstance3D" parent="Navigation/Laboratorio4/LajeQuebrada" unique_id=1519957445]
-material_override = SubResource("StandardMaterial3D_g5gt2")
-mesh = SubResource("BoxMesh_ok3xg")
 
 [node name="Piso" type="MeshInstance3D" parent="Navigation/Laboratorio4" unique_id=363520539]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.02, 0)
@@ -1075,6 +1044,23 @@ transform = Transform3D(0.9424683, -0.010637987, -0.33412617, -0.029890714, 0.99
 material_override = SubResource("StandardMaterial3D_g5gt2")
 mesh = SubResource("BoxMesh_p3k24")
 
+[node name="Telhado" type="Node3D" parent="Navigation/Laboratorio4" unique_id=1586616929]
+script = ExtResource("2_g37gj")
+zone = AABB(-11, 0, -8, 22, 3.6, 16)
+
+[node name="Laje" type="MeshInstance3D" parent="Navigation/Laboratorio4/Telhado" unique_id=990379046]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.75, 0)
+material_override = ExtResource("6_0y58v")
+mesh = SubResource("BoxMesh_ph60n")
+
+[node name="LajeColisao" type="StaticBody3D" parent="Navigation/Laboratorio4/Telhado" unique_id=1164917188]
+collision_layer = 24
+collision_mask = 0
+
+[node name="@CollisionShape3D@2" type="CollisionShape3D" parent="Navigation/Laboratorio4/Telhado/LajeColisao" unique_id=1211017653]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.75, 0)
+shape = SubResource("BoxShape3D_yecox")
+
 [node name="Spawner_0" type="Marker3D" parent="." unique_id=1327686753]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 41.581898, 0, 38.21301)
 script = ExtResource("6_bsqge")
@@ -1121,12 +1107,18 @@ script = ExtResource("10_ulptm")
 document_id = "registro_lab4"
 look = "terminal"
 
-[node name="BauServidor" parent="Lab4_Coisas" unique_id=520809380 instance=ExtResource("11_wo1hb")]
+[node name="BauServidor" type="Node3D" parent="Lab4_Coisas" unique_id=520809380 instance=ExtResource("11_wo1hb")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.8, 0, -7)
+script = ExtResource("12_g0x7c")
 container_id = "lab4_bau_servidor"
+model = ExtResource("13_ulptm")
+model_scale = 1.7
+gold = 25
+random_items = 2
 
-[node name="LetreiroLab4" parent="Lab4_Coisas" unique_id=64268462 instance=ExtResource("12_ph60n")]
+[node name="LetreiroLab4" type="Node3D" parent="Lab4_Coisas" unique_id=64268462 instance=ExtResource("12_ph60n")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.7, 8.25)
+script = ExtResource("15_wo1hb")
 text = "SINAPSE · LAB 4"
 color = Color(0.25, 0.85, 1, 1)
 letter_height = 0.36
