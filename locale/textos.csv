@@ -241,6 +241,7 @@ Atiradores de pregos,Nail shooters
 Atirar,Shoot
 "Atravessável (enfeite, sem colisão)","Pass-through (decoration, no collision)"
 "Atributos (poder 1, Sucata)",
+Atrás do herói (só 1 jogador na tela),Behind the hero (1 player on screen only)
 Attack,
 Atualizar agora,Update now
 Até mais.,See you.
@@ -345,6 +346,7 @@ Corrumpted,
 Criar e jogar,Create and play
 Cris Ferrugem,
 Custo: %s,Cost: %s
+Câmera,Camera
 Câmera atrás: girar,Behind camera: turn
 Câmera: atrás do herói (só 1 jogador na tela),Camera: behind the hero (1 player on screen only)
 Câmera: de cima (isométrica),Camera: top-down (isometric)
@@ -354,6 +356,7 @@ D3M1URGO,
 Dandara Chip,
 Dano,Damage
 Davi,
+De cima (isométrica),Top-down (isometric)
 Death,
 Default,
 "Deixa eu ver isso. 70-R-ALFA-9... isso não é senha de estação, é chave de manutenção da Sinapse. Abre os portões de serviço. Tem um no Laboratório 4, aquele que mandaram pro Lixão Alto, lá pra sudeste. O Rafael trabalhava lá e sumiu faz um ano. Leva arma: dizem que quem guarda aquilo agora não é gente.","Let me see that. 70-R-ALFA-9... that's not a station password, it's a Sinapse maintenance key. It opens the service gates. There's one at Laboratory 4, the one they moved to the High Dump, out southeast. Rafael worked there and vanished a year ago. Bring a weapon: they say what guards that place now isn't human."
@@ -363,6 +366,7 @@ Depois,Later
 Desarmado,Unarmed
 Descer,Go down
 Desligada,Off
+Desligado,Off
 Digite a chave e Enter · Esc sai,Type the key and Enter · Esc exits
 Digite o IP do host.,Type the host's IP.
 Digite o nome · ← → visual · Enter entra · Esc volta,Type the name · ← → look · Enter join · Esc back
@@ -430,6 +434,7 @@ Fechar (%s),Close (%s)
 "Feche a porta. ...Vocês leram o terminal do Rafael, não leram?","Close the door. ...You read Rafael's terminal, didn't you?"
 Ferro-Velho,
 Fibra de vidro,Fiberglass
+Fixo (norte pra cima),Fixed (north up)
 "Fixo (sólido, ninguém mexe)","Fixed (solid, nobody moves it)"
 "Foi lá no barraco do Rafael, né? Eu vi a luz do portão ficar verde. Fazia um ano que ninguém entrava ali.","You went to Rafael's shack, didn't you? I saw the gate light turn green. Nobody had gone in there for a year."
 Fora da área do seu abrigo,Outside your shelter area
@@ -443,12 +448,14 @@ Gato,Gato
 "Gato de energia? Que gato? Ó, toma isso aqui e esquece que perguntou.","Power hookup? What hookup? Here, take this and forget you asked."
 Generoso,Generous
 Geral,General
+Gira com a câmera,Turns with the camera
 Gotas,
 "Gouveia. Ex-gerente de agência da Sinapse. Hoje, guardião de cofre de sucata.","Gouveia. Former Sinapse branch manager. Now, keeper of a scrap vault."
 Granada,Grenade
 Granada caseira,Homemade grenade
 Granadas,Grenades
 Ground,
+Gráficos,Graphics
 Gráficos: %s,Graphics: %s
 Guardar,Store
 Guardou %s,Stored %s
@@ -504,6 +511,7 @@ Land,
 Lança-pregos,Nail launcher
 Lelo Antena,
 Lia Faísca,
+Ligado,On
 Lixão Alto,High Dump
 Longe do cofre,Too far from the vault
 Longe do hacker,Too far from the hacker
@@ -538,6 +546,7 @@ Meus mundos,My worlds
 Microfone,Microphone
 Microfone: %s,Microphone: %s
 Minha voz com rádio velho,My voice through an old radio
+Minimapa,Minimap
 Minimapa: %s,Minimap: %s
 Mirar,Aim
 Missão,Quest
@@ -710,6 +719,7 @@ Rei do ferro-velho,Junkyard king
 Remendado,Patched
 Repetível,
 Resiliência,Resilience
+Resolução (janela),Resolution (window)
 Resolução: %s,Resolution: %s
 Resolução: do monitor (%d×%d),Resolution: monitor's (%d×%d)
 Respingos,
@@ -775,6 +785,7 @@ Tamanho dos textos e menus,Text and menu size
 Tchau,Goodbye
 Teclado,
 Teclado e mouse,Keyboard and mouse
+Tela,Display
 Tela cheia,Fullscreen
 Tela: %s,Display: %s
 Tem trabalho?,Got any work?

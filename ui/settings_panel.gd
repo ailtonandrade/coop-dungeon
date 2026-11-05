@@ -3,63 +3,88 @@ extends VBoxContainer
 ## Configurações desta máquina, iguais no menu principal e na aba da pausa: tamanho da
 ## interface, volumes, câmera, sensibilidade e minimapa. Tudo salva na hora (Settings).
 
-var _camera_button: Button
-var _minimap_button: Button
-var _graphics_button: Button
-var _language_button: Button
-var _window_button: Button
-var _resolution_button: Button
-var _vsync_button: Button
+var _choices := {}  # chave da opção -> OptionButton
 
 
 func _ready() -> void:
 	add_theme_constant_override("separation", 10)
 	add_child(UiSkin.label("CONFIGURAÇÕES", 22, UiSkin.NEON, "Bold"))
-	_language_button = _button(Settings.cycle_language)
+	# O nome de cada idioma fica sempre na língua dele (quem não entende a atual acha a sua).
+	var languages := []
+	for code: String in Txt.LANGUAGES:
+		languages.append([Txt.LANGUAGES[code], code])
+	_choice("Idioma", "language", languages)
 	_slider("Tamanho dos textos e menus", Settings.UI_SCALE_MIN, Settings.UI_SCALE_MAX, 0.05, Settings.ui_scale,
 			Settings.set_ui_scale, func(v: float) -> String: return "%d%%" % roundi(v * 100.0))
 	_slider("Volume geral", 0.0, 1.0, 0.05, Settings.master_volume, func(v: float) -> void: Settings.set_volume("master", v), _percent)
 	_slider("Música", 0.0, 1.0, 0.05, Settings.music_volume, func(v: float) -> void: Settings.set_volume("music", v), _percent)
 	_slider("Ambiente (vento, máquinas)", 0.0, 1.0, 0.05, Settings.ambience_volume, func(v: float) -> void: Settings.set_volume("ambience", v), _percent)
 	_slider("Efeitos", 0.0, 1.0, 0.05, Settings.sfx_volume, func(v: float) -> void: Settings.set_volume("sfx", v), _percent)
-	_camera_button = _button(Settings.toggle_camera_mode)
+	_choice("Câmera", "camera_mode", [["De cima (isométrica)", "iso"], ["Atrás do herói (só 1 jogador na tela)", "behind"]])
 	_slider("Sensibilidade da câmera atrás", 0.3, 3.0, 0.1, Settings.look_sensitivity, Settings.set_look_sensitivity,
 			func(v: float) -> String: return "%.1fx" % v)
-	_minimap_button = _button(Settings.toggle_minimap_mode)
-	_graphics_button = _button(Settings.cycle_graphics_quality)
-	_window_button = _button(Settings.cycle_window_mode)
-	var row := HBoxContainer.new()
-	row.add_theme_constant_override("separation", 10)
-	add_child(row)
-	_resolution_button = _button(Settings.cycle_resolution)
-	_vsync_button = _button(Settings.toggle_vsync)
-	for button: Button in [_resolution_button, _vsync_button]:
-		remove_child(button)
-		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		row.add_child(button)
+	_choice("Minimapa", "minimap_mode", [["Gira com a câmera", "camera"], ["Fixo (norte pra cima)", "fixed"]])
+	var qualities := []
+	for level: String in Graphics.LEVELS:
+		qualities.append([Graphics.LABELS[level], level])
+	_choice("Gráficos", "graphics_quality", qualities)
+	var modes := []
+	for mode: String in Settings.WINDOW_MODES:
+		modes.append([Settings.WINDOW_MODE_NAMES[mode], mode])
+	_choice("Tela", "window_mode", modes)
+	var resolutions := []
+	for resolution: String in Settings.available_resolutions():
+		resolutions.append([resolution.replace("x", " × "), resolution])
+	_choice("Resolução (janela)", "window_resolution", resolutions)
+	_choice("VSync", "vsync", [["Ligado", true], ["Desligado", false]])
 	Settings.changed.connect(_update_texts)
 	_update_texts()
 
 
+## Linha "nome ........ [lista]": a lista abre mostrando as opções (clique, ou A no controle).
+func _choice(text: String, key: String, options: Array) -> void:
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 12)
+	var label := UiSkin.label(text, 15, UiSkin.TEXT, "Regular", 2)
+	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_child(label)
+	var picker := OptionButton.new()
+	picker.custom_minimum_size = Vector2(250, 40)
+	picker.add_theme_font_size_override("font_size", 16)
+	picker.fit_to_longest_item = false
+	for option: Array in options:
+		picker.add_item(Txt.t(String(option[0])))
+		picker.set_item_metadata(picker.item_count - 1, option[1])
+	picker.item_selected.connect(func(index: int) -> void:
+		Sound.play("ui_confirm")
+		Settings.set_choice(key, picker.get_item_metadata(index)))
+	row.add_child(picker)
+	add_child(row)
+	_choices[key] = picker
+
+
+## Marca em cada lista a opção em uso agora.
 func _update_texts() -> void:
-	_camera_button.text = "Câmera: atrás do herói (só 1 jogador na tela)" if Settings.camera_mode == "behind" else "Câmera: de cima (isométrica)"
-	# O nome de cada idioma fica sempre na língua dele (quem não entende a atual acha a sua).
-	_language_button.text = "%s: %s" % [Txt.t("Idioma"), Txt.LANGUAGES[Settings.current_language()]]
-	_graphics_button.text = Txt.t("Gráficos: %s") % Txt.t(Graphics.LABELS[Settings.graphics_quality])
-	var mode := Settings.window_mode if Settings.window_mode in Settings.WINDOW_MODES else "janela"
-	_window_button.text = Txt.t("Tela: %s") % Txt.t(Settings.WINDOW_MODE_NAMES[mode])
-	if mode == "janela":
-		_resolution_button.text = Txt.t("Resolução: %s") % Settings.current_resolution().replace("x", "×")
-	else:
-		var screen := DisplayServer.screen_get_size()
-		_resolution_button.text = Txt.t("Resolução: do monitor (%d×%d)") % [screen.x, screen.y]
-	_resolution_button.tooltip_text = Txt.t("Na janela, escolhe o tamanho. Nas telas cheias é a do monitor; para aliviar o PC, baixe os Gráficos.")
-	_vsync_button.text = Txt.t("VSync: %s") % (Txt.t("ligado") if Settings.vsync else Txt.t("desligado"))
-	_minimap_button.text = Txt.t("Minimapa: %s") % (Txt.t("gira com a câmera") if Settings.minimap_mode != "fixed" else Txt.t("fixo (norte pra cima)"))
+	var current := {
+		"language": Settings.current_language(),
+		"camera_mode": Settings.camera_mode,
+		"minimap_mode": "fixed" if Settings.minimap_mode == "fixed" else "camera",
+		"graphics_quality": Settings.graphics_quality,
+		"window_mode": Settings.window_mode if Settings.window_mode in Settings.WINDOW_MODES else "janela",
+		"window_resolution": Settings.current_resolution(),
+		"vsync": Settings.vsync,
+	}
+	for key: String in _choices:
+		var picker: OptionButton = _choices[key]
+		for i in picker.item_count:
+			if picker.get_item_metadata(i) == current[key]:
+				picker.select(i)
+	(_choices.window_resolution as OptionButton).disabled = current.window_mode != "janela"
+	(_choices.window_resolution as OptionButton).tooltip_text = Txt.t("Na janela, escolhe o tamanho. Nas telas cheias é a do monitor; para aliviar o PC, baixe os Gráficos.")
 
 
 func first_focus() -> Control:
-	return find_children("*", "HSlider", true, false)[0]
+	return _choices.get("language", find_children("*", "HSlider", true, false)[0])
 
 
 ## Linha com nome, barra e valor (controle: esquerda/direita mudam a barra em foco).

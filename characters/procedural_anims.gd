@@ -22,19 +22,20 @@ const CROUCH := {
 	"Torso": 14.0, "UpperLeg.L": -26.0, "UpperLeg.R": -26.0, "LowerLeg.L": 32.0, "LowerLeg.R": 32.0,
 	"UpperArm.L": 14.0, "UpperArm.R": 14.0, "LowerArm.L": -10.0, "LowerArm.R": -10.0,
 }
-## Saindo do chão: uma perna puxa para a frente, a outra empurra estendida.
+## Saindo do chão: uma perna puxa para a frente (joelho bem dobrado), a outra ainda empurra.
 const LEAP := {
-	"Torso": 5.0, "UpperLeg.L": -26.0, "LowerLeg.L": 40.0, "UpperLeg.R": 4.0, "LowerLeg.R": 12.0,
-	"UpperArm.L": -10.0, "UpperArm.R": -6.0, "LowerArm.L": -14.0, "LowerArm.R": -14.0,
+	"Torso": 8.0, "UpperLeg.L": -42.0, "LowerLeg.L": 72.0, "UpperLeg.R": -8.0, "LowerLeg.R": 45.0,
+	"UpperArm.L": -12.0, "UpperArm.R": -8.0, "LowerArm.L": -18.0, "LowerArm.R": -18.0,
 }
-## No ar: pernas soltas, levemente dobradas, uma um pouco à frente; braços baixos e soltos.
+## No ar: pernas recolhidas (joelho entre 75° e 90°), uma um pouco à frente: dá a sensação de
+## impulso. Braços baixos e soltos.
 const AIR := {
-	"Torso": 4.0, "UpperLeg.L": -18.0, "LowerLeg.L": 30.0, "UpperLeg.R": -6.0, "LowerLeg.R": 20.0,
-	"UpperArm.L": -6.0, "UpperArm.R": -4.0, "LowerArm.L": -12.0, "LowerArm.R": -12.0,
+	"Torso": 8.0, "UpperLeg.L": -52.0, "LowerLeg.L": 88.0, "UpperLeg.R": -40.0, "LowerLeg.R": 75.0,
+	"UpperArm.L": -10.0, "UpperArm.R": -8.0, "LowerArm.L": -16.0, "LowerArm.R": -16.0,
 }
 const AIR_SWAY := {
-	"Torso": 5.0, "UpperLeg.L": -15.0, "LowerLeg.L": 27.0, "UpperLeg.R": -9.0, "LowerLeg.R": 24.0,
-	"UpperArm.L": -8.0, "UpperArm.R": -6.0, "LowerArm.L": -15.0, "LowerArm.R": -14.0,
+	"Torso": 9.0, "UpperLeg.L": -48.0, "LowerLeg.L": 82.0, "UpperLeg.R": -44.0, "LowerLeg.R": 78.0,
+	"UpperArm.L": -12.0, "UpperArm.R": -10.0, "LowerArm.L": -18.0, "LowerArm.R": -17.0,
 }
 ## Pouso: amortece dobrando os joelhos (pés no chão).
 const LANDING := {

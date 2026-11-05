@@ -39,13 +39,15 @@ const MOUNTS := {
 	# Na pose de referência (Idle) o alto do crânio fica ~0,2 m acima do osso Head.
 	"hood": ["Head", Vector3(0.0, 0.17, -0.01), Vector3.ZERO],
 	"helmet": ["Head", Vector3(0.0, 0.17, -0.01), Vector3.ZERO],
-	"plate": ["Chest", Vector3(0.0, 0.06, 0.03), Vector3.ZERO],
 	"amulet": ["Neck", Vector3(0.0, -0.1, 0.13), Vector3.ZERO],
 	"pouch": ["Hips", Vector3(0.2, -0.02, 0.0), Vector3.ZERO],
 	"backpack": ["Chest", Vector3(0.0, 0.04, -0.22), Vector3.ZERO],
 }
-## Tipos que pintam uma malha do personagem (pelo fim do nome da malha no modelo).
-const PAINTS := {"vest": "body", "plate": "body", "legs": "legs", "boots": "feet"}
+## Tipos que pintam uma malha do personagem (pelo fim do nome da malha no modelo). As armaduras
+## de corpo (ARMOR_LOOKS) agora são peças presas nos ossos; sobra o mapa para fichas antigas.
+const PAINTS := {}
+## Armaduras feitas de peças nos ossos (tronco, ombros, coxas, canelas, pés).
+const ARMOR_LOOKS := ["vest", "plate", "legs", "boots"]
 
 
 ## Modelo 3D do item (centrado na origem; armas com o cabo na origem e a ponta para +Y).
@@ -154,9 +156,11 @@ static func dress(model: Node, visual: Array) -> void:
 			continue
 		var def := ItemDB.def(entry)
 		var look: String = def.get("look", "")
-		# Peça com modelo próprio não pinta o corpo: a peça é o visual.
-		if PAINTS.has(look) and not def.has("model"):
-			paints[PAINTS[look]] = _paint_material(def.get("color", METAL), entry)
+		# Armadura sem modelo próprio: peças de verdade presas nos ossos, por cima da roupa
+		# (antes era uma pintura no corpo, que o piscar de dano apagava).
+		if ARMOR_LOOKS.has(look) and not def.has("model"):
+			_armor(skeleton, pose, look, def, entry)
+			continue
 		for part: String in def.get("hide_body", []):
 			hidden[part] = true
 		if def.get("wear", false) and def.get("model") is PackedScene:
@@ -458,6 +462,120 @@ static func _grenade(root: Node3D) -> void:
 	_box(root, Vector3(0.03, 0.035, 0.03), Vector3(0, 0.125, 0), GUNMETAL)
 	_box(root, Vector3(0.006, 0.05, 0.006), Vector3(0.012, 0.16, 0), Color(0.6, 0.5, 0.35))
 	_box(root, Vector3(0.035, 0.035, 0.006), Vector3(-0.025, 0.135, 0), METAL)
+
+
+## Armadura vestida: caixas presas nos ossos (seguem a animação), um pouco maiores que o
+## corpo, no material do item (lona/couro/pneu, ou lata/aço quando a cor é cinza).
+static func _armor(skeleton: Skeleton3D, pose: Array[Transform3D], look: String, def: Dictionary, entry: Dictionary) -> void:
+	var color: Color = def.get("color", METAL)
+	var metal := color.s < 0.2
+	var shine := ItemDB.rarity_color(entry) if entry.get("rarity", "common") != "common" else Color.BLACK
+	var main := _armor_material(color, metal, shine)
+	var dark := _armor_material(color.darkened(0.3), metal, Color.BLACK)
+	var strap := _armor_material(Color(0.2, 0.16, 0.12), false, Color.BLACK)
+	match look:
+		"vest", "plate":
+			var plate := look == "plate"
+			var span := 0.36 if plate else 0.33
+			# Peito (no osso do peito) e barriga (no abdômen): dobram com o tronco.
+			_segment(skeleton, pose, "Chest", "Torso", "Neck", 0.0, 0.92, Vector3(span, 0, 0.3 if plate else 0.28), main, Vector3(0, 0, 0.015))
+			_segment(skeleton, pose, "Abdomen", "Abdomen", "Torso", 0.15, 1.05, Vector3(span - 0.03, 0, 0.27 if plate else 0.26), dark if plate else main, Vector3(0, 0, 0.01))
+			if plate:
+				# Faixas das placas e ombreiras.
+				_segment(skeleton, pose, "Chest", "Torso", "Neck", 0.42, 0.5, Vector3(span + 0.01, 0, 0.31), dark, Vector3(0, 0, 0.015))
+				for side: String in ["L", "R"]:
+					_segment(skeleton, pose, "Shoulder." + side, "Shoulder." + side, "UpperArm." + side, 0.2, 1.6, Vector3(0.15, 0, 0.17), main, Vector3(0, 0.035, 0))
+			else:
+				# Alças por cima dos ombros.
+				for side: String in ["L", "R"]:
+					_segment(skeleton, pose, "Shoulder." + side, "Shoulder." + side, "UpperArm." + side, 0.0, 1.0, Vector3(0.07, 0, 0.29), strap, Vector3(0, 0.02, 0.0))
+		"legs":
+			for side: String in ["L", "R"]:
+				var upper := "UpperLeg." + side
+				var lower := "LowerLeg." + side
+				var foot := "Foot." + side
+				if metal:
+					# Caneleiras e joelheiras de lata, coxa com uma placa na frente.
+					_segment(skeleton, pose, upper, upper, lower, 0.25, 0.8, Vector3(0.15, 0, 0.06), main, Vector3(0, 0, 0.08))
+					_segment(skeleton, pose, lower, lower, foot, -0.06, 0.12, Vector3(0.15, 0, 0.17), dark, Vector3(0, 0, 0.03))
+					_segment(skeleton, pose, lower, lower, foot, 0.12, 0.82, Vector3(0.14, 0, 0.08), main, Vector3(0, 0, 0.06))
+				else:
+					# Calça de lona: coxa e canela cobertas, com remendo no joelho.
+					_segment(skeleton, pose, upper, upper, lower, 0.0, 1.0, Vector3(0.19, 0, 0.19), main)
+					_segment(skeleton, pose, lower, lower, foot, 0.0, 0.85, Vector3(0.155, 0, 0.16), main)
+					_segment(skeleton, pose, lower, lower, foot, -0.04, 0.1, Vector3(0.16, 0, 0.17), dark, Vector3(0, 0, 0.01))
+		"boots":
+			for side: String in ["L", "R"]:
+				var foot_bone := "Foot." + side
+				var index := skeleton.find_bone(foot_bone)
+				if index == -1:
+					continue
+				var at := pose[index]
+				var piece := Node3D.new()
+				_material_box(piece, Vector3(0.145, 0.14, 0.34), Vector3.ZERO, main)
+				_material_box(piece, Vector3(0.15, 0.04, 0.35), Vector3(0, -0.065, 0.0), _armor_material(Color(0.12, 0.11, 0.1), false, Color.BLACK))
+				if metal:
+					_material_box(piece, Vector3(0.15, 0.08, 0.09), Vector3(0, -0.005, 0.135), dark)
+				# Pé: frente do corpo (+Z), sola rente ao chão; cobre do calcanhar à ponta dos dedos.
+				var wanted := Transform3D(Basis.IDENTITY, Vector3(at.origin.x, at.origin.y + 0.06, at.origin.z + 0.12))
+				_mount(skeleton, foot_bone, piece, at.affine_inverse() * wanted)
+				# Cano da bota subindo pela canela.
+				_segment(skeleton, pose, "LowerLeg." + side, "LowerLeg." + side, foot_bone, 0.72, 1.0, Vector3(0.15, 0, 0.16), _armor_material(color, metal, shine))
+
+
+## Caixa ao longo do osso: de `from_t` a `to_t` do caminho entre os ossos `a` e `b` (na pose de
+## referência), presa em `bone`. `size` = largura, (comprimento automático), profundidade.
+static func _segment(skeleton: Skeleton3D, pose: Array[Transform3D], bone: String, a: String, b: String,
+		from_t: float, to_t: float, size: Vector3, material: Material, offset := Vector3.ZERO) -> void:
+	var bone_index := skeleton.find_bone(bone)
+	var ia := skeleton.find_bone(a)
+	var ib := skeleton.find_bone(b)
+	if bone_index == -1 or ia == -1 or ib == -1:
+		return
+	var start := pose[ia].origin.lerp(pose[ib].origin, from_t)
+	var end := pose[ia].origin.lerp(pose[ib].origin, to_t)
+	var axis := end - start
+	var length := maxf(axis.length(), 0.04)
+	var up := axis.normalized() if axis.length() > 0.001 else Vector3.UP
+	var forward := (Vector3.BACK - up * up.dot(Vector3.BACK)).normalized()
+	if forward.length() < 0.1:
+		forward = Vector3.FORWARD
+	var right := up.cross(forward).normalized()
+	var basis := Basis(right, up, right.cross(up)).orthonormalized()
+	var center := (start + end) / 2.0 + offset
+	var piece := Node3D.new()
+	var mesh := MeshInstance3D.new()
+	var box := BoxMesh.new()
+	box.size = Vector3(size.x, length, size.z)
+	mesh.mesh = box
+	mesh.material_override = material
+	piece.add_child(mesh)
+	_mount(skeleton, bone, piece, pose[bone_index].affine_inverse() * Transform3D(basis, center))
+
+
+static func _material_box(parent: Node3D, size: Vector3, pos: Vector3, material: Material) -> void:
+	var mesh := MeshInstance3D.new()
+	var box := BoxMesh.new()
+	box.size = size
+	mesh.mesh = box
+	mesh.material_override = material
+	mesh.position = pos
+	parent.add_child(mesh)
+
+
+static func _armor_material(color: Color, metal: bool, glow: Color) -> StandardMaterial3D:
+	var material := StandardMaterial3D.new()
+	material.albedo_color = color
+	material.roughness = 0.45 if metal else 0.9
+	material.metallic = 0.55 if metal else 0.0
+	material.albedo_texture = load("res://world/textures/cano_enferrujado.png" if metal else "res://world/textures/sujeira.png")
+	material.uv1_triplanar = true
+	material.uv1_scale = Vector3.ONE * 3.0
+	if glow != Color.BLACK:
+		material.emission_enabled = true
+		material.emission = glow
+		material.emission_energy_multiplier = 0.35
+	return material
 
 
 ## Peça de arma no espaço dela: tamanho e posição em (lado, frente, baixo).

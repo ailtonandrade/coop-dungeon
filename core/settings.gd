@@ -262,6 +262,39 @@ func cycle_graphics_quality() -> void:
 	changed.emit()
 
 
+## Escolha direta de uma opção (listas da tela de configurações). Aplica e salva.
+func set_choice(key: String, value: Variant) -> void:
+	match key:
+		"language":
+			if value == current_language():
+				return
+			language = value
+			apply_language()
+			_save()
+			changed.emit()
+			var scene := get_tree().current_scene
+			if scene and scene.scene_file_path == "res://ui/main_menu.tscn":
+				get_tree().reload_current_scene.call_deferred()
+			return
+		"graphics_quality":
+			graphics_quality = value
+			Graphics.apply(get_tree(), graphics_quality)
+		"window_mode":
+			window_mode = value
+			apply_display()
+		"window_resolution":
+			window_resolution = value
+			window_mode = "janela"
+			apply_display()
+		"vsync":
+			vsync = value
+			apply_display()
+		"camera_mode", "minimap_mode":
+			set(key, value)
+	_save()
+	changed.emit()
+
+
 func toggle_camera_mode() -> void:
 	camera_mode = "behind" if camera_mode == "iso" else "iso"
 	_save()

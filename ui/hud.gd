@@ -115,6 +115,13 @@ func _ready() -> void:
 	minimap.offset_bottom = 24 + Minimap.SIZE
 	_root.add_child(minimap)
 
+	# Materiais de construção, ao lado (à esquerda) do minimapa.
+	var materials := MaterialsBadge.new()
+	materials.set_anchors_preset(Control.PRESET_TOP_RIGHT)
+	materials.offset_left = -24 - Minimap.SIZE - 10 - MaterialsBadge.WIDTH
+	materials.offset_right = -24 - Minimap.SIZE - 10
+	materials.offset_top = 24
+	_root.add_child(materials)
 	# Relógio do mundo, embaixo do minimapa: ícone de sol/lua e a hora.
 	var clock := ClockBadge.new()
 	clock.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)

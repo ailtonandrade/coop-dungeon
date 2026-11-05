@@ -227,13 +227,19 @@ func _draw_hotbar() -> void:
 		x += HOTBAR_SLOT + 12
 
 
-## Quantos sobram, no canto de cima do atalho (vermelho quando acabou).
+## Quantos sobram: número grande numa plaquinha escura em cima do atalho (vermelho quando
+## acabou), para ler de relance no meio da luta.
 func _draw_count(rect: Rect2, amount: int) -> void:
 	var f := UiSkin.font("Bold")
 	var text := str(amount)
-	var at := rect.position + Vector2(0, 11)
-	draw_string_outline(f, at, text, HORIZONTAL_ALIGNMENT_RIGHT, rect.size.x - 3, 12, 4, UiSkin.INK)
-	draw_string(f, at, text, HORIZONTAL_ALIGNMENT_RIGHT, rect.size.x - 3, 12, Color(1.0, 0.4, 0.35) if amount <= 0 else UiSkin.TEXT)
+	var size := 17
+	var width := f.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, size).x
+	var plate := Rect2(rect.end.x - width - 9, rect.position.y - 13, width + 10, 19)
+	draw_rect(plate, Color(0.02, 0.02, 0.03, 0.88))
+	draw_rect(plate, Color(UiSkin.BRASS, 0.7), false, 1.0)
+	var color := Color(1.0, 0.4, 0.35) if amount <= 0 else Color(1.0, 0.92, 0.7)
+	draw_string_outline(f, Vector2(plate.position.x + 5, plate.end.y - 4), text, HORIZONTAL_ALIGNMENT_LEFT, -1, size, 4, UiSkin.INK)
+	draw_string(f, Vector2(plate.position.x + 5, plate.end.y - 4), text, HORIZONTAL_ALIGNMENT_LEFT, -1, size, color)
 
 
 ## Varredura escura de recarga (sentido horário) e os segundos que faltam.
