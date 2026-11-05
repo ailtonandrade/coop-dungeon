@@ -83,9 +83,12 @@ func _process(delta: float) -> void:
 		for player: Node3D in get_tree().get_nodes_in_group("players"):
 			if player.has_method("is_local") and player.is_local() and player.global_position.distance_to(global_position) < RANGE + 0.6:
 				near = true
-	_label.visible = near
+	_label.visible = near or QuestArea.show_markers
 	if near:
 		_label.text = Txt.t(prompt) + "  ·  " + get_node("/root/InputService").hint(get_node("/root/InputService").Action.PICKUP)
+	elif QuestArea.show_markers:
+		# Editor de missões / construtor ligado: mostra o nome (id) do gatilho.
+		_label.text = id()
 	var marker := get_node_or_null("Marcador") as Node3D
 	if marker:
 		marker.visible = look != "invisivel" or QuestArea.show_markers

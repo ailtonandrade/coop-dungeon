@@ -416,8 +416,8 @@ static func _creature_kind(creature_id: String) -> int:
 
 func _places_map() -> Dictionary:
 	if not _places.is_empty() or not is_instance_valid(_streamer) or _streamer.get("world_map") == null:
-		return _places if not _places.is_empty() else {"spawners": [], "npcs": {}, "named": {}}
-	_places = {"spawners": [], "npcs": {}, "named": {}, "links": {}}
+		return _places if not _places.is_empty() else {"spawners": [], "npcs": {}, "named": {}, "quest_pieces": {}}
+	_places = {"spawners": [], "npcs": {}, "named": {}, "links": {}, "quest_pieces": {}}
 	var map: WorldMap = _streamer.world_map
 	for coords: Vector2i in map.chunks:
 		_read_scene(String(map.chunks[coords]), map.chunk_origin(coords))
@@ -457,6 +457,11 @@ func _read_scene(path: String, origin: Vector3) -> void:
 		var is_quest_piece := script_path.ends_with("quest_trigger.gd") or script_path.ends_with("quest_area.gd") \
 				or (instance != null and (instance.resource_path.ends_with("gatilho_de_missao.tscn") or instance.resource_path.ends_with("area_de_missao.tscn")))
 		_places.named[name] = global.origin
+		# Áreas e gatilhos de missão (para as listas do /missoes): id -> ["area"|"gatilho", posição].
+		if is_quest_piece:
+			var area := script_path.ends_with("quest_area.gd") or (instance != null and instance.resource_path.ends_with("area_de_missao.tscn"))
+			var piece_id := String(props.get("area_id" if area else "trigger_id", ""))
+			_places.quest_pieces[piece_id if not piece_id.is_empty() else name] = ["area" if area else "gatilho", global.origin]
 		# Passagens (alçapão/esgoto/escada) ligadas pelo link_id: as duas pontas.
 		var door_script := script_path.ends_with("world/door.gd") or (instance != null and instance.resource_path.begins_with("res://world/prefabs/portas/"))
 		if door_script and String(props.get("link_id", "")) != "":

@@ -9,7 +9,8 @@ extends Node
 ##
 ## Teclado e mouse: clique esquerdo coloca no cursor · Q/E ou rodinha troca a peça (dentro da
 ## categoria) · V próxima categoria (Shift+V volta) · R gira 45° (Shift+R volta) · Z desfaz a
-## última · Delete apaga a peça do construtor no cursor · F edita o conteúdo do contêiner.
+## última · Delete apaga a peça do construtor no cursor · F edita o conteúdo do contêiner (em
+## cima de área/gatilho de missão: o nome; colocar uma já pede o nome).
 ## Controle: X coloca à frente · direcional ◀ ▶ troca a peça · ▼ próxima categoria · Y gira ·
 ## B desfaz · RB edita o contêiner à frente.
 ## Categorias = subpastas de world/prefabs (PropBuilder.catalog).
@@ -57,6 +58,11 @@ var _title: Label
 var _piece: Label
 var _hint: Label
 var _pad_was := {}
+## Caixa do nome da área/gatilho de missão (abre ao colocar; F em cima renomeia).
+var _name_panel: PanelContainer
+var _name_title: Label
+var _name_edit: LineEdit
+var _name_target: Node
 ## Painel do conteúdo do contêiner (aberto sobre um contêiner do construtor).
 var _loot_panel: PanelContainer
 var _loot_items: ItemList
@@ -126,6 +132,8 @@ func stop() -> void:
 	Player.set_editor_shield("editar", false)
 	if _loot_panel.visible:
 		close_loot_editor()
+	if _name_panel.visible:
+		_close_name_editor()
 	var player := _player_of(slot)
 	if player:
 		player.building = false
@@ -239,7 +247,106 @@ func place_at(point: Vector3) -> Node3D:
 		_settling.append([node, found[1], 0.0])
 	else:
 		_finalize(node, found[1])
+	# Área ou gatilho de missão: já pede o nome (no teclado; no controle fica o id automático).
+	if _nameable(node) and InputService.device_of(slot) == InputService.KEYBOARD:
+		open_name_editor(node)
 	return node
+
+
+## Área ou gatilho de missão (tem nome para as missões).
+static func _nameable(node: Node) -> bool:
+	return node is QuestArea or node is QuestTrigger
+
+
+func _nameable_near(point: Vector3) -> Node:
+	var best: Node = null
+	var best_distance := 2.5
+	for group: String in ["quest_areas", "quest_triggers"]:
+		for node: Node3D in get_tree().get_nodes_in_group(group):
+			if not String(node.name).begins_with(WorldEdits.ID_PREFIX):
+				continue
+			var distance := Combat.flat(node.global_position - point).length()
+			if distance < best_distance:
+				best = node
+				best_distance = distance
+	return best
+
+
+## Abre a caixa do nome da área/gatilho (o id que as missões usam).
+func open_name_editor(node: Node) -> void:
+	if node == null:
+		Sound.play("ui_error")
+		return
+	_name_target = node
+	_name_title.text = "NOME DA ÁREA DE MISSÃO" if node is QuestArea else "NOME DO GATILHO DE MISSÃO"
+	_name_edit.text = String(node.get("area_id" if node is QuestArea else "trigger_id"))
+	_name_panel.visible = true
+	InputService.set_blocked(slot, true)
+	_name_edit.grab_focus()
+	_name_edit.select_all()
+
+
+## Grava o nome (vazio = fica o id automático) e fecha.
+func confirm_name(text: String = "") -> void:
+	var typed := (text if not text.is_empty() else String(_name_edit.text)).strip_edges()
+	var value := PropBuilder.id_from(typed) if not typed.is_empty() else ""
+	_close_name_editor()
+	if not is_instance_valid(_name_target):
+		return
+	var key := "area_id" if _name_target is QuestArea else "trigger_id"
+	_name_target.set(key, value)
+	var entry := NetService.world_edit(String(_name_target.name))
+	if not entry.is_empty():
+		var props: Dictionary = entry.get("props", {})
+		props[key] = value
+		entry["props"] = props
+		var streamer := WorldStreamer.of(self)
+		if WorldEdits.saves_in_map_files() and NetService.session_edits.has(entry) and streamer:
+			MapWriter.save_props_to_scene(streamer.scene_path_of(String(entry.key)), entry)
+		else:
+			NetService.world_edit_changed(entry)
+	# As listas do /missoes leem de novo.
+	Quests._places.clear()
+	Sound.play("ui_confirm")
+	Chat.local_note("%s: %s" % ["Área" if key == "area_id" else "Gatilho", _name_target.call("id")])
+
+
+func _close_name_editor() -> void:
+	_name_panel.visible = false
+	_name_edit.release_focus()
+	if slot >= 0:
+		InputService.set_blocked(slot, false)
+
+
+func _build_name_panel() -> void:
+	_name_panel = PanelContainer.new()
+	_name_panel.add_theme_stylebox_override("panel", UiSkin.panel())
+	_name_panel.visible = false
+	_name_panel.set_anchors_preset(Control.PRESET_CENTER)
+	_name_panel.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	_name_panel.grow_vertical = Control.GROW_DIRECTION_BOTH
+	_hud.add_child(_name_panel)
+	var column := VBoxContainer.new()
+	column.add_theme_constant_override("separation", 8)
+	_name_panel.add_child(column)
+	_name_title = UiSkin.label("", 20, UiSkin.NEON, "Bold", 3)
+	column.add_child(_name_title)
+	column.add_child(UiSkin.label("É o id que as missões usam (ex.: patio_conteineres). Vazio = automático.", 14, UiSkin.DIM, "Regular", 2))
+	_name_edit = LineEdit.new()
+	_name_edit.custom_minimum_size = Vector2(420, 0)
+	_name_edit.placeholder_text = "patio_conteineres"
+	_name_edit.text_submitted.connect(func(text: String) -> void: confirm_name(text))
+	column.add_child(_name_edit)
+	var row := HBoxContainer.new()
+	column.add_child(row)
+	var ok := Button.new()
+	ok.text = "Pronto (Enter)"
+	ok.pressed.connect(func() -> void: confirm_name())
+	row.add_child(ok)
+	var cancel := Button.new()
+	cancel.text = "Deixar automático (Esc)"
+	cancel.pressed.connect(_close_name_editor)
+	row.add_child(cancel)
 
 
 ## Desfaz a última peça colocada nesta sessão.
@@ -644,7 +751,8 @@ func _update_target(player: Node3D) -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if not active or InputService.device_of(slot) != InputService.KEYBOARD or InputService.screen_menu_open or _loot_panel.visible:
+	if not active or InputService.device_of(slot) != InputService.KEYBOARD or InputService.screen_menu_open or _loot_panel.visible \
+			or _name_panel.visible:
 		return
 	if event is InputEventMouseButton and event.pressed:
 		match event.button_index:
@@ -692,7 +800,12 @@ func _unhandled_input(event: InputEvent) -> void:
 				if _target_ok or _carrying:
 					grab_near(_target)
 			KEY_F:
-				open_loot_editor(_container_near(_target) if _target_ok else null)
+				# Em cima de área/gatilho de missão: muda o nome; senão, o conteúdo do contêiner.
+				var nameable: Node = _nameable_near(_target) if _target_ok else null
+				if nameable:
+					open_name_editor(nameable)
+				else:
+					open_loot_editor(_container_near(_target) if _target_ok else null)
 			_:
 				return
 		get_viewport().set_input_as_handled()
@@ -701,6 +814,8 @@ func _unhandled_input(event: InputEvent) -> void:
 func _read_pad() -> void:
 	var device := InputService.device_of(slot)
 	if device < 0 or InputService.screen_menu_open:
+		return
+	if _name_panel.visible:
 		return
 	if _loot_panel.visible:
 		if InputService.raw_just_pressed(slot, InputService.Action.DODGE):
@@ -879,6 +994,10 @@ func _input(event: InputEvent) -> void:
 			and event.physical_keycode == KEY_ESCAPE:
 		close_loot_editor()
 		get_viewport().set_input_as_handled()
+	if _name_panel and _name_panel.visible and event is InputEventKey and event.pressed \
+			and event.physical_keycode == KEY_ESCAPE:
+		_close_name_editor()
+		get_viewport().set_input_as_handled()
 
 
 func _player_of(p_slot: int) -> Player:
@@ -989,6 +1108,7 @@ func _build_hud() -> void:
 	_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	column.add_child(_hint)
 	_build_loot_panel()
+	_build_name_panel()
 
 
 func _refresh_hud() -> void:
@@ -1012,7 +1132,7 @@ func _refresh_hud() -> void:
 		_title.text = Txt.t("MODO CONSTRUTOR · mudando de lugar: %s") % String(_carrying.name)
 		_hint.text = ("Clique larga aqui · R gira · G ou Delete desiste" if keyboard else "X larga aqui · Y gira · ▲ ou B desiste")
 		return
-	_hint.text = (Txt.t("Clique coloca · Q/E ou rodinha troca · V categoria · R gira · PgUp/PgDn altura (Shift fino, Home zera) · Z desfaz · Delete apaga · G pega e muda de lugar · F conteúdo do contêiner · %s no chat sai") % COMMAND if keyboard
+	_hint.text = (Txt.t("Clique coloca · Q/E ou rodinha troca · V categoria · R gira · PgUp/PgDn altura (Shift fino, Home zera) · Z desfaz · Delete apaga · G pega e muda de lugar · F conteúdo do contêiner / nome da área · %s no chat sai") % COMMAND if keyboard
 			else Txt.t("X coloca · ◀ ▶ troca · ▼ categoria · Y gira · R3/L3 altura · B desfaz · LB apaga · ▲ pega e muda de lugar · RB conteúdo do contêiner · %s no chat sai") % COMMAND)
 	if absf(_lift) > 0.001:
 		_title.text += Txt.t(" · altura %+.2f m") % _lift

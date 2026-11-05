@@ -51,9 +51,27 @@ func _process(_delta: float) -> bool:
 			_editor._select(_editor._fields.category, "principal")
 			_editor._pick_npc("giver")
 			_check(_editor._fields.giver.text == "Zé Gato", "\"perto\" pega o NPC do lado (%s)" % _editor._fields.giver.text)
+			# A ficha se ajeita ao jeito de começar e ao tipo do objetivo.
+			_editor._select(_editor._fields.start, "npc")
+			_editor._refresh_start_form()
+			_check(not _editor._fields.start_target.get_parent().visible, "começa por NPC: sem campo de área/gatilho/item")
+			_editor._select(_editor._fields.start, "area")
+			_editor._refresh_start_form()
+			_check(_editor._fields.start_target.get_parent().visible and _editor._fields.start_target.get_parent().get_child(0).text.begins_with("Área"), "começa por área: pede a área")
+			_editor._select(_editor._fields.start, "npc")
+			_editor._refresh_start_form()
 			_editor._add_objective(null)
 			var row: Dictionary = _editor._objective_rows[0]
+			_editor._select(row.kind, "matar")
+			_editor._refresh_objective(row)
+			_check(row.amount.get_parent().visible and not row.npc.get_parent().visible and not row.keywords.get_parent().visible, "matar: criatura e quantidade, sem NPC nem palavras")
+			_editor._select(row.kind, "chegar")
+			_editor._refresh_objective(row)
+			_check(row.target.get_parent().get_child(0).text == "Área" and not row.amount.get_parent().visible, "chegar: pede a área")
+			_check(_editor.quest_pieces_by_region("area") is Dictionary, "lista de áreas por região")
 			_editor._select(row.kind, "falar")
+			_editor._refresh_objective(row)
+			_check(row.npc.get_parent().visible and not row.target.get_parent().visible, "falar: NPC e palavras, sem alvo")
 			_editor._pick_npc_into(row, "npc")
 			row.keywords.text = "radio, frequencia"
 			row.replies.text = "Rádio? Qual?\nA frequência 7.0. Desliga isso."

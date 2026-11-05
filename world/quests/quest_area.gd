@@ -19,6 +19,8 @@ static var show_markers := false
 			_build()
 
 var _inside := false
+## Nome (id) escrito em cima do círculo quando os marcadores estão ligados.
+var _name_label: Label3D
 var _check := 0.0
 
 
@@ -32,6 +34,9 @@ func _ready() -> void:
 		return
 	add_to_group("quest_areas")
 	add_to_group("quest_markers")
+	_name_label = (load("res://ui/world_text.gd") as GDScript).call("make", id(), 16.0, Color(0.5, 0.9, 1.0), true)
+	_name_label.position.y = 0.8
+	add_child(_name_label)
 
 
 func _process(delta: float) -> void:
@@ -40,6 +45,9 @@ func _process(delta: float) -> void:
 	var marker := get_node_or_null("Marcador") as Node3D
 	if marker:
 		marker.visible = show_markers
+	if _name_label:
+		_name_label.visible = show_markers
+		_name_label.text = id()
 	_check -= delta
 	if _check > 0.0:
 		return

@@ -167,6 +167,15 @@ func _process(_delta: float) -> bool:
 			_check(entry.get("loot", []) == [["sword", 2]] and entry.get("gold", 0) == gold_before + 500, "conteúdo escolhido foi gravado (%s, %s)" % [entry.get("loot"), entry.get("gold")])
 			_check(chest.contents.size() == 1 and chest.contents[0].count == 2 and chest.gold == gold_before + 500, "o baú no mundo já tem o conteúdo novo")
 			_god.remove_piece(String(chest.name))
+			# Área de missão: colocar já pede o nome; o nome vira o id e fica gravado.
+			_select("area_de_missao.tscn")
+			var area: Node = _god.place_at(_player().global_position + Vector3(0, 0, -4))
+			_check(_god._name_panel.visible, "colocar área de missão abre a caixa do nome")
+			_god.confirm_name("Pátio dos Contêineres")
+			var area_entry: Dictionary = root.get_node("NetService").world_edit(String(area.name))
+			_check(area.id() == "patio_dos_conteineres" and not _god._name_panel.visible, "o nome vira o id da área (%s)" % area.id())
+			_check(area_entry.get("props", {}).get("area_id") == "patio_dos_conteineres", "e fica gravado com a peça")
+			_god.remove_piece(String(area.name))
 			# Bloco descarregado e carregado de novo: o cone volta pelo save do mundo.
 			var streamer := get_first_node_in_group("world_streamer")
 			var key: String = _placed()[0].key

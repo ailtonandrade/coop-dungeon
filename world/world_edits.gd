@@ -50,9 +50,21 @@ static func spawn(chunk: Node3D, entry: Dictionary) -> Node3D:
 	if node is LootContainer:
 		node.container_id = String(entry.id)
 		apply_loot(node, entry)
+	apply_props(node, entry)
 	node.transform = (parent as Node3D).transform.affine_inverse() * unpack_xform(entry.xform) if parent != chunk else unpack_xform(entry.xform)
 	parent.add_child(node)
 	return node
+
+
+## Propriedades mudadas no construtor (nome da área/gatilho de missão): entry["props"] =
+## {propriedade: valor}. Só as que o nó tem.
+static func apply_props(node: Node, entry: Dictionary) -> void:
+	var props: Variant = entry.get("props")
+	if not props is Dictionary:
+		return
+	for key: String in props:
+		if key in node:
+			node.set(key, props[key])
 
 
 ## Conteúdo de contêiner escolhido no modo construtor: entry["loot"] = [[item, quantidade]...]

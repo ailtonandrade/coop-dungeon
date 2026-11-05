@@ -18,6 +18,19 @@ Peças de missão (coloque pelo **/editar**, categoria **Missoes**, ou no editor
 - **Área de missão**: círculo (raio ajustável) que dispara quando alguém do grupo entra. Invisível
   no jogo; aparece no editor do Godot e com /editar ou /missoes ligados.
 
+### A ficha se ajeita ao que você escolhe
+
+- **Começa por** muda o resto: NPC não pede área; área/gatilho/item pedem o alvo (com **lista**);
+  sem NPC que recebe, somem as falas de andamento/entrega.
+- Cada **objetivo** mostra só o que o tipo usa: matar → criatura e quantidade; falar → NPC,
+  palavras e respostas; interagir → gatilho; chegar → área; ler/usar/pegar → item.
+- Botões **lista**: NPCs, áreas e gatilhos do mapa inteiro **separados por região**; itens e
+  documentos numa lista só. **perto** pega o que está do lado do herói.
+- **Nome da área/gatilho**: no `/editar`, colocar uma área ou gatilho de missão já abre a caixa
+  do nome (vira o id que a missão usa, ex.: `patio_conteineres`); **F** em cima renomeia. Com o
+  `/missoes` ou o `/editar` abertos, o nome aparece escrito em cima de cada uma.
+- Com o `/missoes` ou o `/editar` abertos, ninguém te ataca.
+
 ## A ficha (QuestDef)
 
 - **Categoria**: principal ou secundária.

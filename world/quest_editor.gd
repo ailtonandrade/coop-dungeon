@@ -140,8 +140,13 @@ func _build() -> void:
 	_section("Como começa")
 	_option("start", "Começa por", ["npc", "area", "gatilho", "item"])
 	_line("start_target", "Id da área / gatilho / item", _pick_start).tooltip_text = START_HELP
+	_small_button(_fields.start_target.get_parent(), "lista", _choose_start_target)
 	_npc_list_button(_line("giver", "NPC que dá / recebe", _pick_npc.bind("giver")))
 	_check("return_to_giver", "Volta para entregar ao NPC")
+	# A ficha se ajeita ao jeito de começar (só mostra o que faz sentido).
+	_fields.start.item_selected.connect(func(_index: int) -> void: _refresh_start_form())
+	_fields.giver.text_changed.connect(func(_text: String) -> void: _refresh_start_form())
+	_fields.return_to_giver.toggled.connect(func(_on: bool) -> void: _refresh_start_form())
 	_item("start_item", "Item ao começar")
 	_text("offer_text", "Fala ao oferecer / aviso ao começar")
 	_text("progress_text", "Fala em andamento")
@@ -254,6 +259,7 @@ func _add_objective(objective: QuestObjective) -> void:
 	var row := {"box": box}
 	_option("kind", "Tipo", QuestObjective.KINDS, column, row)
 	_line("target", "Alvo (classe / gatilho / área / item / documento)", _pick_objective_target.bind(row), column, row).tooltip_text = TARGET_HELP
+	_small_button(row.target.get_parent(), "lista", _choose_target.bind(row))
 	_spin("amount", "Quantidade (matar)", 1, 999, column, row)
 	_npc_list_button(_line("npc", "NPC (falar)", _pick_npc_into.bind(row, "npc"), column, row))
 	_line("keywords", "Palavras em ordem (vírgula)", Callable(), column, row)
@@ -282,6 +288,10 @@ func _add_objective(objective: QuestObjective) -> void:
 	row.teaches.text = ", ".join(o.teaches)
 	_select(row.reaction, o.reaction)
 	row.reaction_target.text = o.reaction_target
+	# O objetivo se ajeita ao tipo (matar pede criatura e quantidade; falar, NPC e palavras...).
+	row.kind.item_selected.connect(func(_index: int) -> void: _refresh_objective(row))
+	row.reaction.item_selected.connect(func(_index: int) -> void: _refresh_objective(row))
+	_refresh_objective(row)
 
 
 static func _select(option: OptionButton, value: String) -> void:
@@ -369,6 +379,7 @@ func _fill(quest: QuestDef, path: String) -> void:
 	_objective_rows.clear()
 	for objective in quest.objectives:
 		_add_objective(objective)
+	_refresh_start_form()
 	_status.text = path.get_file() if path else "(nova, ainda não salva)"
 
 
@@ -528,14 +539,106 @@ func npcs_by_region() -> Dictionary:
 		var npc_name := String(npc.get("npc_name"))
 		if not npc_name.is_empty() and not places.has(npc_name):
 			places[npc_name] = npc.global_position
+	return _by_region(places)
+
+
+func _choose_npc(edit: LineEdit) -> void:
+	_choose_grouped(edit, npcs_by_region(), "Nenhum NPC no mapa.")
+
+
+## Ficha que muda com o tipo
+
+## Mostra/esconde a linha do campo e troca o nome dela.
+static func _show_row(field: Control, shown: bool, label := "") -> void:
+	var row := field.get_parent() as Control
+	if row == null:
+		return
+	row.visible = shown
+	if not label.is_empty() and row.get_child_count() > 0 and row.get_child(0) is Label:
+		(row.get_child(0) as Label).text = label
+
+
+func _refresh_start_form() -> void:
+	var start := _selected(_fields.start)
+	var giver := String(_fields.giver.text).strip_edges()
+	var labels := {"area": "Área que começa a missão", "gatilho": "Gatilho que começa a missão",
+		"item": "Item que começa (quando alguém do grupo tem)"}
+	_show_row(_fields.start_target, start != "npc", labels.get(start, ""))
+	_show_row(_fields.giver, true, "NPC que oferece e recebe" if start == "npc" else "NPC que recebe (vazio = conclui sozinha)")
+	var returns := start == "npc" or not giver.is_empty()
+	_show_row(_fields.return_to_giver, returns)
+	_show_row(_fields.offer_text, true, "Fala ao oferecer" if start == "npc" else "Aviso ao começar (no chat)")
+	var talks: bool = not giver.is_empty() and _fields.return_to_giver.button_pressed
+	_show_row(_fields.progress_text, talks)
+	_show_row(_fields.done_text, talks)
+
+
+const TARGET_LABELS := {
+	"matar": "Criatura", "interagir": "Gatilho (alavanca, terminal, caixa, placa)", "chegar": "Área",
+	"ler": "Item ou documento para ler", "usar": "Item para usar", "pegar": "Item que precisa ter",
+}
+
+
+func _refresh_objective(row: Dictionary) -> void:
+	var kind := _selected(row.kind)
+	_show_row(row.target, kind != "falar", TARGET_LABELS.get(kind, "Alvo"))
+	_show_row(row.amount, kind == "matar", "Quantas")
+	for key: String in ["npc", "keywords", "replies", "show_buttons"]:
+		_show_row(row[key], kind == "falar")
+	_show_row(row.npc, kind == "falar", "Falar com (NPC)")
+	_show_row(row.reaction_target, _selected(row.reaction) != "nenhuma")
+
+
+## Listas
+
+## "lista" do jeito de começar: áreas ou gatilhos (por região) ou itens.
+func _choose_start_target() -> void:
+	match _selected(_fields.start):
+		"area":
+			_choose_grouped(_fields.start_target, quest_pieces_by_region("area"), "Nenhuma área de missão no mapa (ponha pelo /editar).")
+		"gatilho":
+			_choose_grouped(_fields.start_target, quest_pieces_by_region("gatilho"), "Nenhum gatilho de missão no mapa (ponha pelo /editar).")
+		"item":
+			_choose_id(_fields.start_target, _item_choices(false))
+
+
+## "lista" do alvo do objetivo, conforme o tipo.
+func _choose_target(row: Dictionary) -> void:
+	var kind := _selected(row.kind)
+	match kind:
+		"matar":
+			_choose_id(row.target, QuestObjective.CREATURE_NAMES.keys())
+		"interagir":
+			_choose_grouped(row.target, quest_pieces_by_region("gatilho"), "Nenhum gatilho de missão no mapa (ponha pelo /editar).")
+		"chegar":
+			_choose_grouped(row.target, quest_pieces_by_region("area"), "Nenhuma área de missão no mapa (ponha pelo /editar).")
+		"ler", "usar", "pegar":
+			_choose_id(row.target, _item_choices(kind == "ler"))
+
+
+## Áreas ("area") ou gatilhos ("gatilho") de missão do mapa inteiro (também de blocos ainda
+## não carregados e os postos agora pelo /editar), por região: {região: [ids...]}.
+func quest_pieces_by_region(kind: String) -> Dictionary:
+	var places := {}
+	var pieces: Dictionary = Quests._places_map().get("quest_pieces", {})
+	for piece_id: String in pieces:
+		if pieces[piece_id][0] == kind:
+			places[piece_id] = pieces[piece_id][1]
+	for node: Node3D in get_tree().get_nodes_in_group("quest_areas" if kind == "area" else "quest_triggers"):
+		places[String(node.call("id"))] = node.global_position
+	return _by_region(places)
+
+
+## {nome: posição} -> {região: [nomes em ordem]}, regiões em ordem.
+func _by_region(places: Dictionary) -> Dictionary:
 	var streamer := get_tree().get_first_node_in_group("world_streamer")
 	var groups := {}
-	for npc_name: String in places:
-		var region: Resource = streamer.region_at(places[npc_name]) if streamer else null
+	for place_name: String in places:
+		var region: Resource = streamer.region_at(places[place_name]) if streamer else null
 		var region_name: String = String(region.get("display_name")) if region and not String(region.get("display_name")).is_empty() else "Sem região"
 		if not groups.has(region_name):
 			groups[region_name] = []
-		groups[region_name].append(npc_name)
+		groups[region_name].append(place_name)
 	var names := groups.keys()
 	names.sort_custom(func(a: String, b: String) -> bool: return a.naturalnocasecmp_to(b) < 0)
 	var result := {}
@@ -546,19 +649,20 @@ func npcs_by_region() -> Dictionary:
 	return result
 
 
-func _choose_npc(edit: LineEdit) -> void:
-	var groups := npcs_by_region()
+## Menu com uma entrada por região e, dentro, os nomes: clicar preenche o campo.
+func _choose_grouped(edit: LineEdit, groups: Dictionary, empty_text: String) -> void:
 	if groups.is_empty():
-		_status.text = "Nenhum NPC no mapa."
+		_status.text = empty_text
 		return
 	var menu := PopupMenu.new()
 	for region_name: String in groups:
 		var sub := PopupMenu.new()
-		for npc_name: String in groups[region_name]:
-			sub.add_item(npc_name)
-			sub.set_item_metadata(sub.item_count - 1, npc_name)
+		for entry: String in groups[region_name]:
+			sub.add_item(entry)
+			sub.set_item_metadata(sub.item_count - 1, entry)
 		sub.index_pressed.connect(func(index: int) -> void:
 			edit.text = String(sub.get_item_metadata(index))
+			edit.text_changed.emit(edit.text)
 			menu.hide())
 		menu.add_submenu_node_item("%s  (%d)" % [region_name, (groups[region_name] as Array).size()], sub)
 	menu.popup_hide.connect(menu.queue_free, CONNECT_DEFERRED)

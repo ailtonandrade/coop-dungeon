@@ -86,6 +86,19 @@ static func _save(root: Node3D, scene_path: String) -> bool:
 	return true
 
 
+## Grava as propriedades mudadas de uma peça do construtor (entry["props"]) na cena do bloco.
+static func save_props_to_scene(scene_path: String, entry: Dictionary) -> bool:
+	var root := _open(scene_path)
+	if root == null:
+		return false
+	var node := WorldEdits.parent_in(root).get_node_or_null(NodePath(String(entry.id)))
+	if node == null:
+		root.free()
+		return false
+	WorldEdits.apply_props(node, entry)
+	return _save(root, scene_path)
+
+
 ## Grava o conteúdo novo de um contêiner do construtor na cena do bloco. True se gravou.
 static func save_loot_to_scene(scene_path: String, entry: Dictionary) -> bool:
 	var root := _open(scene_path)
