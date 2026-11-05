@@ -21,6 +21,11 @@ var gold := 0
 var ammo := {}
 ## Munição de quem ainda não tinha contador (saves antigos) e de herói novo.
 const STARTER_AMMO := {"pregos": 60, "granada": 2}
+## Versão do kit inicial: herói de versão antiga ganha o que entrou depois (upgrade_kit).
+## 1: mochila e o diário pessoal (a primeira missão é ler o diário).
+const KIT_VERSION := 1
+const DIARY := "diario_pessoal"
+var kit_version := 0
 ## Depósito do banco: como uma bolsa grande que fica no banco ({"contents": [...]}).
 var depot := {"contents": _empty_contents(DEPOT_CAPACITY)}
 
@@ -33,6 +38,7 @@ static func from_dict(data: Dictionary) -> Inventory:
 		if ItemDB.is_valid(item) and ItemDB.slot_of(item) == slot:
 			inventory.equipment[slot] = _sanitize(item)
 	inventory.gold = maxi(0, int(data.get("gold", 0)))
+	inventory.kit_version = int(data.get("kit", 0))
 	var saved_ammo: Variant = data.get("ammo")
 	if saved_ammo is Dictionary:
 		for type: String in ItemDB.AMMO_TYPES:
@@ -49,11 +55,28 @@ static func from_dict(data: Dictionary) -> Inventory:
 
 
 static func starter() -> Inventory:
-	return from_dict({"equipment": ItemDB.starter_kit()})
+	return from_dict({"equipment": ItemDB.starter_kit(), "kit": KIT_VERSION})
+
+
+## Host: herói criado antes de o kit mudar ganha o que falta (sem mochila: uma mochila; sem
+## diário: o diário).
+func upgrade_kit() -> void:
+	if kit_version >= KIT_VERSION:
+		return
+	kit_version = KIT_VERSION
+	if not has_bag() and ItemDB.has("backpack"):
+		equipment["bag"] = ItemDB.make("backpack")
+	if ItemDB.has(DIARY) and not has_item_id(DIARY):
+		add_item(ItemDB.make(DIARY))
+	changed.emit()
+
+
+func has_item_id(item_id: String) -> bool:
+	return all_items(["eq", "bag", "depot"]).any(func(entry: Array) -> bool: return entry[1] is Dictionary and entry[1].get("id") == item_id)
 
 
 func to_dict() -> Dictionary:
-	return {"equipment": equipment.duplicate(true), "gold": gold, "depot": depot.contents.duplicate(true), "ammo": ammo.duplicate()}
+	return {"equipment": equipment.duplicate(true), "gold": gold, "depot": depot.contents.duplicate(true), "ammo": ammo.duplicate(), "kit": kit_version}
 
 
 func has_bag() -> bool:

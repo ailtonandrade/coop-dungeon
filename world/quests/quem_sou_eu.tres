@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="QuestDef" format=3]
+
+[ext_resource type="Script" path="res://world/quests/quest_def.gd" id="1_def"]
+[ext_resource type="Script" path="res://world/quests/quest_objective.gd" id="2_obj"]
+
+[sub_resource type="Resource" id="Resource_lerdiario"]
+script = ExtResource("2_obj")
+kind = "ler"
+target = "diario_pessoal"
+keywords = PackedStringArray()
+replies = PackedStringArray()
+label = "Ler o diário na mochila"
+
+[resource]
+script = ExtResource("1_def")
+id = "quem_sou_eu"
+title = "Quem sou eu"
+category = "principal"
+start = "item"
+start_target = "diario_pessoal"
+return_to_giver = false
+offer_text = "Tem um diário na sua mochila. Abra o inventário (I / Shift) e leia (Y / E em cima dele)."
+summary = "Ler o diário que está na mochila."
+objectives = Array[ExtResource("2_obj")]([SubResource("Resource_lerdiario")])
+reward_gold = 0
+reward_xp = 25

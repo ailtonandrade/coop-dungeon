@@ -134,6 +134,11 @@ static func draw_glyph(canvas: CanvasItem, look: String, r: Rect2, color: Color,
 			canvas.draw_rect(Rect2(at.call(0.12, 0.55), s * Vector2(0.76, 0.12)), c)
 			canvas.draw_rect(Rect2(at.call(0.18, 0.4), s * Vector2(0.7, 0.12)), Color(color.darkened(0.15), alpha))
 			canvas.draw_rect(Rect2(at.call(0.1, 0.25), s * Vector2(0.66, 0.12)), Color(color.lightened(0.1), alpha))
+		"book":
+			canvas.draw_rect(Rect2(at.call(0.2, 0.12), s * Vector2(0.6, 0.78)), c)
+			canvas.draw_rect(Rect2(at.call(0.24, 0.16), s * Vector2(0.52, 0.04)), Color(Color(0.92, 0.88, 0.78), alpha))
+			canvas.draw_rect(Rect2(at.call(0.2, 0.12), s * Vector2(0.08, 0.78)), dark)
+			canvas.draw_rect(Rect2(at.call(0.64, 0.12), s * Vector2(0.04, 0.78)), Color(Color(0.12, 0.1, 0.09), alpha))
 		"grenade":
 			canvas.draw_rect(Rect2(at.call(0.3, 0.3), s * Vector2(0.4, 0.58)), Color(Color(0.3, 0.42, 0.25), alpha))
 			canvas.draw_rect(Rect2(at.call(0.28, 0.52), s * Vector2(0.44, 0.1)), Color(Color(0.18, 0.2, 0.22), alpha))

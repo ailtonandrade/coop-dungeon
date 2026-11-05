@@ -101,7 +101,7 @@ static func import_model(source_path: String, id: String) -> String:
 const TYPICAL_SIZE := {
 	"sword": 0.9, "dagger": 0.45, "axe": 0.95, "hammer": 0.95, "bow": 1.0, "longbow": 1.3,
 	"crossbow": 0.75, "pistol": 0.3, "rifle": 1.1, "shotgun": 0.6, "ammo_box": 0.25, "grenade": 0.18, "hood": 0.32, "helmet": 0.32, "vest": 0.55, "plate": 0.6, "legs": 0.5,
-	"boots": 0.28, "amulet": 0.1, "ring": 0.08, "pouch": 0.22, "backpack": 0.48,
+	"boots": 0.28, "amulet": 0.1, "ring": 0.08, "pouch": 0.22, "backpack": 0.48, "book": 0.22,
 }
 
 
@@ -239,6 +239,8 @@ static func validate(item: ItemDef) -> PackedStringArray:
 	if item.slot == "municao":
 		if not ItemDB.AMMO_TYPES.has(item.ammo_type) or item.ammo_amount <= 0:
 			issues.append("Munição sem tipo ou sem quantidade.")
+	elif item.slot == "missao":
+		pass
 	elif not ItemDB.EQUIP_SLOTS.has(item.slot):
 		issues.append("Casa do corpo inválida: %s." % item.slot)
 	if item.slot == "ranged" and not item.ammo.is_empty() and not ItemDB.AMMO_TYPES.has(item.ammo):
@@ -263,7 +265,8 @@ static func validate(item: ItemDef) -> PackedStringArray:
 		if rule.max_count < rule.min_count:
 			issues.append("Loot de %s: máximo menor que o mínimo." % rule.creature)
 	# Munição e material caem pelo sorteio próprio do Loot (AMMO_CHANCE, MATERIAL_CHANCE).
-	if item.sold_by.is_empty() and item.drops.is_empty() and not item.random_loot and item.ammo_type.is_empty():
+	# Item de missão (diário, carta) entra pelo kit, por missão ou por Item de missão no mapa.
+	if item.sold_by.is_empty() and item.drops.is_empty() and not item.random_loot and item.ammo_type.is_empty() and item.slot != "missao":
 		issues.append("Ninguém vende e nada deixa cair: o item não aparece no jogo.")
 	if item.custom_mount and ItemDef.BONES.find(item.mount_bone) == -1:
 		issues.append("Osso de encaixe desconhecido: %s." % item.mount_bone)

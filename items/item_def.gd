@@ -9,7 +9,7 @@ extends Resource
 ## Desenhos prontos: dão o ícone (quando não há ícone próprio), o modelo provisório de blocos
 ## (quando não há modelo 3D) e o encaixe padrão no corpo.
 const LOOKS := ["sword", "dagger", "axe", "hammer", "bow", "longbow", "crossbow", "pistol", "rifle", "shotgun",
-		"hood", "helmet", "vest", "plate", "legs", "boots", "amulet", "ring", "pouch", "backpack", "ammo_box", "grenade", "material"]
+		"hood", "helmet", "vest", "plate", "legs", "boots", "amulet", "ring", "pouch", "backpack", "ammo_box", "grenade", "material", "book"]
 ## Ossos do esqueleto dos personagens (Quaternius) onde dá para prender uma peça.
 const BONES := ["Wrist.R", "Wrist.L", "LowerArm.R", "LowerArm.L", "UpperArm.R", "UpperArm.L",
 		"Shoulder.R", "Shoulder.L", "Head", "Neck", "Chest", "Torso", "Abdomen", "Hips",
@@ -110,6 +110,15 @@ static func set_known_shops(shops: PackedStringArray) -> void:
 ## Quantas unidades vêm na caixa (na loja; no loot vem menos).
 @export_range(0, 999) var ammo_amount := 0
 
+@export_group("Uso (diário, carta, item de missão)")
+## Documento da história que abre ao usar (Y / E no inventário): id em world/lore/lore.tres.
+## Vazio = não é de ler. Ler conta para objetivos de missão "ler".
+@export var document := ""
+## Dá para usar pelo inventário (Y / E): conta para objetivos de missão "usar".
+@export var usable := false
+## Some da mochila ao usar.
+@export var consume_on_use := false
+
 @export_group("Porte (arma guardada)")
 ## Onde a arma fica quando não está na mão (WeaponCarry.HOLSTERS). "auto" = o padrão do tipo.
 @export_enum("auto", "costas", "costas_cruzado", "cintura_direita", "cintura_esquerda", "nenhum") var holster := "auto"
@@ -160,6 +169,12 @@ func to_dict() -> Dictionary:
 	if not ammo_type.is_empty():
 		result["ammo_type"] = ammo_type
 		result["ammo_amount"] = ammo_amount
+	if not document.is_empty():
+		result["document"] = document
+	if usable or not document.is_empty():
+		result["usable"] = true
+	if consume_on_use:
+		result["consume"] = true
 	if holster != "auto":
 		result["holster"] = holster
 	if holster_position != Vector3.ZERO or holster_rotation != Vector3.ZERO:
@@ -171,7 +186,7 @@ func _validate_property(property: Dictionary) -> void:
 	match property.name:
 		"slot":
 			property.hint = PROPERTY_HINT_ENUM
-			property.hint_string = ",".join(ItemDB.EQUIP_SLOTS + ["municao"])
+			property.hint_string = ",".join(ItemDB.EQUIP_SLOTS + ["municao", "missao"])
 		"look":
 			property.hint = PROPERTY_HINT_ENUM
 			property.hint_string = ",".join(LOOKS)

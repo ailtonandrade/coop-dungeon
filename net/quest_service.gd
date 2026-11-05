@@ -154,6 +154,55 @@ func reach(area_id: String, player: Node = null) -> void:
 		_rpc_event.rpc_id(1, "chegar", area_id, "", _net_id(player))
 
 
+## Leu um documento do mapa (LoreNote). Pelo inventário quem avisa é o host (item_used).
+func read(document_id: String, player: Node = null) -> void:
+	if multiplayer.is_server():
+		_event("ler", document_id, "", player)
+	else:
+		_rpc_event.rpc_id(1, "ler", document_id, "", _net_id(player))
+
+
+## Host: usou um item pelo inventário (Player "use"): conta "usar" e, se é de ler, "ler"
+## (pelo id do item e pelo do documento).
+func item_used(item_id: String, document_id: String, player: Node) -> void:
+	if not multiplayer.is_server():
+		return
+	if not document_id.is_empty():
+		_event("ler", document_id, item_id, player)
+	_event("usar", item_id, "", player)
+
+
+## Host: o inventário do jogador mudou (ou ele acabou de entrar). Começa as missões de início
+## "item" se ele tem o item e conta os objetivos "pegar".
+func check_items(player: Node) -> void:
+	if not multiplayer.is_server() or player == null:
+		return
+	for quest: QuestDef in defs().values():
+		if quest.start == "item" and available(quest) and Lore.has_item(player, quest.start_target):
+			_accept(quest.id, player)
+	var targets := {}
+	for quest in tracked():
+		if state_of(quest.id) != "ativa":
+			continue
+		for i in quest.objectives.size():
+			var objective := quest.objectives[i]
+			if objective.kind == "pegar" and not objective_done(quest, i) and Lore.has_item(player, objective.target):
+				targets[objective.target] = true
+	for item_id: String in targets:
+		_event("pegar", item_id, "", player)
+
+
+## Missões já entregues (para a tela de missões), principais primeiro.
+func finished() -> Array[QuestDef]:
+	var result: Array[QuestDef] = []
+	for id: String in states():
+		var quest := def(id)
+		if quest and state_of(id) == "entregue":
+			result.append(quest)
+	result.sort_custom(func(a: QuestDef, b: QuestDef) -> bool: return a.category == "principal" and b.category != "principal")
+	return result
+
+
 ## Palavra dita a um NPC na conversa: se é a próxima de um objetivo "falar", devolve a resposta
 ## dele (e avisa o host); senão "".
 func talk(npc_name: String, said: String, player: Node = null) -> String:
@@ -216,8 +265,10 @@ func _event(kind: String, a: String, b: String, player: Node) -> void:
 				continue
 			var hit := false
 			match kind:
-				"matar", "interagir", "chegar":
+				"matar", "interagir", "chegar", "usar", "pegar":
 					hit = objective.target == a
+				"ler":
+					hit = objective.target == a or (not b.is_empty() and objective.target == b)
 				"falar":
 					var step := int(counts[i])
 					hit = objective.npc == a and step < objective.keywords.size() and Lore.normalize(objective.keywords[step]) == b
@@ -328,7 +379,7 @@ var _places := {}
 
 ## Onde fica o próximo passo da missão, perto de `from` (null se não dá para saber).
 ## Pronta: o NPC que recebe. Matar: o acampamento mais perto da classe. Falar: o NPC.
-## Interagir/chegar: o gatilho/a área.
+## Interagir/chegar: o gatilho/a área. Ler/usar/pegar: nenhum (é no inventário).
 func target_of(quest: QuestDef, from: Vector3) -> Variant:
 	if state_of(quest.id) == "pronta":
 		return _places_map().npcs.get(quest.giver)
@@ -350,6 +401,9 @@ func target_of(quest: QuestDef, from: Vector3) -> Variant:
 				return _places_map().npcs.get(objective.npc)
 			"interagir", "chegar":
 				return _places_map().named.get(objective.target)
+			"ler", "usar", "pegar":
+				# Acontece no inventário: sem ponto no mapa.
+				return null
 	return null
 
 
@@ -541,7 +595,7 @@ func _rpc_turn_in(id: String, net_id: int) -> void:
 
 @rpc("any_peer", "call_remote", "reliable")
 func _rpc_event(kind: String, a: String, b: String, net_id: int) -> void:
-	if multiplayer.is_server() and kind in ["interagir", "chegar", "falar"] and a.length() <= 96 and b.length() <= 64:
+	if multiplayer.is_server() and (kind in ["interagir", "chegar", "falar"] or (kind == "ler" and b.is_empty())) and a.length() <= 96 and b.length() <= 64:
 		_event(kind, a, b, _player_from(net_id))
 
 

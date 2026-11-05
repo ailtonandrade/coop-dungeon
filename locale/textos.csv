@@ -28,6 +28,7 @@ Saves straight into the chunk scenes (official map)."
   ·  com senha,  ·  password
   ·  versão %s,  ·  version %s
  (cópia),
+ (no inventário), (in the inventory)
  · altura %+.2f m,
 ## What's Changed,
 % de cura da poção,% potion healing
@@ -42,6 +43,10 @@ Saves straight into the chunk scenes (official map)."
 "%s
 [LB / F] abrir","%s
 [LB / F] open"
+"%s
+[LB / F] pegar","%s
+[LB / F] pick up"
+%s  (documento: %s),
 %s  ·  %s  ·  poder %d,%s  ·  %s  ·  power %d
 %s  ·  de %s  ·  %d/%d,%s  ·  by %s  ·  %d/%d
 %s %d em %s (-%d),%s %d on %s (-%d)
@@ -191,6 +196,7 @@ A Dra. Helena viu a Sinapse usar gente doente como combustível. Não beber da E
 "A Helena comprava peça comigo e falava sozinha sobre a água. Dizia que a Estação 3 tava ""ensinando o corpo a adoecer"". Eu achava que era cansaço... Se tem número rabiscado aí, mostra pro Zé Gato. Ele entende de terminal.","Helena used to buy parts from me and talk to herself about the water. She said Station 3 was ""teaching the body to get sick"". I thought she was just tired... If there's a number scribbled in there, show it to Zé Gato. He knows terminals."
 "A Helena deixou uma caixa com a Dona Alda antes de sumir. Está destravada, na casa da Helena.","Helena left a box with Dona Alda before she vanished. It is unlocked, in Helena's house."
 "A Helena deixou uma caixa comigo antes de sumir. Disse pra eu só abrir pra quem tivesse lido o caderno dela. Tá na casa dela, ali no canto. Pode ir, eu destravei.","Helena left a box with me before she disappeared. Told me to only open it for someone who had read her notebook. It's at her place, in the corner. Go on, I unlocked it."
+"A Sinapse comprou a firma, pôs robôs no lugar e mandou todo mundo embora. Vim ao Ferro-Velho fazer uns parafusos com sucata. A sigla D3M aparece em tudo, mas ninguém sabe o que é.","Sinapse bought the company, put robots in our place and fired everyone. I came to the Junkyard to scrape together some bolts. The acronym D3M is on everything, but nobody knows what it is."
 "A Sinapse vendia chip a prestação. Quem pagou em dia virou Corrompido. Quem não pagou tá aqui comprando chip pirata comigo. Ironia, né?","Sinapse sold chips on installments. Whoever paid on time turned Corrupted. Whoever didn't is here buying pirate chips from me. Ironic, huh?"
 A caixa da Helena,Helena's box
 A inteligência da Sinapse escolheu o próprio nome. Foi ela que tomou a malha de abastecimento.,Sinapse's intelligence chose its own name. It took over the supply grid.
@@ -220,7 +226,7 @@ Agora não. Volta daqui a uns %d minutos.,Not now. Come back in about %d minutes
 "Ainda não terminou, né?","Not done yet, huh?"
 Alda. Dona Alda pra você. Trinta anos catando o que a cidade jogou fora.,Alda. Dona Alda to you. Thirty years picking up what the city threw away.
 Alta,High
-Alvo (classe / id do gatilho / id da área),
+Alvo (classe / gatilho / área / item / documento),
 Ambience,
 "Ambiente (vento, máquinas)","Ambience (wind, machines)"
 "Amigos na mesma rede veem este mundo em ""Buscar mundos"".","Friends on the same network see this world in ""Find worlds""."
@@ -334,6 +340,7 @@ Como começa,
 Comprar,Buy
 "Compro, vendo, troco. Peça boa, preço justo. Clica em Ver mercadorias que eu te mostro.","I buy, sell, trade. Good parts, fair price. Click See the goods and I'll show you."
 Comprou %s (-%d),Bought %s (-%d)
+Concluída,Completed
 Conectado. Entrando no mundo...,Connected. Entering the world...
 Conectando em %s:%d...,Connecting to %s:%d...
 Configurações,Settings
@@ -389,15 +396,19 @@ Direcional anda · A digita · X apaga · Start confirma · B sai,D-pad moves ·
 Direcional escolhe · A confirma · B tchau · analógico direito rola a conversa,D-pad choose · A confirm · B goodbye · right stick scrolls the conversation
 Direcional escolhe · A tenta · B sai,D-pad picks · A tries · B exits
 Disparo,Shooting
+Diário de {nome},{nome}'s diary
+Do grupo todo · RB/Q inventário · B fecha,Shared by the whole group · RB/Q inventory · B closes
 "Dra. Helena Vasconcelos · Bioenergia · Sinapse, Laboratório 4","Dr. Helena Vasconcelos · Bioenergy · Sinapse, Lab 4"
 Drenagem,Drain
 Duda Bateria,
 Duplicar,
 "E aí, parça. Fala baixo que os fios escutam.","Sup, bro. Keep it down, the wires are listening."
 EDITOR DE MISSÕES,
+EM ANDAMENTO,IN PROGRESS
 Editor de missões desligado.,
 Editor de missões ligado (%s de novo para sair).,
 Efeitos,Effects
+"Em andamento: %d · concluídas: %d (%d principais, %d secundárias)","In progress: %d · completed: %d (%d main, %d side)"
 Em cima do terminal não dá.,Not on top of the terminal.
 Endereço inválido: %s,Invalid address: %s
 English,
@@ -410,6 +421,7 @@ Esc,
 Escada,Ladder
 Escasso,Scarce
 Escopeta de cano serrado,Sawed-off shotgun
+"Escrito a lápis, nas folhas que sobraram","Written in pencil, on the pages that were left"
 Espaço,Space
 Espaços,Slots
 Espera aí!,Wait up!
@@ -460,8 +472,9 @@ Fora da área do seu abrigo.,Outside your shelter area.
 Físico,Physical
 "Físico (cai, rola, dá para empurrar)","Physical (falls, rolls, can be pushed)"
 Gallop,
-"Gatilhos e áreas: /editar,
-categoria Missoes.",
+"Gatilhos, áreas e itens de
+missão: /editar, categoria
+Missoes (F escolhe o item).",
 Gato,Gato
 "Gato de energia? Que gato? Ó, toma isso aqui e esquece que perguntou.","Power hookup? What hookup? Here, take this and forget you asked."
 Generoso,Generous
@@ -490,7 +503,7 @@ Hm? Não entendi.,Hm? I didn't get that.
 Hora do mundo: %s,
 "Hã? Fala em português de gente, parça.","Huh? Talk like a person, bro."
 "Id (arquivo, sem espaço)",
-Id da área / gatilho,
+Id da área / gatilho / item,
 Idioma,Language
 Idle,
 Impacto,Impact
@@ -532,6 +545,7 @@ Lança-pregos,Nail launcher
 Lelo Antena,
 Lendo um documento,Reading a document
 Lendo: %s,Reading: %s
+Ler %s,Read %s
 Lia Faísca,
 Ligado,On
 Lixão Alto,High Dump
@@ -541,6 +555,7 @@ Longe do mecânico,Too far from the mechanic
 Longe do sucateiro,Too far from the scrap dealer
 Loot aqui!,Loot here!
 Loot: %s (criaturas e baús),Loot: %s (creatures and chests)
+Lore,
 Luminária,Lamp
 Lâmina Térmica,Thermal Blade
 Lâminas,Blades
@@ -564,6 +579,39 @@ Mecânico (upgrade),Mechanic (upgrade)
 "Mensagem rápida (cima/baixo, A manda, B fecha):","Quick message (up/down, A sends, B closes):"
 Menu,
 Metal,Metal
+Meu diário,My diary
+"Meu diário, na mochila","My diary, in the backpack"
+"Meu nome é {nome}. Escrevo porque a cabeça anda esquecendo as coisas, e porque alguém precisa lembrar como foi.
+
+Até o ano passado eu tinha emprego. Cartão de ponto, marmita fria, ônibus lotado às cinco da manhã. Não era vida boa, mas era vida.
+
+Aí a Sinapse comprou a firma. Chegou de terno, sorriso e contrato novo. Em três meses os robôs estavam no meu lugar na linha. Não reclamam, não almoçam, não adoecem. Mandaram todo mundo embora numa sexta-feira, por mensagem: ""Agradecemos sua contribuição."" Nem o nome da gente estava escrito certo.
+
+Depois disso a cidade virou isso que está aí. Água racionada, ração entregue por robô, gente doente que não melhora. Todo mundo sabe que a Sinapse manda em tudo. Nos papéis, nas caixas, na lataria dos robôs, sempre aparece uma sigla: D3M. Ninguém sabe direito o que é. Uns dizem que é um setor da empresa. Outros, que é um chefão que ninguém nunca viu. Os mais velhos fazem o sinal da cruz e mudam de assunto.
+
+Sem salário, sobrou o que sobra para quem não tem nada: sucata. Ouvi dizer que no Ferro-Velho, longe do centro, ainda dá para fazer uns parafusos. Cobre, peça boa, chip velho. E que tem gente lá que compra sem perguntar de onde veio.
+
+{companhia}
+
+O plano é simples: juntar parafusos, comprar comida, não morrer.
+Se der errado, pelo menos fica escrito aqui que eu tentei.
+
+Primeira coisa: falar com o povo da vila e descobrir quem paga por sucata.","My name is {nome}. I write because my head keeps forgetting things, and because someone has to remember how it went.
+
+Until last year I had a job. Time card, cold lunchbox, packed bus at five in the morning. It was not a good life, but it was a life.
+
+Then Sinapse bought the company. They came in suits, smiles and new contracts. Within three months the robots had my spot on the line. They don't complain, don't eat lunch, don't get sick. They fired everyone on a Friday, by text: ""We thank you for your contribution."" They didn't even spell our names right.
+
+After that the city became what it is now. Rationed water, rations delivered by robots, sick people who never get better. Everyone knows Sinapse runs everything. On the papers, on the boxes, on the robots' plating, there is always an acronym: D3M. Nobody really knows what it is. Some say it's a department. Others say it's a big boss nobody has ever seen. The old folks cross themselves and change the subject.
+
+With no paycheck, I was left with what's left for people with nothing: scrap. I heard that at the Junkyard, far from downtown, you can still make a few bolts. Copper, good parts, old chips. And that some people there buy without asking where it came from.
+
+{companhia}
+
+The plan is simple: gather bolts, buy food, don't die.
+If it goes wrong, at least it's written here that I tried.
+
+First thing: talk to the village folk and find out who pays for scrap."
 Meus mundos,My worlds
 Microfone,Microphone
 Microfone: %s,Microphone: %s
@@ -651,6 +699,7 @@ Não dá para vender isso,You can't sell that
 "Não entendi. Fala devagar que eu sou mecânico, não advogado.","Didn't get it. Talk slow, I'm a mechanic, not a lawyer."
 Não foi possível conectar.,Couldn't connect.
 Não lembra de onde,Can't remember where
+"Não vim só. Vieram comigo uns conhecidos tão sem rumo quanto eu. Um bando de tontos, mas é o bando que eu tenho, e com mais gente a sucata pesa menos.","I didn't come alone. Some acquaintances as lost as I am came along. A bunch of fools, but they're the bunch I've got, and with more hands the scrap weighs less."
 Nível %d · %s · chip %s,Level %d · %s · %s chip
 Nível %d · XP %d/%d · pontos para instalar: %d,Level %d · XP %d/%d · points to install: %d
 O Davi... era o menino do prédio da Helena. A mãe dele ainda passa aqui toda semana perguntando se alguém viu. Ninguém viu.,Davi... he was the boy from Helena's building. His mother still comes by every week asking if anyone's seen him. Nobody has.
@@ -662,6 +711,7 @@ O caderno da Helena,Helena's notebook
 "O cofre guarda o que é teu. O resto, a ferrugem leva.","The vault keeps what's yours. The rest, the rust takes."
 O código do caderno,The code in the notebook
 O grupo inteiro sabe o mesmo · RB/Q inventário · B fecha,The whole group knows the same · RB/Q inventory · B closes
+O grupo inteiro sabe o mesmo · RB/Q missões · B fecha,The whole group knows the same · RB/Q quests · B closes
 O host fechou o mundo ou a conexão caiu.,The host closed the world or the connection dropped.
 O host te mutou: ninguém ouve sua voz.,The host muted you: nobody hears your voice.
 "O jogo baixa a versão nova, fecha e abre de novo já atualizado.","The game downloads the new version, closes and reopens already updated."
@@ -692,10 +742,12 @@ P%d %s · chip pirata,P%d %s · pirate chip
 P%d %s · conhecimento,P%d %s · knowledge
 P%d %s · habilidades,P%d %s · skills
 P%d %s · inventário,P%d %s · inventory
+P%d %s · missões,P%d %s · quests
 P%d · escolha seu personagem,P%d · choose your character
 P%d · novo personagem,P%d · new character
 P%d · segure Y (ou Espaço),P%d · hold Y (or Space)
 PESSOAS NA SALA,PEOPLE IN THE ROOM
+PRINCIPAIS CONCLUÍDAS,MAIN QUESTS COMPLETED
 Palavra vira botão (controle),
 Palavras em ordem (vírgula),
 "Papel timbrado, molhado e pisado no meio do entulho","Letterhead paper, wet and trampled in the rubble"
@@ -704,6 +756,7 @@ Parafusos: %d,Bolts: %d
 Parede,Wall
 Parede com porta,Wall with door
 Passar bem.,Good day.
+Pegar %s,Get %s
 Pegar / falar,Pick up / talk
 Peito,Chest
 Pernas,Legs
@@ -747,6 +800,7 @@ Pular / escalar,Jump / climb
 Pátio dos Contêineres,Container Yard
 Pés,Feet
 Quantidade (matar),
+Quem eu sou e o que vim fazer aqui,Who I am and why I came here
 Rafael,
 Rafael Toledo · Analista de Infraestrutura · Sinapse,Rafael Toledo · Infrastructure Analyst · Sinapse
 Receita desconhecida.,Unknown recipe.
@@ -773,6 +827,7 @@ Rita Neon,
 Rolar,Roll
 Roll,
 Run,
+SECUNDÁRIAS CONCLUÍDAS,SIDE QUESTS COMPLETED
 "SINAPSE · NÚCLEO-7 · ACESSO RESTRITO
 > SENHA NECESSÁRIA","SINAPSE · NUCLEUS-7 · RESTRICTED ACCESS
 > PASSWORD REQUIRED"
@@ -858,8 +913,10 @@ Túnel do Metrô,Subway Tunnel
 Túnel do Metrô · perigo 4,Subway Tunnel · danger 4
 Upgrade,Upgrade
 Upgrade na oficina,Workshop upgrade
+Usar %s,Use %s
 Use /hora 20 ou /hora 6:30,
 User-Agent: Corrumpted-jogo,
+"Uso (diário, carta, item de missão)",
 VOZ,VOICE
 VSync: %s,VSync: %s
 Vai com Deus. E ferve a água!,Go with God. And boil the water!
@@ -871,6 +928,7 @@ Versão %s  ·  você está na %s,Version %s  ·  you have %s
 "Versão diferente do jogo (host: %s, você: %s).","Different game version (host: %s, you: %s)."
 Vida,Health
 Vigor,Vigor
+"Vim por conta própria. Melhor assim: ninguém para dividir os parafusos, ninguém para me atrasar.","I came on my own. Better that way: nobody to split the bolts with, nobody to slow me down."
 Vinte anos contando dinheiro dos outros. Achei que era o dinheiro que importava.,Twenty years counting other people's money. I thought the money was what mattered.
 Visual,Look
 Você já tem um abrigo (o terminal fica marcado no mapa).,You already have a shelter (the terminal is marked on the map).
@@ -966,6 +1024,10 @@ lab,
 laboratorio,
 lugar,place
 magenta,magenta
+"matar: classe da criatura · falar: use o campo NPC · interagir: id do gatilho · chegar: id da área
+ler: id do item de ler (diário, carta) ou do documento da história (vale o do mapa também)
+usar: id do item que se usa pelo inventário (ficha do item: Uso > usable)
+pegar: id do item que precisa ter. ""perto"" abre a lista.",
 menino,boy
 microsoft basic,
 mod,
@@ -975,8 +1037,13 @@ máximo,max
 na mão,in hand
 nada ainda,nothing yet
 negocio,business
+no inventário,in the inventory
 no máximo,maxed
 nome,name
+"npc: oferecida na conversa com o NPC.
+area / gatilho: id da área ou do gatilho de missão (ponha pelo /editar, categoria Missoes).
+item: id do item; começa quando alguém do grupo tem o item (pegou do chão, de um Item de missão
+do mapa, ganhou, ou já tinha, como o diário da mochila). ""perto"" lista os itens.",
 numero,number
 nível %d · %s,level %d · %s
 padrão do sistema,system default
@@ -1032,3 +1099,6 @@ ze,
 ◆ %d pontos de chip para gastar · %s,◆ %d chip points to spend · %s
 ◢ CANAL // MUNDO,◢ CHANNEL // WORLD
 ⬆ Versão %s disponível · atualizar,⬆ Version %s available · update
+ler,read
+usar,use
+Nenhuma.,None.

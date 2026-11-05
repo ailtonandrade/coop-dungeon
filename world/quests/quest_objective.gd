@@ -8,16 +8,23 @@ extends Resource
 ##    `show_buttons` mostra a próxima palavra como botão (para quem joga no controle).
 ##  - "interagir": apertar LB / F no gatilho de missão (QuestTrigger) de id `target`.
 ##  - "chegar": entrar na área de missão (QuestArea) de id `target`.
+##  - "ler": ler pelo inventário o item de id `target` (diário, carta) ou o documento de id
+##    `target` (também o do mapa, LoreNote). Sem ponto no mapa.
+##  - "usar": usar pelo inventário o item de id `target` (Y / E). Sem ponto no mapa.
+##  - "pegar": ter o item de id `target` (pegar do chão, ganhar, comprar ou já ter).
 ## Ao cumprir: pode dar um item (`gives_item`), ensinar um fato (`teaches`) e fazer uma reação
 ## num objeto do mapa (`reaction` em `reaction_target`, pelo nome do nó).
 
-const KINDS := ["matar", "falar", "interagir", "chegar"]
+const KINDS := ["matar", "falar", "interagir", "chegar", "ler", "usar", "pegar"]
+## Tipos que acontecem no inventário (sem ponto no mapa).
+const INVENTORY_KINDS := ["ler", "usar", "pegar"]
 const REACTIONS := ["nenhuma", "sumir", "aparecer", "abrir"]
 const CREATURE_NAMES := {"punk": "Bandidos de cano", "atirador": "Atiradores de pregos",
 	"corrompido": "Corrompidos", "androide": "Androides de segurança"}
 
-@export_enum("matar", "falar", "interagir", "chegar") var kind := "matar"
-## matar: classe da criatura · interagir: id do gatilho · chegar: id da área.
+@export_enum("matar", "falar", "interagir", "chegar", "ler", "usar", "pegar") var kind := "matar"
+## matar: classe da criatura · interagir: id do gatilho · chegar: id da área ·
+## ler: id do item ou do documento · usar/pegar: id do item.
 @export var target := "punk"
 @export_range(1, 999) var amount := 5
 ## falar: com quem (nome do NPC no mapa).
@@ -60,4 +67,20 @@ func text() -> String:
 			return "Investigar"
 		"chegar":
 			return "Ir até o local"
+		"ler":
+			return "Ler %s" % _thing_name()
+		"usar":
+			return "Usar %s" % _thing_name()
+		"pegar":
+			return "Pegar %s" % _thing_name()
 	return target
+
+
+## Nome do item (ou título do documento) do alvo, para o questLog.
+func _thing_name() -> String:
+	if ItemDB.has(target):
+		return ItemDB.display_name({"id": target})
+	var tree := Engine.get_main_loop() as SceneTree
+	var lore: Node = tree.root.get_node_or_null("Lore") if tree else null
+	var doc: Resource = lore.document(target) if lore else null
+	return String(doc.title) if doc else target

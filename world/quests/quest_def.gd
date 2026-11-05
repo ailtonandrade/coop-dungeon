@@ -7,15 +7,17 @@ extends Resource
 ## Como começa (`start`):
 ##  - "npc": oferecida na conversa com `giver` (Aceito / Agora não);
 ##  - "area": começa sozinha ao entrar na área de missão (QuestArea) de id `start_target`;
-##  - "gatilho": começa ao apertar LB / F no gatilho de missão (QuestTrigger) de id `start_target`.
+##  - "gatilho": começa ao apertar LB / F no gatilho de missão (QuestTrigger) de id `start_target`;
+##  - "item": começa quando alguém do grupo tem o item de id `start_target` (pegou do chão, de
+##    um Item de missão do mapa, ganhou ou já começou com ele, como o diário da mochila).
 ## Ao começar pode dar um item (`start_item`). Terminados os objetivos: se tem `giver` e
 ## `return_to_giver`, volta para entregar; senão conclui na hora (recompensa para o grupo).
 
 @export var id := ""
 @export var title := ""
 @export_enum("secundaria", "principal") var category := "secundaria"
-@export_enum("npc", "area", "gatilho") var start := "npc"
-## area/gatilho: id da área ou do gatilho que começa a missão.
+@export_enum("npc", "area", "gatilho", "item") var start := "npc"
+## area/gatilho: id da área ou do gatilho que começa a missão · item: id do item.
 @export var start_target := ""
 ## Nome do NPC que dá (start "npc") e recebe a missão.
 @export var giver := ""

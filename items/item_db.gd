@@ -221,6 +221,8 @@ static func starter_kit() -> Dictionary:
 	var backpack := make("backpack")
 	backpack.contents[0] = make("pouch")
 	backpack.contents[1] = make("leather_hood")
+	if has("diario_pessoal"):
+		backpack.contents[2] = make("diario_pessoal")
 	return {
 		"melee": make("sword"),
 		"ranged": make("bow"),
@@ -343,6 +345,16 @@ static func describe(item: Dictionary) -> PackedStringArray:
 	for enchant_id: String in enchants:
 		lines.append("%s %d" % [ENCHANTS.get(enchant_id, {}).get("name", enchant_id), int(enchants[enchant_id])])
 	return lines
+
+
+## Documento que o item abre para ler (diário, carta), ou "".
+static func document_of(item: Variant) -> String:
+	return String(def(item).get("document", "")) if item is Dictionary else ""
+
+
+## Dá para usar pelo inventário (ler ou usar).
+static func is_usable(item: Variant) -> bool:
+	return item is Dictionary and bool(def(item).get("usable", false))
 
 
 ## Item que vira munição ao pegar/comprar (caixa de pregos, cartuchos, granada).

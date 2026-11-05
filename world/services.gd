@@ -44,7 +44,7 @@ static func run(player: Node3D, command: String, args: Array) -> Array:
 			if _npc(player, MERCHANT) == null:
 				return _fail("Longe do sucateiro")
 			var item: Variant = inventory.get_item(args[0])
-			if item == null or args[0] == ["eq", "bag"]:
+			if item == null or args[0] == ["eq", "bag"] or ItemDB.slot_of(item) == "missao":
 				return _fail("Não dá para vender isso")
 			if ItemDB.is_container(item) and item.contents.any(func(i: Variant) -> bool: return i != null):
 				return _fail("Esvazie a bolsa antes de vender")

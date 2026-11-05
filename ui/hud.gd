@@ -406,15 +406,42 @@ func _toggle_inventory(slot: int) -> void:
 	_open_panel(slot, InventoryPanel.new(), player)
 
 
-## Abre no lugar do inventário um painel do jogador (inventário, chip pirata, habilidades ou
-## conhecimento);
+## Abre no lugar do inventário um painel do jogador (inventário, chip pirata, habilidades,
+## conhecimento ou missões);
 ## RB/Q passa para o próximo.
 func _open_panel(slot: int, panel: Control, player: Player) -> void:
 	_root.add_child(panel)
 	panel.open_for(player)
 	panel.close_requested.connect(_close_inventory.bind(slot))
 	panel.switch_requested.connect(_switch_panel.bind(slot))
+	if panel is InventoryPanel:
+		panel.use_requested.connect(_use_item.bind(slot))
 	_inventories[slot] = panel
+
+
+## Y / E num item de ler ou usar: o host conta para missões (e gasta, se for o caso); se é de
+## ler, fecha o inventário e abre a leitura (o grupo passa a saber os fatos do documento).
+func _use_item(path: Array, slot: int) -> void:
+	var panel: Control = _inventories.get(slot)
+	if panel == null or not is_instance_valid(panel.player):
+		return
+	var player: Player = panel.player
+	var item: Variant = player.inventory.get_item(path)
+	if not ItemDB.is_usable(item):
+		return
+	player.request_inventory("use", [path])
+	var doc := Lore.document(ItemDB.document_of(item))
+	if doc == null:
+		Sound.play("ui_confirm")
+		return
+	panel.keep_blocked = true
+	_close_inventory(slot)
+	var reader := LoreReader.new()
+	_root.add_child(reader)
+	reader.open_for(slot, doc, false, player.display_name)
+	reader.close_requested.connect(_close_service.bind(slot))
+	_services[slot] = reader
+	Lore.learn(doc.facts(), "documento|" + doc.title)
 
 
 func _switch_panel(slot: int) -> void:
@@ -425,7 +452,7 @@ func _switch_panel(slot: int) -> void:
 	current.keep_blocked = true
 	current.queue_free()
 	_inventories.erase(slot)
-	# Roda: Inventário -> Chip pirata -> Habilidades -> Conhecimento -> Inventário.
+	# Roda: Inventário -> Chip pirata -> Habilidades -> Conhecimento -> Missões -> Inventário.
 	var next: Control = InventoryPanel.new()
 	if current is InventoryPanel:
 		next = ChipPanel.new()
@@ -433,6 +460,8 @@ func _switch_panel(slot: int) -> void:
 		next = SkillsPanel.new()
 	elif current is SkillsPanel:
 		next = KnowledgePanel.new()
+	elif current is KnowledgePanel:
+		next = QuestsPanel.new()
 	_open_panel(slot, next, player)
 
 
@@ -482,6 +511,7 @@ func _try_open_service(slot: int) -> void:
 		reader.close_requested.connect(_close_service.bind(slot))
 		_services[slot] = reader
 		Lore.learn(note.document().facts(), "documento|" + note.document().title)
+		Quests.read(note.document_id, player)
 		return
 	var npc := WorldNpc.nearest(get_tree(), player.global_position)
 	if npc == null:

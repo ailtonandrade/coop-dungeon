@@ -24,7 +24,9 @@ Peças de missão (coloque pelo **/editar**, categoria **Missoes**, ou no editor
 - **Começa por**:
   - **npc**: o NPC (`giver`) oferece na conversa (Aceito / Agora não);
   - **area**: começa sozinha ao entrar na área de id `start_target`;
-  - **gatilho**: começa ao usar o gatilho de id `start_target`.
+  - **gatilho**: começa ao usar o gatilho de id `start_target`;
+  - **item**: começa quando alguém do grupo **tem** o item de id `start_target` (pegou do chão, de
+    um *Item de missão* do mapa, ganhou, comprou ou já começou com ele, como o diário da mochila).
 - **Item ao começar** (ex.: o NPC te entrega algo), falas (oferecer, andamento, entregar), resumo.
 - **Volta para entregar**: com NPC, termina voltando nele; sem, conclui sozinha na hora.
 - **Requer fatos** (só aparece depois) e **Ensina fatos** (ao concluir), para ligar com a história.
@@ -60,11 +62,29 @@ De onde vêm os fatos:
 | **falar** | dizer ao NPC as **palavras em ordem**: cada uma só vale depois da anterior, e ele responde a cada uma (vai revelando). Opção de a próxima palavra virar botão (controle) |
 | **interagir** | usar o gatilho de missão de id X |
 | **chegar** | entrar na área de missão de id X |
+| **ler** | ler pelo inventário (Y / E) o item de id X (diário, carta), ou o documento da história de id X (vale também o do mapa) |
+| **usar** | usar pelo inventário (Y / E) o item de id X (ficha do item: *Uso → usable*; *consume_on_use* faz sumir) |
+| **pegar** | ter o item de id X |
+
+Ler, usar e pegar acontecem no inventário: **sem ponto no mapa** (o questLog diz "no inventário").
+No `/missoes`, o botão "perto" desses tipos (e do início "item") abre a lista de itens (e de
+documentos, no "ler"); um Item de missão perto do herói vem no topo.
 
 Ao cumprir um objetivo: **dar um item**, **ensinar fatos** e uma **reação num objeto do mapa**
 pelo nome do nó: **sumir** (some e deixa passar), **aparecer** (começa escondido e surge) ou
 **abrir** (portão da história abre de vez; contêiner trancado destrava). As reações ficam no save
 do mundo e valem para os amigos online.
+
+## Item de ler / usar e Item de missão no mapa
+
+- **Ficha do item** (painel Itens / Inspector), grupo *Uso*: `document` (id do documento em
+  `world/lore/lore.tres` que abre ao usar), `usable`, `consume_on_use`. Casa `missao` = fica na
+  mochila e não se vende. No texto do documento, `{nome}` vira o nome do herói e `{companhia}`
+  diz se veio só ou com o grupo.
+- **Item de missão** (`/editar`, categoria Missoes, `item_de_missao`): o próprio item no chão;
+  **F** em cima escolhe qual item ele dá (o mesmo painel do conteúdo do contêiner). LB / F pega e
+  vai direto para a mochila; some depois (uma vez por mundo). Junto com início **item** ou
+  objetivo **pegar**, é o "achei o diário nos escombros e a missão começou".
 
 ## No jogo
 
@@ -75,12 +95,15 @@ do mundo e valem para os amigos online.
   losango fica na borda do minimapa apontando a direção, e o questLog mostra a distância em metros.
   As posições são lidas dos arquivos de todos os blocos, mesmo os que ainda não carregaram.
 - Progresso do grupo, no save do mundo, sincronizado online.
+- **Tela de missões** na roda do inventário (I / Shift, depois RB / Q até "missões"): as em
+  andamento com os objetivos e as concluídas, separadas em principais e secundárias.
 
 ## As que já existem
 
 | Missão | NPC | Objetivo | Recompensa |
 |---|---|---|---|
+| ★ Quem sou eu (a primeira; começa com o diário da mochila) | — | ler o diário | 25 XP |
 | Ferro de gangue (repetível) | Brando | 6 bandidos de cano | 150 parafusos, 120 XP |
 | Guardas de lata (depois de entrar no Lab 4) | Seu Gouveia | 4 androides de segurança | 300 parafusos, 250 XP, amuleto |
 
-Testes: `tests/quest_test.gd` e `tests/quest_editor_test.gd`.
+Testes: `tests/quest_test.gd`, `tests/quest_editor_test.gd` e `tests/diary_test.gd`.

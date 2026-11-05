@@ -86,6 +86,29 @@ text = "> registro_transferencia.log
 > fim do registro"
 teaches = Array[String](["registro_lab4"])
 
+[sub_resource type="Resource" id="Resource_diariojog"]
+script = ExtResource("1_20gao")
+id = "diario_jogador"
+title = "Diário de {nome}"
+author = "Escrito a lápis, nas folhas que sobraram"
+text = "Meu nome é {nome}. Escrevo porque a cabeça anda esquecendo as coisas, e porque alguém precisa lembrar como foi.
+
+Até o ano passado eu tinha emprego. Cartão de ponto, marmita fria, ônibus lotado às cinco da manhã. Não era vida boa, mas era vida.
+
+Aí a Sinapse comprou a firma. Chegou de terno, sorriso e contrato novo. Em três meses os robôs estavam no meu lugar na linha. Não reclamam, não almoçam, não adoecem. Mandaram todo mundo embora numa sexta-feira, por mensagem: \"Agradecemos sua contribuição.\" Nem o nome da gente estava escrito certo.
+
+Depois disso a cidade virou isso que está aí. Água racionada, ração entregue por robô, gente doente que não melhora. Todo mundo sabe que a Sinapse manda em tudo. Nos papéis, nas caixas, na lataria dos robôs, sempre aparece uma sigla: D3M. Ninguém sabe direito o que é. Uns dizem que é um setor da empresa. Outros, que é um chefão que ninguém nunca viu. Os mais velhos fazem o sinal da cruz e mudam de assunto.
+
+Sem salário, sobrou o que sobra para quem não tem nada: sucata. Ouvi dizer que no Ferro-Velho, longe do centro, ainda dá para fazer uns parafusos. Cobre, peça boa, chip velho. E que tem gente lá que compra sem perguntar de onde veio.
+
+{companhia}
+
+O plano é simples: juntar parafusos, comprar comida, não morrer.
+Se der errado, pelo menos fica escrito aqui que eu tentei.
+
+Primeira coisa: falar com o povo da vila e descobrir quem paga por sucata."
+teaches = Array[String](["sabe_quem_sou"])
+
 [resource]
 script = ExtResource("3_ydsb4")
-documents = Array[ExtResource("1_20gao")]([SubResource("Resource_io5g6"), SubResource("Resource_noymo"), SubResource("Resource_ordem731"), SubResource("Resource_reglab4")])
+documents = Array[ExtResource("1_20gao")]([SubResource("Resource_io5g6"), SubResource("Resource_noymo"), SubResource("Resource_ordem731"), SubResource("Resource_reglab4"), SubResource("Resource_diariojog")])

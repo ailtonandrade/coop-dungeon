@@ -92,6 +92,11 @@ func _process(_delta: float) -> bool:
 			root.get_node("InputService")._try_join(-1)
 		SECOND:
 			_quests = root.get_node("Quests")
+			# A primeira missão (ler o diário da mochila) começa sozinha: dá como feita para o teste ver
+			# o questLog vazio.
+			var states: Dictionary = root.get_node("NetService").world.get("quests", {})
+			states["quem_sou_eu"] = {"state": "entregue", "count": [1]}
+			_quests.quests_changed.emit()
 			_check(_quests.def("brando_ferro_de_gangue") != null, "missão do Brando carregada da pasta world/quests")
 			_check(_log() != null and not _log().visible, "questLog vazio (escondido) sem missão")
 			_check(_quests.offers("Seu Gouveia").is_empty(), "missão do Seu Gouveia escondida até o grupo entrar no Lab 4")

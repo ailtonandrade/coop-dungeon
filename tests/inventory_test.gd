@@ -15,19 +15,20 @@ func _initialize() -> void:
 	_check(inv.equip(["bag", 1]) and inv.get_item(["eq", "head"]).id == "leather_hood", "equipar o capuz da mochila")
 	_check(inv.get_item(["bag", 1]) == null, "casa da mochila ficou vazia")
 
-	_check(inv.move(["eq", "melee"], ["bag", 2]), "guardar a espada na mochila")
-	_check(inv.move(["bag", 2], ["bag", 0]), "soltar a espada em cima da bolsa")
+	_check(inv.get_item(["bag", 2]).id == "diario_pessoal", "o kit inicial traz o diário na mochila")
+	_check(inv.move(["eq", "melee"], ["bag", 3]), "guardar a espada na mochila")
+	_check(inv.move(["bag", 3], ["bag", 0]), "soltar a espada em cima da bolsa")
 	_check(inv.get_item(["bag", 0, 0]).id == "sword", "espada foi parar dentro da bolsa")
 
 	_check(not inv.move(["bag", 0], ["bag", 0, 1]), "bolsa não entra nela mesma")
-	_check(not inv.move(["eq", "bag"], ["bag", 3]), "mochila equipada não entra nela mesma")
+	_check(not inv.move(["eq", "bag"], ["bag", 4]), "mochila equipada não entra nela mesma")
 	_check(not inv.move(["bag", 0, 0], ["eq", "head"]), "espada não vai na cabeça")
 	_check(inv.move(["bag", 0, 0], ["eq", "melee"]), "espada volta pra mão")
 
 	var count := 0
 	while not inv.add_item(ItemDB.make("dagger")).is_empty():
 		count += 1
-	_check(count == 11 + 6, "cabem 17 adagas (11 livres na mochila + 6 na bolsa): coube %d" % count)
+	_check(count == 10 + 6, "cabem 16 adagas (10 livres na mochila, com o diário, + 6 na bolsa): coube %d" % count)
 
 	inv.remove(["bag", 5])
 	inv.add_item(ItemDB.make("big_backpack"))

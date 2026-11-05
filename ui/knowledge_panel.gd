@@ -5,7 +5,7 @@ extends PanelContainer
 ## res://world/lore/facts); sem ficha, o id e a origem gravada na hora. Na roda dos painéis do
 ## inventário: RB / Q passa para o próximo.
 ##
-## Controle: analógico/direcional rola · RB volta ao inventário · B / Back fecha.
+## Controle: analógico/direcional rola · RB vai para as missões · B / Back fecha.
 ## Teclado: W/S ou roda do mouse rola · Q · Shift / I.
 
 signal close_requested
@@ -54,7 +54,7 @@ func _build() -> void:
 	_list.add_theme_constant_override("separation", 6)
 	_list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_scroll.add_child(_list)
-	column.add_child(UiSkin.label("O grupo inteiro sabe o mesmo · RB/Q inventário · B fecha", 13, Color(1, 1, 1, 0.6), "Regular", 3))
+	column.add_child(UiSkin.label("O grupo inteiro sabe o mesmo · RB/Q missões · B fecha", 13, Color(1, 1, 1, 0.6), "Regular", 3))
 
 
 func _refresh() -> void:

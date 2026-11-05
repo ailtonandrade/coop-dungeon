@@ -135,6 +135,9 @@ func setup(data: Dictionary) -> void:
 	# Cópia de herói de outro PC não recebe o inventário (privado): fica vazio aqui.
 	if inventory.is_empty() and data.has("inventory"):
 		inventory = Inventory.starter()
+	# (Ainda fora da árvore: pergunta ao NetService quem é o host.)
+	if NetService.multiplayer.is_server():
+		inventory.upgrade_kit()
 	progress = Progression.from_dict(data.get("progress", {}))
 	character_id = str(data.get("character", ""))
 	model_id = str(data.get("model", ""))
@@ -188,6 +191,8 @@ func _ready() -> void:
 	if multiplayer.is_server():
 		inventory.changed.connect(_on_inventory_changed)
 		_apply_stats()
+		# Missões que começam por item (o diário da mochila) e objetivos "pegar".
+		Quests.check_items.call_deferred(self)
 		# Depois de nascer em todo mundo, o dono recebe o inventário (e salva o kit inicial).
 		_send_inventory.call_deferred()
 
@@ -1099,7 +1104,7 @@ func move_speed() -> float:
 
 
 ## Pedido vindo da tela de inventário do dono. Comandos: "move" [de, para],
-## "equip" [casa], "drop" [casa]. Quem executa é sempre o host.
+## "equip" [casa], "drop" [casa], "use" [casa] (ler/usar item). Quem executa é sempre o host.
 func request_inventory(command: String, args: Array) -> void:
 	if multiplayer.is_server():
 		apply_inventory_command(command, args)
@@ -1126,6 +1131,17 @@ func apply_inventory_command(command: String, args: Array) -> void:
 			inventory.move(args[0], args[1])
 		"equip":
 			inventory.equip(args[0])
+		"use":
+			# Ler (diário, carta) ou usar um item pelo inventário: conta para missões.
+			if args.is_empty() or not args[0] is Array or (args[0] as Array).is_empty() or args[0][0] == "depot":
+				return
+			var used: Variant = inventory.get_item(args[0])
+			if not ItemDB.is_usable(used):
+				return
+			var used_id := String(used.id)
+			if bool(ItemDB.def(used).get("consume", false)):
+				inventory.remove(args[0])
+			Quests.item_used(used_id, ItemDB.document_of(used), self)
 		"drop":
 			var item: Variant = inventory.remove(args[0])
 			if item != null:
@@ -1205,6 +1221,7 @@ func give_item(item: Dictionary) -> bool:
 
 func _on_inventory_changed() -> void:
 	_apply_stats()
+	Quests.check_items(self)
 	var visual := inventory.visual()
 	if visual != _visual:
 		_visual = visual

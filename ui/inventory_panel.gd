@@ -3,13 +3,15 @@ extends PanelContainer
 ## Inventário de um jogador local, estilo Tibia, com cursor próprio: cada um do sofá
 ## navega o seu ao mesmo tempo. Enquanto está aberto, o herói dele não anda nem ataca.
 ##
-## Controle: direcional/analógico move · A pega e solta · Y equipa (ou abre a bolsa)
+## Controle: direcional/analógico move · A pega e solta · Y equipa (abre a bolsa, lê o diário)
 ##           X larga no chão · B cancela / volta da bolsa / fecha · Back fecha
 ## Teclado:  WASD/setas · Espaço · E · J · Shift · I
 
 signal close_requested
 ## RB / Q: troca para o painel Chip pirata.
 signal switch_requested
+## Y / E num item de ler ou usar (diário, carta, item de missão): o HUD abre a leitura.
+signal use_requested(path: Array)
 
 const COLUMNS := 4
 const REPEAT_DELAY := 0.3
@@ -153,6 +155,9 @@ func _describe() -> String:
 			lines.append(Txt.t("%s: vazio") % Txt.t(ItemDB.SLOT_NAMES[ItemDB.EQUIP_SLOTS[_cursor]]))
 		return "\n".join(lines)
 	lines.append(Txt.t("%s  ·  %s  ·  poder %d") % [ItemDB.display_name(item), ItemDB.rarity_name(item), int(item.power)])
+	if ItemDB.is_usable(item):
+		var verb := Txt.t("ler") if not ItemDB.document_of(item).is_empty() else Txt.t("usar")
+		lines.append(Txt.t("%s: %s") % [InputService.button_name(InputService.Action.POTION, player.slot), verb])
 	var stats := ItemDB.describe(item)
 	var compare := _comparison(item)
 	if compare:
@@ -270,6 +275,9 @@ func _quick() -> void:
 	elif ItemDB.is_container(item):
 		_container_path = path
 		_cursor = 0
+	elif ItemDB.is_usable(item):
+		use_requested.emit(path)
+		return
 	else:
 		player.request_inventory("equip", [path])
 	_refresh()

@@ -12,7 +12,8 @@ var _text: RichTextLabel
 var _guard := 0.2
 
 
-func open_for(p_slot: int, doc: LoreDocument, terminal := false) -> void:
+## `reader_name`: o nome do herói que lê, no lugar de {nome} no texto (o diário pessoal).
+func open_for(p_slot: int, doc: LoreDocument, terminal := false, reader_name := "") -> void:
 	slot = p_slot
 	InputService.set_blocked(slot, true)
 	var style := StyleBoxFlat.new()
@@ -26,12 +27,13 @@ func open_for(p_slot: int, doc: LoreDocument, terminal := false) -> void:
 	var column := VBoxContainer.new()
 	column.add_theme_constant_override("separation", 8)
 	add_child(column)
-	column.add_child(UiSkin.label(Txt.t(doc.title), 24, ink, "Bold", 3))
+	var who := reader_name if not reader_name.is_empty() else "?"
+	column.add_child(UiSkin.label(Txt.t(doc.title).replace("{nome}", who), 24, ink, "Bold", 3))
 	if doc.author:
-		column.add_child(UiSkin.label(Txt.t(doc.author), 15, Color(ink, 0.65), "Regular", 2))
+		column.add_child(UiSkin.label(Txt.t(doc.author).replace("{nome}", who), 15, Color(ink, 0.65), "Regular", 2))
 	_text = RichTextLabel.new()
 	_text.bbcode_enabled = false
-	_text.text = Txt.t(doc.text)
+	_text.text = Txt.t(doc.text).replace("{nome}", who).replace("{companhia}", _company_text())
 	_text.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_text.add_theme_font_size_override("normal_font_size", 18)
 	_text.add_theme_color_override("default_color", ink)
@@ -40,6 +42,14 @@ func open_for(p_slot: int, doc: LoreDocument, terminal := false) -> void:
 	column.add_child(_text)
 	column.add_child(UiSkin.label("Cima/baixo rola · B / Esc fecha", 13, Color(1, 1, 1, 0.5), "Regular", 2))
 	Sound.play("ui_confirm")
+
+
+## {companhia} no diário: sozinho ou com o grupo que entrou junto.
+func _company_text() -> String:
+	var others := maxi(get_tree().get_nodes_in_group("players").size() - 1, 0) if is_inside_tree() else 0
+	if others == 0:
+		return Txt.t("Vim por conta própria. Melhor assim: ninguém para dividir os parafusos, ninguém para me atrasar.")
+	return Txt.t("Não vim só. Vieram comigo uns conhecidos tão sem rumo quanto eu. Um bando de tontos, mas é o bando que eu tenho, e com mais gente a sucata pesa menos.")
 
 
 func _exit_tree() -> void:

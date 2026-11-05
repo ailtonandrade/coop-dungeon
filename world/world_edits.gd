@@ -68,3 +68,5 @@ static func apply_loot(container: Node, entry: Dictionary) -> void:
 		container.contents = lines
 	if entry.has("gold"):
 		container.gold = int(entry.gold)
+	if container.has_method("rebuild_visual"):
+		container.rebuild_visual()

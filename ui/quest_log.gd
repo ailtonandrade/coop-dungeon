@@ -90,8 +90,9 @@ func _block(quest: QuestDef) -> Control:
 	for i in quest.objectives.size():
 		var objective := quest.objectives[i]
 		var count := Quests.count_of(quest.id, i)
-		var done := count >= objective.amount
-		column.add_child(_line(done, "%s  %d/%d" % [Txt.t(objective.text()), mini(count, objective.amount), objective.amount]))
+		var goal := objective.goal()
+		var done := count >= goal
+		column.add_child(_line(done, "%s  %d/%d" % [Txt.t(objective.text()), mini(count, goal), goal]))
 	if ready:
 		column.add_child(_line(false, Txt.t("Volte para %s") % quest.giver, AMBER))
 	return panel
@@ -111,7 +112,20 @@ func _update_distances() -> void:
 		if label == null or quest == null or not found:
 			continue
 		var target: Variant = Quests.target_of(quest, from)
-		label.text = ("%d m" % roundi(Vector2(target.x - from.x, target.z - from.z).length())) if target is Vector3 else ""
+		if target is Vector3:
+			label.text = "%d m" % roundi(Vector2(target.x - from.x, target.z - from.z).length())
+		else:
+			label.text = Txt.t("no inventário") if _next_in_inventory(quest) else ""
+
+
+## O próximo passo é ler/usar/pegar (acontece no inventário, sem ponto no mapa)?
+static func _next_in_inventory(quest: QuestDef) -> bool:
+	if Quests.state_of(quest.id) != "ativa":
+		return false
+	for i in quest.objectives.size():
+		if not Quests.objective_done(quest, i):
+			return quest.objectives[i].kind in QuestObjective.INVENTORY_KINDS
+	return false
 
 
 func _line(done: bool, text: String, color := TEXT) -> Control:

@@ -102,6 +102,11 @@ static func build(item: Dictionary) -> Node3D:
 			_grenade(root)
 		"material":
 			_material_pile(root, String(def.get("ammo_type", "metal")), color)
+		"book":
+			# Caderno de capa dura com as folhas aparecendo e um elástico.
+			_box(root, Vector3(0.16, 0.035, 0.22), Vector3(0, 0.018, 0), color, shine)
+			_box(root, Vector3(0.15, 0.025, 0.205), Vector3(0.006, 0.018, 0), Color(0.9, 0.86, 0.75))
+			_box(root, Vector3(0.012, 0.04, 0.225), Vector3(0.06, 0.018, 0), Color(0.12, 0.1, 0.09))
 		# Capuz e capacete por cima do crânio, sem cobrir o rosto (frente = +Z).
 		"hood":
 			_box(root, Vector3(0.23, 0.1, 0.26), Vector3.ZERO, color, shine)

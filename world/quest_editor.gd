@@ -13,6 +13,8 @@ extends CanvasLayer
 const COMMAND := "/missoes"
 const DIR := "res://world/quests/"
 const PANEL_W := 760
+const START_HELP := "npc: oferecida na conversa com o NPC.\narea / gatilho: id da área ou do gatilho de missão (ponha pelo /editar, categoria Missoes).\nitem: id do item; começa quando alguém do grupo tem o item (pegou do chão, de um Item de missão\ndo mapa, ganhou, ou já tinha, como o diário da mochila). \"perto\" lista os itens."
+const TARGET_HELP := "matar: classe da criatura · falar: use o campo NPC · interagir: id do gatilho · chegar: id da área\nler: id do item de ler (diário, carta) ou do documento da história (vale o do mapa também)\nusar: id do item que se usa pelo inventário (ficha do item: Uso > usable)\npegar: id do item que precisa ter. \"perto\" abre a lista."
 const FACTS_HELP := "Fato = uma etiqueta de \"o grupo já descobriu isso\" (ex.: diario_helena, lab4_portao).\nÉ o mesmo de ler um documento, ouvir um NPC ou abrir um portão. Separe por vírgula.\nUse para ligar missões entre si e com a história: uma missão ensina, a outra só aparece depois."
 
 var active := false
@@ -108,7 +110,7 @@ func _build() -> void:
 	_small_button(list_buttons, "Nova", _new_quest)
 	_small_button(list_buttons, "Duplicar", _duplicate)
 	_small_button(list_buttons, "Apagar", _delete)
-	left.add_child(UiSkin.label("Gatilhos e áreas: /editar,\ncategoria Missoes.", 13, UiSkin.DIM, "Regular", 2))
+	left.add_child(UiSkin.label("Gatilhos, áreas e itens de\nmissão: /editar, categoria\nMissoes (F escolhe o item).", 13, UiSkin.DIM, "Regular", 2))
 
 	var right := VBoxContainer.new()
 	right.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -129,8 +131,8 @@ func _build() -> void:
 	_option("category", "Categoria", ["secundaria", "principal"])
 	_line("summary", "Resumo (linha no questLog)")
 	_section("Como começa")
-	_option("start", "Começa por", ["npc", "area", "gatilho"])
-	_line("start_target", "Id da área / gatilho", _pick_start)
+	_option("start", "Começa por", ["npc", "area", "gatilho", "item"])
+	_line("start_target", "Id da área / gatilho / item", _pick_start).tooltip_text = START_HELP
 	_line("giver", "NPC que dá / recebe", _pick_npc.bind("giver"))
 	_check("return_to_giver", "Volta para entregar ao NPC")
 	_item("start_item", "Item ao começar")
@@ -244,7 +246,7 @@ func _add_objective(objective: QuestObjective) -> void:
 	box.add_child(column)
 	var row := {"box": box}
 	_option("kind", "Tipo", QuestObjective.KINDS, column, row)
-	_line("target", "Alvo (classe / id do gatilho / id da área)", _pick_objective_target.bind(row), column, row)
+	_line("target", "Alvo (classe / gatilho / área / item / documento)", _pick_objective_target.bind(row), column, row).tooltip_text = TARGET_HELP
 	_spin("amount", "Quantidade (matar)", 1, 999, column, row)
 	_line("npc", "NPC (falar)", _pick_npc_into.bind(row, "npc"), column, row)
 	_line("keywords", "Palavras em ordem (vírgula)", Callable(), column, row)
@@ -477,6 +479,9 @@ func _pick_npc_into(row: Dictionary, key: String) -> void:
 
 
 func _pick_start() -> void:
+	if _selected(_fields.start) == "item":
+		_choose_id(_fields.start_target, _item_choices(false))
+		return
 	var group := "quest_areas" if _selected(_fields.start) == "area" else "quest_triggers"
 	var node := _nearest_in([group])
 	if node:
@@ -488,10 +493,56 @@ func _pick_start() -> void:
 func _pick_objective_target(row: Dictionary) -> void:
 	var kind := _selected(row.kind)
 	if kind == "matar":
+		_choose_id(row.target, QuestObjective.CREATURE_NAMES.keys())
+		return
+	if kind in QuestObjective.INVENTORY_KINDS:
+		_choose_id(row.target, _item_choices(kind == "ler"))
 		return
 	var node := _nearest_in(["quest_areas"] if kind == "chegar" else ["quest_triggers"])
 	if node:
 		row.target.text = String(node.call("id"))
+
+
+## Lista para escolher um id (itens, documentos, criaturas): o botão "perto" dos tipos que não
+## estão no mapa abre esta lista; o primeiro Item de missão perto do herói vem no topo.
+func _choose_id(edit: LineEdit, ids: Array) -> void:
+	var menu := PopupMenu.new()
+	var near := _nearest_in(["quest_items"], 6.0)
+	var choices: Array = []
+	if near and not String(near.call("item_id")).is_empty():
+		choices.append(String(near.call("item_id")))
+	for id: Variant in ids:
+		if not choices.has(id):
+			choices.append(id)
+	for id: String in choices:
+		var shown := id
+		if ItemDB.has(id):
+			shown = "%s  (%s)" % [id, ItemDB.display_name({"id": id})]
+		elif Lore.document(id):
+			shown = "%s  (documento: %s)" % [id, Lore.document(id).title]
+		menu.add_item(shown)
+		menu.set_item_metadata(menu.item_count - 1, id)
+	menu.index_pressed.connect(func(index: int) -> void:
+		edit.text = String(menu.get_item_metadata(index))
+		menu.queue_free())
+	menu.popup_hide.connect(menu.queue_free, CONNECT_DEFERRED)
+	add_child(menu)
+	menu.popup_centered(Vector2i(420, 360))
+
+
+## Itens de ler/usar primeiro, depois os outros; `documents` põe os documentos da história.
+func _item_choices(documents: bool) -> Array:
+	var usable: Array = []
+	var others: Array = []
+	for id: String in _item_ids:
+		if ItemDB.is_usable({"id": id}):
+			usable.append(id)
+		else:
+			others.append(id)
+	var result := usable
+	if documents:
+		result += Array(Lore.book().document_ids())
+	return result + others
 
 
 ## Objeto do mapa mais perto para reagir: portões, contêineres, gatilhos e peças do mapa/construtor.
