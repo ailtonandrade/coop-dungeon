@@ -71,6 +71,12 @@ func _initialize() -> void:
 	_check(bad.equipment.melee.refine == ItemDB.MAX_REFINE and bad.equipment.melee.enchants == {"afiado": 3} and bad.gold == 0,
 			"save adulterado é corrigido ao carregar")
 
+	# Largou a mochila cheia e pegou de volta: volta para as costas, com tudo dentro.
+	var naked: Inventory = Inventory.starter()
+	var bag: Dictionary = naked.remove(["eq", "bag"])
+	_check(not naked.has_bag() and naked.add_item(ItemDB.make("sword")).is_empty(), "sem mochila não guarda item")
+	_check(naked.add_item(bag) == ["eq", "bag"] and naked.has_bag(), "pegar a mochila do chão equipa ela de volta")
+	_check((naked.equipment.bag.contents as Array).any(func(i: Variant) -> bool: return i != null), "com o que tinha dentro")
 	print("INVENTARIO: ", "FALHOU" if _failed else "OK")
 	quit(1 if _failed else 0)
 

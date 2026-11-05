@@ -37,7 +37,7 @@ static func run(player: Node3D, command: String, args: Array) -> Array:
 				inventory.spend_gold(price)
 				return _ok(Txt.t("Comprou %s (-%d)") % [ItemDB.display_name(item), price])
 			if inventory.add_item(item).is_empty():
-				return _fail("Mochila cheia")
+				return _fail("Mochila cheia" if inventory.has_bag() else "Sem mochila")
 			inventory.spend_gold(price)
 			return _ok(Txt.t("Comprou %s (-%d)") % [ItemDB.display_name(item), price])
 		"sell":
@@ -100,7 +100,7 @@ static func run(player: Node3D, command: String, args: Array) -> Array:
 			if item == null:
 				return _fail("Casa vazia")
 			if inventory.add_item(item).is_empty():
-				return _fail("Mochila cheia")
+				return _fail("Mochila cheia" if inventory.has_bag() else "Sem mochila")
 			inventory.depot.contents[int(args[0])] = null
 			inventory.touch()
 			return _ok(Txt.t("Retirou %s") % ItemDB.display_name(item))

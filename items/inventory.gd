@@ -56,6 +56,10 @@ func to_dict() -> Dictionary:
 	return {"equipment": equipment.duplicate(true), "gold": gold, "depot": depot.contents.duplicate(true), "ammo": ammo.duplicate()}
 
 
+func has_bag() -> bool:
+	return equipment.has("bag")
+
+
 func is_empty() -> bool:
 	return equipment.is_empty()
 
@@ -195,8 +199,13 @@ func equip(path: Array) -> bool:
 
 
 ## Guarda na primeira casa livre: mochila primeiro, depois bolsas dentro dela.
+## Sem mochila equipada, uma mochila/bolsa vai direto para as costas (com o que tem dentro).
 ## Retorna o path onde ficou, ou [] se não coube.
 func add_item(item: Dictionary) -> Array:
+	if not equipment.has("bag") and ItemDB.slot_of(item) == "bag":
+		equipment["bag"] = item
+		changed.emit()
+		return ["eq", "bag"]
 	var queue := [["bag"]]
 	while not queue.is_empty():
 		var container_path: Array = queue.pop_front()

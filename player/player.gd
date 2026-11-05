@@ -1193,7 +1193,7 @@ func give_item(item: Dictionary) -> bool:
 		_fx("fx_toast", ["+%d %s" % [added, ItemDB.ammo_name(type)], ItemDB.AMMO_TYPES[type].color, "ammo_pickup"])
 		return true
 	if inventory.add_item(item).is_empty():
-		_fx("fx_toast", ["Mochila cheia", Color(1.0, 0.5, 0.4), "ui_error"])
+		_fx("fx_toast", ["Mochila cheia" if inventory.has_bag() else "Sem mochila", Color(1.0, 0.5, 0.4), "ui_error"])
 		return false
 	_fx("fx_toast", [ItemDB.display_name(item), ItemDB.rarity_color(item), "pickup"])
 	return true
