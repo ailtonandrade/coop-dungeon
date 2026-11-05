@@ -3,8 +3,8 @@ extends Control
 ## (rede local) ou entrar por IP. Navega com mouse, teclado ou controle.
 
 const VISIBILITIES := [
-	["open", "Aberto: aparece pra quem buscar na rede local"],
-	["private", "Privado: só entra quem tiver o seu IP"],
+	["open", "Online: entra pelo código ou IP e aparece na rede local"],
+	["private", "Online: entra pelo código do mundo ou IP"],
 	["offline", "Offline: Local"],
 ]
 

@@ -209,7 +209,6 @@ A vila,The village
 A voz funciona no online (quem está no sofá já se ouve na sala).,Voice works online (couch players already hear each other in the room).
 Abdomen,
 Aberto pela internet (o roteador abriu a porta sozinho). Código do mundo: %s,Open to the internet (the router opened the port by itself). World code: %s
-Aberto: aparece pra quem buscar na rede local,Open: shows up for anyone searching the local network
 Abre quando eu falo,Opens when I talk
 Abrigo de %s,%s's shelter
 Abrigo no limite de peças.,Shelter is at its piece limit.
@@ -763,6 +762,8 @@ Olá.,Hello.
 Onda %d  ·  inimigos: %d,Wave %d  ·  enemies: %d
 Onde conseguir,Where to get
 Onde: %s,Where: %s
+Online: entra pelo código do mundo ou IP,Online: join by world code or IP
+Online: entra pelo código ou IP e aparece na rede local,"Online: join by code or IP, shown on the local network"
 Operário,Laborer
 Ou entre pelo código do mundo (ou IP) que o host passar:,Or join with the world code (or IP) the host gives you:
 P%d %s · chip pirata,P%d %s · pirate chip
@@ -820,7 +821,6 @@ Portão de serviço do Laboratório 4,Lab 4 service gate
 Poção,Potion
 Preciso de cura!,I need healing!
 Pregos,Nails
-Privado: só entra quem tiver o seu IP,Private: only people with your IP can join
 Procurando mundos abertos na rede...,Looking for open worlds on the network...
 Pronto (B / Esc),Done (B / Esc)
 Pronto (Enter),
