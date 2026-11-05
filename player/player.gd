@@ -168,6 +168,10 @@ func _ready() -> void:
 	material.albedo_color = color
 	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	_ring.material_override = material
+	# Anel discreto: fino, um pouco translúcido e sem sombra (é marcação, não objeto).
+	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	material.albedo_color.a = 0.8
+	_ring.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	_tag.modulate = color
 
 	var scene := Characters.model_scene(model_id) if Characters.MODELS.has(model_id) else MODELS[index % MODELS.size()]
