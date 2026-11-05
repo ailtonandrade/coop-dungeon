@@ -108,7 +108,7 @@ func close() -> void:
 func _submit(text: String) -> void:
 	var player := _player(_typing_slot)
 	# Construção da base do jogador (todo mundo): /construir liga e desliga.
-	if player and text.strip_edges().to_lower() == "/construir":
+	if player and text.strip_edges().to_lower().replace("\\", "/") == "/construir":
 		var hud := get_tree().get_first_node_in_group("hud")
 		if hud and hud.has_method("toggle_base_build"):
 			hud.toggle_base_build(player.slot)

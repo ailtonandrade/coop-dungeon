@@ -394,6 +394,8 @@ func set_aim_anchor(slot: int, world_position: Vector3) -> void:
 ## Direção para menus: analógico, direcional ou WASD/setas, ignorando o bloqueio.
 func raw_move(slot: int) -> Vector2:
 	var device := _devices[slot]
+	if device == KEYBOARD and typing():
+		return Vector2.ZERO
 	if device == KEYBOARD:
 		var v := Vector2(
 			float(Input.is_physical_key_pressed(KEY_D) or Input.is_physical_key_pressed(KEY_RIGHT))
@@ -442,9 +444,21 @@ func _try_join(device: int) -> void:
 	player_joined.emit(slot, device)
 
 
+## Alguém está digitando num campo de texto (nome da área, chat, senha...): as teclas são do
+## texto, não do jogo (senão o "i" de "patio" abria o inventário).
+func typing() -> bool:
+	if not is_inside_tree():
+		return false
+	var focus := get_viewport().gui_get_focus_owner()
+	return (focus is LineEdit or focus is TextEdit) and focus.is_visible_in_tree()
+
+
 func _poll(device: int) -> int:
 	if device == NO_DEVICE:
 		return 0
+	# Digitando: só o Esc vale (fecha a tela); o resto das teclas é do texto.
+	if device == KEYBOARD and typing():
+		return (1 << Action.PAUSE) if Input.is_physical_key_pressed(KEY_ESCAPE) else 0
 	var mask := 0
 	for action: int in Action.values():
 		if _read(device, action):

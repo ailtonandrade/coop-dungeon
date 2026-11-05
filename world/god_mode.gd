@@ -92,8 +92,10 @@ static func allowed() -> bool:
 	return OS.has_feature("editor") and NetService.mode != NetService.Mode.CLIENT
 
 
+## Aceita também "/editor" e a barra invertida ("\editar"), que saem fácil no teclado.
 static func is_command(text: String) -> bool:
-	return text.strip_edges().to_lower() == COMMAND
+	var typed := text.strip_edges().to_lower().replace("\\", "/")
+	return typed == COMMAND or typed == "/editor"
 
 
 func toggle(p_slot: int) -> void:
@@ -1107,6 +1109,13 @@ func _build_hud() -> void:
 	_hint = UiSkin.label("", 14, UiSkin.DIM, "Regular", 3)
 	_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	column.add_child(_hint)
+	# Saída que não depende do chat: clicar fecha o construtor.
+	var leave := Button.new()
+	leave.text = "Sair do construtor"
+	leave.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	leave.focus_mode = Control.FOCUS_NONE
+	leave.pressed.connect(stop)
+	column.add_child(leave)
 	_build_loot_panel()
 	_build_name_panel()
 

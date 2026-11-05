@@ -176,6 +176,19 @@ func _process(_delta: float) -> bool:
 			_check(area.id() == "patio_dos_conteineres" and not _god._name_panel.visible, "o nome vira o id da área (%s)" % area.id())
 			_check(area_entry.get("props", {}).get("area_id") == "patio_dos_conteineres", "e fica gravado com a peça")
 			_god.remove_piece(String(area.name))
+			# Depois de dar nome (caixa de texto), /editar no chat ainda fecha e abre de novo.
+			_command()
+			_check(not _god.active, "/editar fecha depois de dar nome à área")
+			_command()
+			_check(_god.active, "e abre de novo")
+			for button: Button in _god._hud.find_children("*", "Button", true, false):
+				if button.text == "Sair do construtor":
+					button.pressed.emit()
+			_check(not _god.active, "o botão Sair do construtor fecha")
+			var chat_box: Node = get_first_node_in_group("hud")._chat
+			chat_box.open_typing(0)
+			chat_box._submit("\\editar")
+			_check(_god.active, "\\editar (barra invertida) também abre")
 			# Bloco descarregado e carregado de novo: o cone volta pelo save do mundo.
 			var streamer := get_first_node_in_group("world_streamer")
 			var key: String = _placed()[0].key

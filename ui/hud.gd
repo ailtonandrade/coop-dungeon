@@ -281,7 +281,7 @@ var _map_keys_was := {}
 func _check_world_map() -> void:
 	for slot in InputService.active_slots():
 		var device := InputService.device_of(slot)
-		var down := Input.is_physical_key_pressed(KEY_M) if device == InputService.KEYBOARD \
+		var down := (Input.is_physical_key_pressed(KEY_M) and not InputService.typing()) if device == InputService.KEYBOARD \
 				else Input.is_joy_button_pressed(device, JOY_BUTTON_DPAD_LEFT)
 		var once: bool = down and not _map_keys_was.get(slot, false)
 		_map_keys_was[slot] = down

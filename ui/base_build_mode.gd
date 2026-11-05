@@ -147,7 +147,7 @@ var _keys_was := {}
 
 
 func _key_once(key: Key) -> bool:
-	var down := Input.is_physical_key_pressed(key)
+	var down := Input.is_physical_key_pressed(key) and not InputService.typing()
 	var once: bool = down and not _keys_was.get(key, false)
 	_keys_was[key] = down
 	return once
