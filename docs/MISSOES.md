@@ -108,6 +108,15 @@ do mundo e valem para os amigos online.
   losango fica na borda do minimapa apontando a direção, e o questLog mostra a distância em metros.
   As posições são lidas dos arquivos de todos os blocos, mesmo os que ainda não carregaram.
 - Progresso do grupo, no save do mundo, sincronizado online.
+- **Avisos grandes** no alto da tela: NOVA MISSÃO, MISSÃO CONCLUÍDA (com a recompensa) e, depois
+  de concluir, o **PRÓXIMO PASSO** da história.
+- **Próximo passo**: missão **principal** que o grupo já pode pegar (sabe os fatos que ela pede) e
+  que começa por NPC, área ou gatilho. Aparece no questLog ("Fale com Dona Alda"), o minimapa e o
+  mapa apontam para onde começar, e o NPC que tem missão para dar fica com **!** em cima (**?**
+  quando tem missão pronta para entregar). Para encadear a história, basta a missão seguinte ser
+  principal e pedir o fato que a anterior ensina.
+- **Ofício do NPC** (sucateiro, mecânico...) só aparece em cima da cabeça depois que o grupo
+  conversa com ele uma vez (fato interno `conheceu_<nome>`).
 - **Tela de missões** na roda do inventário (I / Shift, depois RB / Q até "missões"): as em
   andamento com os objetivos e as concluídas, separadas em principais e secundárias.
 

@@ -10,7 +10,8 @@ extends RefCounted
 ## No tronco o sinal é o contrário (o osso aponta para o outro lado): positivo inclina para a frente.
 ##
 ## Nesse esqueleto os pés são controladores presos na raiz (não na canela). Por isso, depois de
-## girar a perna, o pé é levado para o fim dela: no ar gira junto com a canela (a bota é presa
+## girar a perna, o pé é levado para o fim dela: no ar inclina junto com a canela (só frente/trás,
+## com a ponta reta, sem pegar a torção da canela) (a bota é presa
 ## meio no pé, meio na canela, então pé parado com canela girada estica a bota); no chão fica reto
 ## e a pose deixa a canela quase em pé. Poses "no chão" (agachar, pousar) abaixam o quadril
 ## para os pés ficarem plantados em vez de subir.
@@ -93,7 +94,39 @@ static func _base_pose(anim: AnimationPlayer, skeleton: Skeleton3D) -> Array[Tra
 				locals[bone].basis = Basis(idle.rotation_track_interpolate(track, 0.0))
 			Animation.TYPE_POSITION_3D:
 				locals[bone].origin = idle.position_track_interpolate(track, 0.0)
+	_straighten_feet(skeleton, locals)
 	return locals
+
+
+## No 1º quadro do Idle o pé esquerdo está virado ~65° para fora: como todas as poses partem
+## daqui, no pulo o pé ficava de lado. Gira cada pé (em volta do eixo vertical) até a ponta
+## apontar para a frente do corpo (+Z).
+static func _straighten_feet(skeleton: Skeleton3D, locals: Array[Transform3D]) -> void:
+	var globals := _globals(skeleton, locals)
+	for follower: String in FOLLOW:
+		var foot := skeleton.find_bone(follower)
+		if foot == -1:
+			continue
+		var toe := globals[foot].basis * _toe_axis(skeleton, foot)
+		if Vector2(toe.x, toe.z).length() < 0.2:
+			continue
+		var yaw := atan2(toe.x, toe.z)
+		var straight := Transform3D(Basis(Vector3.UP, -yaw) * globals[foot].basis, globals[foot].origin)
+		var parent := skeleton.get_bone_parent(foot)
+		locals[foot] = (globals[parent].affine_inverse() if parent != -1 else Transform3D.IDENTITY) * straight
+
+
+## Para onde aponta a ponta do pé, no espaço do osso: o +Z do sapato na pele (pose de ligação).
+## Sem pele, o +Y do osso (como nesse esqueleto).
+static func _toe_axis(skeleton: Skeleton3D, foot: int) -> Vector3:
+	var bone_name := skeleton.get_bone_name(foot)
+	for mesh: MeshInstance3D in skeleton.find_children("*", "MeshInstance3D", true, false):
+		if mesh.skin == null:
+			continue
+		for i in mesh.skin.get_bind_count():
+			if String(mesh.skin.get_bind_name(i)) == bone_name:
+				return (mesh.skin.get_bind_pose(i).basis * Vector3.BACK).normalized()
+	return Vector3.UP
 
 
 static func _build(keys: Array, skeleton: Skeleton3D, skeleton_path: NodePath, base: Array[Transform3D]) -> Animation:
@@ -171,6 +204,16 @@ static func _posed_locals(skeleton: Skeleton3D, base: Array[Transform3D], pose: 
 		var target := globals[leader] * offset
 		if planted:
 			target.basis = base_globals[foot].basis
+		else:
+			# Só inclina (frente/trás) junto com a canela, com a ponta reta: seguindo a canela por
+			# inteiro o pé pegava a torção dela e virava de lado no ar (bem visível de costas).
+			var before := base_globals[foot].origin - base_globals[leader].origin
+			var after := target.origin - globals[leader].origin
+			before.x = 0.0
+			after.x = 0.0
+			if before.length() > 0.001 and after.length() > 0.001:
+				var pitch := atan2(before.cross(after).x, before.dot(after))
+				target.basis = Basis(Vector3.RIGHT, pitch) * base_globals[foot].basis
 		var parent := skeleton.get_bone_parent(foot)
 		var parent_global := globals[parent] if parent != -1 else Transform3D.IDENTITY
 		locals[foot] = parent_global.affine_inverse() * target

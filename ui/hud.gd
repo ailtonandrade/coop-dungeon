@@ -106,6 +106,7 @@ func _ready() -> void:
 	quest_log.position = Vector2(20, 64)
 	quest_log.custom_minimum_size = Vector2(300, 0)
 	_root.add_child(quest_log)
+	_root.add_child(QuestBanner.new())
 
 	var minimap := Minimap.new()
 	minimap.set_anchors_and_offsets_preset(Control.PRESET_TOP_RIGHT)

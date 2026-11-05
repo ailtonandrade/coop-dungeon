@@ -156,7 +156,7 @@ func _draw_markers() -> void:
 	# Para onde ir nas missões.
 	var player := _player()
 	var from := player.global_position if player else _center
-	for quest in Quests.tracked():
+	for quest in Quests.guided():
 		var target: Variant = Quests.target_of(quest, from)
 		if not target is Vector3:
 			continue

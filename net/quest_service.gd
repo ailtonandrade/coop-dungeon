@@ -192,6 +192,38 @@ func check_items(player: Node) -> void:
 		_event("pegar", item_id, "", player)
 
 
+## Próximo passo da história: missões PRINCIPAIS que já dá para pegar (o grupo sabe o que elas
+## pedem) e que começam por NPC, área ou gatilho (as de item começam sozinhas). O questLog mostra
+## e o minimapa aponta para onde começar.
+func next_steps() -> Array[QuestDef]:
+	var result: Array[QuestDef] = []
+	for quest: QuestDef in defs().values():
+		if quest.category == "principal" and quest.start in ["npc", "area", "gatilho"] and state_of(quest.id).is_empty() \
+				and available(quest):
+			result.append(quest)
+	result.sort_custom(func(a: QuestDef, b: QuestDef) -> bool: return a.id < b.id)
+	return result
+
+
+## O que o minimapa e o mapa apontam: as em andamento e os próximos passos.
+func guided() -> Array[QuestDef]:
+	var result := tracked()
+	result.append_array(next_steps())
+	return result
+
+
+## Como começar uma missão ainda não pega ("Fale com Dona Alda").
+func start_hint(quest: QuestDef) -> String:
+	match quest.start:
+		"npc":
+			return Txt.t("Fale com %s") % quest.giver
+		"area":
+			return Txt.t("Vá até o local marcado")
+		"gatilho":
+			return Txt.t("Investigue o local marcado")
+	return ""
+
+
 ## Missões já entregues (para a tela de missões), principais primeiro.
 func finished() -> Array[QuestDef]:
 	var result: Array[QuestDef] = []
@@ -383,6 +415,15 @@ var _places := {}
 func target_of(quest: QuestDef, from: Vector3) -> Variant:
 	if state_of(quest.id) == "pronta":
 		return _places_map().npcs.get(quest.giver)
+	# Ainda não pega (próximo passo): onde ela começa.
+	if state_of(quest.id).is_empty():
+		match quest.start:
+			"npc":
+				return _places_map().npcs.get(quest.giver)
+			"area", "gatilho":
+				var piece: Variant = _places_map().get("quest_pieces", {}).get(quest.start_target)
+				return piece[1] if piece is Array else _places_map().named.get(quest.start_target)
+		return null
 	for i in quest.objectives.size():
 		if objective_done(quest, i):
 			continue

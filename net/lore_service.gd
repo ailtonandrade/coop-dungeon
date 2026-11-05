@@ -11,7 +11,7 @@ const NPC_DIR := "res://world/lore/npcs"
 const FACT_DIR := "res://world/lore/facts"
 ## Fatos internos (região visitada, gatilho usado, porta aberta, item entregue): não aparecem
 ## no Conhecimento (a não ser que tenham ficha sem `hidden`).
-const INTERNAL_PREFIXES := ["visitou_", "gatilho_", "abriu_", "item_"]
+const INTERNAL_PREFIXES := ["visitou_", "gatilho_", "abriu_", "item_", "conheceu_"]
 const MAX_SOURCE := 120
 
 var _book: LoreBook

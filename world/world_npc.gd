@@ -29,6 +29,9 @@ const TALK_RANGE := 2.6
 
 var _label: Label3D
 var _title := ""
+## "!" (tem missão para dar) ou "?" (missão pronta para entregar) em cima da cabeça.
+var _quest_mark: Label3D
+var _mark_check := 0.0
 
 ## Vida: cabeça acompanha quem chega perto, corpo vira se a pessoa está muito de lado, acena ao
 ## chegar, gestos de vez em quando e Idle fora de sincronia com os outros NPCs. Só visual, em
@@ -107,12 +110,31 @@ func _ready() -> void:
 		_idle(true)
 		_setup_look(body)
 		_fidget_timer = randf_range(5.0, 14.0)
-	_title = "%s\n%s" % [npc_name, Txt.t(SERVICE_NAMES[service])] if npc_name else Txt.t(SERVICE_NAMES[service])
-	if has_meta("base_chest"):
-		_title = Txt.t(npc_name)
+	_title = _title_text()
 	_label = WorldText.make(_title, 20, Color(0.75, 1.0, 0.75))
 	_label.position.y = 1.3 if has_meta("base_chest") else 2.5
 	add_child(_label)
+	if not has_meta("base_chest"):
+		_quest_mark = WorldText.make("", 34, Color(1.0, 0.8, 0.28), true)
+		_quest_mark.position.y = 2.95
+		add_child(_quest_mark)
+		Lore.facts_changed.connect(func() -> void: _title = _title_text())
+
+
+## Fato de "o grupo já conversou com este NPC" (o ofício dele só aparece depois).
+func met_fact() -> String:
+	return "conheceu_" + PropBuilder.id_from(npc_name)
+
+
+## Nome em cima da cabeça: o ofício (sucateiro, mecânico...) só depois de conversar com ele.
+func _title_text() -> String:
+	if has_meta("base_chest"):
+		return Txt.t(npc_name)
+	if npc_name.is_empty():
+		return Txt.t(SERVICE_NAMES[service])
+	if not Lore.knows(met_fact()):
+		return npc_name
+	return "%s\n%s" % [npc_name, Txt.t(SERVICE_NAMES[service])]
 
 
 ## Mostra o aviso de conversa quando um jogador desta tela está perto.
@@ -130,6 +152,11 @@ func _process(delta: float) -> void:
 				closest = player
 				closest_distance = distance
 	_live(delta, closest, closest_distance)
+	_mark_check -= delta
+	if _quest_mark and _mark_check <= 0.0:
+		_mark_check = 0.5
+		var ready := Quests.taken(npc_name).any(func(q: QuestDef) -> bool: return Quests.state_of(q.id) == "pronta")
+		_quest_mark.text = "?" if ready else ("!" if not Quests.offers(npc_name).is_empty() else "")
 	_label.text = _title + (InputService.pickup_text(Txt.t("\n[LB / F] abrir") if has_meta("base_chest") else Txt.t("\n[LB / F] falar")) if near else "")
 	# Puxa assunto sozinho quando o grupo chega perto depois de descobrir algo (uma vez).
 	if near:

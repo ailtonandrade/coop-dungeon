@@ -144,7 +144,7 @@ func _draw_bases(inner: Rect2) -> void:
 func _draw_quest_targets(inner: Rect2) -> void:
 	var local := _local_players()
 	var from := local[0].global_position if not local.is_empty() else _focus
-	for quest in Quests.tracked():
+	for quest in Quests.guided():
 		var target: Variant = Quests.target_of(quest, from)
 		if not target is Vector3:
 			continue

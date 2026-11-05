@@ -46,6 +46,9 @@ func open_for(p_player: Player, p_npc: WorldNpc) -> void:
 	npc = p_npc
 	InputService.set_blocked(player.slot, true)
 	_build()
+	# Conversou uma vez: o grupo conhece o NPC (o ofício aparece em cima da cabeça).
+	if not npc.npc_name.is_empty():
+		Lore.learn([npc.met_fact()], "conversa|" + npc.npc_name)
 	var hello := Lore.greeting(npc.npc_name)
 	_npc_says(Txt.t(hello.text) if hello else Txt.t("Olá."))
 	if hello:

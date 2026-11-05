@@ -1,7 +1,8 @@
 class_name QuestLog
 extends VBoxContainer
 ## questLog no canto da tela: as missões em andamento (até MAX), com o título, os objetivos
-## (caixinha, nome e contador) e, quando termina, "Volte para <NPC>". Pisca quando muda.
+## (caixinha, nome e contador) e, quando termina, "Volte para <NPC>". Pisca quando muda. Embaixo,
+## o PRÓXIMO PASSO da história (missão principal que já dá para pegar: "Fale com Dona Alda").
 
 const MAX := 3
 const AMBER := Color(1.0, 0.8, 0.28)
@@ -16,6 +17,8 @@ func _ready() -> void:
 	add_theme_constant_override("separation", 10)
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	Quests.quests_changed.connect(_rebuild)
+	# Fato novo pode liberar o próximo passo da história.
+	Lore.facts_changed.connect(_rebuild)
 	Quests.quest_event.connect(func(id: String, state: String) -> void:
 		_flash[id] = 1.6
 		if state == "pronta":
@@ -47,9 +50,13 @@ func _rebuild() -> void:
 	for child in get_children():
 		child.queue_free()
 	var quests := Quests.tracked()
-	visible = not quests.is_empty()
+	var next := Quests.next_steps()
+	visible = not quests.is_empty() or not next.is_empty()
 	for i in mini(quests.size(), MAX):
 		add_child(_block(quests[i]))
+	# Próximo passo da história (missão principal que já dá para pegar): onde começar.
+	if not next.is_empty() and quests.size() < MAX:
+		add_child(_next_block(next[0]))
 
 
 func _block(quest: QuestDef) -> Control:
@@ -95,6 +102,34 @@ func _block(quest: QuestDef) -> Control:
 		column.add_child(_line(done, "%s  %d/%d" % [Txt.t(objective.text()), mini(count, goal), goal]))
 	if ready:
 		column.add_child(_line(false, Txt.t("Volte para %s") % quest.giver, AMBER))
+	return panel
+
+
+func _next_block(quest: QuestDef) -> Control:
+	var panel := PanelContainer.new()
+	panel.set_meta("quest_id", quest.id)
+	panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.0, 0.0, 0.0, 0.32)
+	style.border_color = Color(AMBER, 0.35)
+	style.border_width_left = 3
+	style.set_content_margin_all(8)
+	style.content_margin_left = 12
+	panel.add_theme_stylebox_override("panel", style)
+	var column := VBoxContainer.new()
+	column.add_theme_constant_override("separation", 3)
+	panel.add_child(column)
+	var head := HBoxContainer.new()
+	head.add_theme_constant_override("separation", 8)
+	column.add_child(head)
+	head.add_child(UiSkin.label(Txt.t("PRÓXIMO PASSO"), 13, Color(AMBER, 0.8), "Bold", 3))
+	var distance := UiSkin.label("", 14, Color(AMBER, 0.75), "SemiBold", 2)
+	distance.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	distance.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	head.add_child(distance)
+	panel.set_meta("distance_label", distance)
+	column.add_child(UiSkin.label("★ " + Txt.t(quest.title), 15, TEXT, "Bold", 3))
+	column.add_child(_line(false, Quests.start_hint(quest), AMBER))
 	return panel
 
 

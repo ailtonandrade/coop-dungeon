@@ -46,6 +46,18 @@ func _process(_delta: float) -> bool:
 			panel._container_path = path.slice(0, path.size() - 1)
 			panel._cursor = path[-1]
 			_check(panel._describe().contains("ler"), "o inventário diz que dá para ler")
+			# Missão principal que só aparece depois do diário (próximo passo da história).
+			var next_quest := QuestDef.new()
+			next_quest.id = "teste_proximo"
+			next_quest.title = "Teste próximo"
+			next_quest.category = "principal"
+			next_quest.giver = "Dona Alda"
+			var needs: Array[String] = ["sabe_quem_sou"]
+			next_quest.requires = needs
+			quests.defs()["teste_proximo"] = next_quest
+			_check(quests.next_steps().is_empty(), "antes do diário: sem próximo passo")
+			var alda: Node = _npc("Dona Alda")
+			_check(alda != null and not alda._title.contains("Sucateiro"), "antes de conversar, só o nome em cima (%s)" % (alda._title if alda else ""))
 			panel._quick()
 		SECOND + 10:
 			var p := _player()
@@ -60,6 +72,27 @@ func _process(_delta: float) -> bool:
 			_check(quests.state_of("quem_sou_eu") == "entregue", "ler o diário conclui a missão (%s)" % quests.state_of("quem_sou_eu"))
 			_check(root.get_node("Lore").knows("sabe_quem_sou"), "e o grupo sabe quem é")
 			_check(p.inventory.has_item_id("diario_pessoal"), "o diário continua na mochila")
+			var banner: Node = _hud().find_children("*", "QuestBanner", true, false)[0]
+			var shown: Array = banner._queue.map(func(entry: Array) -> String: return String(entry[0]) + " " + String(entry[1]))
+			shown.append(banner._kicker.text + " " + banner._title.text)
+			_check(shown.any(func(t: String) -> bool: return t.contains("MISSÃO CONCLUÍDA") and t.contains("Quem sou eu")), "aviso grande: missão concluída (%s)" % [shown])
+			_check(shown.any(func(t: String) -> bool: return t.contains("PRÓXIMO PASSO") and t.contains("Teste próximo")), "e o próximo passo")
+			_check(quests.next_steps().has(quests.def("teste_proximo")), "a próxima missão principal vira próximo passo")
+			var alda: Node = _npc("Dona Alda")
+			var target: Variant = quests.target_of(quests.def("teste_proximo"), p.global_position)
+			_check(target is Vector3 and (target as Vector3).distance_to(alda.global_position) < 1.0, "o minimapa aponta para quem dá a missão")
+			var log_text := ""
+			for label: Label in _hud().find_children("*", "Label", true, false):
+				if label.is_visible_in_tree():
+					log_text += label.text + "\n"
+			_check(log_text.contains("PRÓXIMO PASSO") and log_text.contains("Fale com Dona Alda"), "o questLog mostra o próximo passo")
+			_hud()._close_service(p.slot)
+			alda._process(1.0)
+			_check(alda._quest_mark.text == "!", "\"!\" em cima de quem tem missão para dar")
+			# Conversar uma vez: o ofício aparece.
+			p.teleport_to(alda.global_position + Vector3(0, 0, 1.5))
+			_hud()._try_open_service(p.slot)
+			_check(alda._title.contains("Sucateiro"), "depois de conversar, o ofício aparece (%s)" % alda._title)
 			_hud()._close_service(p.slot)
 		SECOND + 20:
 			var p := _player()
@@ -105,6 +138,13 @@ func _process(_delta: float) -> bool:
 			print("DIÁRIO: " + ("FALHOU" if _failed else "OK"))
 			quit(1 if _failed else 0)
 	return false
+
+
+func _npc(npc_name: String) -> Node:
+	for npc: Node in get_nodes_in_group("npcs"):
+		if npc.npc_name == npc_name:
+			return npc
+	return null
 
 
 func _hud() -> Node:
