@@ -175,7 +175,8 @@ func _build() -> void:
 		screen.material_override = screen_material
 		screen.position = Vector3(-size.x / 2.0 - 0.3, size.y * 0.45, 0.22)
 		_part(screen)
-		_prompt = Label3D.new()
+		# No jogo, texto nítido desenhado na tela (WorldText); no editor, texto 3D comum.
+		_prompt = Label3D.new() if Engine.is_editor_hint() else (load("res://ui/world_text.gd") as GDScript).call("make", "", 18.0, Color.WHITE, true)
 		_prompt.text = "TECLADO · LB / F" if lock == "codigo" else "TERMINAL · LB / F"
 		_prompt.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 		_prompt.pixel_size = 0.004

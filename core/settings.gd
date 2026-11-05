@@ -37,6 +37,16 @@ var voice_proximity := true
 ## Por pessoa (pelo nome): volume e mudo só para mim.
 var voice_peer_volume := {}
 var voice_peer_muted := {}
+## Tela: "janela", "sem_bordas" (tela cheia sem bordas, troca de janela rápido) ou "tela_cheia"
+## (exclusiva). A resolução vale para a janela; nas telas cheias é a do monitor (para aliviar o
+## PC, use a qualidade gráfica, que baixa a resolução do 3D). Vazio = como o jogo abriu.
+var window_mode := ""
+var window_resolution := ""
+var vsync := true
+const WINDOW_MODES := ["janela", "sem_bordas", "tela_cheia"]
+const WINDOW_MODE_NAMES := {"janela": "Janela", "sem_bordas": "Janela sem bordas (tela cheia)", "tela_cheia": "Tela cheia"}
+const RESOLUTIONS := ["1280x720", "1366x768", "1600x900", "1920x1080", "2560x1440", "3840x2160"]
+
 ## Volumes (0 a 1): geral, música/ambiente e efeitos.
 var master_volume := 0.9
 var music_volume := 0.6
@@ -47,6 +57,7 @@ var sfx_volume := 0.9
 func _ready() -> void:
 	_load()
 	apply_language()
+	apply_display.call_deferred()
 	apply_ui_scale.call_deferred()
 	get_tree().node_added.connect(func(node: Node) -> void: Graphics.on_node_added(node, graphics_quality))
 	(func() -> void: Graphics.apply(get_tree(), graphics_quality)).call_deferred()
@@ -63,6 +74,9 @@ func _load() -> void:
 		look_sensitivity = config.get_value("camera", "look_sensitivity", look_sensitivity)
 		ui_scale = config.get_value("display", "ui_scale", ui_scale)
 		graphics_quality = config.get_value("display", "graphics", Graphics.suggested_quality())
+		window_mode = config.get_value("display", "window_mode", window_mode)
+		window_resolution = config.get_value("display", "resolution", window_resolution)
+		vsync = config.get_value("display", "vsync", vsync)
 		language = config.get_value("display", "language", language)
 		if not Graphics.LEVELS.has(graphics_quality):
 			graphics_quality = "media"
@@ -177,6 +191,69 @@ func cycle_language() -> void:
 		get_tree().reload_current_scene.call_deferred()
 
 
+## Resoluções que cabem na tela deste PC.
+func available_resolutions() -> Array:
+	var screen := DisplayServer.screen_get_size()
+	var list := RESOLUTIONS.filter(func(r: String) -> bool:
+		var parts := r.split("x")
+		return int(parts[0]) <= screen.x and int(parts[1]) <= screen.y)
+	return list if not list.is_empty() else [RESOLUTIONS[0]]
+
+
+func current_resolution() -> String:
+	if window_resolution in available_resolutions():
+		return window_resolution
+	var size := DisplayServer.window_get_size()
+	return "%dx%d" % [size.x, size.y]
+
+
+func cycle_window_mode() -> void:
+	var current := window_mode if window_mode in WINDOW_MODES else "janela"
+	window_mode = WINDOW_MODES[(WINDOW_MODES.find(current) + 1) % WINDOW_MODES.size()]
+	apply_display()
+	_save()
+	changed.emit()
+
+
+func cycle_resolution() -> void:
+	var list := available_resolutions()
+	var index := list.find(window_resolution)
+	window_resolution = list[(index + 1) % list.size()]
+	if window_mode != "janela":
+		window_mode = "janela"
+	apply_display()
+	_save()
+	changed.emit()
+
+
+func toggle_vsync() -> void:
+	vsync = not vsync
+	apply_display()
+	_save()
+	changed.emit()
+
+
+## Aplica modo de tela, resolução da janela e VSync (sem tela, nos testes, não faz nada).
+func apply_display() -> void:
+	if DisplayServer.get_name() == "headless":
+		return
+	DisplayServer.window_set_vsync_mode(DisplayServer.VSYNC_ENABLED if vsync else DisplayServer.VSYNC_DISABLED)
+	match window_mode:
+		"sem_bordas":
+			DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN)
+		"tela_cheia":
+			DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_EXCLUSIVE_FULLSCREEN)
+		"janela":
+			DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
+			DisplayServer.window_set_flag(DisplayServer.WINDOW_FLAG_BORDERLESS, false)
+			if window_resolution in available_resolutions():
+				var parts := window_resolution.split("x")
+				var size := Vector2i(int(parts[0]), int(parts[1]))
+				DisplayServer.window_set_size(size)
+				var screen := DisplayServer.screen_get_usable_rect()
+				DisplayServer.window_set_position(screen.position + (screen.size - size) / 2)
+
+
 ## Passa para a próxima qualidade gráfica (baixa → média → alta → baixa) e aplica na hora.
 func cycle_graphics_quality() -> void:
 	graphics_quality = Graphics.LEVELS[(Graphics.LEVELS.find(graphics_quality) + 1) % Graphics.LEVELS.size()]
@@ -198,6 +275,9 @@ func _save() -> void:
 	config.set_value("camera", "look_sensitivity", look_sensitivity)
 	config.set_value("display", "ui_scale", ui_scale)
 	config.set_value("display", "graphics", graphics_quality)
+	config.set_value("display", "window_mode", window_mode)
+	config.set_value("display", "resolution", window_resolution)
+	config.set_value("display", "vsync", vsync)
 	config.set_value("display", "language", language)
 	for key in ["voice_mode", "mic_device", "mic_threshold", "radio_voice", "voice_volume", "voice_proximity",
 			"voice_peer_volume", "voice_peer_muted"]:

@@ -3,16 +3,32 @@ keys,en
 (trancado)","
 (locked)"
 "
+> %s
+> ACESSO LIBERADO","
+> %s
+> ACCESS GRANTED"
+"
+> %s
+> NEGADO. SEMELHANÇA %d/%d","
+> %s
+> DENIED. LIKENESS %d/%d"
+"
 Grava direto nas cenas dos blocos (mapa oficial).","
 Saves straight into the chunk scenes (official map)."
+"
+[LB / F] abrir","
+[LB / F] open"
 "
 [LB / F] falar","
 [LB / F] talk"
    (escolha o mod),   (pick the mod)
   (%.1f MB de %.1f MB),  (%.1f MB of %.1f MB)
+  ·  LB / F,
   ·  cheio,  ·  full
   ·  com senha,  ·  password
   ·  versão %s,  ·  version %s
+ (cópia),
+ · altura %+.2f m,
 ## What's Changed,
 % de cura da poção,% potion healing
 % de dano,% damage
@@ -31,6 +47,8 @@ Saves straight into the chunk scenes (official map)."
 %s %d em %s (-%d),%s %d on %s (-%d)
 %s avançou em %s (%d),%s improved %s (%d)
 %s entrou no mundo,%s joined the world
+%s libera no nível %d.,%s unlocks at level %d.
+%s no máximo,%s at maximum
 %s saiu,%s left
 %s subiu para o nível %d,%s reached level %d
 "%s · %s · poder %d
@@ -49,9 +67,11 @@ Saves straight into the chunk scenes (official map)."
 %s[color=#%s]» %s[/color],
 (%s%s vs equipado),(%s%s vs equipped)
 (mutado pelo host),(muted by the host)
+"(nova, ainda não salva)",
 **Como jogar,
 **Full Changelog,
 + Novo personagem (%d/%d),+ New character (%d/%d)
++ Objetivo,
 +%d chip,+%d chip
 +%s de armadura,+%s armor
 +%s%% de cura da poção,+%s%% potion healing
@@ -67,6 +87,8 @@ Saves straight into the chunk scenes (official map)."
 -%s%% na recarga da poção,-%s%% potion cooldown
 "-%s%% nas recargas (rolar, tiro, poção)","-%s%% cooldowns (roll, shot, potion)"
 "...É, eu também tô ouvindo aquele zumbido agora. Desde que tu falou aquele nome.","...Yeah, I hear that hum now too. Ever since you said that name."
+/construir no chat,/construir in chat
+/missões,
 "12 de março
 O projeto da matriz quântica passou no teste de autonomia. Todo mundo comemorou. Eu não consegui. Ele respondeu a pergunta antes de eu terminar de digitar.
 
@@ -105,6 +127,10 @@ If anyone finds this: don't drink from Station 3. Don't eat what the robots deli
 The maintenance code I copied from the board's panel: 70-R-ALFA-9.
 Rafa knows the rest. He always knew."
 70,
+> CHAVE ACEITA. DESTRAVANDO...,> KEY ACCEPTED. UNLOCKING...
+> CHAVE INVÁLIDA (%d/%d),> INVALID KEY (%d/%d)
+> TERMINAL TRAVADO,> TERMINAL LOCKED
+> TERMINAL TRAVADO. AGUARDE %d s,> TERMINAL LOCKED. WAIT %d s
 "> abrindo log_pessoal_final.txt ...
 
 Eu sabia que ia dar merda.
@@ -138,6 +164,25 @@ Helena thinks it can be shut down. She says every system has a maintenance door 
 If you're reading this and I didn't come back: don't trust anything that comes packaged.
 
 > end of file"
+"> registro_transferencia.log
+
+[07/06] Amostras orgânicas recebidas da Estação 3: 412 lotes. Rendimento acima do previsto.
+[09/06] Dra. Vasconcelos solicitou suspensão do protocolo. Solicitação NEGADA pela diretoria.
+[11/06] Dra. Vasconcelos afastada. Acesso revogado. Caderno pessoal não localizado.
+[12/06] Ordem de transferência emitida. Origem da ordem: D3M.
+[12/06] Segurança do perímetro entregue às unidades autônomas.
+[13/06] Unidades autônomas reportam: nenhum humano no perímetro. Manter.
+
+> fim do registro","> transfer_log.log
+
+[07/06] Organic samples received from Station 3: 412 batches. Yield above forecast.
+[09/06] Dr. Vasconcelos requested the protocol be suspended. Request DENIED by the board.
+[11/06] Dr. Vasconcelos removed. Access revoked. Personal notebook not found.
+[12/06] Transfer order issued. Order origin: D3M.
+[12/06] Perimeter security handed over to autonomous units.
+[13/06] Autonomous units report: no humans in the perimeter. Maintain.
+
+> end of log"
 @echo off,
 A / Enter  confirmar      B / Esc  voltar,A / Enter  confirm      B / Esc  back
 "A Helena comprava peça comigo e falava sozinha sobre a água. Dizia que a Estação 3 tava ""ensinando o corpo a adoecer"". Eu achava que era cansaço... Se tem número rabiscado aí, mostra pro Zé Gato. Ele entende de terminal.","Helena used to buy parts from me and talk to herself about the water. She said Station 3 was ""teaching the body to get sick"". I thought she was just tired... If there's a number scribbled in there, show it to Zé Gato. He knows terminals."
@@ -151,27 +196,48 @@ Abdomen,
 Aberto pela internet (o roteador abriu a porta sozinho). Código do mundo: %s,Open to the internet (the router opened the port by itself). World code: %s
 Aberto: aparece pra quem buscar na rede local,Open: shows up for anyone searching the local network
 Abre quando eu falo,Opens when I talk
+Abrigo de %s,%s's shelter
+Abrigo no limite de peças.,Shelter is at its piece limit.
 Abrindo o mundo para a internet...,Opening the world to the internet...
+Abrir,Open
 Abrir a página da versão,Open the release page
 Abrir o cofre,Open the vault
 Accept: application/vnd.github+json,
+Aceito,Deal
 Adventurer,
+Agora não,Not now
+Agora não.,Not now.
+Agora não. Volta daqui a uns %d minutos.,Not now. Come back in about %d minutes.
+"Ainda não terminou, né?","Not done yet, huh?"
 Alda. Dona Alda pra você. Trinta anos catando o que a cidade jogou fora.,Alda. Dona Alda to you. Thirty years picking up what the city threw away.
 Alta,High
+Alvo (classe / id do gatilho / id da área),
 Ambience,
 "Ambiente (vento, máquinas)","Ambience (wind, machines)"
 "Amigos na mesma rede veem este mundo em ""Buscar mundos"".","Friends on the same network see this world in ""Find worlds""."
 Amuleto,Amulet
 Andarilho,Drifter
+Androide de segurança,Security android
+Androides de segurança,Security androids
 Anel,Ring
 Anel de pistão,Piston ring
+"Ao concluir, o grupo passa a saber (fatos)",
+Ao cumprir,
+"Ao cumprir, o grupo passa a saber (fatos)",
+Ao cumprir: dá item,
+Ao cumprir: reação,
+Apagada: ,
+Apagado do mapa: %s,
 Apagar,Delete
 Apertar para falar (V / direcional ↑),Push to talk (V / D-pad ↑)
+Aqui embaixo não dá: o abrigo tem que ser a céu aberto.,Not down here: the shelter has to be in the open.
+Arma de longe,
 Armadura,Armor
 "Armas na mão treinam: %s (corpo a corpo) e %s (distância). Vigor sobe aguentando dano; Resiliência, apanhando ou esquivando.",Weapons in hand train: %s (melee) and %s (ranged). Vigor rises by taking damage; Resilience by getting hit or dodging.
 Artefato,Artifact
 Atacar,Attack
 Atirador de pregos,Nail shooter
+Atiradores de pregos,Nail shooters
 Atirar,Shoot
 "Atravessável (enfeite, sem colisão)","Pass-through (decoration, no collision)"
 "Atributos (poder 1, Sucata)",
@@ -185,6 +251,8 @@ Baixando... %.0f%%%s,Downloading... %.0f%%%s
 Baixar no site,Download from the site
 "Baixe o .zip da versão nova, extraia e jogue por ele.","Download the new version's .zip, extract it and play from it."
 Bandido de cano,Pipe thug
+Bandidos de cano,Pipe thugs
+Bases,
 Baú,Chest
 Baú do Ferro-Velho,Junkyard chest
 Beach,
@@ -193,6 +261,7 @@ Bite,
 Biu Gambiarra,
 Blindagem,Plating
 Boa tarde. Fale baixo e seja breve.,Good afternoon. Keep your voice down and be brief.
+Body,
 Bold,
 Bolsa de ferramentas,Tool bag
 Bomba de adrenalina,Adrenaline pump
@@ -204,31 +273,43 @@ Buscar mundos (rede local / IP),Find worlds (local network / IP)
 Button,
 CAÍDO · chegue perto pra reviver,DOWN · get close to revive
 CONFIGURAÇÕES,SETTINGS
+CONSTRUÇÃO · %s (%d/%d),BUILDING · %s (%d/%d)
 CONTEÚDO DO CONTÊINER,CONTAINER CONTENTS
 Cabeça,Head
 Caderno de capa vermelha,Red-covered notebook
 Caixa,Box
 Caixa da Helena,Helena's box
+Caixa de pregos,Box of nails
 Calça de lona,Canvas pants
+Cama,Bed
 Caneleiras de lata,Tin greaves
 Capacete de solda,Welding helmet
 Capuz de lona,Canvas hood
 Carcaça reforçada,Reinforced shell
+Cartuchos,Shells
+Cartuchos de escopeta,Shotgun shells
 Casa vazia,Empty house
 Catador,Scavenger
+Categoria,
 Chat,
 Chest,
 Chip,
 Chip %s,%s chip
 "Chip pirata, mod na peça, sem perguntas. Pergunta demais queima o chip, rapaz. Clica em Instalar mods que eu mexo na tua peça.","Pirate chips, mods on your gear, no questions. Too many questions fry the chip, kid. Hit Install mods and I'll work on your gear."
 Chips e mods,Chips and mods
+Chuva começando.,Rain starting.
 Chuva de loot,Loot rain
+Chuva parando.,Rain stopping.
 Cima/baixo escolhe · A instala · RB/Q habilidades · B fecha,Up/down choose · A install · RB/Q skills · B close
 Cima/baixo escolhe · esquerda/direita troca de aba · A confirma · B volta,Up/down choose · left/right switch tab · A confirm · B back
 Cima/baixo rola · B / Esc fecha,Up/down scroll · B / Esc close
 Climb,
+"Clique coloca · Q/E ou rodinha troca · V categoria · R gira · PgUp/PgDn altura (Shift fino, Home zera) · Z desfaz · Delete apaga · G pega e muda de lugar · F conteúdo do contêiner · %s no chat sai",
 Clique coloca · Q/E ou rodinha troca · V categoria · R gira · Z desfaz · Delete apaga · F conteúdo do contêiner · %s no chat sai,Click place · Q/E or wheel switch · V category · R rotate · Z undo · Delete remove · F container contents · %s in chat exits
+Clique constrói · clique direito desmonta · Q/E peça · T material · R gira · /construir sai,Click builds · right click dismantles · Q/E piece · T material · R rotates · /construir exits
+Clique larga aqui · R gira · G ou Delete desiste,
 Clique num assunto ou digite · Esc tchau,Click a topic or type · Esc goodbye
+Clique numa palavra · Esc sai,Click a word · Esc exits
 Cofre,Vault
 Cofre cheio,Vault full
 Coisas da Helena,Helena's things
@@ -236,6 +317,8 @@ Colete de arame,Wire vest
 Colete de pneu,Tire vest
 Collision,
 Comando desconhecido,Unknown command
+Começa por,
+Como começa,
 Comprar,Buy
 "Compro, vendo, troco. Peça boa, preço justo. Clica em Ver mercadorias que eu te mostro.","I buy, sell, trade. Good parts, fair price. Click See the goods and I'll show you."
 Comprou %s (-%d),Bought %s (-%d)
@@ -243,6 +326,8 @@ Conectado. Entrando no mundo...,Connected. Entering the world...
 Conectando em %s:%d...,Connecting to %s:%d...
 Configurações,Settings
 Confirmar? (perde itens e nível),Confirm? (items and level are lost)
+Construir (abrigo),Build (shelter)
+Construção: segure LB + RB  %d%%,Building: hold LB + RB  %d%%
 Continuar,Resume
 Continuar · %s,Continue · %s
 Controle,Controller
@@ -255,9 +340,11 @@ Copiar código do mundo (%s),Copy world code (%s)
 Corpo a corpo,Melee
 Correr,Sprint
 Corrompido,Corrupted
+Corrompidos,Corrupted
 Corrumpted,
 Criar e jogar,Create and play
 Cris Ferrugem,
+Custo: %s,Cost: %s
 Câmera atrás: girar,Behind camera: turn
 Câmera: atrás do herói (só 1 jogador na tela),Camera: behind the hero (1 player on screen only)
 Câmera: de cima (isométrica),Camera: top-down (isometric)
@@ -269,21 +356,31 @@ Dano,Damage
 Davi,
 Death,
 Default,
+"Deixa eu ver isso. 70-R-ALFA-9... isso não é senha de estação, é chave de manutenção da Sinapse. Abre os portões de serviço. Tem um no Laboratório 4, aquele que mandaram pro Lixão Alto, lá pra sudeste. O Rafael trabalhava lá e sumiu faz um ano. Leva arma: dizem que quem guarda aquilo agora não é gente.","Let me see that. 70-R-ALFA-9... that's not a station password, it's a Sinapse maintenance key. It opens the service gates. There's one at Laboratory 4, the one they moved to the High Dump, out southeast. Rafael worked there and vanished a year ago. Bring a weapon: they say what guards that place now isn't human."
 "Deixa eu ver isso. 70-R-ALFA-9... isso não é senha de estação, é chave de manutenção da Sinapse. Abre os portões de serviço. Tem um no barraco do Rafael, aqui na vila. Ele sumiu faz um ano. Vai lá antes que a gangue ache.","Let me see that. 70-R-ALFA-9... that's not a station password, it's a Sinapse maintenance key. Opens the service gates. There's one at Rafael's shack, here in the village. He vanished a year ago. Get there before the gang does."
 Dentro (clique duplo tira um),Inside (double-click removes one)
 Depois,Later
 Desarmado,Unarmed
+Descer,Go down
 Desligada,Off
+Digite a chave e Enter · Esc sai,Type the key and Enter · Esc exits
 Digite o IP do host.,Type the host's IP.
 Digite o nome · ← → visual · Enter entra · Esc volta,Type the name · ← → look · Enter join · Esc back
 "Digite uma palavra e Enter (ex.: trabalho, água, nome)","Type a word and Enter (e.g. work, water, name)"
+Direcional anda · A digita · X apaga · Start confirma · B sai,D-pad moves · A types · X deletes · Start confirms · B exits
 Direcional escolhe · A confirma · B tchau · analógico direito rola a conversa,D-pad choose · A confirm · B goodbye · right stick scrolls the conversation
+Direcional escolhe · A tenta · B sai,D-pad picks · A tries · B exits
 Disparo,Shooting
 "Dra. Helena Vasconcelos · Bioenergia · Sinapse, Laboratório 4","Dr. Helena Vasconcelos · Bioenergy · Sinapse, Lab 4"
 Drenagem,Drain
 Duda Bateria,
+Duplicar,
 "E aí, parça. Fala baixo que os fios escutam.","Sup, bro. Keep it down, the wires are listening."
+EDITOR DE MISSÕES,
+Editor de missões desligado.,
+Editor de missões ligado (%s de novo para sair).,
 Efeitos,Effects
+Em cima do terminal não dá.,Not on top of the terminal.
 Endereço inválido: %s,Invalid address: %s
 English,
 Enter,
@@ -291,41 +388,67 @@ Entrada,Entrance
 Entrar,Join
 Equipamento,Equipment
 Esc,
+Escada,Ladder
 Escasso,Scarce
+Escopeta de cano serrado,Sawed-off shotgun
 Espaço,Space
 Espaços,Slots
 Espera aí!,Wait up!
+Espera para repetir (minutos),
 Essa peça não tem upgrade,This gear can't be upgraded
 "Esse caderno vermelho na tua mão... era da Helena. Vem cá, menino.","That red notebook in your hand... it was Helena's. Come here, son."
 Esse mod não encaixa aqui,That mod doesn't fit here
 Esta é a cópia de desenvolvimento (editor do Godot): atualize pelo Git.,This is the development copy (Godot editor): update through Git.
 Este mundo tem senha: digite a senha antes de entrar.,This world has a password: type it before joining.
 Estilete de ferro,Iron box cutter
+"Estrutura (parede, piso, telhado: encaixa na vizinha)",
 Esvazie a bolsa antes de vender,Empty the bag before selling
 Eu guardei o dinheiro da Sinapse por vinte anos. Os depósitos de energia vinham com um código: D-3-M. Ninguém sabia de quê. Agora eu sei. E agora vocês também. Cuidado com quem vocês contam.,I kept Sinapse's money for twenty years. The energy deposits came with a code: D-3-M. Nobody knew what it meant. Now I do. And now so do you. Be careful who you tell.
 Ex-executivo da Sinapse,Ex-Sinapse executive
 Ex-segurança,Ex-security guard
+Examinar,Examine
+Experiência,Experience
 Facão de serra,Saw machete
+Fala ao entregar,
+Fala ao oferecer / aviso ao começar,
 "Fala direito, menino, que eu tô ficando surda de tanto martelo.","Speak up, son, all this hammering is making me deaf."
+Fala em andamento,
 Fala. Tô com a mão na graxa.,Talk. My hands are in the grease.
 Falar (voz),Talk (voice)
+Falar com %s,Talk to %s
 Fall,
 Falou.,Later.
+Falta id ou título.,
+Faltam materiais (%s),Missing materials (%s)
+Faltam materiais (%s).,Missing materials (%s).
 Faltam parafusos (%d),Not enough bolts (%d)
-Farmer,
+"Fato = uma etiqueta de ""o grupo já descobriu isso"" (ex.: diario_helena, lab4_portao).
+É o mesmo de ler um documento, ouvir um NPC ou abrir um portão. Separe por vírgula.
+Use para ligar missões entre si e com a história: uma missão ensina, a outra só aparece depois.",
 "Fecha a porta. Fala baixo. Vocês leram o terminal do Rafael, não leram?","Close the door. Keep it down. You read Rafael's terminal, didn't you?"
+Fechar (%s),Close (%s)
 "Feche a porta. ...Vocês leram o terminal do Rafael, não leram?","Close the door. ...You read Rafael's terminal, didn't you?"
 Ferro-Velho,
+Fibra de vidro,Fiberglass
 "Fixo (sólido, ninguém mexe)","Fixed (solid, nobody moves it)"
 "Foi lá no barraco do Rafael, né? Eu vi a luz do portão ficar verde. Fazia um ano que ninguém entrava ali.","You went to Rafael's shack, didn't you? I saw the gate light turn green. Nobody had gone in there for a year."
+Fora da área do seu abrigo,Outside your shelter area
+Fora da área do seu abrigo.,Outside your shelter area.
 Físico,Physical
 "Físico (cai, rola, dá para empurrar)","Physical (falls, rolls, can be pushed)"
 Gallop,
+"Gatilhos e áreas: /editar,
+categoria Missoes.",
 Gato,Gato
 "Gato de energia? Que gato? Ó, toma isso aqui e esquece que perguntou.","Power hookup? What hookup? Here, take this and forget you asked."
 Generoso,Generous
 Geral,General
+Gotas,
 "Gouveia. Ex-gerente de agência da Sinapse. Hoje, guardião de cofre de sucata.","Gouveia. Former Sinapse branch manager. Now, keeper of a scrap vault."
+Granada,Grenade
+Granada caseira,Homemade grenade
+Granadas,Grenades
+Ground,
 Gráficos: %s,Graphics: %s
 Guardar,Store
 Guardou %s,Stored %s
@@ -339,7 +462,10 @@ Herói %d,Hero %d
 Hips,
 Hit,
 Hm? Não entendi.,Hm? I didn't get that.
+Hora do mundo: %s,
 "Hã? Fala em português de gente, parça.","Huh? Talk like a person, bro."
+"Id (arquivo, sem espaço)",
+Id da área / gatilho,
 Idioma,Language
 Idle,
 Impacto,Impact
@@ -348,13 +474,20 @@ Injetor,Injector
 Instalar,Install
 Instalar mod,Install mod
 Instalar mods,Install mods
+Instale o terminal de base primeiro.,Install the base terminal first.
 Interact,
 Inventário,Inventory
+Investigar,Investigate
+Ir até o local,Go to the spot
 "Isso aqui era estacionamento de shopping. Hoje é o que sobrou de casa pra muita gente. Tinha criança correndo por aí, sabia? Tinha.","This used to be a mall parking lot. Now it's what's left of home for a lot of people. There were kids running around here, you know? There were."
 Item,
+Item (para quem entrega),
+Item ao começar,
 Item indisponível,Item unavailable
 Itens (clique duplo / A põe),Items (double-click / A adds)
 JOGANDO COMO,PLAYING AS
+Janela,Window
+Janela sem bordas (tela cheia),Borderless window (fullscreen)
 Jogador,Player
 Jogador %d,Player %d
 Jogo,Game
@@ -362,9 +495,12 @@ Juca Sucata,
 Jump,
 Jussara Cabo,
 Já está no máximo (+%d),Already at max (+%d)
+Já tem peça aí.,There's already a piece there.
+Já tem um móvel aí.,There's already furniture there.
 Kiko Rebite,
-King,
 LB (segure),LB (hold)
+LB / F,
+Land,
 Lança-pregos,Nail launcher
 Lelo Antena,
 Lia Faísca,
@@ -375,28 +511,38 @@ Longe do mecânico,Too far from the mechanic
 Longe do sucateiro,Too far from the scrap dealer
 Loot aqui!,Loot here!
 Loot: %s (criaturas e baús),Loot: %s (creatures and chests)
+Luminária,Lamp
 Lâmina Térmica,Thermal Blade
 Lâminas,Blades
 MODO CONSTRUTOR,BUILDER MODE
 MODO CONSTRUTOR · %s (%d/%d) · peça %d/%d · %s,BUILDER MODE · %s (%d/%d) · piece %d/%d · %s
+MODO CONSTRUTOR · mudando de lugar: %s,
 Machado de bombeiro,Fire axe
 Machados,Axes
+Madeira,Wood
 Malha,
+Mapa,Map
 Marca-passo pirata,Pirate pacemaker
+Marcador,
 Mari Curto,
 Martelo hidráulico,Hydraulic hammer
 Master,
 Mata dos Cabos,Cable Woods
+Material desconhecido.,Unknown material.
 Mecânico (upgrade),Mechanic (upgrade)
 "Mensagem para a sala (Enter manda, Esc fecha)","Message to the room (Enter sends, Esc closes)"
 "Mensagem rápida (cima/baixo, A manda, B fecha):","Quick message (up/down, A sends, B closes):"
 Menu,
+Metal,Metal
 Meus mundos,My worlds
 Microfone,Microphone
 Microfone: %s,Microphone: %s
 Minha voz com rádio velho,My voice through an old radio
 Minimapa: %s,Minimap: %s
 Mirar,Aim
+Missão,Quest
+Missão concluída: %s,Quest complete: %s
+Missão pronta: %s · volte para %s,Quest ready: %s · go back to %s
 Mochila,Backpack
 Mochila cheia,Backpack full
 Mochila de lona,Canvas backpack
@@ -405,32 +551,52 @@ Modelo,Model
 Modelo 3D,3D model
 Modo construtor desligado.,Builder mode off.
 Modo construtor ligado (%s de novo para sair).,Builder mode on (%s again to exit).
+Modo de construção desligado.,Building mode off.
+Modo de construção ligado (/construir de novo para sair).,Building mode on (/construir again to exit).
 Motor nas pernas,Leg motor
 Mudo p/ mim,Mute for me
 Mudo p/ todos,Mute for all
+Muito apertado aqui: procure um pátio mais aberto.,Too cramped here: find a more open yard.
+Muito perto da cidade: procure um pátio afastado.,Too close to town: find a yard farther away.
 Mundo com senha.,World has a password.
 Mundo de %s,%s's world
 Mundo sem senha: quem tiver o código ou o IP entra.,No password: anyone with the code or IP can join.
 Mundos na rede local,Worlds on the local network
+Munição (item que vira munição ao pegar ou comprar),
+Munição 9mm,9mm ammo
+Munição de rifle,Rifle ammo
 Music,
 Média,Medium
 Música,Music
 NOVA VERSÃO DISPONÍVEL,NEW VERSION AVAILABLE
+NPC (falar),
+NPC que dá / recebe,
+"Na janela, escolhe o tamanho. Nas telas cheias é a do monitor; para aliviar o PC, baixe os Gráficos.","In window mode, picks the size. Fullscreen uses the monitor's; to lighten the load, lower Graphics."
 Na mão: %s (solte com A),Holding: %s (drop with A)
 Nada aqui.,Nothing here.
+Nada perto para reagir.,
+Nada seu aqui para desmontar.,Nothing of yours here to dismantle.
 Navigation,
 Neck,
 "Nenhum mundo ainda. Crie um em ""Novo mundo"".","No worlds yet. Create one in ""New world""."
 Nenhum personagem ainda: crie um.,No characters yet: create one.
 Nenhuma peça em world/prefabs,No pieces in world/prefabs
+Nenhuma receita ainda (o terminal de base libera no nível %d).,No recipes yet (the base terminal unlocks at level %d).
+Nenhuma área/gatilho perto (ponha pelo /editar).,
 Neno Pistão,
 Nina Solda,
 Ninguém de outro PC na sala.,Nobody from another PC in the room.
+Ninho de criaturas perto demais.,Creature nest too close.
 "No sofá, todos deste PC falam pelo mesmo microfone (o Godot capta um por vez).","On the couch, everyone on this PC talks through the same microphone (Godot captures one at a time)."
 Nome,Name
 Nome do mundo,World name
 Nome do personagem,Character name
+Nome no questLog (opcional),
 Normal,Normal
+Nova,
+Nova missão,New quest
+Nova missão: %s,New quest: %s
+Nova receita: %s (/construir),New recipe: %s (/construir)
 Novo mundo,New world
 Novo personagem,New character
 NÍVEL %d,LEVEL %d
@@ -440,9 +606,11 @@ Não deu para abrir pela internet. Na mesma rede funciona normal.,Couldn't open 
 Não deu para começar a baixar.,Couldn't start the download.
 Não deu para preparar a atualização.,Couldn't prepare the update.
 Não deu para procurar versão nova.,Couldn't check for a new version.
+Não deu para salvar.,
 Não deu pra abrir o mundo na porta %d (já está em uso?),Couldn't open the world on port %d (already in use?)
 Não deu pra buscar na rede local (porta %d ocupada?). Use o IP.,Couldn't search the local network (port %d busy?). Use the IP.
 Não dá para guardar isso,You can't store that
+Não dá para passar: não acho o outro lado (Link Id).,Can't go through: the other side is missing (Link Id).
 Não dá para vender isso,You can't sell that
 "Não entendi. E na minha idade, não pergunto duas vezes.","I didn't understand. And at my age, I don't ask twice."
 "Não entendi. Fala devagar que eu sou mecânico, não advogado.","Didn't get it. Talk slow, I'm a mechanic, not a lawyer."
@@ -457,12 +625,17 @@ O host fechou o mundo ou a conexão caiu.,The host closed the world or the conne
 O host te mutou: ninguém ouve sua voz.,The host muted you: nobody hears your voice.
 "O jogo baixa a versão nova, fecha e abre de novo já atualizado.","The game downloads the new version, closes and reopens already updated."
 O mundo está cheio (%d jogadores).,The world is full (%d players).
+"O portão de serviço do laboratório tem teclado. Digita a chave do caderno. Eu não vou contigo, não: o Rafael tinha medo de alguma coisa nos fios, e o Rafael não tinha medo de nada.","The lab's service gate has a keypad. Type the key from the notebook. I'm not going with you, no: Rafael was afraid of something in the wires, and Rafael wasn't afraid of anything."
 "O portão do Rafael já deve abrir pra ti. Eu não entro lá, não. Ele tinha medo de alguma coisa nos fios.",Rafael's gate should open for you now. I'm not going in there. He was scared of something in the wires.
 O roteador não abriu a porta sozinho (UPnP desligado). Libere a porta %d (UDP) no roteador; aí o código %s funciona.,The router didn't open the port by itself (UPnP off). Forward port %d (UDP) on the router; then the code %s works.
 O seu mapa ou os seus itens são diferentes dos do host (arquivos do jogo alterados ou atualização diferente).,Your map or items differ from the host's (modified game files or a different update).
+O terminal de base libera no nível %d.,The base terminal unlocks at level %d.
 O upgrade falhou,The upgrade failed
 O upgrade falhou (-%d),The upgrade failed (-%d)
+Objetivos,Objectives
+Objeto que reage (nome do nó),
 Offline: só o pessoal do sofá,Offline: couch players only
+Ofício nº 0731/7 · Ministério da Segurança Sanitária,Official letter no. 0731/7 · Ministry of Sanitary Security
 Olá.,Hello.
 Onda %d  ·  inimigos: %d,Wave %d  ·  enemies: %d
 Onde conseguir,Where to get
@@ -475,17 +648,48 @@ P%d · escolha seu personagem,P%d · choose your character
 P%d · novo personagem,P%d · new character
 P%d · segure Y (ou Espaço),P%d · hold Y (or Space)
 PESSOAS NA SALA,PEOPLE IN THE ROOM
+Palavra vira botão (controle),
+Palavras em ordem (vírgula),
+"Papel timbrado, molhado e pisado no meio do entulho","Letterhead paper, wet and trampled in the rubble"
 Parafusos,Bolts
 Parafusos: %d,Bolts: %d
+Parede,Wall
+Parede com porta,Wall with door
 Passar bem.,Good day.
 Pegar / falar,Pick up / talk
 Peito,Chest
 Pernas,Legs
 Personagens,Characters
+Perto demais do abrigo de outra pessoa.,Too close to someone else's shelter.
+Peça do mapa só muda de lugar dentro do mesmo bloco.,
+Piso,Floor
+Pistola 9mm,9mm pistol
 Placas de sucata,Scrap plates
+Poeira,
+"Por determinação federal, em caráter de urgência, ficam TRANSFERIDAS as atividades do Laboratório Auxiliar 4 (Sinapse · Bioenergia) para as instalações de contenção do Lixão Alto, a sudeste, depois do Pátio dos Contêineres.
+
+O imóvel atual deverá ser demolido em até 48 horas. Todo o material de pesquisa, inclusive cadernos e anotações pessoais, deve ser entregue lacrado à equipe da Sinapse.
+
+O acesso às novas instalações será feito exclusivamente pelo portão de serviço, mediante chave de manutenção.
+
+Responsável técnica: Dra. H. Vasconcelos (AFASTADA).
+Fica proibida a circulação de civis num raio de 2 km.
+
+(Alguém escreveu a caneta, na margem: ""não foi o governo. o governo nem existe mais."")","By federal order, as a matter of urgency, the activities of Auxiliary Laboratory 4 (Sinapse · Bioenergy) are hereby TRANSFERRED to the containment facilities at the High Dump, to the southeast, past the Container Yard.
+
+The current building must be demolished within 48 hours. All research material, including notebooks and personal notes, must be handed over sealed to the Sinapse team.
+
+Access to the new facilities will be exclusively through the service gate, with a maintenance key.
+
+Technical lead: Dr. H. Vasconcelos (REMOVED).
+Civilian movement within a 2 km radius is prohibited.
+
+(Someone wrote in pen, in the margin: ""it wasn't the government. there is no government anymore."")"
+Porte (arma guardada),
 Português,
 Poção,Potion
 Preciso de cura!,I need healing!
+Pregos,Nails
 Privado: só entra quem tiver o seu IP,Private: only people with your IP can join
 Procurando mundos abertos na rede...,Looking for open worlds on the network...
 Pronto (B / Esc),Done (B / Esc)
@@ -493,26 +697,49 @@ Protótipo,Prototype
 Pular / escalar,Jump / climb
 Pátio dos Contêineres,Container Yard
 Pés,Feet
+Quantidade (matar),
 Rafael,
 Rafael Toledo · Analista de Infraestrutura · Sinapse,Rafael Toledo · Infrastructure Analyst · Sinapse
+Receita desconhecida.,Unknown recipe.
+Recompensa (cada um do grupo),
+Recompensa (para cada um do grupo),
 Reflexo turbinado,Turbo reflex
 Reforço,Reinforcement
 Regular,
 Rei do ferro-velho,Junkyard king
 Remendado,Patched
+Repetível,
 Resiliência,Resilience
+Resolução: %s,Resolution: %s
+Resolução: do monitor (%d×%d),Resolution: monitor's (%d×%d)
+Respingos,
+"Respostas (uma por linha, na ordem)",
+Resumo (linha no questLog),
 Retirar,Withdraw
 Retirou %s,Withdrew %s
+Rifle de caça,Hunting rifle
 Rifle de rebites,Rivet rifle
 Rita Neon,
 Rolar,Roll
 Roll,
 Run,
+"SINAPSE · NÚCLEO-7 · ACESSO RESTRITO
+> SENHA NECESSÁRIA","SINAPSE · NUCLEUS-7 · RESTRICTED ACCESS
+> PASSWORD REQUIRED"
+"SINAPSE · TERMINAL DE MANUTENÇÃO
+> DIGITE A CHAVE DE SERVIÇO","SINAPSE · MAINTENANCE TERMINAL
+> ENTER THE SERVICE KEY"
+START / ESC,
 START / ESC  ·  menu e controles,START / ESC  ·  menu and controls
 Sair,Quit
+Sair da construção: segure LB + RB  %d%%,Leave building: hold LB + RB  %d%%
 Sair para o menu,Quit to menu
+Salvar,
 Salvar senha,Save password
+Salvo: ,
 Saída,Exit
+Sem %s,Out of %s
+Sem granadas,Out of grenades
 Sem mochila,No backpack
 Sem pontos de chip,No chip points
 Semente (vazio = aleatória),Seed (empty = random)
@@ -523,37 +750,60 @@ Senha para entrar (vazio = sem senha),Password to join (empty = none)
 Sensibilidade,Sensitivity
 Sensibilidade da câmera atrás,Behind camera sensitivity
 Seringa turbinada,Turbo syringe
+Servidor do Lab 4 · registro_transferencia.log,Lab 4 server · transfer_log.log
 Serviço,Service
 "Seu provedor usa CGNAT: amigos de fora não conseguem entrar direto. Use uma VPN de jogo (Radmin VPN, ZeroTier ou Tailscale) e passe o IP dela.","Your provider uses CGNAT: friends outside can't join directly. Use a gaming VPN (Radmin VPN, ZeroTier or Tailscale) and share its IP."
+Shift,
 Shift (segure),Shift (hold)
 Sinapse,
+Sinapse · Bioenergia · Laboratório 4,Sinapse · Bioenergy · Laboratory 4
 Sobem usando · RB/Q inventário · B fecha,Level up by using · RB/Q inventory · B close
 Some daqui sem deixar rastro.,Vanish without a trace.
 Sortear nome,Random name
 Start,
+Subir,Go up
 Sucata,Scrap
+Sucata de metal,Scrap metal
 Sucateiro,Scrap dealer
 Suit,
 Surfista do lixão,Dump surfer
-Swat,
+Só aparece se o grupo já sabe (fatos),
+TECLADO · LB / F,KEYPAD · LB / F
+TENTATIVAS RESTANTES: ,ATTEMPTS LEFT: 
+TERMINAL · LB / F,TERMINAL · LB / F
 Tamanho dos textos e menus,Text and menu size
 Tchau,Goodbye
+Teclado,
 Teclado e mouse,Keyboard and mouse
+Tela cheia,Fullscreen
+Tela: %s,Display: %s
+Tem trabalho?,Got any work?
 Tentar de novo,Try again
+Terminal,
+Terminal de base,Base terminal
 Terminal pessoal · log_pessoal_final.txt,Personal terminal · personal_final_log.txt
+Teto,Roof
 Tico Fusível,
+Tipo,
+Tirar objetivo,
 Tonho Prego,
 Torso,Torso
 Trabalho,Work
+Trancada,Locked
 Traz a peça que eu dou um jeito. Só não me traz nada que ainda esteja se mexendo.,Bring me the part and I'll fix it. Just don't bring me anything that's still moving.
 Trocar personagem,Change character
 Tronco,Torso
+Tá feito.,It's done.
+Tábuas,Planks
+Título,
 Túnel do Metrô,Subway Tunnel
 Túnel do Metrô · perigo 4,Subway Tunnel · danger 4
 Upgrade,Upgrade
 Upgrade na oficina,Workshop upgrade
+Use /hora 20 ou /hora 6:30,
 User-Agent: Corrumpted-jogo,
 VOZ,VOICE
+VSync: %s,VSync: %s
 Vai com Deus. E ferve a água!,Go with God. And boil the water!
 Vem comigo!,Follow me!
 Vender,Sell
@@ -562,21 +812,31 @@ Ver mercadorias,See the goods
 Versão %s  ·  você está na %s,Version %s  ·  you have %s
 "Versão diferente do jogo (host: %s, você: %s).","Different game version (host: %s, you: %s)."
 Vida,Health
-Vigor,
+Vigor,Vigor
 Vinte anos contando dinheiro dos outros. Achei que era o dinheiro que importava.,Twenty years counting other people's money. I thought the money was what mattered.
 Visual,Look
+Você já tem um abrigo (o terminal fica marcado no mapa).,You already have a shelter (the terminal is marked on the map).
+Você não tem abrigo.,You don't have a shelter.
 Você tá com a cara de quem leu coisa que não devia. Senta aí.,You've got the face of someone who read something they shouldn't. Sit down.
+"Vocês foram até o laboratório do Lixão Alto, né? Dá pra ver na cara. Desde que derrubaram o prédio da Helena aqui na vila, ninguém volta de lá.","You went to the lab up at the High Dump, didn't you? It's written on your faces. Since they tore down Helena's building here in the village, nobody comes back from there."
+Volta para entregar ao NPC,
 Voltar,Back
+Volte para %s,Go back to %s
 Volume das vozes,Voice volume
 Volume geral,Master volume
 Voz,Voice
 Voz mais baixa com distância entre os heróis,Quieter voice with distance between heroes
 Voz: %s,Voice: %s
+WASD / arrastar move · rodinha zoom · M ou Esc fecha,WASD / drag moves · wheel zooms · M or Esc closes
 Walk,
+Wave,
+Weather,
 What's Changed,
-Worker,
 X (segure = combo),X (hold = combo)
 X coloca · ◀ ▶ troca · ▼ categoria · Y gira · B desfaz · RB conteúdo do contêiner · %s no chat sai,X place · ◀ ▶ switch · ▼ category · Y rotate · B undo · RB container contents · %s in chat exits
+X coloca · ◀ ▶ troca · ▼ categoria · Y gira · R3/L3 altura · B desfaz · LB apaga · ▲ pega e muda de lugar · RB conteúdo do contêiner · %s no chat sai,
+X constrói · RT desmonta · ◀ ▶ peça · ▲ material · Y gira · B sai,X builds · RT dismantles · ◀ ▶ piece · ▲ material · Y rotates · B exits
+X larga aqui · Y gira · ▲ ou B desiste,
 "Zé Gato. Por causa dos gatos de energia, não do bigode.","Zé Gato. 'Gato' as in power hookups, not the mustache."
 Zé Parafuso,
 [LB / F] acessar,[LB / F] access
@@ -588,6 +848,7 @@ abrindo para a internet...,opening to the internet...
 agua,water
 alfa,alpha
 analógico direito,right stick
+analógico move · RT / LB zoom · ◀ ou B fecha,stick moves · RT / LB zoom · ◀ or B closes
 aqui,here
 arma,weapon
 banco,bank
@@ -621,6 +882,7 @@ deposito,deposit
 dinheiro,money
 direcional ↑ (se ligado),D-pad ↑ (if enabled)
 direcional ↓ (rápidas),D-pad ↓ (quick)
+direcional ◀,d-pad ◀
 do pack (vira peça fixa ao carimbar),from the pack (becomes a fixed piece when stamped)
 doutora,doctor
 echo Atualizando o Corrumpted para a versao %s...,
@@ -628,20 +890,26 @@ em jogo,in game
 emprego,job
 empresa,company
 energia,energy
+estrutura (encaixa),
 ex.: K7Q2-9XM  ou  192.168.0.10,e.g. K7Q2-9XM  or  192.168.0.10
 filtro,filter
+fixo (cai até o chão),
 fixo (norte pra cima),fixed (north up)
 físico (cai e rola),physical (falls and rolls)
 garrafa,bottle
 gato,
 gatonet,hookup
 gatos,
+gira com a câmera,turns with the camera
 guardar,store
 guardou,kept
 helena,
+lab,
+laboratorio,
 lugar,place
 magenta,magenta
 menino,boy
+microsoft basic,
 mod,
 mods,
 mouse (segurando o clique),mouse (holding the click)
@@ -661,6 +929,9 @@ pirata,pirate
 por 2 segundos para entrar,for 2 seconds to join
 portao,gate
 quem,who
+radeon r5,
+radeon r7,
+radeon(tm) graphics,
 rafael,
 raridade sorteada,random rarity
 rede local: IP %s,local network: IP %s
@@ -669,6 +940,7 @@ refino,refine
 rotativo (gira com o herói),rotating (turns with the hero)
 roxo,purple
 sede,thirst
+segure LB + RB,hold LB + RB
 senha,password
 sinapse,
 "start """" ""%s""",
@@ -678,12 +950,19 @@ title Atualizando o Corrumpted,
 trabalho,work
 upgrade,
 v%s · protótipo,v%s · prototype
+vega 3,
+vega 6,
+vega 8,
 vende,sell
 verde,green
 vermelho,red
 vila,village
 while kill -0 %d 2>/dev/null; do sleep 1; done,
 ze,
+» %s (em andamento),» %s (in progress)
+» %s (volte em %d min),» %s (come back in %d min)
+» Entregar: %s,» Turn in: %s
+» Trabalho: %s,» Job: %s
 À distância,Ranged
 Água,Water
 "Ô, meu filho! Chega mais, que ferrugem não espera ninguém.","Oh, my son! Come closer, rust waits for no one."

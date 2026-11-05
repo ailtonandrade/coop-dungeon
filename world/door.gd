@@ -88,7 +88,8 @@ func _build() -> void:
 		_build_exit_ladder()
 	else:
 		_build_door()
-	_label = Label3D.new()
+	# No jogo, texto nítido desenhado na tela (WorldText); no editor, texto 3D comum.
+	_label = Label3D.new() if Engine.is_editor_hint() else (load("res://ui/world_text.gd") as GDScript).call("make", "", 18.0, Color.WHITE, true)
 	_label.set_meta("door_part", true)
 	_label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 	_label.pixel_size = 0.004

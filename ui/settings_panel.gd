@@ -7,6 +7,9 @@ var _camera_button: Button
 var _minimap_button: Button
 var _graphics_button: Button
 var _language_button: Button
+var _window_button: Button
+var _resolution_button: Button
+var _vsync_button: Button
 
 
 func _ready() -> void:
@@ -24,6 +27,16 @@ func _ready() -> void:
 			func(v: float) -> String: return "%.1fx" % v)
 	_minimap_button = _button(Settings.toggle_minimap_mode)
 	_graphics_button = _button(Settings.cycle_graphics_quality)
+	_window_button = _button(Settings.cycle_window_mode)
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 10)
+	add_child(row)
+	_resolution_button = _button(Settings.cycle_resolution)
+	_vsync_button = _button(Settings.toggle_vsync)
+	for button: Button in [_resolution_button, _vsync_button]:
+		remove_child(button)
+		button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		row.add_child(button)
 	Settings.changed.connect(_update_texts)
 	_update_texts()
 
@@ -33,6 +46,15 @@ func _update_texts() -> void:
 	# O nome de cada idioma fica sempre na língua dele (quem não entende a atual acha a sua).
 	_language_button.text = "%s: %s" % [Txt.t("Idioma"), Txt.LANGUAGES[Settings.current_language()]]
 	_graphics_button.text = Txt.t("Gráficos: %s") % Txt.t(Graphics.LABELS[Settings.graphics_quality])
+	var mode := Settings.window_mode if Settings.window_mode in Settings.WINDOW_MODES else "janela"
+	_window_button.text = Txt.t("Tela: %s") % Txt.t(Settings.WINDOW_MODE_NAMES[mode])
+	if mode == "janela":
+		_resolution_button.text = Txt.t("Resolução: %s") % Settings.current_resolution().replace("x", "×")
+	else:
+		var screen := DisplayServer.screen_get_size()
+		_resolution_button.text = Txt.t("Resolução: do monitor (%d×%d)") % [screen.x, screen.y]
+	_resolution_button.tooltip_text = Txt.t("Na janela, escolhe o tamanho. Nas telas cheias é a do monitor; para aliviar o PC, baixe os Gráficos.")
+	_vsync_button.text = Txt.t("VSync: %s") % (Txt.t("ligado") if Settings.vsync else Txt.t("desligado"))
 	_minimap_button.text = Txt.t("Minimapa: %s") % (Txt.t("gira com a câmera") if Settings.minimap_mode != "fixed" else Txt.t("fixo (norte pra cima)"))
 
 

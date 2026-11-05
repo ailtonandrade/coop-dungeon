@@ -53,7 +53,9 @@ static func _in_game_world(node: Node) -> bool:
 static func apply(tree: SceneTree, quality: String) -> void:
 	var root := tree.root
 	root.scaling_3d_scale = RENDER_SCALE[quality]
-	root.scaling_3d_mode = Viewport.SCALING_3D_MODE_FSR if quality != "alta" else Viewport.SCALING_3D_MODE_BILINEAR
+	# FSR só existe no Forward+; no de compatibilidade (padrão, PC fraco) a escala é bilinear.
+	var fsr := quality != "alta" and str(ProjectSettings.get_setting("rendering/renderer/rendering_method")) == "forward_plus"
+	root.scaling_3d_mode = Viewport.SCALING_3D_MODE_FSR if fsr else Viewport.SCALING_3D_MODE_BILINEAR
 	root.msaa_3d = Viewport.MSAA_2X if quality == "alta" else Viewport.MSAA_DISABLED
 	for sun: Node in tree.get_nodes_in_group("sun"):
 		apply_sun(sun as DirectionalLight3D, quality)

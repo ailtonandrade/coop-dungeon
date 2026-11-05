@@ -177,11 +177,23 @@ func _ready() -> void:
 	_animator = CharacterAnimator.new(_model, AnimSets.HUMANOID)
 	_setup_aim_arm()
 	ItemVisuals.dress(_model, _visual)
+	# Veste de novo logo depois de nascer: na entrada do mundo o esqueleto ainda não tinha a
+	# pose da animação (as peças podiam ficar fora do lugar ou sem aparecer até trocar algo).
+	get_tree().create_timer(0.25).timeout.connect(_redress)
+	get_tree().create_timer(1.0).timeout.connect(_redress)
 	if multiplayer.is_server():
 		inventory.changed.connect(_on_inventory_changed)
 		_apply_stats()
 		# Depois de nascer em todo mundo, o dono recebe o inventário (e salva o kit inicial).
 		_send_inventory.call_deferred()
+
+
+## Veste o modelo com o que está equipado agora (e a arma certa na mão).
+func _redress() -> void:
+	if not is_instance_valid(_model):
+		return
+	ItemVisuals.dress(_model, _visual)
+	WeaponCarry.set_drawn(_model, drawn_weapon)
 
 
 ## Braço da arma esticado por cima das corridas de costas e de lado (AimArm).
@@ -1216,6 +1228,11 @@ func _apply_stats() -> void:
 func net_inventory(data: Dictionary, progress_data := {}) -> void:
 	if not multiplayer.is_server():
 		inventory = Inventory.from_dict(data)
+		# O inventário chegou depois do herói e o que ele veste não bate: veste agora.
+		var visual := inventory.visual()
+		if visual != _visual:
+			_visual = visual
+			_redress()
 		if not progress_data.is_empty():
 			progress = Progression.from_dict(progress_data)
 	if is_local() and not character_id.is_empty():

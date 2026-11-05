@@ -38,6 +38,11 @@ static func make(text_value: String, px: float, color: Color, see_through := fal
 
 
 func _ready() -> void:
+	# Fundo do menu (a vila girando): sem nomes nem avisos por cima do menu.
+	if _in_menu_backdrop():
+		layers = 0
+		set_process(false)
+		return
 	if _in_game_view():
 		layers = 0
 		_overlay = Label.new()
@@ -108,6 +113,15 @@ func _behind_wall() -> bool:
 	return not get_world_3d().direct_space_state.intersect_ray(query).is_empty()
 
 
+func _in_menu_backdrop() -> bool:
+	var node := get_parent()
+	while node:
+		if node is MenuBackdrop:
+			return true
+		node = node.get_parent()
+	return false
+
+
 func _in_game_view() -> bool:
 	return get_viewport() == get_tree().root
 
@@ -121,7 +135,8 @@ func _layer() -> CanvasLayer:
 	if not is_instance_valid(_shared_layer):
 		_shared_layer = CanvasLayer.new()
 		_shared_layer.name = LAYER_NAME
-		_shared_layer.layer = 0
+		# Abaixo da interface (menus, painéis, HUD), acima do 3D.
+		_shared_layer.layer = -1
 		get_tree().root.add_child.call_deferred(_shared_layer)
 	return _shared_layer
 

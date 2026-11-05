@@ -129,7 +129,8 @@ func _build() -> void:
 	add_child(marker)
 	if owner:
 		marker.owner = null
-	_label = Label3D.new()
+	# No jogo, texto nítido desenhado na tela (WorldText); no editor, texto 3D comum.
+	_label = Label3D.new() if Engine.is_editor_hint() else (load("res://ui/world_text.gd") as GDScript).call("make", "", 18.0, Color.WHITE, true)
 	_label.text = Txt.t(prompt) + "  ·  LB / F" if not Engine.is_editor_hint() else prompt
 	_label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
 	_label.pixel_size = 0.004
