@@ -155,8 +155,7 @@ func _process(delta: float) -> void:
 	_mark_check -= delta
 	if _quest_mark and _mark_check <= 0.0:
 		_mark_check = 0.5
-		var ready := Quests.taken(npc_name).any(func(q: QuestDef) -> bool: return Quests.state_of(q.id) == "pronta")
-		_quest_mark.text = "?" if ready else ("!" if not Quests.offers(npc_name).is_empty() else "")
+		_quest_mark.text = String(Quests.npc_marks().get(npc_name, ""))
 	_label.text = _title + (InputService.pickup_text(Txt.t("\n[LB / F] abrir") if has_meta("base_chest") else Txt.t("\n[LB / F] falar")) if near else "")
 	# Puxa assunto sozinho quando o grupo chega perto depois de descobrir algo (uma vez).
 	if near:

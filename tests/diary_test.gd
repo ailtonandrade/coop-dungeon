@@ -89,6 +89,7 @@ func _process(_delta: float) -> bool:
 			_hud()._close_service(p.slot)
 			alda._process(1.0)
 			_check(alda._quest_mark.text == "!", "\"!\" em cima de quem tem missão para dar")
+			_check(quests.npc_marks().get("Dona Alda") == "!", "o mesmo \"!\" vai para o minimapa e o mapa")
 			# Conversar uma vez: o ofício aparece.
 			p.teleport_to(alda.global_position + Vector3(0, 0, 1.5))
 			_hud()._try_open_service(p.slot)

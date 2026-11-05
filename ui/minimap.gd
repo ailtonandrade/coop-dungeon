@@ -144,9 +144,26 @@ func _draw_bases(inner: Rect2) -> void:
 func _draw_quest_targets(inner: Rect2) -> void:
 	var local := _local_players()
 	var from := local[0].global_position if not local.is_empty() else _focus
+	# "!" e "?" dos NPCs (os mesmos de cima da cabeça); longe, presos na borda.
+	var marks := Quests.npc_marks()
+	var marked: Array[Vector3] = []
+	for npc_name: String in marks:
+		var where: Variant = Quests.npc_position(npc_name)
+		if not where is Vector3:
+			continue
+		marked.append(where)
+		var at := _to_map(where)
+		if not inner.grow(-10).has_point(at):
+			var away := (at - Vector2(SIZE, SIZE) / 2.0).normalized()
+			var reach := inner.size.x / 2.0 - 10.0
+			at = Vector2(SIZE, SIZE) / 2.0 + away * (reach / maxf(absf(away.x), absf(away.y)))
+		WorldMapPanel.draw_quest_mark(_markers, at, String(marks[npc_name]), 8.0)
 	for quest in Quests.guided():
 		var target: Variant = Quests.target_of(quest, from)
 		if not target is Vector3:
+			continue
+		# NPC com "!"/"?": o sinal já marca o lugar.
+		if marked.any(func(m: Vector3) -> bool: return m.distance_to(target) < 1.0):
 			continue
 		var point := _to_map(target)
 		var inside := inner.grow(-6).has_point(point)

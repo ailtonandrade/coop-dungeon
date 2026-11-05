@@ -17,12 +17,16 @@ const DIR := "res://world/quests"
 
 var _defs := {}  # id -> QuestDef
 var _streamer: Node
+var _marks := {}
+var _marks_at := -1.0
+const MARKS_REFRESH := 0.5
 
 
 ## Recarrega as fichas (o editor de missões salvou uma nova).
 func reload() -> void:
 	_defs.clear()
 	_places.clear()
+	_marks_at = -1.0
 	defs()
 	_apply_all_reactions()
 	quests_changed.emit()
@@ -190,6 +194,31 @@ func check_items(player: Node) -> void:
 				targets[objective.target] = true
 	for item_id: String in targets:
 		_event("pegar", item_id, "", player)
+
+
+## Ícone de cada NPC: "!" tem missão para dar, "?" tem missão pronta para entregar
+## ({nome: "!"|"?"}, só os que têm). A mesma conta para a cabeça do NPC, o minimapa e o mapa
+## (todos iguais). Refeita no máximo a cada meio segundo.
+func npc_marks() -> Dictionary:
+	var now := Time.get_ticks_msec() / 1000.0
+	if _marks_at >= 0.0 and now - _marks_at < MARKS_REFRESH:
+		return _marks
+	_marks_at = now
+	_marks = {}
+	for quest: QuestDef in defs().values():
+		if quest.giver.is_empty():
+			continue
+		var state := state_of(quest.id)
+		if state == "pronta" and quest.return_to_giver:
+			_marks[quest.giver] = "?"
+		elif quest.start == "npc" and available(quest) and _marks.get(quest.giver) != "?":
+			_marks[quest.giver] = "!"
+	return _marks
+
+
+## Onde está o NPC (também em bloco ainda não carregado), ou null.
+func npc_position(npc_name: String) -> Variant:
+	return _places_map().npcs.get(npc_name)
 
 
 ## Próximo passo da história: missões PRINCIPAIS que já dá para pegar (o grupo sabe o que elas
@@ -611,6 +640,7 @@ func _player_from(net_id: int) -> Node:
 
 
 func _store(all: Dictionary) -> void:
+	_marks_at = -1.0
 	NetService.world["quests"] = all
 	if NetService.world.has("id"):
 		SaveService.save_world(NetService.world)

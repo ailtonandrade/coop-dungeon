@@ -121,7 +121,7 @@ func _draw_markers() -> void:
 			var origin := world_map.chunk_origin(coords) if world_map.has_method("chunk_origin") else Vector3(coords.x, 0, coords.y) * world_map.chunk_size
 			var a := _to_screen(origin)
 			var b := _to_screen(origin + Vector3(world_map.chunk_size, 0, world_map.chunk_size))
-			var cell := Rect2(a, b - a)
+			var cell := Rect2(a, b - a).abs()
 			if not cell.intersects(inner):
 				continue
 			cell = cell.intersection(inner)
@@ -153,6 +153,14 @@ func _draw_markers() -> void:
 			_markers.draw_circle(point, 3.5, NPC_COLOR)
 			_markers.draw_string_outline(regular, point + Vector2(-70, -9), npc_name, HORIZONTAL_ALIGNMENT_CENTER, 140, 12, 4, UiSkin.INK)
 			_markers.draw_string(regular, point + Vector2(-70, -9), npc_name, HORIZONTAL_ALIGNMENT_CENTER, 140, 12, NPC_COLOR)
+	# "!" e "?" dos NPCs (iguais aos de cima da cabeça).
+	var marks := Quests.npc_marks()
+	for npc_name: String in marks:
+		var where: Variant = Quests.npc_position(npc_name)
+		if not where is Vector3:
+			continue
+		var point := _to_screen(where).clamp(inner.position + Vector2(12, 12), inner.end - Vector2(12, 12))
+		draw_quest_mark(_markers, point + Vector2(0, -32), String(marks[npc_name]), 11.0)
 	# Para onde ir nas missões.
 	var player := _player()
 	var from := player.global_position if player else _center
@@ -189,6 +197,15 @@ func _draw_markers() -> void:
 
 
 ## Casinha (abrigo) no mapa e no minimapa.
+## "!" (missão para pegar) ou "?" (para entregar): círculo escuro com o sinal amarelo.
+static func draw_quest_mark(canvas: CanvasItem, point: Vector2, mark: String, radius: float) -> void:
+	var amber := Color(1.0, 0.8, 0.28)
+	canvas.draw_circle(point, radius, UiSkin.INK)
+	canvas.draw_arc(point, radius, 0.0, TAU, 20, amber, 2.0)
+	var size := int(radius * 1.6)
+	canvas.draw_string(UiSkin.font("Bold"), point + Vector2(-radius, size * 0.36), mark, HORIZONTAL_ALIGNMENT_CENTER, radius * 2.0, size, amber)
+
+
 static func draw_house(canvas: CanvasItem, at: Vector2, r: float, color: Color) -> void:
 	var body := Rect2(at + Vector2(-r * 0.7, -r * 0.1), Vector2(r * 1.4, r * 0.9))
 	var roof := PackedVector2Array([at + Vector2(-r, -r * 0.05), at + Vector2(0, -r), at + Vector2(r, -r * 0.05)])
