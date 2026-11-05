@@ -17,6 +17,10 @@ var screen_px := 22.0
 
 const LAYER_NAME := "WorldTextLayer"
 const OCCLUSION_CHECK := 0.2
+## Até onde o texto aparece (do herói desta tela mais perto) e a faixa em que ele some suave.
+## Longe disso não aparece (antes o texto 3D sumia junto com os objetos distantes).
+var max_distance := 30.0
+const FADE_BAND := 6.0
 
 var _overlay: Label
 var _occluded := false
@@ -77,7 +81,7 @@ func _process(delta: float) -> void:
 func _sync() -> void:
 	var camera := get_viewport().get_camera_3d()
 	# Some/aparece tanto pela cor (modulate) quanto pela transparência do nó (o loot usa esta).
-	var alpha := modulate.a * (1.0 - transparency)
+	var alpha := modulate.a * (1.0 - transparency) * _distance_fade()
 	var show := camera != null and is_visible_in_tree() and not _occluded and not text.is_empty() \
 			and alpha > 0.01 and not camera.is_position_behind(global_position)
 	_overlay.visible = show
@@ -102,6 +106,18 @@ func _sync() -> void:
 	# Coordenada da tela do jogo (o 3D pode estar em resolução menor; a interface não).
 	var point := camera.unproject_position(global_position)
 	_overlay.position = (point - _overlay.size / 2.0).round()
+
+
+## 1 perto, 0 longe: distância até o herói desta tela mais perto (sem herói: até a câmera).
+func _distance_fade() -> float:
+	var closest := INF
+	for player: Node3D in get_tree().get_nodes_in_group("players"):
+		if player.has_method("is_local") and player.is_local():
+			closest = minf(closest, player.global_position.distance_to(global_position))
+	if closest == INF:
+		var camera := get_viewport().get_camera_3d()
+		closest = camera.global_position.distance_to(global_position) - 20.0 if camera else 0.0
+	return clampf((max_distance - closest) / FADE_BAND, 0.0, 1.0)
 
 
 func _behind_wall() -> bool:
