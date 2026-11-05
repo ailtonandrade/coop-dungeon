@@ -7,8 +7,9 @@
 [ext_resource type="PackedScene" path="res://assets/props/Pallet.glb" id="5_axn02"]
 [ext_resource type="Script" path="res://world/creature_spawner.gd" id="6_ww84g"]
 [ext_resource type="MeshLibrary" path="res://world/tiles/tiles.meshlib" id="6_xddbf"]
+[ext_resource type="PackedScene" path="res://world/prefabs/missoes/area_de_missao.tscn" id="7_1atqw"]
 
-[sub_resource type="NavigationMesh" id="NavigationMesh_33ejh"]
+[sub_resource type="NavigationMesh" id="NavigationMesh_1atqw"]
 geometry_collision_mask = 1
 agent_height = 2.0
 filter_baking_aabb = AABB(0, -5, 0, 64, 30, 64)
@@ -242,7 +243,7 @@ size = Vector3(0.892535, 0.14004704, 1.2169636)
 [node name="Chunk" type="Node3D" unique_id=1359607891]
 
 [node name="Navigation" type="NavigationRegion3D" parent="." unique_id=1221964680]
-navigation_mesh = SubResource("NavigationMesh_33ejh")
+navigation_mesh = SubResource("NavigationMesh_1atqw")
 
 [node name="Ground" type="StaticBody3D" parent="Navigation" unique_id=30480403]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 32, -0.5, 32)
@@ -607,6 +608,10 @@ mesh_library = ExtResource("6_xddbf")
 cell_size = Vector3(1, 1, 1)
 cell_center_y = false
 collision_mask = 0
+
+[node name="god_1793913738_0777" parent="Navigation" unique_id=799350317 instance=ExtResource("7_1atqw")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 28.914587, 0, 24.94625)
+area_id = "patio_conteiner_1"
 
 [node name="Spawner_0" type="Marker3D" parent="." unique_id=255095711]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 28.556631, 0, 27.052956)

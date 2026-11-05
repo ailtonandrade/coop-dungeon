@@ -1,0 +1,39 @@
+[gd_resource type="Resource" script_class="QuestDef" format=3]
+
+[ext_resource type="Script" path="res://world/quests/quest_objective.gd" id="1_xdfy8"]
+[ext_resource type="Script" path="res://world/quests/quest_def.gd" id="2_6xy76"]
+
+[sub_resource type="Resource" id="Resource_xdfy8"]
+script = ExtResource("1_xdfy8")
+kind = "chegar"
+target = "patio_conteiner_1"
+keywords = PackedStringArray()
+replies = PackedStringArray()
+label = "Ir até o Pátio dos Contêineres"
+teaches = Array[String](["foi_ao_patio_conteineres_1"])
+
+[sub_resource type="Resource" id="Resource_6xy76"]
+script = ExtResource("1_xdfy8")
+keywords = PackedStringArray()
+replies = PackedStringArray()
+label = "Derrubar bandidos de cano"
+teaches = Array[String](["derrubou_bandidos_patio_conteineres"])
+
+[resource]
+script = ExtResource("2_6xy76")
+id = "quem_sucateia"
+title = "Quem é o sucateiro?"
+category = "principal"
+giver = "Zé Gato"
+offer_keywords = PackedStringArray("sucata")
+offer_replies = PackedStringArray("Sucata? Quem paga é gente da vila, mas ninguém negocia com forasteiro que nunca sujou a mão.")
+offer_text = "Os bandidos de cano tomaram o Pátio dos Contêineres. Derruba uns cinco lá e volta aqui que eu te apresento."
+progress_text = "Ainda tem cano batendo lá no pátio."
+done_text = "Serviço limpo. Quem compra sucata por aqui é a Dona Alda, perto do bar. Fala que fui eu que mandei."
+summary = "O Zé Gato sabe quem compra sucata, mas quer ver serviço antes."
+objectives = Array[ExtResource("1_xdfy8")]([SubResource("Resource_xdfy8"), SubResource("Resource_6xy76")])
+requires = Array[String](["quem_sou_eu"])
+after = Array[String](["quem_sou_eu"])
+teaches = Array[String](["ze_indicou_alda"])
+reward_gold = 150
+reward_xp = 100
