@@ -28,6 +28,9 @@ const EVENTS := {
 	"grenade_bounce": {"files": ["grenade_bounce_1", "grenade_bounce_2"], "db": -6.0, "pitch": 0.1, "gap": 0.05},
 	"dry_fire": {"files": ["dry_fire"], "db": -6.0, "pitch": 0.05, "gap": 0.1},
 	"ammo_pickup": {"files": ["ammo_pickup"], "db": -6.0, "pitch": 0.06},
+	# Construção da base.
+	"build_place": {"files": ["build_place"], "db": -4.0, "pitch": 0.08, "gap": 0.08},
+	"build_remove": {"files": ["build_remove"], "db": -5.0, "pitch": 0.06, "gap": 0.1},
 	# Prego batendo em parede/chão e entrando em alguém: abafados, sem anel.
 	"projectile_hit": {"files": ["nail_impact_1", "nail_impact_2", "nail_impact_3"], "db": -4.0, "pitch": 0.1, "gap": 0.03},
 	"nail_hit": {"files": ["nail_body_1", "nail_body_2", "nail_body_3"], "db": -3.0, "pitch": 0.1, "gap": 0.03},

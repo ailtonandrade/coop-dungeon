@@ -108,8 +108,10 @@ func _ready() -> void:
 		_setup_look(body)
 		_fidget_timer = randf_range(5.0, 14.0)
 	_title = "%s\n%s" % [npc_name, Txt.t(SERVICE_NAMES[service])] if npc_name else Txt.t(SERVICE_NAMES[service])
+	if has_meta("base_chest"):
+		_title = Txt.t(npc_name)
 	_label = WorldText.make(_title, 20, Color(0.75, 1.0, 0.75))
-	_label.position.y = 2.5
+	_label.position.y = 1.3 if has_meta("base_chest") else 2.5
 	add_child(_label)
 
 
@@ -128,7 +130,7 @@ func _process(delta: float) -> void:
 				closest = player
 				closest_distance = distance
 	_live(delta, closest, closest_distance)
-	_label.text = _title + (InputService.pickup_text(Txt.t("\n[LB / F] falar")) if near else "")
+	_label.text = _title + (InputService.pickup_text(Txt.t("\n[LB / F] abrir") if has_meta("base_chest") else Txt.t("\n[LB / F] falar")) if near else "")
 	# Puxa assunto sozinho quando o grupo chega perto depois de descobrir algo (uma vez).
 	if near:
 		var line: DialogueLine = Lore.approach_line(npc_name)

@@ -3,7 +3,7 @@ class_name QuestTrigger
 extends Node3D
 ## Gatilho de missão: perto dele, LB / F "usa". Conta para objetivos "interagir" e pode começar
 ## missões (start "gatilho") com o mesmo id. O id é `trigger_id` ou, vazio, o nome do nó (as peças
-## do /construir têm nome "god_..."). Visual: invisível (só o aviso aparece de perto), alavanca,
+## do /editar têm nome "god_..."). Visual: invisível (só o aviso aparece de perto), alavanca,
 ## terminal, caixa ou placa. `single_use`: depois de usado, não aparece mais (o grupo todo).
 
 const RANGE := 1.9
@@ -115,7 +115,7 @@ func _build() -> void:
 			var sign := StandardMaterial3D.new()
 			sign.albedo_color = Color(0.75, 0.7, 0.55)
 			_box(Vector3(0.7, 0.45, 0.04), Vector3(0, 1.25, 0), sign)
-	# Marcador (sempre na cena, para o fantasma do /construir; no jogo só aparece se não for
+	# Marcador (sempre na cena, para o fantasma do /editar; no jogo só aparece se não for
 	# invisível ou com o editor de missões/construtor ligado).
 	var marker := MeshInstance3D.new()
 	marker.name = "Marcador"

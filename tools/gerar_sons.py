@@ -363,6 +363,31 @@ def ammo_pickup():
     return onepole_lowpass(mix(thud, out), 5000)
 
 
+def build_place():
+    """Peça da base encaixando: duas marteladas abafadas e um assentar de madeira/chapa."""
+    r = np.random.default_rng(800)
+    out = np.zeros(int(0.45 * RATE))
+    for i, t0 in enumerate([0.0, 0.14]):
+        knock = sweep_sine(r.uniform(220, 260), 110, 0.07, 0.5) * env(int(0.07 * RATE), 0.0004, 0.022)
+        tick_n = r.uniform(-1, 1, int(0.008 * RATE))
+        tick = bandpass(tick_n, 900, 3800) * env(len(tick_n), 0.0002, 0.003) * 0.6
+        hit = drive(mix(knock, tick), 1.8) * (1.0 if i == 0 else 0.8)
+        start = int(t0 * RATE)
+        out[start:start + len(hit)] += hit[: len(out) - start]
+    settle_n = r.uniform(-1, 1, int(0.18 * RATE))
+    settle = bandpass(settle_n, 300, 1600) * env(len(settle_n), 0.004, 0.06, 3.0) * 0.3
+    return onepole_lowpass(mix(out, at(settle, 0.24)), 4500)
+
+
+def build_remove():
+    """Desmontando: pé-de-cabra rangendo e a peça soltando."""
+    r = np.random.default_rng(801)
+    creak = sweep_sine(380, 240, 0.22, 1.0) * env(int(0.22 * RATE), 0.02, 0.15, 2.0) * 0.35
+    creak = bandpass(creak + r.uniform(-0.15, 0.15, len(creak)) * 0.3, 200, 2500)
+    pop = sweep_sine(200, 90, 0.08, 0.5) * env(int(0.08 * RATE), 0.0005, 0.025)
+    return onepole_lowpass(mix(creak, at(drive(pop, 1.6), 0.2)), 4500)
+
+
 def make_guns():
     for i in range(2):
         save(SFX, "shot_9mm_%d" % (i + 1), gunshot(i, 0.8, 0.8, 3.2, (210, 70), 0.25))
@@ -373,6 +398,8 @@ def make_guns():
         save(SFX, "grenade_bounce_%d" % (i + 1), grenade_bounce(i))
     save(SFX, "dry_fire", dry_fire())
     save(SFX, "ammo_pickup", ammo_pickup())
+    save(SFX, "build_place", build_place())
+    save(SFX, "build_remove", build_remove())
 
 
 def make_sfx():

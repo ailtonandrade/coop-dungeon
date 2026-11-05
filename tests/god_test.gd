@@ -31,9 +31,9 @@ func _process(_delta: float) -> bool:
 			_check(_god != null, "mundo tem o modo construtor")
 			_command()
 			_start = _player().global_position
-			_check(_god.active and _player().building, "comando /construir no chat liga o modo construtor")
+			_check(_god.active and _player().building, "comando /editar no chat liga o modo construtor")
 			var chat: Array = root.get_node("Chat").history.map(func(m: Dictionary) -> String: return m.text)
-			_check(not chat.has("/construir") and not chat.any(func(t: String) -> bool: return t.contains("construir") and not t.begins_with("Modo construtor")),
+			_check(not chat.has("/editar") and not chat.any(func(t: String) -> bool: return t.contains("editar") and not t.begins_with("Modo construtor")),
 					"o comando não aparece no chat da sala")
 			_check(get_first_node_in_group("hud").find_children("*", "Button", true, false).all(func(b: Button) -> bool: return not b.text.to_lower().contains("construtor")),
 					"nenhum botão de modo construtor nos menus")
@@ -179,7 +179,7 @@ func _process(_delta: float) -> bool:
 			var again: Node = chunk.get_node("Navigation").get_node_or_null(NodePath(_placed()[0].id)) if chunk else null
 			_check(again != null, "bloco recarregado traz o cone de volta")
 			_command()
-			_check(not _god.active and _player().is_targetable(), "/construir de novo desliga: herói volta a lutar")
+			_check(not _god.active and _player().is_targetable(), "/editar de novo desliga: herói volta a lutar")
 			# Convidado (cliente) nunca tem: nem pelo comando.
 			var net := root.get_node("NetService")
 			net.mode = 2  # Mode.CLIENT
@@ -217,7 +217,7 @@ func _test_scene_files() -> void:
 func _command() -> void:
 	var chat_box: Node = get_first_node_in_group("hud")._chat
 	chat_box.open_typing(0)
-	chat_box._submit("/construir")
+	chat_box._submit("/editar")
 
 
 func _select(file: String) -> void:

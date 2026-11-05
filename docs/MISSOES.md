@@ -10,13 +10,13 @@ Digite **/missoes** no chat (não vai para a sala). Abre o editor: à esquerda a
 `world/quests/`, à direita a ficha. **Salvar** grava o `.tres` e a missão já vale na hora.
 **Nova**, **Duplicar** e **Apagar** na lista. Os botões **perto** preenchem com o que está do
 lado do herói (NPC, área, gatilho, porta, contêiner, peça do mapa). Este editor fica **de fora do
-jogo exportado** (como o /construir): ninguém que baixar o jogo tem acesso.
+jogo exportado** (como o /editar): ninguém que baixar o jogo tem acesso.
 
-Peças de missão (coloque pelo **/construir**, categoria **Missoes**, ou no editor de mapa):
+Peças de missão (coloque pelo **/editar**, categoria **Missoes**, ou no editor de mapa):
 - **Gatilho de missão**: ponto de LB / F. Visual: invisível, alavanca, terminal, caixa ou placa;
   aviso de perto, mensagem ao usar, uso único. O id é o nome do nó (ou o campo Trigger Id).
 - **Área de missão**: círculo (raio ajustável) que dispara quando alguém do grupo entra. Invisível
-  no jogo; aparece no editor do Godot e com /construir ou /missoes ligados.
+  no jogo; aparece no editor do Godot e com /editar ou /missoes ligados.
 
 ## A ficha (QuestDef)
 

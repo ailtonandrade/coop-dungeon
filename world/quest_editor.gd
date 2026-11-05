@@ -7,7 +7,7 @@ extends CanvasLayer
 ## Lista as missões de world/quests à esquerda; à direita, a ficha inteira (categoria, como
 ## começa, falas, objetivos, reações, recompensa). Os botões "perto" preenchem o campo com o que
 ## estiver perto do herói (NPC, área, gatilho, porta, contêiner, peça do mapa). Salvar grava o
-## .tres em world/quests e já vale no jogo. Gatilhos e áreas se colocam pelo /construir
+## .tres em world/quests e já vale no jogo. Gatilhos e áreas se colocam pelo /editar
 ## (categoria Missoes); com o editor aberto, os marcadores aparecem.
 
 const COMMAND := "/missoes"
@@ -108,7 +108,7 @@ func _build() -> void:
 	_small_button(list_buttons, "Nova", _new_quest)
 	_small_button(list_buttons, "Duplicar", _duplicate)
 	_small_button(list_buttons, "Apagar", _delete)
-	left.add_child(UiSkin.label("Gatilhos e áreas: /construir,\ncategoria Missoes.", 13, UiSkin.DIM, "Regular", 2))
+	left.add_child(UiSkin.label("Gatilhos e áreas: /editar,\ncategoria Missoes.", 13, UiSkin.DIM, "Regular", 2))
 
 	var right := VBoxContainer.new()
 	right.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -482,7 +482,7 @@ func _pick_start() -> void:
 	if node:
 		_fields.start_target.text = String(node.call("id"))
 	else:
-		_status.text = "Nenhuma área/gatilho perto (ponha pelo /construir)."
+		_status.text = "Nenhuma área/gatilho perto (ponha pelo /editar)."
 
 
 func _pick_objective_target(row: Dictionary) -> void:

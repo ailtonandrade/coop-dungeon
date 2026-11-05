@@ -14,6 +14,8 @@ const GOLD_PER_POWER := Vector2i(3, 8)
 ## Munição: chance de cair uma caixa (de 30% a 80% da caixa da loja) e, mais rara, uma granada.
 const AMMO_CHANCE := 0.4
 const GRENADE_CHANCE := 0.06
+## Material de construção da base (metal, madeira, fibra de vidro).
+const MATERIAL_CHANCE := 0.5
 ## No chão: tamanho do item (um pouco maior que na mão, para dar de ver), queda e brilho.
 const GROUND_SCALE := 1.3
 const FALL_TIME := 0.45
@@ -74,11 +76,18 @@ static func roll_items(power: int, creature := "") -> Array[Dictionary]:
 	if randf() < GOLD_CHANCE:
 		items.append(ItemDB.make_gold(roundi(maxi(1, power) * randi_range(GOLD_PER_POWER.x, GOLD_PER_POWER.y) * rules.gold)))
 	if randf() < minf(AMMO_CHANCE * rules.chance, 0.9):
-		var boxes := ItemDB.ammo_ids().filter(func(id: String) -> bool: return ItemDB.catalog()[id].ammo_type != "granada")
+		var boxes := ItemDB.ammo_ids().filter(func(id: String) -> bool:
+			var type: String = ItemDB.catalog()[id].ammo_type
+			return type != "granada" and not ItemDB.is_material(type))
 		if not boxes.is_empty():
 			var box: String = boxes.pick_random()
 			var full := int(ItemDB.catalog()[box].get("ammo_amount", 1))
 			items.append(ItemDB.make_ammo(box, maxi(1, roundi(full * randf_range(0.3, 0.8)))))
+	# Material de construção (metal, madeira, fibra): 1 a 4.
+	if randf() < minf(MATERIAL_CHANCE * rules.chance, 0.95):
+		var material := random_material(1, 4)
+		if not material.is_empty():
+			items.append(material)
 	if randf() < minf(GRENADE_CHANCE * rules.chance, 0.5):
 		var grenades := ItemDB.ammo_ids().filter(func(id: String) -> bool: return ItemDB.catalog()[id].ammo_type == "granada")
 		if not grenades.is_empty():
@@ -96,6 +105,14 @@ static func roll_items(power: int, creature := "") -> Array[Dictionary]:
 		for i in rule.roll_count():
 			items.append(ItemDB.make(entry[0], maxi(power + rule.power_bonus, 1), rule.roll_rarity()))
 	return items
+
+
+## Um punhado de material de construção sorteado (sucata de metal, tábuas ou fibra de vidro).
+static func random_material(low: int, high: int) -> Dictionary:
+	var ids := ItemDB.ammo_ids().filter(func(id: String) -> bool: return ItemDB.is_material(String(ItemDB.catalog()[id].ammo_type)))
+	if ids.is_empty():
+		return {}
+	return ItemDB.make_ammo(ids.pick_random(), randi_range(low, high))
 
 
 ## Regras de generosidade do mundo aberto agora (o host decide; offline também vale).

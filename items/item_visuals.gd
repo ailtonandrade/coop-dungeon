@@ -98,6 +98,8 @@ static func build(item: Dictionary) -> Node3D:
 			_ammo_box(root, color)
 		"grenade":
 			_grenade(root)
+		"material":
+			_material_pile(root, String(def.get("ammo_type", "metal")), color)
 		# Capuz e capacete por cima do crânio, sem cobrir o rosto (frente = +Z).
 		"hood":
 			_box(root, Vector3(0.23, 0.1, 0.26), Vector3.ZERO, color, shine)
@@ -430,6 +432,23 @@ static func _ammo_box(root: Node3D, color: Color) -> void:
 	_box(root, Vector3(0.2, 0.1, 0.13), Vector3(0, 0.05, 0), color)
 	_box(root, Vector3(0.205, 0.03, 0.135), Vector3(0, 0.07, 0), color.darkened(0.45))
 	_box(root, Vector3(0.06, 0.012, 0.04), Vector3(0.05, 0.105, 0), BRASS)
+
+
+## Punhado de material da base: chapas tortas (metal), tábuas (madeira) ou placas
+## esverdeadas (fibra de vidro).
+static func _material_pile(root: Node3D, type: String, color: Color) -> void:
+	match type:
+		"madeira":
+			_box(root, Vector3(0.42, 0.04, 0.09), Vector3(0, 0.02, -0.05), color, Color.BLACK, Vector3(0, 12, 0))
+			_box(root, Vector3(0.4, 0.04, 0.08), Vector3(0, 0.06, 0.04), color.darkened(0.15), Color.BLACK, Vector3(0, -8, 0))
+			_box(root, Vector3(0.38, 0.04, 0.08), Vector3(0.02, 0.1, 0.0), color.lightened(0.08), Color.BLACK, Vector3(0, 25, 0))
+		"fibra":
+			_box(root, Vector3(0.3, 0.02, 0.24), Vector3(0, 0.02, 0), color, Color.BLACK, Vector3(0, 10, 4))
+			_box(root, Vector3(0.28, 0.02, 0.22), Vector3(0.02, 0.05, 0.02), color.lightened(0.1), Color.BLACK, Vector3(0, -15, -3))
+		_:
+			_box(root, Vector3(0.3, 0.015, 0.22), Vector3(0, 0.02, 0), color, Color.BLACK, Vector3(0, 0, 6))
+			_box(root, Vector3(0.26, 0.015, 0.2), Vector3(0.02, 0.05, 0.01), color.darkened(0.2), Color.BLACK, Vector3(8, 30, -5))
+			_box(root, Vector3(0.05, 0.05, 0.24), Vector3(-0.08, 0.08, 0), color.darkened(0.35))
 
 
 ## Granada caseira: lata verde com fita, pavio e anel.

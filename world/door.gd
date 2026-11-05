@@ -63,7 +63,7 @@ func _ready() -> void:
 	_refresh(true)
 
 
-## Monta o visual (também chamado pelo fantasma do /construir, fora da árvore).
+## Monta o visual (também chamado pelo fantasma do /editar, fora da árvore).
 func ghost_build() -> void:
 	_build()
 

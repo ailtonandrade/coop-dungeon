@@ -260,6 +260,35 @@ func _rpc_container_opened(container_id: String, opened_at: float) -> void:
 	_apply_container(container_id, opened_at)
 
 
+## Bases dos jogadores (BaseManager): o host grava no mundo (salva na hora) e manda a base
+## inteira aos convidados a cada mudança. {} apaga.
+signal base_changed(key: String)
+
+
+func set_base(key: String, data: Dictionary) -> void:
+	_apply_base(key, data)
+	if world.has("id"):
+		SaveService.save_world(world)
+	if mode == Mode.HOST:
+		for peer in ready_peers():
+			_rpc_base.rpc_id(peer, key, data)
+
+
+func _apply_base(key: String, data: Dictionary) -> void:
+	var all: Dictionary = world.get("bases", {})
+	if data.is_empty():
+		all.erase(key)
+	else:
+		all[key] = data
+	world["bases"] = all
+	base_changed.emit(key)
+
+
+@rpc("authority", "call_remote", "reliable")
+func _rpc_base(key: String, data: Dictionary) -> void:
+	_apply_base(key, data)
+
+
 ## Comando da tela de inventário de um jogador deste cliente, para o host executar.
 func send_inventory_command(player: Node, command: String, args: Array) -> void:
 	if player.has_meta("net_id"):

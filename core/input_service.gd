@@ -214,9 +214,15 @@ func just_pressed(slot: int, action: Action) -> bool:
 	return not is_blocked(slot) and raw_just_pressed(slot, action)
 
 
-## Bitmask das ações seguradas neste quadro.
+## Bit extra da máscara: o jogador está num controle (não no teclado). Vai pela rede junto com
+## os botões, para o host saber (ex.: LB+RB é o atalho da construção só no controle).
+const GAMEPAD_BIT := 30
+
+
+## Bitmask das ações seguradas neste quadro (com GAMEPAD_BIT se for controle).
 func get_down_mask(slot: int) -> int:
-	return 0 if is_blocked(slot) else _down[slot]
+	var pad := (1 << GAMEPAD_BIT) if _devices[slot] >= 0 else 0
+	return pad if is_blocked(slot) else _down[slot] | pad
 
 
 ## Bitmask das ações que começaram a ser apertadas neste quadro.
@@ -278,7 +284,7 @@ func get_world_move(slot: int) -> Vector2:
 	return Vector2(world.x, world.z)
 
 
-## Vaga no modo construtor (/construir): lá o V troca a categoria das peças, não abre o microfone.
+## Vaga no modo construtor (/editar): lá o V troca a categoria das peças, não abre o microfone.
 var builder_slot := -1
 
 

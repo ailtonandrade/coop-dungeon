@@ -269,6 +269,9 @@ func _physics_process(delta: float) -> void:
 	# Degrau baixo (piso, calçada, laje): sobe em vez de travar, como o herói.
 	if was_on_floor and wanted_flat.length() > 0.5:
 		Player.step_up(self, wanted_flat, delta)
+	# Zona segura de um abrigo: criatura não entra (volta para a borda).
+	if BaseManager.safe_at(global_position):
+		global_position = BaseManager.push_out(global_position)
 
 	if state == State.DEAD:
 		return

@@ -22,6 +22,8 @@ func _ready() -> void:
 	_build_environment()
 	_add_god_mode()
 	_streamer.world_map = world_map
+	# Abrigos dos jogadores (terminal, área segura e o que construíram).
+	add_child(BaseManager.new())
 	Quests.attach(_streamer)
 	_players.spawn_position = _debug_spawn_point(_saved_spot(world_map.spawn_point))
 	_streamer.load_now(_players.spawn_position)

@@ -9,7 +9,7 @@ extends Resource
 ## Desenhos prontos: dão o ícone (quando não há ícone próprio), o modelo provisório de blocos
 ## (quando não há modelo 3D) e o encaixe padrão no corpo.
 const LOOKS := ["sword", "dagger", "axe", "hammer", "bow", "longbow", "crossbow", "pistol", "rifle", "shotgun",
-		"hood", "helmet", "vest", "plate", "legs", "boots", "amulet", "ring", "pouch", "backpack", "ammo_box", "grenade"]
+		"hood", "helmet", "vest", "plate", "legs", "boots", "amulet", "ring", "pouch", "backpack", "ammo_box", "grenade", "material"]
 ## Ossos do esqueleto dos personagens (Quaternius) onde dá para prender uma peça.
 const BONES := ["Wrist.R", "Wrist.L", "LowerArm.R", "LowerArm.L", "UpperArm.R", "UpperArm.L",
 		"Shoulder.R", "Shoulder.L", "Head", "Neck", "Chest", "Torso", "Abdomen", "Hips",
@@ -183,7 +183,7 @@ func _validate_property(property: Dictionary) -> void:
 			property.hint_string = ",pregos,9mm,rifle,escopeta"
 		"ammo_type":
 			property.hint = PROPERTY_HINT_ENUM_SUGGESTION
-			property.hint_string = ",pregos,9mm,rifle,escopeta,granada"
+			property.hint_string = ",pregos,9mm,rifle,escopeta,granada,metal,madeira,fibra"
 		"mount_bone":
 			property.hint = PROPERTY_HINT_ENUM_SUGGESTION
 			property.hint_string = ",".join(BONES)

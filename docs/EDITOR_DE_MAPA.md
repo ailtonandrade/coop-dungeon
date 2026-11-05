@@ -64,7 +64,7 @@ construtor o **V** passa de uma categoria para a outra.
 
 Jogue packs inteiros em **`assets/props/packs/`** (ou `props/packs/`), uma pasta por pack:
 `packs/DownTown`, `packs/Survival`, `packs/Zombie`... Cada pasta vira uma **categoria** no
-`/construir` (V passa de uma para a outra), com **todos os modelos dela**, até nas
+`/editar` (V passa de uma para a outra), com **todos os modelos dela**, até nas
 sub-subpastas. Pack que vem com o mesmo modelo em vários formatos aparece uma vez só (glb >
 gltf > fbx > obj). Para trazer mais, é só criar outra pasta ali e abrir o projeto no Godot (ele
 importa sozinho).
@@ -72,7 +72,7 @@ importa sozinho).
 Na **primeira vez que você carimba** um modelo do pack, ele vira peça pronta **fixa** (com
 caixa de colisão e tamanho ajustado se vier em centímetros) em `world/prefabs/<pack>/`. Daí em
 diante é uma peça como as outras: para deixar física, contêiner ou enfeite, abra a ficha dela no
-editor de mapa. Os modelos que ainda não viraram peça só aparecem no `/construir`.
+editor de mapa. Os modelos que ainda não viraram peça só aparecem no `/editar`.
 
 Os packs ficam no projeto: para o jogo exportado ter as peças que você colocou, faça commit das
 pastas dos packs junto (ou pelo menos dos modelos usados).
@@ -170,7 +170,7 @@ pelo **editor do Godot**. Não aparece em menu nenhum e não funciona entrando n
 pessoa. (O que vai no jogo exportado é só `world/world_edits.gd`, que mostra as peças que você
 já colocou, inclusive para amigos conectados no seu mundo.)
 
-**Entrar e sair:** abra o chat (Enter) e digite **/construir**. Digite de novo para sair. O
+**Entrar e sair:** abra o chat (Enter) e digite **/editar**. Digite de novo para sair. O
 comando não vai para o chat da sala; o aviso "Modo construtor ligado" só aparece na sua tela.
 
 **Hora do mundo:** `/hora 20` (ou `/hora 6:30`) no chat muda o relógio do mundo na hora, para
@@ -224,7 +224,7 @@ seletor de peças e, no mundo, o **fantasma** translúcido da peça onde ela vai
 
 ## Letreiro de neon
 
-Peça `world/prefabs/letreiro_neon.tscn` (no catálogo de peças e no `/construir`). Selecione no
+Peça `world/prefabs/letreiro_neon.tscn` (no catálogo de peças e no `/editar`). Selecione no
 mapa e mude no Inspector: **Text**, **Color**, **Icon** (chave, carrinho, copo, cofre, chip, lanche, cruz, caveira, desenhados em tubo), **Letter Height** (altura das letras), **Board**
 (placa escura atrás), **Flicker** (pisca de vez em quando, neon velho), **Stand** (pé de ferro até
 o chão, para barraca na rua) e o alcance/força da luz. A prévia atualiza no editor.
@@ -239,7 +239,7 @@ cores, largura, quanto avança e a largura das listras), **mesa_de_bar** (mesa d
 boteco com cadeiras e garrafas), **caixotes** (pilha com engradado de cerveja) e **banca** (de
 camelô, com mercadoria e radinho). Do pack vieram o sofá velho, o ar-condicionado, os pneus, os
 canos e o vaso. As da vila estão no grupo **Capricho** do bloco (`tools/capricho_vila.gd`, que só
-acrescenta o que faltar): arraste no editor ou mova/apague pelo `/construir`.
+acrescenta o que faltar): arraste no editor ou mova/apague pelo `/editar`.
 
 ## Cara de periferia brasileira (paredes, sujeira, ar)
 
@@ -253,7 +253,7 @@ acrescenta o que faltar): arraste no editor ou mova/apague pelo `/construir`.
 
 ## Portas, tampa de esgoto e alçapão (categoria Portas)
 
-Peças em `world/prefabs/portas/` (coloque pelo `/construir` ou no editor): **porta de madeira**,
+Peças em `world/prefabs/portas/` (coloque pelo `/editar` ou no editor): **porta de madeira**,
 **porta de metal**, **porta de casebre**, **tampa de esgoto**, **alçapão** e **escada de saída**.
 Ponha a porta no chão, no meio do vão. No Inspector:
 - **Style** e **Opening**: abre para dentro, para fora, desliza para a esquerda ou para a direita

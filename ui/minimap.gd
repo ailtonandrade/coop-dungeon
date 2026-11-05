@@ -99,6 +99,7 @@ func _draw_markers() -> void:
 		var points := PackedVector2Array([tip, point - forward * 6.0 + side * 7.0, point - forward * 6.0 - side * 7.0])
 		_markers.draw_colored_polygon(points, color)
 		_markers.draw_polyline(PackedVector2Array([points[0], points[1], points[2], points[0]]), Color.BLACK, 1.5)
+	_draw_bases(inner)
 	_draw_quest_targets(inner)
 	_draw_frame()
 	# Norte: na moldura (no contorno do mapa), girando em volta quando o mapa gira.
@@ -114,6 +115,20 @@ func _on_frame(dir: Vector2) -> Vector2:
 	var half := SIZE / 2.0 - FRAME / 2.0
 	var reach := half / maxf(absf(dir.x), absf(dir.y)) if dir != Vector2.ZERO else half
 	return Vector2(SIZE, SIZE) / 2.0 + dir * reach
+
+
+## Abrigos dos jogadores: área e a casinha no terminal (longe, presa na borda).
+func _draw_bases(inner: Rect2) -> void:
+	var scale_px := (SIZE - FRAME * 2) / RANGE
+	for key: String in BaseManager.bases():
+		var center := BaseManager.center_of(BaseManager.bases()[key])
+		var point := _to_map(center)
+		_markers.draw_arc(point, BaseCatalog.BASE_RADIUS * scale_px, 0.0, TAU, 40, Color(0.45, 1.0, 0.85, 0.45), 1.5)
+		if not inner.grow(-8).has_point(point):
+			var dir := (point - Vector2(SIZE, SIZE) / 2.0).normalized()
+			var half := inner.size.x / 2.0 - 10.0
+			point = Vector2(SIZE, SIZE) / 2.0 + dir * (half / maxf(absf(dir.x), absf(dir.y)))
+		WorldMapPanel.draw_house(_markers, point, 8.0, Color(0.45, 1.0, 0.85))
 
 
 ## Para onde ir nas missões do questLog: losango amarelo no lugar; longe, preso na borda,

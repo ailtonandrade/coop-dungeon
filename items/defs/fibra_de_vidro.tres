@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="ItemDef" format=3]
+
+[ext_resource type="Script" path="res://items/item_drop.gd" id="1_drop"]
+[ext_resource type="Script" path="res://items/item_def.gd" id="2_def"]
+
+[resource]
+script = ExtResource("2_def")
+id = "fibra_de_vidro"
+display_name = "Fibra de vidro"
+slot = "municao"
+look = "material"
+color = Color(0.55, 0.78, 0.7, 1)
+price = 5
+random_loot = false
+ammo_type = "fibra"
+ammo_amount = 5
+drops = Array[ExtResource("1_drop")]([])

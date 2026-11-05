@@ -35,7 +35,7 @@ func _run() -> void:
 
 	# Fichas migradas: os itens antigos continuam iguais.
 	_db().reload()
-	_check(_db().ids().size() == 29, "29 fichas lidas de items/defs (%d)" % _db().ids().size())
+	_check(_db().ids().size() == 32, "32 fichas lidas de items/defs (%d)" % _db().ids().size())
 	_check(_db().def({"id": "axe"}).get("damage") == 13.0 and _db().def({"id": "axe"}).get("price") == 50, "machado: dano 13, preço 50")
 	_check(_db().def({"id": "big_backpack"}).get("capacity") == 20, "mochilão: 20 espaços")
 	_check(_db().def({"id": "gold"}).get("look") == "coins", "parafusos continuam existindo")

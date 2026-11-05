@@ -3,7 +3,7 @@ class_name QuestArea
 extends Node3D
 ## Área de missão: quando alguém do grupo entra no círculo (`radius`), conta para objetivos
 ## "chegar" e pode começar missões (start "area") com o mesmo id. O id é `area_id` ou, vazio, o
-## nome do nó (as peças do /construir têm nome "god_..."). No jogo é invisível; o círculo só
+## nome do nó (as peças do /editar têm nome "god_..."). No jogo é invisível; o círculo só
 ## aparece no editor do Godot e com o editor de missões ou o construtor ligados.
 
 ## Liga os marcadores das peças de missão (editor de missões e construtor).

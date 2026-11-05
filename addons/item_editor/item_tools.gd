@@ -262,7 +262,8 @@ static func validate(item: ItemDef) -> PackedStringArray:
 			issues.append("Loot de %s com chance 0%%." % rule.creature)
 		if rule.max_count < rule.min_count:
 			issues.append("Loot de %s: máximo menor que o mínimo." % rule.creature)
-	if item.sold_by.is_empty() and item.drops.is_empty() and not item.random_loot:
+	# Munição e material caem pelo sorteio próprio do Loot (AMMO_CHANCE, MATERIAL_CHANCE).
+	if item.sold_by.is_empty() and item.drops.is_empty() and not item.random_loot and item.ammo_type.is_empty():
 		issues.append("Ninguém vende e nada deixa cair: o item não aparece no jogo.")
 	if item.custom_mount and ItemDef.BONES.find(item.mount_bone) == -1:
 		issues.append("Osso de encaixe desconhecido: %s." % item.mount_bone)

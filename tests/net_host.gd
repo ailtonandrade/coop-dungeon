@@ -88,6 +88,8 @@ func _process(_delta: float) -> bool:
 				current_scene.add_child(chest)
 				chest.global_position = _remote.global_position + Vector3(1, 0, 0)
 				_check(chest.open_by(_remote), "jogador do cliente abriu um baú (no host)")
+				# Abrigo: o host grava e manda ao convidado.
+				root.get_node("NetService").set_base("teste_rede", {"owner": "teste_rede", "name": "Teste", "terminal": [150.0, 0.0, 150.0], "pieces": [{"id": 1, "recipe": "piso", "material": "metal", "pos": [153.0, 0.0, 150.0], "yaw": 0.0}], "next_id": 2})
 				# O jogador do cliente vai para a outra ponta do mapa; o do host fica na vila.
 				var streamer := get_first_node_in_group("world_streamer")
 				streamer.load_now(FAR_POINT)

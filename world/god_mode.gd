@@ -15,7 +15,8 @@ extends Node
 ## Categorias = subpastas de world/prefabs (PropBuilder.catalog).
 
 ## O que digitar no chat para entrar e sair.
-const COMMAND := "/construir"
+## (O /construir é da construção da base dos jogadores; este editor de mapa é o /editar.)
+const COMMAND := "/editar"
 
 const MapWriter := preload("res://world/map_writer.gd")
 

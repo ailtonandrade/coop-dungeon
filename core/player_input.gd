@@ -58,6 +58,11 @@ func apply_remote(p_move: Vector2, p_aim: Vector2, down: int, counts: PackedByte
 	_counts = counts
 
 
+## Está jogando no controle (InputService.GAMEPAD_BIT).
+func on_gamepad() -> bool:
+	return _down & (1 << InputService.GAMEPAD_BIT) != 0
+
+
 func is_pressed(action: int) -> bool:
 	return _down & (1 << action) != 0
 

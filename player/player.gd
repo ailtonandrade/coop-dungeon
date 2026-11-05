@@ -75,6 +75,9 @@ var index := 0
 var display_name := ""
 ## Modo construtor (world/god_mode.gd): anda, mas não luta e as criaturas ignoram.
 var building := false
+## Modo de construção da base (/construir, LB+RB): anda, não luta; continua alvo das criaturas
+## (fora da zona segura). O host decide pelo comando "base_mode".
+var base_building := false
 ## Arma na mão: "melee" ou "ranged" (a outra fica no coldre). Muda ao bater ou atirar.
 var drawn_weapon := "melee"
 ## Inventário: no host é o de verdade; no dono é a cópia que ele recebe; nos outros fica vazio.
@@ -197,7 +200,7 @@ func _setup_aim_arm() -> void:
 
 ## Criaturas podem mirar neste herói (não está caído nem construindo).
 func is_targetable() -> bool:
-	return state != State.DOWNED and not building
+	return state != State.DOWNED and not building and not BaseManager.safe_at(global_position)
 
 
 ## Está caído esperando reviver (construindo não conta como caído).
@@ -217,6 +220,9 @@ func teleport_to(target: Vector3) -> void:
 
 
 func take_hit(amount: float, knockback := Vector3.ZERO, _ranged := false) -> void:
+	# Zona segura da base: nada fere quem está lá dentro.
+	if BaseManager.safe_at(global_position):
+		return
 	# A rolada dá invulnerabilidade, como no gênero (e esquivar treina Resiliência).
 	if state == State.DODGING:
 		train("resiliencia", 0.5)
@@ -454,7 +460,7 @@ func _input_dir() -> Vector3:
 func _update_normal(delta: float, dir: Vector3) -> Vector3:
 	var moving := dir.length_squared() > 0.0001
 	# Segurando o tiro, o braço fica esticado entre um disparo e outro (atira na cadência da arma).
-	var holding_fire := _input.is_pressed(InputService.Action.RANGED) and ranged_damage() > 0.0 and not building
+	var holding_fire := _input.is_pressed(InputService.Action.RANGED) and ranged_damage() > 0.0 and not building and not base_building
 	var aiming := _aim_dir != Vector3.ZERO or holding_fire
 	if holding_fire:
 		_shoot_pose = SHOOT_POSE_TIME
@@ -474,7 +480,7 @@ func _update_normal(delta: float, dir: Vector3) -> Vector3:
 	# No ar, empurrando contra uma borda alcançável: escala.
 	if not grounded and moving and _try_mantle():
 		return Vector3.ZERO
-	if building:
+	if building or base_building:
 		var walk := dir * move_speed() * (GameConfig.SPRINT_FACTOR if is_sprinting() else 1.0)
 		_move = _move.move_toward(walk, GameConfig.PLAYER_ACCEL * delta)
 		_animator.play(_locomotion_anim(false))
@@ -491,7 +497,9 @@ func _update_normal(delta: float, dir: Vector3) -> Vector3:
 		_shoot_arrow()
 	if _input.just_pressed(InputService.Action.POTION):
 		_drink_potion()
-	if _input.just_pressed(InputService.Action.ARTIFACT) and not building:
+	# RB com LB segurado é o atalho do modo de construção (segurar os dois), não granada.
+	if _input.just_pressed(InputService.Action.ARTIFACT) and not building and not base_building \
+			and not (_input.is_pressed(InputService.Action.SPRINT) and _input.on_gamepad()):
 		_throw_grenade()
 	if _input.just_pressed(InputService.Action.PICKUP):
 		_pick_up()
@@ -1107,6 +1115,25 @@ func apply_inventory_command(command: String, args: Array) -> void:
 			var item: Variant = inventory.remove(args[0])
 			if item != null:
 				Loot.drop(self, item, Combat.flat(global_position) + _facing * 1.2)
+		"base_mode":
+			base_building = bool(args[0])
+		"base_terminal", "base_build", "base_remove":
+			var bases := BaseManager.of(get_tree())
+			if bases == null:
+				return
+			var problem := ""
+			match command:
+				"base_terminal":
+					problem = bases.place_terminal(self, args[0])
+				"base_build":
+					problem = bases.build_piece(self, String(args[0]), String(args[1]), args[2], float(args[3]))
+				"base_remove":
+					problem = bases.remove_piece(self, args[0])
+			if problem.is_empty():
+				_fx("fx_sound", ["build_place" if command != "base_remove" else "build_remove"])
+				_send_inventory()
+			else:
+				_fx("fx_toast", [problem, Color(1.0, 0.55, 0.4), "ui_error"])
 		"chip":
 			var id := String(args[0])
 			if progress.install(id):
@@ -1227,6 +1254,8 @@ func add_xp(amount: int) -> void:
 		health.heal(health.max_hp)
 		_fx("fx_level_up", [progress.level])
 		Chat.system(Txt.t("%s subiu para o nível %d") % [display_name, progress.level])
+		for recipe: String in BaseCatalog.new_at(progress.level):
+			_fx("fx_toast", [Txt.t("Nova receita: %s (/construir)") % BaseCatalog.recipe_name(recipe), Color(0.45, 1.0, 0.85), "quest_ready"])
 	_send_inventory()
 
 

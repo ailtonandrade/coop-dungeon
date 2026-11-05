@@ -136,6 +136,12 @@ func roll_contents(region_power: int) -> Array[Dictionary]:
 			items.append(extra)
 	if gold > 0:
 		items.append(ItemDB.make_gold(roundi(gold * rules.gold)))
+	# Baús e contêineres do mapa sempre têm um pouco de material para a base.
+	var loot: Script = load(LOOT_SCRIPT)
+	for i in randi_range(1, 2):
+		var material: Dictionary = loot.random_material(2, 6)
+		if not material.is_empty():
+			items.append(material)
 	return items
 
 

@@ -151,7 +151,9 @@ func _check_wipe(delta: float) -> void:
 	for index: int in _players:
 		var player: Player = _players[index]
 		player.revive(1.0)
-		player.teleport_to(spawn_position + _ring_offset(index))
+		# Quem tem cama no abrigo acorda nela; o resto volta ao ponto de partida.
+		var bed := BaseManager.bed_of(BaseManager.key_of(player))
+		player.teleport_to(bed + Vector3.UP * 0.6 if bed != Vector3.INF else spawn_position + _ring_offset(index))
 	party_wiped.emit()
 
 

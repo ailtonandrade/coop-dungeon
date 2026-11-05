@@ -15,6 +15,8 @@ const CONTROLS := [
 	["Rolar", "B", "C"],
 	["Poção", "Y", "E"],
 	["Granada", "RB", "Q"],
+	["Construir (abrigo)", "segure LB + RB", "/construir no chat"],
+	["Mapa", "direcional ◀", "M"],
 	["Pegar / falar", "LB", "F"],
 	["Inventário", "Back", "I"],
 	["Menu", "Start", "Esc"],
@@ -170,8 +172,10 @@ func _process(_delta: float) -> void:
 	_process_inventory_layout()
 
 
-func _physics_process(_delta: float) -> void:
+func _physics_process(delta: float) -> void:
 	_check_quick_chat()
+	_check_build_hold(delta)
+	_check_world_map()
 	for slot in InputService.active_slots():
 		if _chat.is_open():
 			continue
@@ -205,12 +209,91 @@ func _physics_process(_delta: float) -> void:
 			return
 
 
+## Modo de construção da base (BaseBuildMode), um por vaga desta máquina.
+var _builds := {}  # slot -> BaseBuildMode
+## Controle: segurar LB + RB por BUILD_HOLD segundos liga/desliga a construção.
+const BUILD_HOLD := 1.5
+var _build_hold := {}  # slot -> segundos segurando
+var _hold_label: Label
+
+
+func toggle_base_build(slot: int) -> void:
+	if _builds.has(slot) and is_instance_valid(_builds[slot]):
+		(_builds[slot] as BaseBuildMode).close()
+		_builds.erase(slot)
+		Chat.local_note(Txt.t("Modo de construção desligado."))
+		return
+	var player := _local_player(slot)
+	if player == null or player.building or player.is_downed():
+		return
+	var mode := BaseBuildMode.new()
+	add_child(mode)
+	mode.open_for(player)
+	mode.tree_exited.connect(func() -> void: _builds.erase(slot))
+	_builds[slot] = mode
+
+
+func is_base_building(slot: int) -> bool:
+	return _builds.has(slot) and is_instance_valid(_builds[slot])
+
+
+func _check_build_hold(delta: float) -> void:
+	var showing := ""
+	for slot in InputService.active_slots():
+		var pad := InputService.device_of(slot) >= 0
+		var held := pad and InputService.raw_pressed(slot, InputService.Action.SPRINT) \
+				and InputService.raw_pressed(slot, InputService.Action.ARTIFACT) and not _pause.visible and not _chat.is_open()
+		if not held:
+			_build_hold[slot] = 0.0
+			continue
+		if float(_build_hold.get(slot, 0.0)) < 0.0:
+			continue  # já trocou; espera soltar
+		_build_hold[slot] = float(_build_hold.get(slot, 0.0)) + delta
+		var ratio := float(_build_hold[slot]) / BUILD_HOLD
+		showing = Txt.t("Construção: segure LB + RB  %d%%") % roundi(minf(ratio, 1.0) * 100.0) if not is_base_building(slot) \
+				else Txt.t("Sair da construção: segure LB + RB  %d%%") % roundi(minf(ratio, 1.0) * 100.0)
+		if ratio >= 1.0:
+			_build_hold[slot] = -1.0
+			toggle_base_build(slot)
+	if _hold_label == null:
+		_hold_label = UiSkin.label("", 16, UiSkin.NEON, "Bold", 3)
+		_hold_label.set_anchors_and_offsets_preset(Control.PRESET_CENTER_BOTTOM)
+		_hold_label.position.y -= 190
+		_hold_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		_root.add_child(_hold_label)
+	_hold_label.text = showing
+	_hold_label.visible = not showing.is_empty()
+
+
+## Mapa completo (M no teclado, direcional ◀ no controle).
+var _world_map: WorldMapPanel
+var _map_keys_was := {}
+
+
+func _check_world_map() -> void:
+	for slot in InputService.active_slots():
+		var device := InputService.device_of(slot)
+		var down := Input.is_physical_key_pressed(KEY_M) if device == InputService.KEYBOARD \
+				else Input.is_joy_button_pressed(device, JOY_BUTTON_DPAD_LEFT)
+		var once: bool = down and not _map_keys_was.get(slot, false)
+		_map_keys_was[slot] = down
+		if not once or _pause.visible or _chat.is_open() or is_base_building(slot):
+			continue
+		if _world_map and is_instance_valid(_world_map):
+			_world_map.close()
+			_world_map = null
+		elif not InputService.is_blocked(slot):
+			_world_map = WorldMapPanel.new()
+			_root.add_child(_world_map)
+			_world_map.open_for(slot)
+
+
 ## Direcional para baixo (controle) abre as mensagens rápidas, fora de menus e da pausa.
 func _check_quick_chat() -> void:
 	for slot in InputService.active_slots():
 		var down := InputService.dpad_down(slot)
 		var player := _local_player(slot)
-		# Construindo (/construir), o ▼ troca a categoria das peças.
+		# No editor de mapa (/editar), o ▼ troca a categoria das peças.
 		if down and not _dpad_was.get(slot, false) and not _pause.visible and not _chat.is_open() \
 				and not InputService.is_blocked(slot) and player != null and not player.building:
 			_chat.open_quick(slot)
@@ -392,6 +475,14 @@ func _try_open_service(slot: int) -> void:
 		return
 	var npc := WorldNpc.nearest(get_tree(), player.global_position)
 	if npc == null:
+		return
+	# Baú do abrigo: abre direto o cofre (sem conversa).
+	if npc.has_meta("base_chest"):
+		var chest := ServicePanel.new()
+		_root.add_child(chest)
+		chest.open_for(player, npc)
+		chest.close_requested.connect(_close_service.bind(slot))
+		_services[slot] = chest
 		return
 	# Conversa primeiro (estilo Tibia); o serviço abre por um botão dela.
 	var talk := DialoguePanel.new()

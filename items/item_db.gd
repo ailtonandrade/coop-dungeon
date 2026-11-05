@@ -60,6 +60,10 @@ const AMMO_TYPES := {
 	"rifle": {"name": "Munição de rifle", "color": Color(0.8, 0.55, 0.3), "max": 120},
 	"escopeta": {"name": "Cartuchos", "color": Color(0.85, 0.25, 0.2), "max": 80},
 	"granada": {"name": "Granadas", "color": Color(0.45, 0.6, 0.35), "max": 10},
+	# Materiais da base (BaseCatalog): mesmo esquema de contador.
+	"metal": {"name": "Metal", "color": Color(0.62, 0.64, 0.68), "max": 999, "material": true},
+	"madeira": {"name": "Madeira", "color": Color(0.62, 0.42, 0.24), "max": 999, "material": true},
+	"fibra": {"name": "Fibra de vidro", "color": Color(0.55, 0.78, 0.7), "max": 999, "material": true},
 }
 
 ## Dinheiro do jogo (o item interno continua "gold" por causa dos saves).
@@ -359,6 +363,11 @@ static func ammo_amount(item: Dictionary) -> int:
 ## Caixas de munição das fichas: [id, ...].
 static func ammo_ids() -> Array:
 	return ids().filter(func(id: String) -> bool: return catalog()[id].has("ammo_type"))
+
+
+## Contador que é material de construção (metal, madeira, fibra), não munição.
+static func is_material(type: String) -> bool:
+	return bool(AMMO_TYPES.get(type, {}).get("material", false))
 
 
 ## Munição que a arma gasta ("" = infinita).
