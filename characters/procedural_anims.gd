@@ -78,53 +78,71 @@ static func install(anim: AnimationPlayer, skeleton: Skeleton3D, skeleton_path: 
 			library.add_animation(anim_name, _build(ANIMS[anim_name], skeleton, skeleton_path, base))
 
 
-## Nas animações de ficar parado do pacote (Idle, Idle_Gun, Interact, Wave...) o pé esquerdo
-## fica virado ~60° para fora (e o direito ~7°). Gira as trilhas dos pés, em volta do eixo
-## vertical, até a ponta apontar para a frente no 1º quadro (o resto do movimento continua igual).
-## Só mexe em clipe com o pé no chão (sem inclinar), uma vez por clipe (as animações são as
-## mesmas para todos os personagens que usam o arquivo).
+## Nas animações de ficar parado do pacote (Idle, Idle_Gun, Interact, Wave...) a perna esquerda
+## vem girada para fora (o pé ~60° de lado) e, endireitando só o pé, a base ficava estreita e as
+## pernas pareciam cruzar. O próprio pacote tem a "Idle_Neutral" com as pernas retas e os pés
+## paralelos: essas animações passam a usar as pernas dela (paradas, na pose do 1º quadro). Tronco,
+## braços e cabeça continuam os de cada animação. Uma vez por clipe (as animações são as mesmas
+## para todos os personagens que usam o arquivo).
 const STRAIGHT_META := "feet_straightened"
-const STRAIGHT_MIN_DEG := 4.0
-const STRAIGHT_MAX_PITCH_DEG := 25.0
+const LEGS_FROM := "Idle_Neutral"
+## Pé mais virado que isto (graus, medido no sapato) com o pé no chão: a perna está torta.
+const CROOKED_DEG := 15.0
+const FLAT_MAX_PITCH_DEG := 25.0
+const LEG_BONES := ["Body", "UpperLeg.L", "LowerLeg.L", "Foot.L", "UpperLeg.R", "LowerLeg.R", "Foot.R"]
 
 
 static func straighten_stance_feet(anim: AnimationPlayer, skeleton: Skeleton3D) -> void:
+	if not anim.has_animation(LEGS_FROM):
+		return
+	var source := anim.get_animation(LEGS_FROM)
+	var skeleton_path := _skeleton_path_in(anim, skeleton)
+	var fits := {}
+	for side: String in ["L", "R"]:
+		var fit := FootFit.make(skeleton, side, true)
+		if fit:
+			fits[side] = fit
+	if fits.is_empty():
+		return
 	for anim_name: StringName in anim.get_animation_list():
 		var clip := anim.get_animation(anim_name)
-		if clip == null or clip.has_meta(STRAIGHT_META):
+		if clip == null or clip == source or clip.has_meta(STRAIGHT_META):
 			continue
 		clip.set_meta(STRAIGHT_META, true)
-		for follower: String in FOLLOW:
-			var foot := skeleton.find_bone(follower)
-			if foot == -1:
+		var crooked := false
+		for side: String in fits:
+			var heel := _skinned_in_clip(clip, anim, skeleton, fits[side]._points[0])
+			var toe := _skinned_in_clip(clip, anim, skeleton, fits[side]._points[1])
+			var flat := Vector2(toe.x - heel.x, toe.z - heel.z)
+			if flat.length() > 0.05 and rad_to_deg(atan2(absf(toe.y - heel.y), flat.length())) <= FLAT_MAX_PITCH_DEG \
+					and absf(rad_to_deg(atan2(flat.x, flat.y))) > CROOKED_DEG:
+				crooked = true
+		if crooked:
+			_borrow_legs(clip, source, skeleton_path)
+	for fit: Node in fits.values():
+		fit.free()
+
+
+## Troca as trilhas das pernas (e da bacia) de `clip` pela pose do 1º quadro de `source`, parada.
+static func _borrow_legs(clip: Animation, source: Animation, skeleton_path: String) -> void:
+	for bone: String in LEG_BONES:
+		var path := NodePath("%s:%s" % [skeleton_path, bone])
+		for type: int in [Animation.TYPE_ROTATION_3D, Animation.TYPE_POSITION_3D]:
+			var from := source.find_track(path, type)
+			if from == -1:
 				continue
-			var track := clip.find_track(NodePath("%s:%s" % [_skeleton_path_in(anim, skeleton), follower]), Animation.TYPE_ROTATION_3D)
-			if track == -1 or clip.track_get_key_count(track) == 0:
-				continue
-			var parent := skeleton.get_bone_parent(foot)
-			var parent_basis := _clip_global_basis(clip, anim, skeleton, parent)
-			var local := Basis(clip.rotation_track_interpolate(track, 0.0))
-			var toe := parent_basis * local * _toe_axis(skeleton, foot)
-			var flat := Vector2(toe.x, toe.z).length()
-			if flat < 0.1 or rad_to_deg(atan2(absf(toe.y), flat)) > STRAIGHT_MAX_PITCH_DEG:
-				continue
-			var yaw := atan2(toe.x, toe.z)
-			if absf(rad_to_deg(yaw)) < STRAIGHT_MIN_DEG:
-				continue
-			_turn_track(clip, track, parent_basis, -yaw)
-			# O calcanhar do sapato segue a canela: medindo o sapato de verdade (a pele), ainda
-			# sobra um ângulo. Acerta mais um pouco até a sola apontar para a frente.
-			var fit := FootFit.make(skeleton, follower.get_slice(".", 1), true)
-			if fit == null:
-				continue
-			for attempt in 4:
-				var heel := _skinned_in_clip(clip, anim, skeleton, fit._points[0])
-				var toe_now := _skinned_in_clip(clip, anim, skeleton, fit._points[1])
-				var shoe_yaw := atan2(toe_now.x - heel.x, toe_now.z - heel.z)
-				if absf(rad_to_deg(shoe_yaw)) < 2.0:
-					break
-				_turn_track(clip, track, parent_basis, -shoe_yaw * 1.4)
-			fit.free()
+			var value: Variant = source.rotation_track_interpolate(from, 0.0) if type == Animation.TYPE_ROTATION_3D \
+					else source.position_track_interpolate(from, 0.0)
+			var track := clip.find_track(path, type)
+			if track == -1:
+				track = clip.add_track(type)
+				clip.track_set_path(track, path)
+			while clip.track_get_key_count(track) > 0:
+				clip.track_remove_key(track, 0)
+			if type == Animation.TYPE_ROTATION_3D:
+				clip.rotation_track_insert_key(track, 0.0, value)
+			else:
+				clip.position_track_insert_key(track, 0.0, value)
 
 
 ## Onde um ponto da pele fica no 1º quadro do clipe (a conta da pele, com a pose do clipe).
@@ -153,30 +171,10 @@ static func _clip_global(clip: Animation, anim: AnimationPlayer, skeleton: Skele
 	return result
 
 
-## Gira todas as chaves da trilha de rotação do osso em volta do eixo vertical do corpo.
-static func _turn_track(clip: Animation, track: int, parent_basis: Basis, angle: float) -> void:
-	var fix := parent_basis.inverse() * Basis(Vector3.UP, angle) * parent_basis
-	for k in clip.track_get_key_count(track):
-		var value: Quaternion = clip.track_get_key_value(track, k)
-		clip.track_set_key_value(track, k, Quaternion((fix * Basis(value)).orthonormalized()))
-
-
 ## Caminho do esqueleto como as trilhas das animações escrevem (relativo à raiz do player).
 static func _skeleton_path_in(anim: AnimationPlayer, skeleton: Skeleton3D) -> String:
 	var root := anim.get_node_or_null(anim.root_node)
 	return String(root.get_path_to(skeleton)) if root else String(skeleton.name)
-
-
-## Rotação global (espaço do esqueleto) do osso no 1º quadro do clipe (sem trilha: a de descanso).
-static func _clip_global_basis(clip: Animation, anim: AnimationPlayer, skeleton: Skeleton3D, bone: int) -> Basis:
-	var result := Basis.IDENTITY
-	var path := _skeleton_path_in(anim, skeleton)
-	while bone != -1:
-		var track := clip.find_track(NodePath("%s:%s" % [path, skeleton.get_bone_name(bone)]), Animation.TYPE_ROTATION_3D)
-		var local := Basis(clip.rotation_track_interpolate(track, 0.0)) if track != -1 else skeleton.get_bone_rest(bone).basis
-		result = local * result
-		bone = skeleton.get_bone_parent(bone)
-	return result
 
 
 ## Pose parada (local de cada osso): 1º quadro do Idle; osso sem trilha no Idle fica na de fábrica.
@@ -199,17 +197,6 @@ static func _base_pose(anim: AnimationPlayer, skeleton: Skeleton3D) -> Array[Tra
 	return locals
 
 
-## Para onde aponta a ponta do pé, no espaço do osso: o +Z do sapato na pele (pose de ligação).
-## Sem pele, o +Y do osso (como nesse esqueleto).
-static func _toe_axis(skeleton: Skeleton3D, foot: int) -> Vector3:
-	var bone_name := skeleton.get_bone_name(foot)
-	for mesh: MeshInstance3D in skeleton.find_children("*", "MeshInstance3D", true, false):
-		if mesh.skin == null:
-			continue
-		for i in mesh.skin.get_bind_count():
-			if String(mesh.skin.get_bind_name(i)) == bone_name:
-				return (mesh.skin.get_bind_pose(i).basis * Vector3.BACK).normalized()
-	return Vector3.UP
 
 
 static func _build(keys: Array, skeleton: Skeleton3D, skeleton_path: NodePath, base: Array[Transform3D]) -> Animation:
