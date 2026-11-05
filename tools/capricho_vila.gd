@@ -2,7 +2,7 @@ extends SceneTree
 ## Capricho na vila: mesas de boteco na frente do bar, toldos listrados, caixotes, sofá velho,
 ## ar-condicionado nas paredes, pneus e canos na oficina, bancas de camelô na rua e vasos no
 ## cofre. Tudo peça normal do mapa (grupo "Capricho" no bloco da vila): arraste no editor ou
-## mova/apague pelo /construir. Rodar de novo só acrescenta o que faltar (o que você mudou de
+## mova/apague pelo /editar. Rodar de novo só acrescenta o que faltar (o que você mudou de
 ## lugar fica onde está).
 ## godot --headless --path . -s tools/capricho_vila.gd
 
