@@ -84,9 +84,10 @@ func _block(quest: QuestDef) -> Control:
 	var column := VBoxContainer.new()
 	column.add_theme_constant_override("separation", 3)
 	panel.add_child(column)
+	var info := _top_with_icon(column, quest, style)
 	var head := HBoxContainer.new()
 	head.add_theme_constant_override("separation", 8)
-	column.add_child(head)
+	info.add_child(head)
 	var diamond := Control.new()
 	diamond.custom_minimum_size = Vector2(16, 16)
 	diamond.size_flags_vertical = Control.SIZE_SHRINK_CENTER
@@ -103,7 +104,9 @@ func _block(quest: QuestDef) -> Control:
 	head.add_child(distance)
 	panel.set_meta("distance_label", distance)
 	if not quest.summary.is_empty():
-		column.add_child(UiSkin.label(Txt.t(quest.summary), 13, Color(TEXT, 0.7), "Regular", 2))
+		var summary := UiSkin.label(Txt.t(quest.summary), 13, Color(TEXT, 0.7), "Regular", 2)
+		summary.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		info.add_child(summary)
 	var ready := Quests.state_of(quest.id) == "pronta"
 	for i in Quests.shown_objectives(quest):
 		var objective := quest.objectives[i]
@@ -130,18 +133,42 @@ func _next_block(quest: QuestDef) -> Control:
 	var column := VBoxContainer.new()
 	column.add_theme_constant_override("separation", 3)
 	panel.add_child(column)
+	var info := _top_with_icon(column, quest, style)
 	var head := HBoxContainer.new()
 	head.add_theme_constant_override("separation", 8)
-	column.add_child(head)
+	info.add_child(head)
 	head.add_child(UiSkin.label(Txt.t("PRÓXIMO PASSO"), 13, Color(AMBER, 0.8), "Bold", 3))
 	var distance := UiSkin.label("", 14, Color(AMBER, 0.75), "SemiBold", 2)
 	distance.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	distance.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	head.add_child(distance)
 	panel.set_meta("distance_label", distance)
-	column.add_child(UiSkin.label("★ " + Txt.t(quest.title), 15, TEXT, "Bold", 3))
+	info.add_child(UiSkin.label("★ " + Txt.t(quest.title), 15, TEXT, "Bold", 3))
 	column.add_child(_line(false, Quests.start_hint(quest), AMBER))
 	return panel
+
+
+## Topo do bloco: título e resumo à esquerda; na missão RASTREADA, o mesmo sinal do minimapa e
+## do NPC ("!", "?" ou "◆", na cor da rastreada) à direita, no meio. Devolve a coluna da esquerda.
+func _top_with_icon(column: VBoxContainer, quest: QuestDef, style: StyleBoxFlat) -> VBoxContainer:
+	var top := HBoxContainer.new()
+	top.add_theme_constant_override("separation", 10)
+	column.add_child(top)
+	var info := VBoxContainer.new()
+	info.add_theme_constant_override("separation", 3)
+	info.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	top.add_child(info)
+	var focus := Quests.focus()
+	if focus and focus.id == quest.id:
+		style.border_color = Color(Quests.FOCUS_COLOR, 0.8)
+		var icon := Control.new()
+		icon.custom_minimum_size = Vector2(30, 30)
+		icon.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		icon.draw.connect(func() -> void:
+			WorldMapPanel.draw_quest_mark(icon, Vector2(15, 15), Quests.focus_symbol(), 13.0, Quests.FOCUS_COLOR))
+		top.add_child(icon)
+	return info
 
 
 func _update_distances() -> void:

@@ -332,6 +332,43 @@ func set_focus(id: String) -> void:
 	focus_changed.emit()
 
 
+## Cor da missão RASTREADA (sinal na cabeça do NPC, minimapa, mapa e rastreador); as outras
+## ficam no amarelo de sempre.
+const FOCUS_COLOR := Color(0.35, 0.95, 1.0)
+const MARK_COLOR := Color(1.0, 0.8, 0.28)
+
+
+## NPC que a missão rastreada pede agora (pegar com ele ou entregar a ele), ou "".
+func focus_npc() -> String:
+	var quest := focus()
+	if quest == null:
+		return ""
+	var state := state_of(quest.id)
+	if state == "pronta" and quest.return_to_giver:
+		return quest.giver
+	if state.is_empty() and quest.start == "npc":
+		return quest.giver
+	return ""
+
+
+## Símbolo da missão rastreada: "!" (pegar com o NPC), "?" (entregar) ou "◆" (ir até o lugar).
+func focus_symbol() -> String:
+	var quest := focus()
+	if quest == null:
+		return ""
+	if focus_npc().is_empty():
+		return "◆"
+	return "?" if state_of(quest.id) == "pronta" else "!"
+
+
+## Sinal e cor de um NPC: o da missão rastreada (ciano) vence o amarelo.
+func npc_mark_of(npc_name: String) -> Array:
+	if not npc_name.is_empty() and npc_name == focus_npc():
+		return [focus_symbol(), FOCUS_COLOR]
+	var mark := String(npc_marks().get(npc_name, ""))
+	return [mark, MARK_COLOR]
+
+
 ## O que o minimapa e o mapa apontam: só a rastreada.
 func pointed() -> Array[QuestDef]:
 	var quest := focus()

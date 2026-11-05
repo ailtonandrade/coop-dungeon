@@ -155,7 +155,9 @@ func _process(delta: float) -> void:
 	_mark_check -= delta
 	if _quest_mark and _mark_check <= 0.0:
 		_mark_check = 0.5
-		_quest_mark.text = String(Quests.npc_marks().get(npc_name, ""))
+		var mark: Array = Quests.npc_mark_of(npc_name)
+		_quest_mark.text = String(mark[0])
+		_quest_mark.modulate = mark[1]
 	_label.text = _title + (InputService.pickup_text(Txt.t("\n[LB / F] abrir") if has_meta("base_chest") else Txt.t("\n[LB / F] falar")) if near else "")
 	# Puxa assunto sozinho quando o grupo chega perto depois de descobrir algo (uma vez).
 	if near:

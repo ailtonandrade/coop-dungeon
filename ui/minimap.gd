@@ -145,9 +145,11 @@ func _draw_quest_targets(inner: Rect2) -> void:
 	var local := _local_players()
 	var from := local[0].global_position if not local.is_empty() else _focus
 	# "!" e "?" dos NPCs (os mesmos de cima da cabeça); longe, presos na borda.
-	var marks := Quests.npc_marks()
+	var names := Quests.npc_marks().keys()
+	if not Quests.focus_npc().is_empty() and not names.has(Quests.focus_npc()):
+		names.append(Quests.focus_npc())
 	var marked: Array[Vector3] = []
-	for npc_name: String in marks:
+	for npc_name: String in names:
 		var where: Variant = Quests.npc_position(npc_name)
 		if not where is Vector3:
 			continue
@@ -157,7 +159,8 @@ func _draw_quest_targets(inner: Rect2) -> void:
 			var away := (at - Vector2(SIZE, SIZE) / 2.0).normalized()
 			var reach := inner.size.x / 2.0 - 10.0
 			at = Vector2(SIZE, SIZE) / 2.0 + away * (reach / maxf(absf(away.x), absf(away.y)))
-		WorldMapPanel.draw_quest_mark(_markers, at, String(marks[npc_name]), 8.0)
+		var mark: Array = Quests.npc_mark_of(npc_name)
+		WorldMapPanel.draw_quest_mark(_markers, at, String(mark[0]), 8.0, mark[1])
 	for quest in Quests.pointed():
 		var target: Variant = Quests.target_of(quest, from)
 		if not target is Vector3:
@@ -173,7 +176,7 @@ func _draw_quest_targets(inner: Rect2) -> void:
 			point = Vector2(SIZE, SIZE) / 2.0 + dir * (half / maxf(absf(dir.x), absf(dir.y)))
 		var r := 7.0 if inside else 6.0
 		var diamond := PackedVector2Array([point + Vector2(0, -r), point + Vector2(r, 0), point + Vector2(0, r), point + Vector2(-r, 0)])
-		_markers.draw_colored_polygon(diamond, QUEST_COLOR)
+		_markers.draw_colored_polygon(diamond, Quests.FOCUS_COLOR)
 		_markers.draw_polyline(PackedVector2Array([diamond[0], diamond[1], diamond[2], diamond[3], diamond[0]]), Color.BLACK, 1.5)
 
 

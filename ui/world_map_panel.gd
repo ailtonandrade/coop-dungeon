@@ -157,13 +157,16 @@ func _draw_markers() -> void:
 			_markers.draw_string_outline(regular, point + Vector2(-70, -9), npc_name, HORIZONTAL_ALIGNMENT_CENTER, 140, 12, 4, UiSkin.INK)
 			_markers.draw_string(regular, point + Vector2(-70, -9), npc_name, HORIZONTAL_ALIGNMENT_CENTER, 140, 12, NPC_COLOR)
 	# "!" e "?" dos NPCs (iguais aos de cima da cabeça).
-	var marks := Quests.npc_marks()
-	for npc_name: String in marks:
+	var marked := Quests.npc_marks().keys()
+	if not Quests.focus_npc().is_empty() and not marked.has(Quests.focus_npc()):
+		marked.append(Quests.focus_npc())
+	for npc_name: String in marked:
 		var where: Variant = Quests.npc_position(npc_name)
 		if not where is Vector3:
 			continue
 		var point := _to_screen(where).clamp(inner.position + Vector2(12, 12), inner.end - Vector2(12, 12))
-		draw_quest_mark(_markers, point + Vector2(0, -32), String(marks[npc_name]), 11.0)
+		var mark: Array = Quests.npc_mark_of(npc_name)
+		draw_quest_mark(_markers, point + Vector2(0, -32), String(mark[0]), 11.0, mark[1])
 	# Para onde ir nas missões.
 	var player := _player()
 	var from := player.global_position if player else _center
@@ -171,13 +174,16 @@ func _draw_markers() -> void:
 		var target: Variant = Quests.target_of(quest, from)
 		if not target is Vector3:
 			continue
+		# NPC com sinal: o sinal (na cor da rastreada) já marca o lugar.
+		if not Quests.focus_npc().is_empty():
+			continue
 		var point := _to_screen(target).clamp(inner.position + Vector2(10, 10), inner.end - Vector2(10, 10))
 		var r := 8.0
 		var diamond := PackedVector2Array([point + Vector2(0, -r), point + Vector2(r, 0), point + Vector2(0, r), point + Vector2(-r, 0)])
-		_markers.draw_colored_polygon(diamond, QUEST_COLOR)
+		_markers.draw_colored_polygon(diamond, Quests.FOCUS_COLOR)
 		_markers.draw_polyline(PackedVector2Array([diamond[0], diamond[1], diamond[2], diamond[3], diamond[0]]), Color.BLACK, 1.5)
 		_markers.draw_string_outline(regular, point + Vector2(-90, 22), Txt.t(quest.title), HORIZONTAL_ALIGNMENT_CENTER, 180, 12, 4, UiSkin.INK)
-		_markers.draw_string(regular, point + Vector2(-90, 22), Txt.t(quest.title), HORIZONTAL_ALIGNMENT_CENTER, 180, 12, QUEST_COLOR)
+		_markers.draw_string(regular, point + Vector2(-90, 22), Txt.t(quest.title), HORIZONTAL_ALIGNMENT_CENTER, 180, 12, Quests.FOCUS_COLOR)
 	# Heróis.
 	for hero: Player in get_tree().get_nodes_in_group("players"):
 		var point := _to_screen(hero.global_position)
@@ -201,12 +207,16 @@ func _draw_markers() -> void:
 
 ## Casinha (abrigo) no mapa e no minimapa.
 ## "!" (missão para pegar) ou "?" (para entregar): círculo escuro com o sinal amarelo.
-static func draw_quest_mark(canvas: CanvasItem, point: Vector2, mark: String, radius: float) -> void:
-	var amber := Color(1.0, 0.8, 0.28)
+## "◆" desenha um losango no lugar do texto. Cor: amarela (padrão) ou a da missão rastreada.
+static func draw_quest_mark(canvas: CanvasItem, point: Vector2, mark: String, radius: float, color := Color(1.0, 0.8, 0.28)) -> void:
 	canvas.draw_circle(point, radius, UiSkin.INK)
-	canvas.draw_arc(point, radius, 0.0, TAU, 20, amber, 2.0)
+	canvas.draw_arc(point, radius, 0.0, TAU, 20, color, 2.0)
+	if mark == "◆":
+		var r := radius * 0.55
+		canvas.draw_colored_polygon(PackedVector2Array([point + Vector2(0, -r), point + Vector2(r, 0), point + Vector2(0, r), point + Vector2(-r, 0)]), color)
+		return
 	var size := int(radius * 1.6)
-	canvas.draw_string(UiSkin.font("Bold"), point + Vector2(-radius, size * 0.36), mark, HORIZONTAL_ALIGNMENT_CENTER, radius * 2.0, size, amber)
+	canvas.draw_string(UiSkin.font("Bold"), point + Vector2(-radius, size * 0.36), mark, HORIZONTAL_ALIGNMENT_CENTER, radius * 2.0, size, color)
 
 
 static func draw_house(canvas: CanvasItem, at: Vector2, r: float, color: Color) -> void:

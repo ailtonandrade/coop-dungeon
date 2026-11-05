@@ -95,7 +95,10 @@ func _process(_delta: float) -> bool:
 			# A primeira missão (ler o diário da mochila) começa sozinha: dá como feita para o teste ver
 			# o questLog vazio.
 			var states: Dictionary = root.get_node("NetService").world.get("quests", {})
-			states["quem_sou_eu"] = {"state": "entregue", "count": [1]}
+			# (e as principais da história, que viram "próximo passo" no questLog)
+			for quest: Resource in _quests.defs().values():
+				if quest.category == "principal":
+					states[quest.id] = {"state": "entregue", "count": []}
 			_quests.quests_changed.emit()
 			_check(_quests.def("brando_ferro_de_gangue") != null, "missão do Brando carregada da pasta world/quests")
 			_check(_log() != null and not _log().visible, "questLog vazio (escondido) sem missão")
