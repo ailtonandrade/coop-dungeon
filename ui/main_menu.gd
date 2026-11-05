@@ -5,7 +5,7 @@ extends Control
 const VISIBILITIES := [
 	["open", "Aberto: aparece pra quem buscar na rede local"],
 	["private", "Privado: só entra quem tiver o seu IP"],
-	["offline", "Offline: só o pessoal do sofá"],
+	["offline", "Offline: Local"],
 ]
 
 var _screens := {}
