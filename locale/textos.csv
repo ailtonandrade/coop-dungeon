@@ -246,6 +246,7 @@ Attack,
 Atualizar agora,Update now
 Até mais.,See you.
 Back,
+Back › RB,Back › RB
 Baixa (PC fraco),Low (weak PC)
 Baixando...,Downloading...
 Baixando... %.0f%%%s,Downloading... %.0f%%%s
@@ -781,7 +782,9 @@ Só aparece se o grupo já sabe (fatos),
 TECLADO · LB / F,KEYPAD · LB / F
 TENTATIVAS RESTANTES: ,ATTEMPTS LEFT: 
 TERMINAL · LB / F,TERMINAL · LB / F
+Tamanho dos menus e da interface,Menu and interface size
 Tamanho dos textos e menus,Text and menu size
+"Tamanho dos textos no mundo (nomes, loot, avisos)","World text size (names, loot, prompts)"
 Tchau,Goodbye
 Teclado,
 Teclado e mouse,Keyboard and mouse
@@ -981,5 +984,7 @@ ze,
 âmbar,amber
 ◀ ▶ escolhe · A entra · B desiste,◀ ▶ choose · A join · B cancel
 ◀ ▶ visual · Y cor do chip · X sorteia nome · A entra · B volta,◀ ▶ look · Y chip color · X random name · A join · B back
+◆ %d ponto de chip para gastar · %s,◆ %d chip point to spend · %s
+◆ %d pontos de chip para gastar · %s,◆ %d chip points to spend · %s
 ◢ CANAL // MUNDO,◢ CHANNEL // WORLD
 ⬆ Versão %s disponível · atualizar,⬆ Version %s available · update

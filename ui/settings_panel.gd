@@ -14,8 +14,10 @@ func _ready() -> void:
 	for code: String in Txt.LANGUAGES:
 		languages.append([Txt.LANGUAGES[code], code])
 	_choice("Idioma", "language", languages)
-	_slider("Tamanho dos textos e menus", Settings.UI_SCALE_MIN, Settings.UI_SCALE_MAX, 0.05, Settings.ui_scale,
+	_slider("Tamanho dos menus e da interface", Settings.UI_SCALE_MIN, Settings.UI_SCALE_MAX, 0.05, Settings.ui_scale,
 			Settings.set_ui_scale, func(v: float) -> String: return "%d%%" % roundi(v * 100.0))
+	_slider("Tamanho dos textos no mundo (nomes, loot, avisos)", Settings.WORLD_TEXT_MIN, Settings.WORLD_TEXT_MAX, 0.05, Settings.world_text_scale,
+			Settings.set_world_text_scale, func(v: float) -> String: return "%d%%" % roundi(v * 100.0))
 	_slider("Volume geral", 0.0, 1.0, 0.05, Settings.master_volume, func(v: float) -> void: Settings.set_volume("master", v), _percent)
 	_slider("Música", 0.0, 1.0, 0.05, Settings.music_volume, func(v: float) -> void: Settings.set_volume("music", v), _percent)
 	_slider("Ambiente (vento, máquinas)", 0.0, 1.0, 0.05, Settings.ambience_volume, func(v: float) -> void: Settings.set_volume("ambience", v), _percent)

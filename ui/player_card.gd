@@ -184,9 +184,22 @@ func _draw_level_badge(center: Vector2) -> void:
 	var text := str(player.progress.level)
 	draw_string(f, center + Vector2(-14, 5), text, HORIZONTAL_ALIGNMENT_CENTER, 28, 14, UiSkin.TEXT)
 	if free > 0:
-		var hint := Txt.t("+%d chip") % free
-		draw_string_outline(f, center + Vector2(16, 5), hint, HORIZONTAL_ALIGNMENT_LEFT, -1, 12, 4, UiSkin.INK)
-		draw_string(f, center + Vector2(16, 5), hint, HORIZONTAL_ALIGNMENT_LEFT, -1, 12, Color(UiSkin.AMBER, 0.6 + 0.4 * glow))
+		_draw_chip_hint(free, glow)
+
+
+## Pontos de chip pirata para gastar (ganha ao subir de nível): plaquinha acima do cartão, com
+## onde gastar (inventário, depois a tela do chip).
+func _draw_chip_hint(free: int, glow: float) -> void:
+	var f := UiSkin.font("Bold")
+	var keyboard := not player.is_local() or InputService.device_of(player.slot) == InputService.KEYBOARD
+	var where := Txt.t("I › Q") if keyboard else Txt.t("Back › RB")
+	var text := (Txt.t("◆ %d ponto de chip para gastar · %s") if free == 1 else Txt.t("◆ %d pontos de chip para gastar · %s")) % [free, where]
+	var size := 13
+	var width := f.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, size).x
+	var plate := Rect2(BAR.position.x, -8, width + 14, 20)
+	draw_rect(plate, Color(0.03, 0.035, 0.05, 0.9))
+	draw_rect(plate, Color(UiSkin.AMBER, 0.5 + 0.4 * glow), false, 1.5)
+	draw_string(f, plate.position + Vector2(7, 15), text, HORIZONTAL_ALIGNMENT_LEFT, -1, size, Color(UiSkin.AMBER, 0.75 + 0.25 * glow))
 
 
 func _draw_hotbar() -> void:

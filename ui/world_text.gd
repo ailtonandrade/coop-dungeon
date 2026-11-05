@@ -83,7 +83,8 @@ func _sync() -> void:
 	_overlay.visible = show
 	if not show:
 		return
-	var scale_ui := get_tree().root.content_scale_factor
+	# Tamanho próprio dos textos do mundo (Configurações), separado do tamanho dos menus.
+	var scale_ui: float = Settings.window_ui_factor() * Settings.world_text_scale
 	var px := maxi(8, roundi(screen_px * scale_ui))
 	var outline := maxi(1, roundi(px * float(outline_size) / maxf(float(font_size), 1.0)))
 	_overlay.add_theme_font_size_override("font_size", px)

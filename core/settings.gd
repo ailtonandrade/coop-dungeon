@@ -19,6 +19,10 @@ var language := ""
 var graphics_quality := "media"
 ## Tamanho da interface (textos, menus, HUD): 1.0 = normal.
 var ui_scale := 1.0
+## Tamanho dos textos no mundo (nomes, loot, avisos, dano), à parte dos menus.
+var world_text_scale := 1.0
+const WORLD_TEXT_MIN := 0.7
+const WORLD_TEXT_MAX := 1.8
 ## Personagem ativo (escolhido no menu): é com ele que o primeiro jogador entra no mundo.
 var active_character := ""
 ## Último personagem escolhido em cada vaga do sofá (P1 a P4), para já vir marcado.
@@ -73,6 +77,7 @@ func _load() -> void:
 		camera_mode = config.get_value("camera", "mode", camera_mode)
 		look_sensitivity = config.get_value("camera", "look_sensitivity", look_sensitivity)
 		ui_scale = config.get_value("display", "ui_scale", ui_scale)
+		world_text_scale = config.get_value("display", "world_text_scale", world_text_scale)
 		graphics_quality = config.get_value("display", "graphics", Graphics.suggested_quality())
 		window_mode = config.get_value("display", "window_mode", window_mode)
 		window_resolution = config.get_value("display", "resolution", window_resolution)
@@ -100,6 +105,18 @@ func toggle_minimap_mode() -> void:
 
 const UI_SCALE_MIN := 0.8
 const UI_SCALE_MAX := 1.6
+
+
+func set_world_text_scale(value: float) -> void:
+	world_text_scale = clampf(snappedf(value, 0.05), WORLD_TEXT_MIN, WORLD_TEXT_MAX)
+	_save()
+	changed.emit()
+
+
+## Quanto a tela em si aumenta a interface (sem o tamanho escolhido pelo jogador): os textos
+## do mundo usam isto vezes o tamanho deles.
+func window_ui_factor() -> float:
+	return get_tree().root.content_scale_factor / maxf(ui_scale, 0.01)
 
 
 func set_ui_scale(value: float) -> void:
@@ -307,6 +324,7 @@ func _save() -> void:
 	config.set_value("camera", "mode", camera_mode)
 	config.set_value("camera", "look_sensitivity", look_sensitivity)
 	config.set_value("display", "ui_scale", ui_scale)
+	config.set_value("display", "world_text_scale", world_text_scale)
 	config.set_value("display", "graphics", graphics_quality)
 	config.set_value("display", "window_mode", window_mode)
 	config.set_value("display", "resolution", window_resolution)
