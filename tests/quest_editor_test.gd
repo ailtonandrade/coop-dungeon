@@ -60,6 +60,17 @@ func _process(_delta: float) -> bool:
 			_check(_editor._fields.start_target.get_parent().visible and _editor._fields.start_target.get_parent().get_child(0).text.begins_with("Área"), "começa por área: pede a área")
 			_editor._select(_editor._fields.start, "npc")
 			_editor._refresh_start_form()
+			# Dicas dos campos de fatos: id de missão no lugar de fato e prefixo escondido.
+			_editor._fields.requires.text = "quem_sou_eu"
+			_editor._fields.requires.text_changed.emit("quem_sou_eu")
+			var requires_hint: Label = _editor._fields.requires.get_parent().get_parent().get_child(_editor._fields.requires.get_parent().get_index() + 1)
+			_check(requires_hint.text.contains("Vem depois de"), "dica avisa: id de missão em \"Só aparece se\" → use Vem depois de")
+			_editor._fields.teaches.text = "visitou_patio"
+			_editor._fields.teaches.text_changed.emit("visitou_patio")
+			var teaches_hint: Label = _editor._fields.teaches.get_parent().get_parent().get_child(_editor._fields.teaches.get_parent().get_index() + 1)
+			_check(teaches_hint.text.contains("NÃO aparece"), "dica avisa: visitou_ fica escondido do Conhecimento")
+			_editor._fields.requires.text = ""
+			_editor._fields.teaches.text = ""
 			_editor._add_objective(null)
 			var row: Dictionary = _editor._objective_rows[0]
 			_editor._select(row.kind, "matar")

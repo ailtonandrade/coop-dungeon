@@ -157,8 +157,8 @@ func _build() -> void:
 	_text("done_text", "Fala ao entregar")
 	_line("after", "Vem depois de (missões)").tooltip_text = AFTER_HELP
 	_small_button(_fields.after.get_parent(), "lista", _choose_after)
-	_line("requires", "Só aparece se o grupo já sabe (fatos)").tooltip_text = FACTS_HELP
-	_line("teaches", "Ao concluir, o grupo passa a saber (fatos)").tooltip_text = FACTS_HELP
+	_fact_hint(_line("requires", "Só aparece se o grupo já sabe (fatos)"), true)
+	_fact_hint(_line("teaches", "Ao concluir, o grupo passa a saber (fatos)"), false)
 	_section("Objetivos")
 	_check("objectives_in_order", "Objetivos em ordem (um libera o próximo)")
 	_objectives_box = VBoxContainer.new()
@@ -274,7 +274,7 @@ func _add_objective(objective: QuestObjective) -> void:
 	_check("show_buttons", "Palavra vira botão (controle)", column, row)
 	_line("label", "Nome no questLog (opcional)", Callable(), column, row)
 	_item("gives_item", "Ao cumprir: dá item", column, row)
-	_line("teaches", "Ao cumprir, o grupo passa a saber (fatos)", Callable(), column, row).tooltip_text = FACTS_HELP
+	_fact_hint(_line("teaches", "Ao cumprir, o grupo passa a saber (fatos)", Callable(), column, row), false)
 	_option("reaction", "Ao cumprir: reação", QuestObjective.REACTIONS, column, row)
 	_line("reaction_target", "Objeto que reage (nome do nó)", _pick_object.bind(row), column, row)
 	_small_button(column, "Tirar objetivo", func() -> void:
@@ -293,6 +293,8 @@ func _add_objective(objective: QuestObjective) -> void:
 	row.label.text = o.label
 	_select(row.gives_item, o.gives_item)
 	row.teaches.text = ", ".join(o.teaches)
+	if row.teaches.has_meta("fact_hint"):
+		(row.teaches.get_meta("fact_hint") as Callable).call(row.teaches.text)
 	_select(row.reaction, o.reaction)
 	row.reaction_target.text = o.reaction_target
 	# O objetivo se ajeita ao tipo (matar pede criatura e quantidade; falar, NPC e palavras...).
@@ -391,6 +393,7 @@ func _fill(quest: QuestDef, path: String) -> void:
 	for objective in quest.objectives:
 		_add_objective(objective)
 	_refresh_start_form()
+	_refresh_fact_hints()
 	_status.text = path.get_file() if path else "(nova, ainda não salva)"
 
 
@@ -563,6 +566,49 @@ func npcs_by_region() -> Dictionary:
 
 func _choose_npc(edit: LineEdit) -> void:
 	_choose_grouped(edit, npcs_by_region(), "Nenhum NPC no mapa.")
+
+
+## Dica embaixo de um campo de fatos (sempre à vista) e aviso na hora do que pode dar errado:
+## id de missão no lugar de fato, fato que não aparece na tela de Conhecimento.
+func _fact_hint(edit: LineEdit, is_requirement: bool) -> void:
+	edit.tooltip_text = FACTS_HELP
+	var row := edit.get_parent()
+	var hint := UiSkin.label("", 12, UiSkin.DIM, "Regular", 2)
+	hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	hint.custom_minimum_size.x = 420
+	var box := row.get_parent()
+	box.add_child(hint)
+	box.move_child(hint, row.get_index() + 1)
+	var update := func(text: String) -> void:
+		var warnings := PackedStringArray()
+		for fact in _list_of(text):
+			if Quests.defs().has(fact):
+				warnings.append("\"%s\" é id de missão: para \"depois daquela missão\" use o campo Vem depois de." % fact if is_requirement \
+						else "\"%s\" é id de missão; aqui vai um fato (um nome novo, ex.: %s_feita)." % [fact, fact])
+			else:
+				for prefix: String in Lore.INTERNAL_PREFIXES:
+					if fact.begins_with(prefix):
+						warnings.append("\"%s\" começa com %s: vale, mas é marcador interno e NÃO aparece na tela de Conhecimento." % [fact, prefix])
+						break
+		if warnings.is_empty():
+			hint.text = "Fato = etiqueta livre, vírgula separa. Não precisa criar antes: escreveu, existe. Ficha opcional em world/lore/facts (título bonito no Conhecimento). Começando com visitou_, gatilho_, abriu_, item_ ou conheceu_ fica escondido do jogador."
+			hint.add_theme_color_override("font_color", UiSkin.DIM)
+		else:
+			hint.text = "⚠ " + "\n⚠ ".join(warnings)
+			hint.add_theme_color_override("font_color", Color(1.0, 0.65, 0.4))
+	edit.text_changed.connect(update)
+	edit.set_meta("fact_hint", update)
+	update.call("")
+
+
+## Atualiza as dicas dos campos de fatos depois de preencher a ficha por código.
+func _refresh_fact_hints() -> void:
+	var edits: Array = [_fields.requires, _fields.teaches]
+	for row in _objective_rows:
+		edits.append(row.teaches)
+	for edit: LineEdit in edits:
+		if edit.has_meta("fact_hint"):
+			(edit.get_meta("fact_hint") as Callable).call(edit.text)
 
 
 ## "lista" do "Vem depois de": escolhe uma missão e junta à lista (principais primeiro).
