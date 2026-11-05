@@ -21,6 +21,7 @@ var _camera: Camera3D
 var _markers: Control
 var _focus := Vector3.ZERO
 var _yaw := 0.0
+var _redraw_wait := 0.0
 
 
 func _ready() -> void:
@@ -36,6 +37,7 @@ func _ready() -> void:
 	_viewport = SubViewport.new()
 	_viewport.size = Vector2i(SIZE - FRAME * 2, SIZE - FRAME * 2)
 	_viewport.positional_shadow_atlas_size = 0
+	_viewport.render_target_update_mode = SubViewport.UPDATE_ONCE
 	container.add_child(_viewport)
 	_camera = Camera3D.new()
 	_camera.projection = Camera3D.PROJECTION_ORTHOGONAL
@@ -66,6 +68,12 @@ func _process(delta: float) -> void:
 	_camera.rotation = Vector3(-PI / 2.0, _yaw, 0.0)
 	_camera.global_position = _focus + Vector3.UP * 80.0
 	_markers.queue_redraw()
+	# O terreno do minimapa é o mundo desenhado de novo: não precisa ser a cada quadro (os
+	# marcadores, por cima, continuam a cada quadro). Gráfico baixo: menos ainda.
+	_redraw_wait -= delta
+	if _redraw_wait <= 0.0:
+		_redraw_wait = 0.2 if Settings.graphics_quality == "baixa" else 0.1
+		_viewport.render_target_update_mode = SubViewport.UPDATE_ONCE
 
 
 ## Posição no mapa (pixels) de um ponto do mundo.

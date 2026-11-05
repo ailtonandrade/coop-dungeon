@@ -54,13 +54,15 @@ func _ready() -> void:
 
 func _load() -> void:
 	var config := ConfigFile.new()
+	# Primeira vez nesta máquina: qualidade pela placa de vídeo (integrada = baixa).
+	graphics_quality = Graphics.suggested_quality()
 	if config.load(PATH) == OK:
 		# Chave nova: o modo antigo ("rotating" pelo herói) deu lugar ao que segue a câmera.
 		minimap_mode = config.get_value("hud", "minimap_mode_v2", minimap_mode)
 		camera_mode = config.get_value("camera", "mode", camera_mode)
 		look_sensitivity = config.get_value("camera", "look_sensitivity", look_sensitivity)
 		ui_scale = config.get_value("display", "ui_scale", ui_scale)
-		graphics_quality = config.get_value("display", "graphics", graphics_quality)
+		graphics_quality = config.get_value("display", "graphics", Graphics.suggested_quality())
 		language = config.get_value("display", "language", language)
 		if not Graphics.LEVELS.has(graphics_quality):
 			graphics_quality = "media"

@@ -106,6 +106,10 @@ func start(p_slot: int) -> void:
 	_index = clampi(_index, 0, maxi(_catalog.size() - 1, 0))
 	_player_of(slot).building = true
 	InputService.builder_slot = slot
+	# Peças de verdade de volta (a decoração juntada não dá para mexer).
+	var streamer := get_tree().get_first_node_in_group("world_streamer")
+	if streamer and streamer.has_method("set_batching"):
+		streamer.set_batching(false)
 	_rebuild_ghost()
 	_hud.visible = true
 	QuestArea.show_markers = true
@@ -125,6 +129,9 @@ func stop() -> void:
 		player.building = false
 	InputService.builder_slot = -1
 	active = false
+	var streamer := get_tree().get_first_node_in_group("world_streamer")
+	if streamer and streamer.has_method("set_batching"):
+		streamer.set_batching(true)
 	if _ghost:
 		_ghost.queue_free()
 		_ghost = null

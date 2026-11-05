@@ -186,7 +186,35 @@ func _spawn(key: String, scene: PackedScene) -> void:
 	for entry: Dictionary in NetService.edits_for(key):
 		WorldEdits.spawn(chunk, entry)
 	bake_navigation(chunk)
+	if batch_static:
+		StaticBatcher.batch(chunk, reaction_targets())
 	chunk_loaded.emit(key)
+
+
+## Junta a decoração parada dos blocos em poucas malhas (StaticBatcher). O editor de mapa do
+## dono (/editar) desliga enquanto está aberto, para mexer nas peças.
+var batch_static := true
+
+
+func set_batching(enabled: bool) -> void:
+	batch_static = enabled
+	for chunk in _loaded.values():
+		if not is_instance_valid(chunk):
+			continue
+		if enabled:
+			StaticBatcher.batch(chunk, reaction_targets())
+		else:
+			StaticBatcher.unbatch(chunk)
+
+
+## Nomes de peças que as missões fazem sumir/aparecer: não entram na junção.
+static func reaction_targets() -> Dictionary:
+	var names := {}
+	for quest: QuestDef in Quests.defs().values():
+		for objective: QuestObjective in quest.objectives:
+			if objective and objective.reaction != "nenhuma" and not objective.reaction_target.is_empty():
+				names[objective.reaction_target] = true
+	return names
 
 
 ## Navegação das criaturas: calculada aqui, ao carregar o bloco (a leitura das peças é rápida;

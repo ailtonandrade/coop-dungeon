@@ -102,7 +102,7 @@ func _build_environment() -> void:
 	env.ambient_light_color = Color(0.5, 0.52, 0.68)
 	env.ambient_light_energy = 0.55
 	env.tonemap_mode = Environment.TONE_MAPPER_FILMIC
-	env.glow_enabled = true
+	env.glow_enabled = Settings.graphics_quality != "baixa"
 	env.glow_intensity = 0.9
 	env.glow_bloom = 0.05
 	env.glow_hdr_threshold = 1.2
