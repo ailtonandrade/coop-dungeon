@@ -198,14 +198,15 @@ func equip(path: Array) -> bool:
 	return move(path, ["eq", ItemDB.slot_of(item)])
 
 
-## Guarda na primeira casa livre: mochila primeiro, depois bolsas dentro dela.
-## Sem mochila equipada, uma mochila/bolsa vai direto para as costas (com o que tem dentro).
-## Retorna o path onde ficou, ou [] se não coube.
+## Guarda o item: se a parte do corpo dele está vazia, já vai equipado (mesmo sem mochila;
+## uma mochila/bolsa vai para as costas com o que tem dentro); senão, na primeira casa livre da
+## mochila, depois nas bolsas dentro dela. Retorna o path onde ficou, ou [] se não coube.
 func add_item(item: Dictionary) -> Array:
-	if not equipment.has("bag") and ItemDB.slot_of(item) == "bag":
-		equipment["bag"] = item
+	var slot := ItemDB.slot_of(item)
+	if ItemDB.EQUIP_SLOTS.has(slot) and not equipment.has(slot):
+		equipment[slot] = item
 		changed.emit()
-		return ["eq", "bag"]
+		return ["eq", slot]
 	var queue := [["bag"]]
 	while not queue.is_empty():
 		var container_path: Array = queue.pop_front()

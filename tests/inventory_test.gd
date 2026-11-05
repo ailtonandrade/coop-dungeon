@@ -77,6 +77,10 @@ func _initialize() -> void:
 	_check(not naked.has_bag() and naked.add_item(ItemDB.make("sword")).is_empty(), "sem mochila não guarda item")
 	_check(naked.add_item(bag) == ["eq", "bag"] and naked.has_bag(), "pegar a mochila do chão equipa ela de volta")
 	_check((naked.equipment.bag.contents as Array).any(func(i: Variant) -> bool: return i != null), "com o que tinha dentro")
+	# Parte do corpo vazia: o item pego entra equipado (mesmo sem mochila).
+	_check(naked.add_item(ItemDB.make("iron_helmet")) == ["eq", "head"] or naked.equipment.has("head"), "capacete pego com a cabeça vazia já entra equipado")
+	var bare := Inventory.from_dict({"equipment": {}})
+	_check(bare.add_item(ItemDB.make("leather_boots")) == ["eq", "feet"], "sem mochila, bota pega vai direto para os pés")
 	print("INVENTARIO: ", "FALHOU" if _failed else "OK")
 	quit(1 if _failed else 0)
 

@@ -45,6 +45,7 @@ Saves straight into the chunk scenes (official map)."
 %s  ·  %s  ·  poder %d,%s  ·  %s  ·  power %d
 %s  ·  de %s  ·  %d/%d,%s  ·  by %s  ·  %d/%d
 %s %d em %s (-%d),%s %d on %s (-%d)
+%s (equipado),%s (equipped)
 %s avançou em %s (%d),%s improved %s (%d)
 %s entrou no mundo,%s joined the world
 %s libera no nível %d.,%s unlocks at level %d.
