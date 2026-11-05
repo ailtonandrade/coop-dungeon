@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="ItemDef" format=3]
+
+[ext_resource type="Script" path="res://items/item_drop.gd" id="1_drop"]
+[ext_resource type="Script" path="res://items/item_def.gd" id="2_def"]
+
+[resource]
+script = ExtResource("2_def")
+id = "cartuchos_escopeta"
+display_name = "Cartuchos de escopeta"
+slot = "municao"
+look = "ammo_box"
+color = Color(0.8, 0.22, 0.18, 1)
+price = 24
+sold_by = Array[String](["Dona Alda"])
+random_loot = false
+ammo_type = "escopeta"
+ammo_amount = 10
+drops = Array[ExtResource("1_drop")]([])

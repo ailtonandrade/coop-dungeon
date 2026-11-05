@@ -106,6 +106,35 @@ static func draw_glyph(canvas: CanvasItem, look: String, r: Rect2, color: Color,
 					at.call(0.6, 0.64), at.call(0.44, 0.6)]), brass)
 			if look == "crossbow":
 				canvas.draw_rect(Rect2(at.call(0.46, 0.52), s * Vector2(0.3, 0.14)), Color(Color(0.22, 0.4, 0.26), alpha))
+		"pistol":
+			var gun := Color(Color(0.3, 0.31, 0.33), alpha)
+			canvas.draw_rect(Rect2(at.call(0.12, 0.3), s * Vector2(0.66, 0.16)), gun)
+			canvas.draw_colored_polygon(PackedVector2Array([at.call(0.16, 0.44), at.call(0.38, 0.44),
+					at.call(0.32, 0.86), at.call(0.12, 0.86)]), Color(Color(0.16, 0.16, 0.17), alpha))
+			canvas.draw_rect(Rect2(at.call(0.15, 0.62), s * Vector2(0.2, 0.08)), Color(Color(0.35, 0.37, 0.4), alpha))
+		"rifle", "shotgun":
+			var barrel := Color(Color(0.32, 0.33, 0.35), alpha)
+			var wood_dark := Color(wood.darkened(0.15), alpha)
+			if look == "rifle":
+				canvas.draw_rect(Rect2(at.call(0.3, 0.42), s * Vector2(0.68, 0.06)), barrel)
+				canvas.draw_rect(Rect2(at.call(0.36, 0.3), s * Vector2(0.24, 0.07)), Color(Color(0.12, 0.12, 0.13), alpha))
+				canvas.draw_colored_polygon(PackedVector2Array([at.call(0.02, 0.5), at.call(0.42, 0.44),
+						at.call(0.42, 0.56), at.call(0.04, 0.72)]), wood)
+			else:
+				canvas.draw_rect(Rect2(at.call(0.34, 0.38), s * Vector2(0.56, 0.07)), barrel)
+				canvas.draw_rect(Rect2(at.call(0.34, 0.46), s * Vector2(0.56, 0.07)), barrel)
+				canvas.draw_colored_polygon(PackedVector2Array([at.call(0.1, 0.42), at.call(0.38, 0.38),
+						at.call(0.38, 0.56), at.call(0.14, 0.8)]), wood_dark)
+		"ammo_box":
+			canvas.draw_rect(Rect2(at.call(0.15, 0.35), s * Vector2(0.7, 0.45)), c)
+			canvas.draw_rect(Rect2(at.call(0.15, 0.45), s * Vector2(0.7, 0.1)), dark)
+			for i in 3:
+				canvas.draw_rect(Rect2(at.call(0.25 + i * 0.18, 0.16), s * Vector2(0.08, 0.2)), Color(Color(0.8, 0.62, 0.3), alpha))
+		"grenade":
+			canvas.draw_rect(Rect2(at.call(0.3, 0.3), s * Vector2(0.4, 0.58)), Color(Color(0.3, 0.42, 0.25), alpha))
+			canvas.draw_rect(Rect2(at.call(0.28, 0.52), s * Vector2(0.44, 0.1)), Color(Color(0.18, 0.2, 0.22), alpha))
+			canvas.draw_rect(Rect2(at.call(0.42, 0.16), s * Vector2(0.16, 0.14)), Color(Color(0.45, 0.46, 0.5), alpha))
+			canvas.draw_arc(at.call(0.66, 0.2), s.x * 0.08, 0.0, TAU, 10, Color(Color(0.75, 0.76, 0.8), alpha), 2.0)
 		"hood", "helmet":
 			canvas.draw_arc(at.call(0.5, 0.62), s.x * 0.38, PI, TAU, 14, c, 8.0)
 			canvas.draw_rect(Rect2(at.call(0.1, 0.6), s * Vector2(0.8, 0.12)), dark)

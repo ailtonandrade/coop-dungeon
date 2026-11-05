@@ -51,6 +51,17 @@ const ENCHANTS := {
 ## Venda ao sucateiro: esta fração do valor.
 const SELL_FACTOR := 0.3
 
+## Munição: cada arma de longe gasta um tipo (ficha da arma, "ammo"); granada é contada igual.
+## O herói guarda contadores (Inventory.ammo); caixas de munição no chão ou na loja viram
+## contador ao pegar/comprar e não ocupam a mochila.
+const AMMO_TYPES := {
+	"pregos": {"name": "Pregos", "color": Color(0.75, 0.76, 0.8), "max": 400},
+	"9mm": {"name": "Munição 9mm", "color": Color(0.85, 0.7, 0.35), "max": 300},
+	"rifle": {"name": "Munição de rifle", "color": Color(0.8, 0.55, 0.3), "max": 120},
+	"escopeta": {"name": "Cartuchos", "color": Color(0.85, 0.25, 0.2), "max": 80},
+	"granada": {"name": "Granadas", "color": Color(0.45, 0.6, 0.35), "max": 10},
+}
+
 ## Dinheiro do jogo (o item interno continua "gold" por causa dos saves).
 const CURRENCY := "parafusos"
 
@@ -233,6 +244,8 @@ static func slot_of(item: Dictionary) -> String:
 static func display_name(item: Dictionary) -> String:
 	if item.get("id") == "gold":
 		return money(int(item.get("amount", 0)))
+	if is_ammo(item):
+		return "%s (%d)" % [Txt.t(def(item).get("name", "?")), ammo_amount(item)]
 	var refine := int(item.get("refine", 0))
 	return Txt.t(def(item).get("name", "?")) + (" +%d" % refine if refine > 0 else "")
 
@@ -266,6 +279,9 @@ static func stat(item: Dictionary, key: String) -> float:
 static func value(item: Dictionary) -> int:
 	if item.get("id") == "gold":
 		return int(item.get("amount", 0))
+	# Munição: preço fixo da caixa (não sobe com poder nem raridade).
+	if is_ammo(item):
+		return int(def(item).get("price", 0))
 	var mult: float = RARITIES.get(item.get("rarity", "common"), RARITIES.common).mult
 	var enchant_levels := 0
 	for level: int in item.get("enchants", {}).values():
@@ -325,9 +341,43 @@ static func describe(item: Dictionary) -> PackedStringArray:
 	return lines
 
 
+## Item que vira munição ao pegar/comprar (caixa de pregos, cartuchos, granada).
+static func is_ammo(item: Variant) -> bool:
+	return item is Dictionary and def(item).has("ammo_type")
+
+
+## Tipo de munição da caixa ("pregos", "9mm"...).
+static func ammo_type(item: Dictionary) -> String:
+	return String(def(item).get("ammo_type", ""))
+
+
+## Quantas unidades a caixa dá (a do chão traz "amount"; a da loja, a caixa cheia).
+static func ammo_amount(item: Dictionary) -> int:
+	return int(item.get("amount", def(item).get("ammo_amount", 0)))
+
+
+## Caixas de munição das fichas: [id, ...].
+static func ammo_ids() -> Array:
+	return ids().filter(func(id: String) -> bool: return catalog()[id].has("ammo_type"))
+
+
+## Munição que a arma gasta ("" = infinita).
+static func weapon_ammo(item: Variant) -> String:
+	return String(def(item).get("ammo", "")) if item is Dictionary else ""
+
+
+static func ammo_name(type: String) -> String:
+	return Txt.t(AMMO_TYPES.get(type, {}).get("name", type))
+
+
 ## "37 parafusos"
 static func money(amount: int) -> String:
 	return "%d %s" % [amount, Txt.t(CURRENCY)]
+
+
+## Caixa de munição com `amount` unidades (a do chão).
+static func make_ammo(id: String, amount: int) -> Dictionary:
+	return {"id": id, "uid": randi(), "amount": amount, "power": 1, "rarity": "common"}
 
 
 static func make_gold(amount: int) -> Dictionary:

@@ -18,7 +18,9 @@ var _shooter := -1
 ## (de COLUMN_BELOW abaixo até COLUMN_ABOVE acima), não só na altura exata do tiro.
 var _column := false
 var _target_group := "enemies"
-var _nail := false
+var _style := ""
+var _sound := "shot"
+var _quiet := false
 
 const COLUMN_RADIUS := 0.55
 const COLUMN_BELOW := 1.6
@@ -27,12 +29,14 @@ const COLUMN_ABOVE := 4.0
 
 ## Dispara (só o host chama). `shooter` é qualquer nó dentro da fase.
 static func fire(shooter: Node, from: Vector3, direction: Vector3, speed: float, p_damage: float,
-		target_layer: int, color: Color, size := Vector3(0.1, 0.1, 0.7), column := false, style := "") -> void:
-	NetReplicator.of(shooter).spawn("projectile", {
+		target_layer: int, color: Color, size := Vector3(0.1, 0.1, 0.7), column := false, style := "", extra := {}) -> void:
+	var data := {
 		"shooter": shooter.get_meta("net_id", -1),
 		"from": from, "velocity": direction.normalized() * speed, "damage": p_damage,
 		"target_layer": target_layer, "color": color, "size": size, "column": column, "style": style,
-	})
+	}
+	data.merge(extra)
+	NetReplicator.of(shooter).spawn("projectile", data)
 
 
 static func build(data: Dictionary) -> Projectile:
@@ -54,10 +58,20 @@ static func build(data: Dictionary) -> Projectile:
 	collision.shape = sphere
 	projectile.add_child(collision)
 
-	projectile._nail = data.get("style", "") == "nail"
-	if projectile._nail:
-		projectile._build_nail(color)
-		return projectile
+	projectile._style = String(data.get("style", ""))
+	projectile._sound = String(data.get("sound", "shot"))
+	projectile._quiet = bool(data.get("quiet", false))
+	projectile._life = float(data.get("life", LIFETIME))
+	match projectile._style:
+		"nail":
+			projectile._build_nail(color)
+			return projectile
+		"bullet":
+			projectile._build_bullet(color, 0.32, 0.02)
+			return projectile
+		"pellet":
+			projectile._build_bullet(color, 0.14, 0.022)
+			return projectile
 	var box := BoxMesh.new()
 	box.size = data.size
 	var material := StandardMaterial3D.new()
@@ -96,6 +110,19 @@ func _build_nail(color: Color) -> void:
 	trail.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 	trail.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	_mesh_part(Vector3(0.012, 0.012, 0.7), Vector3(0, 0, 0.45), trail)
+
+
+## Bala/chumbo: pontinho quente com rastro de luz curto (tracejante), sem cara de laser.
+func _build_bullet(color: Color, trail_length: float, thickness: float) -> void:
+	var hot := StandardMaterial3D.new()
+	hot.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	hot.albedo_color = color
+	_mesh_part(Vector3(thickness, thickness, thickness * 2.5), Vector3(0, 0, -0.02), hot)
+	var trail := StandardMaterial3D.new()
+	trail.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	trail.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	trail.albedo_color = Color(color, 0.35)
+	_mesh_part(Vector3(thickness * 0.6, thickness * 0.6, trail_length), Vector3(0, 0, trail_length / 2.0), trail)
 
 
 func _mesh_part(size: Vector3, pos: Vector3, material: Material) -> void:
@@ -162,8 +189,12 @@ func _ready() -> void:
 	global_transform = Transform3D(Basis.looking_at(velocity.normalized()), _from)
 	reset_physics_interpolation()
 	# Nasce em todas as máquinas: o disparo soa em todas.
-	Sound.play("shot" if _from_player else "enemy_shot", _from)
-	if _nail:
+	if _from_player:
+		if not _sound.is_empty():
+			Sound.play(_sound, _from)
+	else:
+		Sound.play("enemy_shot", _from)
+	if not _style.is_empty() and not _quiet:
 		_muzzle_flash()
 	body_entered.connect(_on_body_entered)
 

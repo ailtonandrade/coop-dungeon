@@ -35,11 +35,12 @@ func _run() -> void:
 
 	# Fichas migradas: os itens antigos continuam iguais.
 	_db().reload()
-	_check(_db().ids().size() == 21, "21 fichas lidas de items/defs (%d)" % _db().ids().size())
+	_check(_db().ids().size() == 29, "29 fichas lidas de items/defs (%d)" % _db().ids().size())
 	_check(_db().def({"id": "axe"}).get("damage") == 13.0 and _db().def({"id": "axe"}).get("price") == 50, "machado: dano 13, preço 50")
 	_check(_db().def({"id": "big_backpack"}).get("capacity") == 20, "mochilão: 20 espaços")
 	_check(_db().def({"id": "gold"}).get("look") == "coins", "parafusos continuam existindo")
-	_check(_db().drop_pool().size() == 21, "todos no sorteio geral, como antes")
+	# Munição não entra no sorteio geral (cai à parte, Loot.AMMO_CHANCE).
+	_check(_db().drop_pool().size() == 24 and not _db().drop_pool().has("caixa_de_pregos"), "armas e peças no sorteio geral, munição fora (%d)" % _db().drop_pool().size())
 	_check(_db().make("backpack").contents.size() == 12, "mochila nasce com 12 casas")
 
 	# Criaturas: os ids das fichas batem com as criaturas do jogo.

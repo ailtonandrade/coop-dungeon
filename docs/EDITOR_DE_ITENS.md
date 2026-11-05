@@ -118,3 +118,22 @@ tamanho, o giro e a posição da ficha. Assim o ícone é sempre igual ao item n
 mesmo depois de ajustar o modelo, e não precisa apertar "Gerar ícone". Se quiser um ícone
 desenhado à mão, ponha a imagem no campo Icon da ficha (fora de `items/icons/`): ele passa na
 frente da foto.
+
+## Munição e granadas
+
+Cada arma de longe gasta um tipo de munição (grupo **Arma de longe** na ficha):
+
+- **ammo**: `pregos`, `9mm`, `rifle` ou `escopeta` (vazio = infinita).
+- **fire_interval**: segundos entre um tiro e outro (cadência).
+- **pellets** / **spread_deg**: escopeta solta vários chumbos em leque; o dano se divide entre eles.
+- **projectile_speed**, **projectile_life**: velocidade e alcance (segundos de voo) do projétil.
+- **projectile**: desenho (`prego`, `bala`, `chumbo`). **shot_sound**: evento do som do tiro.
+
+Caixas de munição e granadas são fichas com casa `municao` e o grupo **Munição** preenchido
+(**ammo_type** e **ammo_amount**). Ao pegar do chão ou comprar, viram contador do herói
+(não ocupam a mochila; cada tipo tem um máximo em `ItemDB.AMMO_TYPES`). Os inimigos deixam
+caixas pela metade de vez em quando (`Loot.AMMO_CHANCE`) e, mais raro, granadas
+(`Loot.GRENADE_CHANCE`). A Dona Alda vende as caixas cheias (campo "vendido por").
+
+Granada: Q no teclado, RB no controle. Explode depois de 1,7 s, fere as criaturas num raio de
+4,5 m (menos nas bordas; parede no meio protege) e empurra peças soltas. Não fere os heróis.

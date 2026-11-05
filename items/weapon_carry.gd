@@ -30,6 +30,7 @@ const HOLSTERS := {
 const DEFAULT_HOLSTER := {
 	"sword": "costas", "hammer": "costas", "axe": "cintura_esquerda", "dagger": "cintura_direita",
 	"bow": "cintura_direita", "longbow": "costas_cruzado", "crossbow": "costas_cruzado",
+	"pistol": "cintura_direita", "rifle": "costas_cruzado", "shotgun": "costas_cruzado",
 }
 
 const AXIS_FIX := {}

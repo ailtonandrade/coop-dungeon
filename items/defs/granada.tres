@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="ItemDef" format=3]
+
+[ext_resource type="Script" path="res://items/item_drop.gd" id="1_drop"]
+[ext_resource type="Script" path="res://items/item_def.gd" id="2_def"]
+
+[resource]
+script = ExtResource("2_def")
+id = "granada"
+display_name = "Granada caseira"
+slot = "municao"
+look = "grenade"
+color = Color(0.35, 0.45, 0.28, 1)
+price = 35
+sold_by = Array[String](["Dona Alda"])
+random_loot = false
+ammo_type = "granada"
+ammo_amount = 1
+drops = Array[ExtResource("1_drop")]([])

@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="ItemDef" format=3]
+
+[ext_resource type="Script" path="res://items/item_drop.gd" id="1_drop"]
+[ext_resource type="Script" path="res://items/item_def.gd" id="2_def"]
+
+[resource]
+script = ExtResource("2_def")
+id = "municao_rifle"
+display_name = "Munição de rifle"
+slot = "municao"
+look = "ammo_box"
+color = Color(0.55, 0.42, 0.25, 1)
+price = 30
+sold_by = Array[String](["Dona Alda"])
+random_loot = false
+ammo_type = "rifle"
+ammo_amount = 12
+drops = Array[ExtResource("1_drop")]([])

@@ -100,7 +100,7 @@ static func import_model(source_path: String, id: String) -> String:
 ## Tamanho típico (maior medida, em metros) de cada tipo de desenho, para o ajuste automático.
 const TYPICAL_SIZE := {
 	"sword": 0.9, "dagger": 0.45, "axe": 0.95, "hammer": 0.95, "bow": 1.0, "longbow": 1.3,
-	"crossbow": 0.75, "hood": 0.32, "helmet": 0.32, "vest": 0.55, "plate": 0.6, "legs": 0.5,
+	"crossbow": 0.75, "pistol": 0.3, "rifle": 1.1, "shotgun": 0.6, "ammo_box": 0.25, "grenade": 0.18, "hood": 0.32, "helmet": 0.32, "vest": 0.55, "plate": 0.6, "legs": 0.5,
 	"boots": 0.28, "amulet": 0.1, "ring": 0.08, "pouch": 0.22, "backpack": 0.48,
 }
 
@@ -236,8 +236,13 @@ static func validate(item: ItemDef) -> PackedStringArray:
 		issues.append("O id deve ter só letras minúsculas, números e _ (sugestão: %s)." % slugify(item.id))
 	if item.display_name.strip_edges().is_empty():
 		issues.append("Sem nome.")
-	if not ItemDB.EQUIP_SLOTS.has(item.slot):
+	if item.slot == "municao":
+		if not ItemDB.AMMO_TYPES.has(item.ammo_type) or item.ammo_amount <= 0:
+			issues.append("Munição sem tipo ou sem quantidade.")
+	elif not ItemDB.EQUIP_SLOTS.has(item.slot):
 		issues.append("Casa do corpo inválida: %s." % item.slot)
+	if item.slot == "ranged" and not item.ammo.is_empty() and not ItemDB.AMMO_TYPES.has(item.ammo):
+		issues.append("Munição da arma desconhecida: %s." % item.ammo)
 	if item.slot in ["melee", "ranged"] and item.damage <= 0.0:
 		issues.append("Arma sem dano.")
 	if item.slot == "bag" and item.capacity <= 0:

@@ -33,6 +33,9 @@ const MOUNTS := {
 	"bow": ["Wrist.R", Vector3(0.0, -0.07, 0.03), Vector3(180, 0, 0)],
 	"longbow": ["Wrist.R", Vector3(0.0, -0.07, 0.03), Vector3(180, 0, 0)],
 	"crossbow": ["Wrist.R", Vector3(0.0, -0.07, 0.03), Vector3(180, 0, 0)],
+	"pistol": ["Wrist.R", Vector3(0.0, -0.07, 0.03), Vector3(180, 0, 0)],
+	"rifle": ["Wrist.R", Vector3(0.0, -0.07, 0.03), Vector3(180, 0, 0)],
+	"shotgun": ["Wrist.R", Vector3(0.0, -0.07, 0.03), Vector3(180, 0, 0)],
 	# Na pose de referência (Idle) o alto do crânio fica ~0,2 m acima do osso Head.
 	"hood": ["Head", Vector3(0.0, 0.17, -0.01), Vector3.ZERO],
 	"helmet": ["Head", Vector3(0.0, 0.17, -0.01), Vector3.ZERO],
@@ -85,6 +88,16 @@ static func build(item: Dictionary) -> Node3D:
 			_rivet_rifle(root, shine)
 		"crossbow":
 			_nail_launcher(root, shine)
+		"pistol":
+			_pistol(root, shine)
+		"rifle":
+			_hunting_rifle(root, shine)
+		"shotgun":
+			_sawed_off(root, shine)
+		"ammo_box":
+			_ammo_box(root, color)
+		"grenade":
+			_grenade(root)
 		# Capuz e capacete por cima do crânio, sem cobrir o rosto (frente = +Z).
 		"hood":
 			_box(root, Vector3(0.23, 0.1, 0.26), Vector3.ZERO, color, shine)
@@ -376,6 +389,56 @@ static func _coins(root: Node3D, color: Color, amount: int) -> void:
 			mesh.position = Vector3(cos(angle) * radius, 0.012, sin(angle) * radius)
 			mesh.rotation = Vector3(rng.randf_range(-0.25, 0.25), 0, rng.randf_range(-0.25, 0.25))
 		root.add_child(mesh)
+
+
+## Pistola 9mm velha: ferrolho escuro gasto, cabo com fita.
+static func _pistol(root: Node3D, shine: Color) -> void:
+	_part(root, Vector3(0.04, 0.2, 0.05), Vector3(0, 0.07, -0.06), GUNMETAL.darkened(0.2), shine)
+	_part(root, Vector3(0.036, 0.19, 0.03), Vector3(0, 0.065, -0.025), GUNMETAL)
+	_part(root, Vector3(0.016, 0.02, 0.016), Vector3(0, 0.175, -0.065), RUBBER)
+	_part(root, Vector3(0.038, 0.05, 0.12), Vector3(0, -0.005, 0.03), RUBBER, Color.BLACK, -14.0)
+	_part(root, Vector3(0.042, 0.025, 0.04), Vector3(0, -0.01, 0.06), TAPE, Color.BLACK, -14.0)
+	_part(root, Vector3(0.01, 0.05, 0.035), Vector3(0, 0.035, 0.0), GUNMETAL.darkened(0.3))
+
+
+## Rifle de caça: cano longo, ferrolho, luneta remendada e coronha de madeira.
+static func _hunting_rifle(root: Node3D, shine: Color) -> void:
+	_part(root, Vector3(0.05, 0.3, 0.06), Vector3(0, 0.08, -0.06), WOOD, shine)
+	_part(root, Vector3(0.028, 0.46, 0.028), Vector3(0, 0.44, -0.08), GUNMETAL)
+	_part(root, Vector3(0.045, 0.14, 0.05), Vector3(0, 0.1, -0.1), GUNMETAL.darkened(0.2))
+	_part(root, Vector3(0.03, 0.16, 0.03), Vector3(0, 0.12, -0.15), RUBBER)
+	_part(root, Vector3(0.012, 0.03, 0.03), Vector3(0.03, 0.06, -0.1), GUNMETAL)
+	_part(root, Vector3(0.045, 0.05, 0.11), Vector3(0, -0.01, 0.02), WOOD.darkened(0.15), Color.BLACK, -12.0)
+	_part(root, Vector3(0.05, 0.26, 0.08), Vector3(0, -0.18, -0.04), WOOD, Color.BLACK, -5.0)
+	_part(root, Vector3(0.055, 0.03, 0.1), Vector3(0, -0.31, -0.03), RUBBER)
+	_part(root, Vector3(0.035, 0.04, 0.035), Vector3(0, 0.3, -0.08), TAPE)
+
+
+## Escopeta de cano serrado: dois canos curtos lado a lado, coronha cortada.
+static func _sawed_off(root: Node3D, shine: Color) -> void:
+	_part(root, Vector3(0.06, 0.12, 0.06), Vector3(0, 0.06, -0.06), GUNMETAL.darkened(0.15), shine)
+	_part(root, Vector3(0.028, 0.3, 0.028), Vector3(0.015, 0.26, -0.075), GUNMETAL)
+	_part(root, Vector3(0.028, 0.3, 0.028), Vector3(-0.015, 0.26, -0.075), GUNMETAL)
+	_part(root, Vector3(0.05, 0.16, 0.035), Vector3(0, 0.2, -0.045), WOOD.darkened(0.1))
+	_part(root, Vector3(0.045, 0.06, 0.12), Vector3(0, -0.02, 0.02), WOOD, Color.BLACK, -14.0)
+	_part(root, Vector3(0.05, 0.1, 0.07), Vector3(0, -0.07, -0.03), WOOD.darkened(0.2), Color.BLACK, -8.0)
+	_part(root, Vector3(0.06, 0.03, 0.065), Vector3(0, 0.13, -0.065), TAPE)
+
+
+## Caixa de munição: caixinha de papelão/metal com a cor do tipo e uma faixa escura.
+static func _ammo_box(root: Node3D, color: Color) -> void:
+	_box(root, Vector3(0.2, 0.1, 0.13), Vector3(0, 0.05, 0), color)
+	_box(root, Vector3(0.205, 0.03, 0.135), Vector3(0, 0.07, 0), color.darkened(0.45))
+	_box(root, Vector3(0.06, 0.012, 0.04), Vector3(0.05, 0.105, 0), BRASS)
+
+
+## Granada caseira: lata verde com fita, pavio e anel.
+static func _grenade(root: Node3D) -> void:
+	_box(root, Vector3(0.08, 0.11, 0.08), Vector3(0, 0.055, 0), Color(0.3, 0.4, 0.25))
+	_box(root, Vector3(0.085, 0.025, 0.085), Vector3(0, 0.05, 0), TAPE)
+	_box(root, Vector3(0.03, 0.035, 0.03), Vector3(0, 0.125, 0), GUNMETAL)
+	_box(root, Vector3(0.006, 0.05, 0.006), Vector3(0.012, 0.16, 0), Color(0.6, 0.5, 0.35))
+	_box(root, Vector3(0.035, 0.035, 0.006), Vector3(-0.025, 0.135, 0), METAL)
 
 
 ## Peça de arma no espaço dela: tamanho e posição em (lado, frente, baixo).

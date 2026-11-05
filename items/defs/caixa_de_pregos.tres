@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="ItemDef" format=3]
+
+[ext_resource type="Script" path="res://items/item_drop.gd" id="1_drop"]
+[ext_resource type="Script" path="res://items/item_def.gd" id="2_def"]
+
+[resource]
+script = ExtResource("2_def")
+id = "caixa_de_pregos"
+display_name = "Caixa de pregos"
+slot = "municao"
+look = "ammo_box"
+color = Color(0.72, 0.6, 0.35, 1)
+price = 12
+sold_by = Array[String](["Dona Alda"])
+random_loot = false
+ammo_type = "pregos"
+ammo_amount = 40
+drops = Array[ExtResource("1_drop")]([])

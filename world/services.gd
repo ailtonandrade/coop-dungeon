@@ -31,6 +31,11 @@ static func run(player: Node3D, command: String, args: Array) -> Array:
 			var price := ItemDB.value(item)
 			if inventory.gold < price:
 				return _fail(Txt.t("Faltam parafusos (%d)") % price)
+			if ItemDB.is_ammo(item):
+				if inventory.add_ammo(ItemDB.ammo_type(item), ItemDB.ammo_amount(item)) <= 0:
+					return _fail(Txt.t("%s no máximo") % ItemDB.ammo_name(ItemDB.ammo_type(item)))
+				inventory.spend_gold(price)
+				return _ok(Txt.t("Comprou %s (-%d)") % [ItemDB.display_name(item), price])
 			if inventory.add_item(item).is_empty():
 				return _fail("Mochila cheia")
 			inventory.spend_gold(price)

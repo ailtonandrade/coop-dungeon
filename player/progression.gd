@@ -38,7 +38,7 @@ const SKILL_MAX := 120
 ## Tipo de desenho da arma -> habilidade (a ficha do item pode trocar com "skill").
 const WEAPON_SKILL := {
 	"sword": "laminas", "dagger": "laminas", "axe": "machados", "hammer": "impacto",
-	"bow": "disparo", "longbow": "disparo", "crossbow": "disparo",
+	"bow": "disparo", "longbow": "disparo", "crossbow": "disparo", "pistol": "disparo", "rifle": "disparo", "shotgun": "disparo",
 }
 
 ## Ganho de cada nível, sem precisar gastar nada.

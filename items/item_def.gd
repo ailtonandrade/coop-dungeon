@@ -8,8 +8,8 @@ extends Resource
 
 ## Desenhos prontos: dão o ícone (quando não há ícone próprio), o modelo provisório de blocos
 ## (quando não há modelo 3D) e o encaixe padrão no corpo.
-const LOOKS := ["sword", "dagger", "axe", "hammer", "bow", "longbow", "crossbow", "hood", "helmet",
-		"vest", "plate", "legs", "boots", "amulet", "ring", "pouch", "backpack"]
+const LOOKS := ["sword", "dagger", "axe", "hammer", "bow", "longbow", "crossbow", "pistol", "rifle", "shotgun",
+		"hood", "helmet", "vest", "plate", "legs", "boots", "amulet", "ring", "pouch", "backpack", "ammo_box", "grenade"]
 ## Ossos do esqueleto dos personagens (Quaternius) onde dá para prender uma peça.
 const BONES := ["Wrist.R", "Wrist.L", "LowerArm.R", "LowerArm.L", "UpperArm.R", "UpperArm.L",
 		"Shoulder.R", "Shoulder.L", "Head", "Neck", "Chest", "Torso", "Abdomen", "Hips",
@@ -86,6 +86,30 @@ static func set_known_shops(shops: PackedStringArray) -> void:
 @export var mount_position := Vector3.ZERO
 @export var mount_rotation := Vector3.ZERO
 
+@export_group("Arma de longe")
+## Munição que a arma gasta (ItemDB.AMMO_TYPES: pregos, 9mm, rifle, escopeta). Vazio = infinita.
+@export var ammo := ""
+## Segundos entre um tiro e outro (cadência).
+@export_range(0.05, 3.0, 0.01, "suffix:s") var fire_interval := 0.45
+## Projéteis por tiro (escopeta solta vários chumbos; o dano se divide entre eles).
+@export_range(1, 12) var pellets := 1
+## Abertura do leque dos chumbos (graus).
+@export_range(0.0, 45.0, 0.5) var spread_deg := 0.0
+## Velocidade do projétil (m/s; 0 = padrão).
+@export_range(0.0, 150.0, 1.0) var projectile_speed := 0.0
+## Alcance (segundos de voo; 0 = padrão, 3 s). Chumbo de escopeta voa pouco.
+@export_range(0.0, 3.0, 0.05, "suffix:s") var projectile_life := 0.0
+## Desenho do projétil.
+@export_enum("prego", "bala", "chumbo") var projectile := "prego"
+## Som do disparo (evento do SoundBank).
+@export var shot_sound := "shot"
+
+@export_group("Munição (item que vira munição ao pegar ou comprar)")
+## Tipo de munição que este item dá (vazio = não é munição). Granada também entra aqui.
+@export var ammo_type := ""
+## Quantas unidades vêm na caixa (na loja; no loot vem menos).
+@export_range(0, 999) var ammo_amount := 0
+
 @export_group("Porte (arma guardada)")
 ## Onde a arma fica quando não está na mão (WeaponCarry.HOLSTERS). "auto" = o padrão do tipo.
 @export_enum("auto", "costas", "costas_cruzado", "cintura_direita", "cintura_esquerda", "nenhum") var holster := "auto"
@@ -124,6 +148,18 @@ func to_dict() -> Dictionary:
 		result["ground_scale"] = ground_scale
 	if custom_mount:
 		result["mount"] = [mount_bone, mount_position, mount_rotation]
+	if slot == "ranged":
+		result["ammo"] = ammo
+		result["fire_interval"] = fire_interval
+		result["pellets"] = pellets
+		result["spread_deg"] = spread_deg
+		result["projectile_speed"] = projectile_speed
+		result["projectile_life"] = projectile_life
+		result["projectile"] = projectile
+		result["shot_sound"] = shot_sound
+	if not ammo_type.is_empty():
+		result["ammo_type"] = ammo_type
+		result["ammo_amount"] = ammo_amount
 	if holster != "auto":
 		result["holster"] = holster
 	if holster_position != Vector3.ZERO or holster_rotation != Vector3.ZERO:
@@ -135,13 +171,19 @@ func _validate_property(property: Dictionary) -> void:
 	match property.name:
 		"slot":
 			property.hint = PROPERTY_HINT_ENUM
-			property.hint_string = ",".join(ItemDB.EQUIP_SLOTS)
+			property.hint_string = ",".join(ItemDB.EQUIP_SLOTS + ["municao"])
 		"look":
 			property.hint = PROPERTY_HINT_ENUM
 			property.hint_string = ",".join(LOOKS)
 		"skill":
 			property.hint = PROPERTY_HINT_ENUM_SUGGESTION
 			property.hint_string = ",laminas,machados,impacto,disparo"
+		"ammo":
+			property.hint = PROPERTY_HINT_ENUM_SUGGESTION
+			property.hint_string = ",pregos,9mm,rifle,escopeta"
+		"ammo_type":
+			property.hint = PROPERTY_HINT_ENUM_SUGGESTION
+			property.hint_string = ",pregos,9mm,rifle,escopeta,granada"
 		"mount_bone":
 			property.hint = PROPERTY_HINT_ENUM_SUGGESTION
 			property.hint_string = ",".join(BONES)

@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="ItemDef" format=3]
+
+[ext_resource type="Script" path="res://items/item_drop.gd" id="1_drop"]
+[ext_resource type="Script" path="res://items/item_def.gd" id="2_def"]
+
+[resource]
+script = ExtResource("2_def")
+id = "municao_9mm"
+display_name = "Munição 9mm"
+slot = "municao"
+look = "ammo_box"
+color = Color(0.85, 0.7, 0.3, 1)
+price = 20
+sold_by = Array[String](["Dona Alda"])
+random_loot = false
+ammo_type = "9mm"
+ammo_amount = 30
+drops = Array[ExtResource("1_drop")]([])

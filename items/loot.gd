@@ -11,6 +11,9 @@ const DROP_CHANCES := [0.55, 0.3, 0.12]
 ## Moedas: quase sempre caem, mais quanto maior o poder (perigo da região).
 const GOLD_CHANCE := 0.85
 const GOLD_PER_POWER := Vector2i(3, 8)
+## Munição: chance de cair uma caixa (de 30% a 80% da caixa da loja) e, mais rara, uma granada.
+const AMMO_CHANCE := 0.4
+const GRENADE_CHANCE := 0.06
 ## No chão: tamanho do item (um pouco maior que na mão, para dar de ver), queda e brilho.
 const GROUND_SCALE := 1.3
 const FALL_TIME := 0.45
@@ -70,6 +73,16 @@ static func roll_items(power: int, creature := "") -> Array[Dictionary]:
 	var rules := generosity()
 	if randf() < GOLD_CHANCE:
 		items.append(ItemDB.make_gold(roundi(maxi(1, power) * randi_range(GOLD_PER_POWER.x, GOLD_PER_POWER.y) * rules.gold)))
+	if randf() < minf(AMMO_CHANCE * rules.chance, 0.9):
+		var boxes := ItemDB.ammo_ids().filter(func(id: String) -> bool: return ItemDB.catalog()[id].ammo_type != "granada")
+		if not boxes.is_empty():
+			var box: String = boxes.pick_random()
+			var full := int(ItemDB.catalog()[box].get("ammo_amount", 1))
+			items.append(ItemDB.make_ammo(box, maxi(1, roundi(full * randf_range(0.3, 0.8)))))
+	if randf() < minf(GRENADE_CHANCE * rules.chance, 0.5):
+		var grenades := ItemDB.ammo_ids().filter(func(id: String) -> bool: return ItemDB.catalog()[id].ammo_type == "granada")
+		if not grenades.is_empty():
+			items.append(ItemDB.make_ammo(grenades[0], 1))
 	for chance: float in DROP_CHANCES:
 		if randf() >= minf(chance * rules.chance, 0.95):
 			break

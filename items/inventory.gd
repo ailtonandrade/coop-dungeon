@@ -17,6 +17,10 @@ const DEPOT_CAPACITY := 40
 
 var equipment := {}  # slot -> item (Dictionary); casa vazia não tem chave
 var gold := 0
+## Munição por tipo (ItemDB.AMMO_TYPES), contada à parte da mochila: {"pregos": 60, "granada": 2}.
+var ammo := {}
+## Munição de quem ainda não tinha contador (saves antigos) e de herói novo.
+const STARTER_AMMO := {"pregos": 60, "granada": 2}
 ## Depósito do banco: como uma bolsa grande que fica no banco ({"contents": [...]}).
 var depot := {"contents": _empty_contents(DEPOT_CAPACITY)}
 
@@ -29,6 +33,14 @@ static func from_dict(data: Dictionary) -> Inventory:
 		if ItemDB.is_valid(item) and ItemDB.slot_of(item) == slot:
 			inventory.equipment[slot] = _sanitize(item)
 	inventory.gold = maxi(0, int(data.get("gold", 0)))
+	var saved_ammo: Variant = data.get("ammo")
+	if saved_ammo is Dictionary:
+		for type: String in ItemDB.AMMO_TYPES:
+			var amount := int((saved_ammo as Dictionary).get(type, 0))
+			if amount > 0:
+				inventory.ammo[type] = mini(amount, int(ItemDB.AMMO_TYPES[type].max))
+	else:
+		inventory.ammo = STARTER_AMMO.duplicate()
 	var saved: Array = data.get("depot", [])
 	for i in mini(saved.size(), DEPOT_CAPACITY):
 		if ItemDB.is_valid(saved[i]) and saved[i].id != "gold":
@@ -41,7 +53,7 @@ static func starter() -> Inventory:
 
 
 func to_dict() -> Dictionary:
-	return {"equipment": equipment.duplicate(true), "gold": gold, "depot": depot.contents.duplicate(true)}
+	return {"equipment": equipment.duplicate(true), "gold": gold, "depot": depot.contents.duplicate(true), "ammo": ammo.duplicate()}
 
 
 func is_empty() -> bool:
@@ -215,6 +227,31 @@ func add_to_depot(item: Dictionary) -> Array:
 func add_gold(amount: int) -> void:
 	gold += maxi(amount, 0)
 	changed.emit()
+
+
+func ammo_of(type: String) -> int:
+	return int(ammo.get(type, 0))
+
+
+## Guarda munição (até o máximo do tipo). Retorna quanto coube.
+func add_ammo(type: String, amount: int) -> int:
+	if not ItemDB.AMMO_TYPES.has(type) or amount <= 0:
+		return 0
+	var room := int(ItemDB.AMMO_TYPES[type].max) - ammo_of(type)
+	var added := clampi(amount, 0, room)
+	if added > 0:
+		ammo[type] = ammo_of(type) + added
+		changed.emit()
+	return added
+
+
+## Gasta uma unidade (tiro, granada). Não avisa `changed` (o herói manda só o contador ao dono,
+## a mochila inteira vai depois). false = acabou.
+func use_ammo(type: String) -> bool:
+	if ammo_of(type) <= 0:
+		return false
+	ammo[type] = ammo_of(type) - 1
+	return true
 
 
 ## Gasta se tiver; retorna false (sem gastar) se não tiver o suficiente.

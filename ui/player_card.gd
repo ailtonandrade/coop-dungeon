@@ -197,6 +197,7 @@ func _draw_hotbar() -> void:
 		[InputService.button_name(InputService.Action.RANGED, slot), player.equipped("ranged"), 0.0, 0.0],
 		[InputService.button_name(InputService.Action.POTION, slot), "potion", player.potion_cooldown, player.potion_cooldown_total()],
 		[InputService.button_name(InputService.Action.DODGE, slot), "dodge", player.dodge_cooldown_left(), GameConfig.DODGE_COOLDOWN * player.cooldown_factor()],
+		[InputService.button_name(InputService.Action.ARTIFACT, slot), "grenade", player.grenade_cooldown, Player.GRENADE_COOLDOWN],
 	]
 	var x := BAR.position.x
 	for entry: Array in entries:
@@ -211,11 +212,28 @@ func _draw_hotbar() -> void:
 			_draw_flask(icon_rect)
 		elif content == "dodge":
 			_draw_roll(icon_rect)
+		elif content == "grenade":
+			ItemIcon.draw_glyph(self, "grenade", icon_rect, Color.WHITE, 1.0 if player.inventory.ammo_of("granada") > 0 else 0.35)
+			_draw_count(rect, player.inventory.ammo_of("granada"))
+		# Munição da arma de longe (só se ela gasta munição).
+		if content is Dictionary and ItemDB.slot_of(content) == "ranged":
+			var ammo_type := ItemDB.weapon_ammo(content)
+			if not ammo_type.is_empty():
+				_draw_count(rect, player.inventory.ammo_of(ammo_type))
 		var cooldown: float = entry[2]
 		if cooldown > 0.0 and entry[3] > 0.0:
 			_draw_cooldown(rect, cooldown / entry[3], cooldown)
 		UiSkin.draw_button_hint(self, rect.position + Vector2(rect.size.x - 2, rect.size.y - 2), entry[0], 7.5)
 		x += HOTBAR_SLOT + 12
+
+
+## Quantos sobram, no canto de cima do atalho (vermelho quando acabou).
+func _draw_count(rect: Rect2, amount: int) -> void:
+	var f := UiSkin.font("Bold")
+	var text := str(amount)
+	var at := rect.position + Vector2(0, 11)
+	draw_string_outline(f, at, text, HORIZONTAL_ALIGNMENT_RIGHT, rect.size.x - 3, 12, 4, UiSkin.INK)
+	draw_string(f, at, text, HORIZONTAL_ALIGNMENT_RIGHT, rect.size.x - 3, 12, Color(1.0, 0.4, 0.35) if amount <= 0 else UiSkin.TEXT)
 
 
 ## Varredura escura de recarga (sentido horário) e os segundos que faltam.

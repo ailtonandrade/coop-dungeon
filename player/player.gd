@@ -38,6 +38,23 @@ const SLASH_IMPACT := 0.4
 const PROGRESS_SYNC_TIME := 5.0
 ## Depois de atirar, por quanto tempo as pernas correm com a animação de "correr atirando".
 const SHOOT_POSE_TIME := 0.35
+## Projétil de cada tipo de arma: [cor, tamanho, desenho].
+const PROJECTILE_LOOKS := {
+	"prego": [Color(0.78, 0.78, 0.8), Vector3(0.03, 0.03, 0.25), "nail"],
+	"bala": [Color(1.0, 0.82, 0.45), Vector3(0.02, 0.02, 0.3), "bullet"],
+	"chumbo": [Color(0.9, 0.75, 0.5), Vector3(0.025, 0.025, 0.12), "pellet"],
+}
+var _empty_warning := 0.0
+## Granada: força do arremesso, dano no centro e espera entre uma e outra.
+const GRENADE_THROW_SPEED := 9.0
+const GRENADE_DAMAGE := 60.0
+const GRENADE_COOLDOWN := 1.0
+var grenade_cooldown := 0.0
+## Atirando numa animação que não levanta o braço (correr de costas/de lado, pular): o braço
+## da arma fica esticado por cima (AimArm). O host decide; vai aos clientes no estado.
+var _arm_aim := false
+var _aim_arm_node: AimArm
+const ARM_POSES := ["idle_aim", "move_shoot", "shoot"]
 ## Tempo no ar antes de virar a pose de queda (descer degrau ou quina não chega nisso).
 const FALL_POSE_DELAY := 0.22
 
@@ -156,12 +173,26 @@ func _ready() -> void:
 	$Model.add_child(_model)
 	Characters.attach_chip(_model, Characters.chip_color(chip_color))
 	_animator = CharacterAnimator.new(_model, AnimSets.HUMANOID)
+	_setup_aim_arm()
 	ItemVisuals.dress(_model, _visual)
 	if multiplayer.is_server():
 		inventory.changed.connect(_on_inventory_changed)
 		_apply_stats()
 		# Depois de nascer em todo mundo, o dono recebe o inventário (e salva o kit inicial).
 		_send_inventory.call_deferred()
+
+
+## Braço da arma esticado por cima das corridas de costas e de lado (AimArm).
+func _setup_aim_arm() -> void:
+	var skeletons := _model.find_children("*", "Skeleton3D", true, false)
+	if skeletons.is_empty():
+		return
+	var arm := AimArm.new()
+	if arm.setup(_model.find_child("AnimationPlayer", true, false), skeletons[0]):
+		skeletons[0].add_child(arm)
+		_aim_arm_node = arm
+	else:
+		arm.free()
 
 
 ## Criaturas podem mirar neste herói (não está caído nem construindo).
@@ -236,6 +267,14 @@ func _process(delta: float) -> void:
 			global_position = global_position.lerp(_net_pos, 1.0 - exp(-NET_SMOOTHING * delta))
 		rotation.y = lerp_angle(rotation.y, _net_yaw, 1.0 - exp(-NET_SMOOTHING * delta))
 	_footsteps()
+	_blend_aim_arm(delta)
+
+
+func _blend_aim_arm(delta: float) -> void:
+	if _aim_arm_node == null:
+		return
+	var wanted := 1.0 if _arm_aim and state == State.NORMAL and not ARM_POSES.has(_animator.current) else 0.0
+	_aim_arm_node.influence = move_toward(_aim_arm_node.influence, wanted, delta * 8.0)
 
 
 ## Passos: um a cada passada andada no chão, em todas as máquinas, pelo quanto o herói se moveu
@@ -270,6 +309,7 @@ func _physics_process(delta: float) -> void:
 	_arrow_cooldown = maxf(_arrow_cooldown - delta, 0.0)
 	_melee_cooldown = maxf(_melee_cooldown - delta, 0.0)
 	potion_cooldown = maxf(potion_cooldown - delta, 0.0)
+	grenade_cooldown = maxf(grenade_cooldown - delta, 0.0)
 	_anim_lock = maxf(_anim_lock - delta, 0.0)
 	_shoot_pose = maxf(_shoot_pose - delta, 0.0)
 	_coyote = GameConfig.COYOTE_TIME if is_on_floor() else maxf(_coyote - delta, 0.0)
@@ -451,11 +491,14 @@ func _update_normal(delta: float, dir: Vector3) -> Vector3:
 		_shoot_arrow()
 	if _input.just_pressed(InputService.Action.POTION):
 		_drink_potion()
+	if _input.just_pressed(InputService.Action.ARTIFACT) and not building:
+		_throw_grenade()
 	if _input.just_pressed(InputService.Action.PICKUP):
 		_pick_up()
 
 	var target := dir * move_speed() * _strafe_factor(dir) * (GameConfig.SPRINT_FACTOR if is_sprinting() else 1.0)
 	_move = _move.move_toward(target, GameConfig.PLAYER_ACCEL * delta)
+	_arm_aim = (aiming or _shoot_pose > 0.0) and drawn_weapon == "ranged"
 	# Pose de queda só no ar de verdade (pulo, muro, buraco): um tropeço de degrau não conta.
 	if not grounded:
 		if not _animator.is_playing("jump") and _air_time > FALL_POSE_DELAY:
@@ -797,7 +840,21 @@ func _shoot_arrow() -> void:
 	if ranged_damage() <= 0.0:
 		return
 	draw_weapon("ranged")
-	_arrow_cooldown = GameConfig.ARROW_COOLDOWN * cooldown_factor()
+	var weapon: Dictionary = equipped("ranged") if equipped("ranged") is Dictionary else {}
+	var spec := ItemDB.def(weapon)
+	_arrow_cooldown = float(spec.get("fire_interval", GameConfig.ARROW_COOLDOWN)) * cooldown_factor()
+	# Munição da arma: acabou = clique seco (e o aviso, sem repetir a cada clique).
+	var ammo_type := ItemDB.weapon_ammo(weapon)
+	if not ammo_type.is_empty() and not inventory.use_ammo(ammo_type):
+		_arrow_cooldown = maxf(_arrow_cooldown, 0.35)
+		_fx("fx_sound", ["dry_fire"])
+		_empty_warning -= 1.0
+		if _empty_warning <= 0.0:
+			_empty_warning = 3.0
+			_fx("fx_toast", [Txt.t("Sem %s") % ItemDB.ammo_name(ammo_type).to_lower(), Color(1.0, 0.55, 0.4), ""])
+		return
+	if not ammo_type.is_empty():
+		_ammo_used()
 	# Mirando de verdade (analógico/mouse) a correção é pequena; atirando "para a frente", maior.
 	var aimed := _aim_dir != Vector3.ZERO
 	var cone := GameConfig.ARROW_AIM_ASSIST_DEG if aimed else GameConfig.ARROW_AIM_CONE_DEG
@@ -816,12 +873,72 @@ func _shoot_arrow() -> void:
 	if aim and not (aimed and not flat_aim):
 		dir = Combat.flat(aim.global_position - from).normalized() if flat_aim \
 				else (aim.global_position + Vector3.UP * 1.0 - from).normalized()
-	Projectile.fire(self, from, dir, GameConfig.ARROW_SPEED, ranged_damage(),
-			GameConfig.LAYER_ENEMIES, Color(0.78, 0.78, 0.8), Vector3(0.03, 0.03, 0.25), flat_aim, "nail")
+	var pellets := maxi(int(spec.get("pellets", 1)), 1)
+	var spread := deg_to_rad(float(spec.get("spread_deg", 0.0)))
+	var speed := float(spec.get("projectile_speed", 0.0))
+	if speed <= 0.0:
+		speed = GameConfig.ARROW_SPEED
+	var style := String(spec.get("projectile", "prego"))
+	var look: Array = PROJECTILE_LOOKS.get(style, PROJECTILE_LOOKS.prego)
+	var extra := {"sound": String(spec.get("shot_sound", "shot"))}
+	if float(spec.get("projectile_life", 0.0)) > 0.0:
+		extra["life"] = float(spec.get("projectile_life"))
+	# Escopeta: o dano se divide entre os chumbos (de perto, todos acertam).
+	var damage := ranged_damage() / pellets * (1.25 if pellets > 1 else 1.0)
+	for i in pellets:
+		var shot_dir := dir
+		if pellets > 1:
+			var t := (float(i) / (pellets - 1) - 0.5) if pellets > 1 else 0.0
+			shot_dir = dir.rotated(Vector3.UP, t * spread + randf_range(-0.15, 0.15) * spread / pellets)
+			shot_dir = shot_dir.rotated(shot_dir.cross(Vector3.UP).normalized(), randf_range(-0.3, 0.3) * spread * 0.3)
+			# Só o primeiro chumbo faz o som e o clarão (um tiro só).
+			if i > 0:
+				extra["sound"] = ""
+				extra["quiet"] = true
+		Projectile.fire(self, from, shot_dir, speed, damage, GameConfig.LAYER_ENEMIES, look[0], look[1], flat_aim, look[2], extra.duplicate())
 	# Parado, o corpo todo atira; andando, as pernas continuam correndo (Run_Shoot e direções).
 	_shoot_pose = SHOOT_POSE_TIME
 	if Combat.flat(_move).length() < 0.5 and is_on_floor():
 		_animator.play("shoot", 0.3, true, 0.05)
+		_anim_lock = 0.3
+
+
+## Gastou munição: o dono recebe só o contador na hora (para o HUD); a mochila inteira (que salva)
+## vai junto com a próxima sincronização.
+func _ammo_used() -> void:
+	_progress_dirty = true
+	var replicator := NetReplicator.of(self)
+	if replicator:
+		replicator.send_to_peer(owner_peer, self, "net_ammo", [inventory.ammo.duplicate()])
+
+
+## Dono: contador de munição novo (tiro, granada).
+func net_ammo(ammo: Dictionary) -> void:
+	if not multiplayer.is_server():
+		inventory.ammo = ammo
+	inventory_updated.emit()
+
+
+## Arremessa uma granada em arco para onde o herói olha (mirando para cima, vai mais longe).
+func _throw_grenade() -> void:
+	if grenade_cooldown > 0.0:
+		return
+	if not inventory.use_ammo("granada"):
+		_fx("fx_toast", ["Sem granadas", Color(1.0, 0.55, 0.4), "ui_error"])
+		grenade_cooldown = 0.5
+		return
+	_ammo_used()
+	grenade_cooldown = GRENADE_COOLDOWN
+	var forward := _aim_dir if _aim_dir != Vector3.ZERO else _facing
+	_facing = forward
+	var lift := 5.5
+	if _input.aim_pitch != PlayerInput.AIM_FLAT:
+		lift = clampf(5.5 + _input.aim_pitch * 8.0, 2.5, 9.5)
+	var from := global_position + Vector3.UP * 1.6 + forward * 0.35 + forward.cross(Vector3.UP) * 0.15
+	Grenade.throw(self, from, forward * GRENADE_THROW_SPEED + Vector3.UP * lift + Combat.flat(velocity) * 0.5, GRENADE_DAMAGE * damage_factor())
+	_fx("fx_sound", ["swing"])
+	if is_on_floor():
+		_animator.play("punch", 0.35, true, 0.05)
 		_anim_lock = 0.3
 
 
@@ -860,7 +977,7 @@ func _update_downed(delta: float) -> void:
 func get_net_state() -> Array:
 	return [global_position, rotation.y, _animator.net_state(),
 			health.hp, state, revive_progress, potion_cooldown, health.max_hp, progress.level, progress.xp,
-			1 if drawn_weapon == "ranged" else 0]
+			1 if drawn_weapon == "ranged" else 0, grenade_cooldown, 1 if _arm_aim else 0]
 
 
 func apply_net_state(s: Array) -> void:
@@ -882,6 +999,9 @@ func apply_net_state(s: Array) -> void:
 		progress.changed.emit()
 	if s.size() > 10:
 		draw_weapon("ranged" if int(s[10]) == 1 else "melee")
+	if s.size() > 12:
+		grenade_cooldown = s[11]
+		_arm_aim = int(s[12]) == 1
 
 
 ## Inventário e atributos
@@ -1020,6 +1140,15 @@ func give_item(item: Dictionary) -> bool:
 	if item.get("id") == "gold":
 		inventory.add_gold(int(item.get("amount", 0)))
 		_fx("fx_toast", ["+" + ItemDB.money(int(item.get("amount", 0))), ItemDB.GOLD.color, "coin"])
+		return true
+	# Munição vira contador (não ocupa a mochila); cheio, fica no chão.
+	if ItemDB.is_ammo(item):
+		var type := ItemDB.ammo_type(item)
+		var added := inventory.add_ammo(type, ItemDB.ammo_amount(item))
+		if added <= 0:
+			_fx("fx_toast", [Txt.t("%s no máximo") % ItemDB.ammo_name(type), Color(1.0, 0.5, 0.4), "ui_error"])
+			return false
+		_fx("fx_toast", ["+%d %s" % [added, ItemDB.ammo_name(type)], ItemDB.AMMO_TYPES[type].color, "ammo_pickup"])
 		return true
 	if inventory.add_item(item).is_empty():
 		_fx("fx_toast", ["Mochila cheia", Color(1.0, 0.5, 0.4), "ui_error"])

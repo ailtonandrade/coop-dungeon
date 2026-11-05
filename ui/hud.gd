@@ -14,7 +14,7 @@ const CONTROLS := [
 	["Correr", "LB (segure)", "Shift (segure)"],
 	["Rolar", "B", "C"],
 	["Poção", "Y", "E"],
-	["Artefato", "RB", "Q"],
+	["Granada", "RB", "Q"],
 	["Pegar / falar", "LB", "F"],
 	["Inventário", "Back", "I"],
 	["Menu", "Start", "Esc"],

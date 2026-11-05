@@ -290,6 +290,91 @@ def make_nail_shots():
         save(SFX, "nail_body_%d" % (i + 1), nail_impact_body(i))
 
 
+def gunshot(seed, weight=1.0, length=0.9, crack_gain=3.0, body_f=(160, 55), tail=0.32):
+    """Tiro de arma de fogo, abafado e realista: estalo do disparo (transiente curtíssimo e
+    forte), estouro grave do cano, ar empurrado, e o eco da rua (reflexões escuras + cauda de
+    ambiente). `weight` encorpa (rifle e escopeta são mais pesados que a 9mm)."""
+    r = np.random.default_rng(400 + seed)
+    crack_n = r.uniform(-1, 1, int(0.005 * RATE))
+    crack = (crack_n - onepole_lowpass(crack_n, 1200)) * env(len(crack_n), 0.0001, 0.0015) * crack_gain
+    blast_n = r.uniform(-1, 1, int(0.12 * RATE))
+    blast = onepole_lowpass(blast_n, 2600) * env(len(blast_n), 0.0003, 0.03 * weight) * 1.4
+    boom = sweep_sine(body_f[0], body_f[1], 0.18 * weight, 0.5) * env(int(0.18 * weight * RATE), 0.0005, 0.06 * weight) * 1.2 * weight
+    shot = drive(mix(crack, blast, boom), 2.6)
+    shot = onepole_lowpass(onepole_lowpass(shot, 7000), 9000)
+    slap1 = onepole_lowpass(shot, 1600) * 0.32
+    slap2 = onepole_lowpass(shot, 1000) * 0.18
+    slap3 = onepole_lowpass(shot, 700) * 0.1
+    tail_n = r.uniform(-1, 1, int(0.8 * RATE))
+    rumble = onepole_lowpass(tail_n, 500) * env(len(tail_n), 0.01, tail * weight, 3.0) * 0.16 * weight
+    out = mix(shot, at(slap1, 0.075), at(slap2, 0.17), at(slap3, 0.3), at(rumble, 0.01))
+    return pad(out, max(0.0, length - len(out) / RATE))[: int(length * RATE)]
+
+
+def explosion(seed):
+    """Granada: estrondo grave e abafado (pressão), estalo na frente, chuva de cacos e um eco
+    longo rolando pela rua."""
+    r = np.random.default_rng(500 + seed)
+    total = 2.2
+    crack_n = r.uniform(-1, 1, int(0.01 * RATE))
+    crack = onepole_lowpass(crack_n, 5000) * env(len(crack_n), 0.0002, 0.004) * 2.0
+    boom = sweep_sine(r.uniform(85, 100), 30, 0.7, 0.6) * env(int(0.7 * RATE), 0.002, 0.25) * 1.6
+    body_n = r.uniform(-1, 1, int(1.2 * RATE))
+    body = onepole_lowpass(body_n, np.linspace(1800, 250, len(body_n))) * env(len(body_n), 0.003, 0.35, 3.0) * 1.5
+    debris = np.zeros(int(1.4 * RATE))
+    for _ in range(18):
+        g_n = r.uniform(-1, 1, int(0.012 * RATE))
+        g = bandpass(g_n, 900, 4000) * env(len(g_n), 0.0003, 0.004) * r.uniform(0.05, 0.16)
+        start = int(r.uniform(0.15, 1.2) * RATE)
+        debris[start:start + len(g)] += g[: len(debris) - start]
+    blast = drive(mix(crack, boom, body), 2.2)
+    blast = onepole_lowpass(blast, 4500)
+    echo_ = onepole_lowpass(blast, 700) * 0.3
+    out = mix(blast, at(echo_, 0.14), at(echo_ * 0.5, 0.36), debris)
+    return pad(out, max(0.0, total - len(out) / RATE))[: int(total * RATE)]
+
+
+def grenade_bounce(seed):
+    """Lata batendo no chão: 'tonc' curto, grave e abafado."""
+    r = np.random.default_rng(600 + seed)
+    knock = sweep_sine(r.uniform(300, 360), 160, 0.05, 0.5) * env(int(0.05 * RATE), 0.0003, 0.015)
+    rattle_n = r.uniform(-1, 1, int(0.05 * RATE))
+    rattle = bandpass(rattle_n, 800, 3000) * env(len(rattle_n), 0.001, 0.015) * 0.3
+    return onepole_lowpass(drive(mix(knock, rattle), 1.5), 4000)
+
+
+def dry_fire():
+    """Sem munição: clique seco do gatilho/ferrolho, baixinho."""
+    a = bandpass(noise(0.01), 1500, 5000) * env(int(0.01 * RATE), 0.0002, 0.002)
+    b = bandpass(noise(0.012), 900, 3500) * env(int(0.012 * RATE), 0.0002, 0.003) * 0.7
+    return onepole_lowpass(mix(a, at(b, 0.035)), 6000)
+
+
+def ammo_pickup():
+    """Pegou munição: caixinha chacoalhando com cartuchos, curto e abafado."""
+    r = np.random.default_rng(700)
+    out = np.zeros(int(0.22 * RATE))
+    for i in range(6):
+        g_n = r.uniform(-1, 1, int(0.01 * RATE))
+        g = bandpass(g_n, 1200, 4200) * env(len(g_n), 0.0002, 0.003) * r.uniform(0.4, 1.0)
+        start = int((0.01 + i * 0.03 + r.uniform(0, 0.012)) * RATE)
+        out[start:start + len(g)] += g[: len(out) - start]
+    thud = sweep_sine(260, 140, 0.04, 0.5) * env(int(0.04 * RATE), 0.0005, 0.012) * 0.5
+    return onepole_lowpass(mix(thud, out), 5000)
+
+
+def make_guns():
+    for i in range(2):
+        save(SFX, "shot_9mm_%d" % (i + 1), gunshot(i, 0.8, 0.8, 3.2, (210, 70), 0.25))
+        save(SFX, "shot_rifle_%d" % (i + 1), gunshot(10 + i, 1.25, 1.2, 3.6, (140, 45), 0.4))
+        save(SFX, "shot_shotgun_%d" % (i + 1), gunshot(20 + i, 1.5, 1.2, 2.6, (120, 40), 0.42))
+    for i in range(2):
+        save(SFX, "explosion_%d" % (i + 1), explosion(i))
+        save(SFX, "grenade_bounce_%d" % (i + 1), grenade_bounce(i))
+    save(SFX, "dry_fire", dry_fire())
+    save(SFX, "ammo_pickup", ammo_pickup())
+
+
 def make_sfx():
     print("Efeitos:")
     for i in range(3):
@@ -566,6 +651,9 @@ if __name__ == "__main__":
         sys.exit(0)
     if sys.argv[1:] == ["tiro"]:
         make_nail_shots()
+        sys.exit(0)
+    if sys.argv[1:] == ["armas"]:
+        make_guns()
         sys.exit(0)
     if sys.argv[1:] == ["golpe"]:
         save(SFX, "swing_heavy", swing_heavy())

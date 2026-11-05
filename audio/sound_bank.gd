@@ -20,6 +20,14 @@ const EVENTS := {
 	"enemy_hurt": {"files": ["kenney_enemy_hurt"], "db": -10.0, "pitch": 0.15, "gap": 0.05},
 	"shot": {"files": ["nail_shot_1", "nail_shot_2", "nail_shot_3"], "db": 1.0, "pitch": 0.05},
 	"enemy_shot": {"files": ["enemy_shot"], "db": -5.0, "pitch": 0.1},
+	# Armas de fogo e granada: estalo, estouro grave e eco curto de rua, abafados.
+	"shot_9mm": {"files": ["shot_9mm_1", "shot_9mm_2"], "db": 0.0, "pitch": 0.05},
+	"shot_rifle": {"files": ["shot_rifle_1", "shot_rifle_2"], "db": 2.0, "pitch": 0.04},
+	"shot_shotgun": {"files": ["shot_shotgun_1", "shot_shotgun_2"], "db": 2.0, "pitch": 0.04},
+	"explosion": {"files": ["explosion_1", "explosion_2"], "db": 3.0, "pitch": 0.06},
+	"grenade_bounce": {"files": ["grenade_bounce_1", "grenade_bounce_2"], "db": -6.0, "pitch": 0.1, "gap": 0.05},
+	"dry_fire": {"files": ["dry_fire"], "db": -6.0, "pitch": 0.05, "gap": 0.1},
+	"ammo_pickup": {"files": ["ammo_pickup"], "db": -6.0, "pitch": 0.06},
 	# Prego batendo em parede/chão e entrando em alguém: abafados, sem anel.
 	"projectile_hit": {"files": ["nail_impact_1", "nail_impact_2", "nail_impact_3"], "db": -4.0, "pitch": 0.1, "gap": 0.03},
 	"nail_hit": {"files": ["nail_body_1", "nail_body_2", "nail_body_3"], "db": -3.0, "pitch": 0.1, "gap": 0.03},

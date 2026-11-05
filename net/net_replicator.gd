@@ -104,6 +104,9 @@ func _create(id: int, type: String, data: Dictionary) -> Node:
 		"loot":
 			node = Loot.build(data)
 			parent = fx_root
+		"grenade":
+			node = Grenade.build(data)
+			parent = fx_root
 		_:
 			push_error("Tipo de entidade desconhecido: %s" % type)
 			return null
