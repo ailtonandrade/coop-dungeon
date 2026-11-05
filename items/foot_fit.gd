@@ -18,7 +18,9 @@ var width := 0.14
 
 ## Monta a bota do lado `side` ("L"/"R") a partir da malha dos pés do modelo (nome terminando
 ## em "Feet"). Null se o modelo não tem essa malha (aí a bota vai presa no osso do pé).
-static func make(p_skeleton: Skeleton3D, side: String) -> FootFit:
+## `whole_shoe`: pega os pontos do sapato inteiro (também o calcanhar, que segue a canela), para
+## medir para onde o sapato aponta; sem isso, só a parte que segue o pé (onde a bota encaixa).
+static func make(p_skeleton: Skeleton3D, side: String, whole_shoe := false) -> FootFit:
 	var feet: MeshInstance3D = null
 	for mesh: MeshInstance3D in p_skeleton.find_children("*", "MeshInstance3D", true, false):
 		if String(mesh.name).ends_with("Feet") and mesh.skin != null and mesh.mesh != null:
@@ -53,6 +55,9 @@ static func make(p_skeleton: Skeleton3D, side: String) -> FootFit:
 				influences.append([bone, skin.get_bind_pose(bind), weight])
 				if String(skin.get_bind_name(bind)) == wanted_bone and weight > 0.5:
 					on_side = true
+			if whole_shoe:
+				# Lado pelo X do modelo (o esquerdo fica em +X).
+				on_side = (vertices[i].x > 0.0) == (side == "L") and not influences.is_empty()
 			if on_side:
 				sole.append([vertices[i], influences])
 				min_y = minf(min_y, vertices[i].y)
