@@ -186,7 +186,8 @@ func _ready() -> void:
 		_decor.add_child(_sparkles(color, 6 if rarity == "rare" else 12))
 
 	# Nome na cor da raridade, baixinho, logo acima do item.
-	var label := WorldText.make(ItemDB.display_name(item) if item.get("id") == "gold" \
+	var plain: bool = item.get("id") == "gold" or ItemDB.is_ammo(item)
+	var label := WorldText.make(ItemDB.display_name(item) if plain \
 			else Txt.t("%s · poder %d") % [ItemDB.display_name(item), int(item.get("power", 1))], 12, color)
 	label.position.y = 0.55
 	_label = label

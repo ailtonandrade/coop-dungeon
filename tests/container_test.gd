@@ -1,12 +1,14 @@
 extends SceneTree
-## Teste dos baús/contêineres com saque no mundo de verdade: o baú da vila abre com F, larga o
+## Teste dos baús/contêineres com saque no mundo de verdade: um baú (o teste põe o dele, não
+## depende do mapa) abre com F, larga o
 ## conteúdo no chão (item fixo, parafusos), não abre de novo, fica salvo no mundo, volta a
 ## encher depois do tempo, e a validação do mapa acha id repetido.
 ## Rodar: godot --headless --fixed-fps 60 --path coop-dungeon -s tests/container_test.gd
 ## Atenção: cada passo é um quadro; dois passos no mesmo quadro fazem só o primeiro rodar.
 
 const SECOND := 60
-const CHEST := Vector3(39, 0, 41)
+const CHEST := Vector3(60, 0, 20)
+const CHEST_ID := "teste_bau_container"
 
 var _frames := 0
 var _failed := false
@@ -23,9 +25,19 @@ func _process(_delta: float) -> bool:
 			var net := root.get_node("NetService")
 			net.world = root.get_node("SaveService").new_world("Teste baú", 1, "offline")
 			change_scene_to_file("res://world/world.tscn")
+		SECOND - 10:
+			var chest: Node3D = load("res://world/loot_container.gd").new()
+			chest.container_id = CHEST_ID
+			chest.gold = 40
+			var helmet: Resource = load("res://world/container_item.gd").new()
+			helmet.item_id = "iron_helmet"
+			helmet.chance = 100.0
+			chest.contents.append(helmet)
+			current_scene.add_child(chest)
+			chest.global_position = CHEST
 		SECOND:
 			var chest := _chest()
-			_check(chest != null, "o baú da vila carregou com o bloco")
+			_check(chest != null, "o baú está no mundo")
 			_check(chest != null and not chest.is_open(), "começa fechado")
 			_p1().teleport_to(CHEST + Vector3(0, 0, 1.5))
 			_loot_before = get_nodes_in_group("loot").size()
@@ -41,8 +53,8 @@ func _process(_delta: float) -> bool:
 			_check(ids.has("gold"), "os parafusos do baú caíram")
 			_check(_chest().is_open(), "baú fica aberto")
 			var states: Dictionary = root.get_node("NetService").world.get("containers", {})
-			_check(states.has("vila_bau_inicial"), "abertura guardada no mundo")
-			var saved: Array = root.get_node("SaveService").list_worlds().filter(func(w: Dictionary) -> bool: return w.get("containers", {}).has("vila_bau_inicial"))
+			_check(states.has(CHEST_ID), "abertura guardada no mundo")
+			var saved: Array = root.get_node("SaveService").list_worlds().filter(func(w: Dictionary) -> bool: return w.get("containers", {}).has(CHEST_ID))
 			_check(saved.size() == 1, "e já salva no disco (não depende de sair do jogo)")
 			# Junta tudo do chão, para o F seguinte só poder abrir o baú.
 			for item in loot:
@@ -67,10 +79,12 @@ func _process(_delta: float) -> bool:
 			chest.contents.append(line)
 			chest.gold = 0
 			chest.random_items = 0
-			_check(chest.roll_contents(3).is_empty(), "item com chance 0% não sai")
+			# (Material da base sempre vem junto; aqui só contam os itens do conteúdo.)
+			_check(chest.roll_contents(3).filter(func(i: Dictionary) -> bool: return not ItemDB.is_ammo(i)).is_empty(), "item com chance 0% não sai")
+			_check(chest.roll_contents(3).any(func(i: Dictionary) -> bool: return ItemDB.is_ammo(i)), "baú sempre tem um pouco de material da base")
 			line.chance = 100.0
 			line.count = 3
-			var rolled: Array = chest.roll_contents(3)
+			var rolled: Array = chest.roll_contents(3).filter(func(i: Dictionary) -> bool: return not ItemDB.is_ammo(i))
 			_check(rolled.size() == 3 and rolled.all(func(i: Dictionary) -> bool: return i.power == 3), "3 machados no poder da região")
 			_check_validation()
 			print("BAÚS: ", "FALHOU" if _failed else "OK")
@@ -88,7 +102,7 @@ func _check_validation() -> void:
 
 func _chest() -> Node:
 	for container in get_nodes_in_group("containers"):
-		if container.container_id == "vila_bau_inicial":
+		if container.container_id == CHEST_ID:
 			return container
 	return null
 
