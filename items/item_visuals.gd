@@ -512,20 +512,33 @@ static func _armor(skeleton: Skeleton3D, pose: Array[Transform3D], look: String,
 		"boots":
 			for side: String in ["L", "R"]:
 				var foot_bone := "Foot." + side
+				var shin_bone := "LowerLeg." + side
 				var index := skeleton.find_bone(foot_bone)
 				if index == -1:
 					continue
-				var at := pose[index]
 				var piece := Node3D.new()
-				_material_box(piece, Vector3(0.145, 0.14, 0.34), Vector3.ZERO, main)
-				_material_box(piece, Vector3(0.15, 0.04, 0.35), Vector3(0, -0.065, 0.0), _armor_material(Color(0.12, 0.11, 0.1), false, Color.BLACK))
+				var sole_color := _armor_material(Color(0.12, 0.11, 0.1), false, Color.BLACK)
+				# A bota encaixa no sapato do modelo (FootFit: segue a pele do sapato, que dobra
+				# meio pé, meio canela). Origem no meio da sola, frente = +Z, cima = +Y.
+				var fit := FootFit.make(skeleton, side)
+				var length := fit.length + 0.05 if fit else 0.34
+				var width := fit.width + 0.025 if fit else 0.145
+				_material_box(piece, Vector3(width, 0.14, length), Vector3(0, 0.065, 0), main)
+				_material_box(piece, Vector3(width + 0.005, 0.04, length + 0.01), Vector3(0, 0.0, 0), sole_color)
 				if metal:
-					_material_box(piece, Vector3(0.15, 0.08, 0.09), Vector3(0, -0.005, 0.135), dark)
-				# Pé: frente do corpo (+Z), sola rente ao chão; cobre do calcanhar à ponta dos dedos.
-				var wanted := Transform3D(Basis.IDENTITY, Vector3(at.origin.x, at.origin.y + 0.06, at.origin.z + 0.12))
-				_mount(skeleton, foot_bone, piece, at.affine_inverse() * wanted)
+					_material_box(piece, Vector3(width + 0.005, 0.08, 0.09), Vector3(0, 0.06, length / 2.0 - 0.04), dark)
+				if fit:
+					fit.set_meta(ATTACH_META, true)
+					fit.add_child(piece)
+					skeleton.add_child(fit)
+				else:
+					# Modelo sem malha de pés: presa no osso do pé (como antes).
+					var at := pose[index]
+					var wanted := Transform3D(Basis.IDENTITY, Vector3(at.origin.x, at.origin.y, at.origin.z + 0.12))
+					_mount(skeleton, foot_bone, piece, at.affine_inverse() * wanted)
 				# Cano da bota subindo pela canela.
-				_segment(skeleton, pose, "LowerLeg." + side, "LowerLeg." + side, foot_bone, 0.72, 1.0, Vector3(0.15, 0, 0.16), _armor_material(color, metal, shine))
+				if skeleton.find_bone(shin_bone) != -1:
+					_segment(skeleton, pose, shin_bone, shin_bone, foot_bone, 0.72, 1.0, Vector3(0.15, 0, 0.16), _armor_material(color, metal, shine))
 
 
 ## Caixa ao longo do osso: de `from_t` a `to_t` do caminho entre os ossos `a` e `b` (na pose de

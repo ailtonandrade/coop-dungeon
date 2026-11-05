@@ -63,6 +63,8 @@ func start(p_slot: int) -> void:
 	active = true
 	visible = true
 	QuestArea.show_markers = true
+	# Editando missões ninguém te ataca.
+	Player.set_editor_shield("missoes", true)
 	InputService.set_blocked(slot, true)
 	InputService.screen_menu_open = true
 	_refresh_list()
@@ -71,10 +73,15 @@ func start(p_slot: int) -> void:
 	Chat.local_note(Txt.t("Editor de missões ligado (%s de novo para sair).") % COMMAND)
 
 
+func _exit_tree() -> void:
+	Player.set_editor_shield("missoes", false)
+
+
 func stop() -> void:
 	active = false
 	visible = false
 	QuestArea.show_markers = false
+	Player.set_editor_shield("missoes", false)
 	if slot >= 0:
 		InputService.set_blocked(slot, false)
 	InputService.screen_menu_open = false
@@ -133,7 +140,7 @@ func _build() -> void:
 	_section("Como começa")
 	_option("start", "Começa por", ["npc", "area", "gatilho", "item"])
 	_line("start_target", "Id da área / gatilho / item", _pick_start).tooltip_text = START_HELP
-	_line("giver", "NPC que dá / recebe", _pick_npc.bind("giver"))
+	_npc_list_button(_line("giver", "NPC que dá / recebe", _pick_npc.bind("giver")))
 	_check("return_to_giver", "Volta para entregar ao NPC")
 	_item("start_item", "Item ao começar")
 	_text("offer_text", "Fala ao oferecer / aviso ao começar")
@@ -248,7 +255,7 @@ func _add_objective(objective: QuestObjective) -> void:
 	_option("kind", "Tipo", QuestObjective.KINDS, column, row)
 	_line("target", "Alvo (classe / gatilho / área / item / documento)", _pick_objective_target.bind(row), column, row).tooltip_text = TARGET_HELP
 	_spin("amount", "Quantidade (matar)", 1, 999, column, row)
-	_line("npc", "NPC (falar)", _pick_npc_into.bind(row, "npc"), column, row)
+	_npc_list_button(_line("npc", "NPC (falar)", _pick_npc_into.bind(row, "npc"), column, row))
 	_line("keywords", "Palavras em ordem (vírgula)", Callable(), column, row)
 	_text("replies", "Respostas (uma por linha, na ordem)", column, row)
 	_check("show_buttons", "Palavra vira botão (controle)", column, row)
@@ -501,6 +508,62 @@ func _pick_objective_target(row: Dictionary) -> void:
 	var node := _nearest_in(["quest_areas"] if kind == "chegar" else ["quest_triggers"])
 	if node:
 		row.target.text = String(node.call("id"))
+
+
+## Botão "lista" ao lado de um campo de NPC: escolhe clicando, NPCs separados por região.
+func _npc_list_button(edit: LineEdit) -> void:
+	var row := edit.get_parent()
+	if row:
+		_small_button(row, "lista", _choose_npc.bind(edit))
+
+
+## Todos os NPCs do mapa (também os de blocos ainda não carregados), por região:
+## {nome da região: [nomes...]}, regiões e nomes em ordem alfabética.
+func npcs_by_region() -> Dictionary:
+	var places: Dictionary = {}
+	var map: Dictionary = Quests._places_map()
+	for npc_name: String in map.get("npcs", {}):
+		places[npc_name] = map.npcs[npc_name]
+	for npc: Node3D in get_tree().get_nodes_in_group("npcs"):
+		var npc_name := String(npc.get("npc_name"))
+		if not npc_name.is_empty() and not places.has(npc_name):
+			places[npc_name] = npc.global_position
+	var streamer := get_tree().get_first_node_in_group("world_streamer")
+	var groups := {}
+	for npc_name: String in places:
+		var region: Resource = streamer.region_at(places[npc_name]) if streamer else null
+		var region_name: String = String(region.get("display_name")) if region and not String(region.get("display_name")).is_empty() else "Sem região"
+		if not groups.has(region_name):
+			groups[region_name] = []
+		groups[region_name].append(npc_name)
+	var names := groups.keys()
+	names.sort_custom(func(a: String, b: String) -> bool: return a.naturalnocasecmp_to(b) < 0)
+	var result := {}
+	for region_name: String in names:
+		var list: Array = groups[region_name]
+		list.sort_custom(func(a: String, b: String) -> bool: return a.naturalnocasecmp_to(b) < 0)
+		result[region_name] = list
+	return result
+
+
+func _choose_npc(edit: LineEdit) -> void:
+	var groups := npcs_by_region()
+	if groups.is_empty():
+		_status.text = "Nenhum NPC no mapa."
+		return
+	var menu := PopupMenu.new()
+	for region_name: String in groups:
+		var sub := PopupMenu.new()
+		for npc_name: String in groups[region_name]:
+			sub.add_item(npc_name)
+			sub.set_item_metadata(sub.item_count - 1, npc_name)
+		sub.index_pressed.connect(func(index: int) -> void:
+			edit.text = String(sub.get_item_metadata(index))
+			menu.hide())
+		menu.add_submenu_node_item("%s  (%d)" % [region_name, (groups[region_name] as Array).size()], sub)
+	menu.popup_hide.connect(menu.queue_free, CONNECT_DEFERRED)
+	add_child(menu)
+	menu.popup(Rect2i(Vector2i(get_viewport().get_mouse_position()), Vector2i(260, 0)))
 
 
 ## Lista para escolher um id (itens, documentos, criaturas): o botão "perto" dos tipos que não

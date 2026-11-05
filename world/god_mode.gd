@@ -102,6 +102,7 @@ func start(p_slot: int) -> void:
 		return
 	slot = p_slot
 	active = true
+	Player.set_editor_shield("editar", true)
 	_catalog = PropBuilder.catalog(true)
 	_index = clampi(_index, 0, maxi(_catalog.size() - 1, 0))
 	_player_of(slot).building = true
@@ -122,6 +123,7 @@ func stop() -> void:
 	QuestArea.show_markers = false
 	if not active:
 		return
+	Player.set_editor_shield("editar", false)
 	if _loot_panel.visible:
 		close_loot_editor()
 	var player := _player_of(slot)

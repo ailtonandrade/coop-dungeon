@@ -220,7 +220,25 @@ func _setup_aim_arm() -> void:
 
 ## Criaturas podem mirar neste herói (não está caído nem construindo).
 func is_targetable() -> bool:
-	return state != State.DOWNED and not building and not BaseManager.safe_at(global_position)
+	return state != State.DOWNED and not building and not BaseManager.safe_at(global_position) and not editor_shield()
+
+
+const EDITOR_SHIELD := "owner_editor_shield"
+
+
+## Dono do jogo com um editor aberto (/missoes, /editar): as criaturas não miram e nada fere os
+## heróis desta máquina (quem roda o editor é sempre o host).
+static func set_editor_shield(reason: String, on: bool) -> void:
+	var reasons: Dictionary = Engine.get_meta(EDITOR_SHIELD, {})
+	if on:
+		reasons[reason] = true
+	else:
+		reasons.erase(reason)
+	Engine.set_meta(EDITOR_SHIELD, reasons)
+
+
+static func editor_shield() -> bool:
+	return not (Engine.get_meta(EDITOR_SHIELD, {}) as Dictionary).is_empty()
 
 
 ## Está caído esperando reviver (construindo não conta como caído).
@@ -240,8 +258,8 @@ func teleport_to(target: Vector3) -> void:
 
 
 func take_hit(amount: float, knockback := Vector3.ZERO, _ranged := false) -> void:
-	# Zona segura da base: nada fere quem está lá dentro.
-	if BaseManager.safe_at(global_position):
+	# Zona segura da base, ou o dono com um editor aberto: nada fere.
+	if BaseManager.safe_at(global_position) or editor_shield():
 		return
 	# A rolada dá invulnerabilidade, como no gênero (e esquivar treina Resiliência).
 	if state == State.DODGING:

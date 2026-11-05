@@ -31,6 +31,16 @@ func _process(_delta: float) -> bool:
 			var said_command: bool = root.get_node("Chat").history.any(func(m: Dictionary) -> bool: return String(m.text).strip_edges() == "/missoes")
 			_check(not said_command, "o comando não vai para o chat da sala")
 			_check(root.get_node("InputService").is_blocked(0), "herói parado enquanto edita")
+			var hero: Node = get_nodes_in_group("players")[0]
+			var hp: float = hero.health.hp
+			hero.take_hit(25.0)
+			_check(not hero.is_targetable() and hero.health.hp == hp, "editando missões ninguém te ataca nem te fere")
+			var groups: Dictionary = _editor.npcs_by_region()
+			var everyone: Array = []
+			for region_name: String in groups:
+				everyone.append_array(groups[region_name])
+			_check(groups.size() >= 1 and everyone.has("Dona Alda") and everyone.has("Zé Gato"), "lista de NPCs por região (%s)" % [groups.keys()])
+			_editor._choose_npc(_editor._fields.giver)
 			for npc in get_nodes_in_group("npcs"):
 				if npc.npc_name == "Zé Gato":
 					get_nodes_in_group("players")[0].teleport_to(npc.global_position + Vector3(0, 0, 1.5))
@@ -61,6 +71,7 @@ func _process(_delta: float) -> bool:
 			_check(not FileAccess.file_exists(path) and root.get_node("Quests").def(TEMP_ID) == null, "apagar tira o arquivo e a missão")
 			_editor.toggle(0)
 			_check(not _editor.active and not root.get_node("InputService").is_blocked(0), "/missoes de novo fecha e solta o herói")
+			_check(get_nodes_in_group("players")[0].is_targetable(), "fechou: volta a poder ser atacado")
 			root.get_node("NetService").mode = root.get_node("NetService").Mode.CLIENT
 			_check(not _editor.allowed(), "convidado não tem acesso")
 			root.get_node("NetService").mode = root.get_node("NetService").Mode.OFFLINE
