@@ -88,6 +88,7 @@ func _process(_delta: float) -> bool:
 			_check(shown.any(func(t: String) -> bool: return t.contains("PRÓXIMO") and t.contains("Teste próximo")), "e o próximo passo")
 			_check(quests.next_steps().has(quests.def("teste_proximo")), "a próxima missão principal vira próximo passo")
 			_check(quests.next_steps().has(quests.def("teste_outro")), "\"vem depois de\" a primeira: também vira próximo passo")
+			_check(quests.def("quem_sucateia") == null or quests.next_steps().has(quests.def("quem_sucateia")), "a missão do Zé Gato (quem_sucateia) vira próximo passo depois do diário")
 			_check(shown.any(func(t: String) -> bool: return t.contains("PRÓXIMOS PASSOS") and t.contains("Teste outro")), "o aviso lista os dois próximos passos")
 			# Escolher qual rastrear: o minimapa/mapa só apontam para a escolhida.
 			quests.set_focus("teste_outro")
@@ -161,7 +162,7 @@ func _process(_delta: float) -> bool:
 			ordered.id = "teste_ordem"
 			ordered.title = "Teste ordem"
 			ordered.giver = "Zé Gato"
-			ordered.offer_keywords = PackedStringArray(["sucata"])
+			ordered.offer_keywords = PackedStringArray(["ferragem"])
 			ordered.offer_replies = PackedStringArray(["Sucata se vende, mas mostra serviço antes."])
 			ordered.offer_text = "Limpa o pátio pra mim."
 			var talk_goal := QuestObjective.new()
@@ -184,8 +185,8 @@ func _process(_delta: float) -> bool:
 			var quests: Node = root.get_node("Quests")
 			var talk: Node = _hud()._services.get(p.slot)
 			var labels: Array = talk._topics.get_children().map(func(b: Node) -> String: return String(b.get("text")))
-			_check(labels.has("Sucata") and not labels.any(func(t: String) -> bool: return t.contains("Teste ordem")), "antes da palavra, o Zé não oferece: botão \"Sucata\" (%s)" % [labels])
-			talk.say("sucata")
+			_check(labels.has("Ferragem") and not labels.any(func(t: String) -> bool: return t.contains("Teste ordem")), "antes da palavra, o Zé não oferece: botão da palavra (%s)" % [labels])
+			talk.say("ferragem")
 			_check(talk._pending_quest != null and talk._pending_quest.id == "teste_ordem", "dita a palavra, ele oferece (Aceito / Agora não)")
 			talk._accept_quest(talk._pending_quest)
 			_check(quests.state_of("teste_ordem") == "ativa", "aceitou")

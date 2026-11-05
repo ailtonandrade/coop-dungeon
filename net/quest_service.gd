@@ -141,8 +141,14 @@ func tracked() -> Array[QuestDef]:
 
 
 func available(quest: QuestDef) -> bool:
-	if not Lore.knows_all(quest.requires):
-		return false
+	# Em "Só aparece se o grupo já sabe" vale também o id de uma missão (= ela foi entregue):
+	# é fácil confundir com o "Vem depois de".
+	for need: String in quest.requires:
+		if defs().has(need):
+			if state_of(need) != "entregue":
+				return false
+		elif not Lore.knows(need):
+			return false
 	for previous: String in quest.after:
 		if state_of(previous) != "entregue":
 			return false

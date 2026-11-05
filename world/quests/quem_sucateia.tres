@@ -32,7 +32,6 @@ progress_text = "Ainda tem cano batendo lá no pátio."
 done_text = "Serviço limpo. Quem compra sucata por aqui é a Dona Alda, perto do bar. Fala que fui eu que mandei."
 summary = "O Zé Gato sabe quem compra sucata, mas quer ver serviço antes."
 objectives = Array[ExtResource("1_xdfy8")]([SubResource("Resource_xdfy8"), SubResource("Resource_6xy76")])
-requires = Array[String](["quem_sou_eu"])
 after = Array[String](["quem_sou_eu"])
 teaches = Array[String](["ze_indicou_alda"])
 reward_gold = 150
