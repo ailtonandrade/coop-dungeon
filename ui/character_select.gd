@@ -155,7 +155,7 @@ func _card(i: int) -> Control:
 	preview.show_character(character)
 	var used := taken.has(character.id)
 	box.add_child(_centered(UiSkin.label(character.name, 15, UiSkin.DIM if used else UiSkin.TEXT, "Bold", 3)))
-	var info := "em jogo" if used else Txt.t("nível %d · %s") % [Characters.level_of(character), Txt.t(Characters.MODELS[character.model])]
+	var info := "em jogo" if used else Txt.t("nível %d · %s") % [Characters.level_of(character), Txt.t(Characters.MODELS.get(character.model, Characters.MODELS.values()[0]))]
 	var info_label := UiSkin.label(info, 11, UiSkin.DANGER if used else UiSkin.DIM, "Regular", 2)
 	info_label.clip_text = true
 	box.add_child(_centered(info_label))
@@ -191,7 +191,7 @@ func _start_create() -> void:
 
 
 func _refresh_create() -> void:
-	_model_label.text = "◀  %s  ▶" % Txt.t(Characters.MODELS[_draft.model])
+	_model_label.text = "◀  %s  ▶" % Txt.t(Characters.MODELS.get(_draft.model, Characters.MODELS.values()[0]))
 	_create_preview.show_character(_draft)
 
 

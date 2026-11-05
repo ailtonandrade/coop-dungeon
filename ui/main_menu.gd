@@ -148,7 +148,7 @@ func _refresh_active_card() -> void:
 		Settings.set_active_character(active.id)
 	_active_preview.show_character(active)
 	_active_name.text = active.name.to_upper()
-	_active_info.text = Txt.t("Nível %d · %s · chip %s") % [Characters.level_of(active), Txt.t(Characters.MODELS[active.model]), Txt.t(Characters.CHIP_COLOR_NAMES[active.chip_color])]
+	_active_info.text = Txt.t("Nível %d · %s · chip %s") % [Characters.level_of(active), Txt.t(Characters.MODELS.get(active.model, Characters.MODELS.values()[0])), Txt.t(Characters.CHIP_COLOR_NAMES[active.chip_color])]
 	var last := SaveService.last_world_of(active.id)
 	_continue_button.visible = not last.is_empty()
 	_continue_button.text = Txt.t("Continuar · %s") % str(last.get("name", "")) if not last.is_empty() else ""
@@ -374,7 +374,7 @@ func _show_editing() -> void:
 		return
 	_char_name.text = _editing.name
 	_char_model.select(Characters.MODELS.keys().find(_editing.model))
-	_char_info.text = Txt.t("%s · chip %s · nível %d · ▶ é com ele que você entra no mundo") % [Txt.t(Characters.MODELS[_editing.model]), Txt.t(Characters.CHIP_COLOR_NAMES[_editing.chip_color]), Characters.level_of(_editing)]
+	_char_info.text = Txt.t("%s · chip %s · nível %d · ▶ é com ele que você entra no mundo") % [Txt.t(Characters.MODELS.get(_editing.model, Characters.MODELS.values()[0])), Txt.t(Characters.CHIP_COLOR_NAMES[_editing.chip_color]), Characters.level_of(_editing)]
 	_char_delete.text = "Apagar"
 
 
@@ -385,7 +385,7 @@ func _edit_character(field: String, value: Variant) -> void:
 	SaveService.save_character(_editing)
 	_editing = SaveService.load_character(_editing.id)
 	_char_preview.show_character(_editing)
-	_char_info.text = Txt.t("%s · chip %s · nível %d") % [Txt.t(Characters.MODELS[_editing.model]), Txt.t(Characters.CHIP_COLOR_NAMES[_editing.chip_color]), Characters.level_of(_editing)]
+	_char_info.text = Txt.t("%s · chip %s · nível %d") % [Txt.t(Characters.MODELS.get(_editing.model, Characters.MODELS.values()[0])), Txt.t(Characters.CHIP_COLOR_NAMES[_editing.chip_color]), Characters.level_of(_editing)]
 
 
 ## Apagar pede confirmação (o personagem leva junto inventário e nível).

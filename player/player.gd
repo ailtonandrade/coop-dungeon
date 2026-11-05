@@ -16,9 +16,8 @@ signal inventory_updated
 ## modelo se ele tiver, senão de ProceduralAnims.
 const MODELS: Array[PackedScene] = [
 	preload("res://assets/characters/Adventurer.glb"),
-	preload("res://assets/characters/Swat.glb"),
-	preload("res://assets/characters/Farmer.glb"),
-	preload("res://assets/characters/Worker.glb"),
+	preload("res://assets/characters/Beach.glb"),
+	preload("res://assets/characters/Suit.glb"),
 ]
 ## Suavização da posição replicada nos clientes (maior = segue mais rápido).
 const NET_SMOOTHING := 18.0

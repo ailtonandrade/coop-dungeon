@@ -139,7 +139,7 @@ func _character_prefix() -> String:
 
 ## Saves de antes dos personagens (um por vaga do sofá) viram personagens, uma vez só.
 func _migrate_old_players() -> void:
-	var old_models := ["Adventurer", "Swat", "Farmer", "Worker"]
+	var old_models := ["Adventurer", "Beach", "Suit", "Adventurer"]
 	for slot in 4:
 		var key := "player_" + PlatformService.get_profile_id(slot)
 		var old := _read(key)

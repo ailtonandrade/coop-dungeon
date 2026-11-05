@@ -6,15 +6,13 @@ extends RefCounted
 
 const MAX := 5
 ## Modelos de corpo que o jogador pode escolher (id do arquivo em assets/characters -> nome).
-## Os das criaturas (Punk, Casual_Hoodie, Casual_2) ficam de fora para não confundir.
+## Os das criaturas (Punk, Casual_Hoodie, Casual_2) ficam de fora para não confundir, e os que
+## já vêm com arma, capacete ou coroa no modelo (Swat, Worker, Farmer, King) também: atrapalham
+## o equipamento. Personagem salvo com um deles vira o primeiro da lista (Andarilho).
 const MODELS := {
 	"Adventurer": "Andarilho",
-	"Worker": "Operário",
-	"Farmer": "Catador",
-	"Swat": "Ex-segurança",
 	"Beach": "Surfista do lixão",
 	"Suit": "Ex-executivo da Sinapse",
-	"King": "Rei do ferro-velho",
 }
 ## Cor do chip pirata (luzinha na cabeça do herói).
 const CHIP_COLORS: Array[Color] = [

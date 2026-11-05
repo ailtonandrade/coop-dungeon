@@ -22,7 +22,7 @@ func _process(_delta: float) -> bool:
 				save.delete_world(world.id)
 			for character in save.list_characters():
 				save.delete_character(character.id)
-			var hero: Dictionary = load("res://core/characters.gd").create("Nina Solda", "Worker", 1)
+			var hero: Dictionary = load("res://core/characters.gd").create("Nina Solda", "Beach", 1)
 			save.save_character(hero)
 			_hero = hero.id
 			root.get_node("Settings").set_active_character(_hero)
