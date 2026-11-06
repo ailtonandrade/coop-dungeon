@@ -79,11 +79,20 @@ text = "O Davi... era o menino do prédio da Helena. A mãe dele ainda passa aqu
 hidden = true
 requires = Array[String](["diario_helena"])
 
+[sub_resource type="Resource" id="Resource_8k83x"]
+script = ExtResource("3_ys6lp")
+label = "Zé Gato"
+keywords = PackedStringArray("Zé Gato", "ze gato", "ze")
+text = "Ah sim, foi o Zé que te mandou certo? muito bem, se precisar de algo, é só falar comigo!"
+requires = Array[String](["derrubou_bandidos_patio_conteineres"])
+forbids = Array[String](["completou_quem_sucateia"])
+metadata/_custom_type_script = "uid://ln5ljsnanjta"
+
 [resource]
 script = ExtResource("2_qgjda")
 npc = "Dona Alda"
 greetings = Array[ExtResource("1_31vqo")]([SubResource("Resource_33vdx"), SubResource("Resource_wmb2h")])
 approach = Array[ExtResource("1_31vqo")]([SubResource("Resource_ygtla")])
-topics = Array[ExtResource("3_ys6lp")]([SubResource("Resource_rjyyw"), SubResource("Resource_3r0l4"), SubResource("Resource_eh7ws"), SubResource("Resource_b3q54"), SubResource("Resource_1anu6"), SubResource("Resource_2f8hg"), SubResource("Resource_75gev"), SubResource("Resource_dd28d")])
+topics = Array[ExtResource("3_ys6lp")]([SubResource("Resource_rjyyw"), SubResource("Resource_3r0l4"), SubResource("Resource_eh7ws"), SubResource("Resource_b3q54"), SubResource("Resource_1anu6"), SubResource("Resource_2f8hg"), SubResource("Resource_75gev"), SubResource("Resource_dd28d"), SubResource("Resource_8k83x")])
 unknown = "Fala direito, menino, que eu tô ficando surda de tanto martelo."
 farewell = "Vai com Deus. E ferve a água!"

@@ -1,19 +1,19 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://dilos8j2lccl3"]
 
 [ext_resource type="Texture2D" path="res://world/textures/ground_4d453d_615447.res" id="1_y326l"]
-[ext_resource type="Material" path="res://world/materials/parede.tres" id="2_s6l2a"]
-[ext_resource type="Script" path="res://world/fade_occluder.gd" id="2_y326l"]
-[ext_resource type="PackedScene" path="res://assets/props/Barrel.glb" id="3_t5grd"]
-[ext_resource type="PackedScene" path="res://assets/props/Chest.glb" id="4_10agt"]
+[ext_resource type="Material" uid="uid://rfmxn2etcynf" path="res://world/materials/parede.tres" id="2_s6l2a"]
+[ext_resource type="Script" uid="uid://bbyjjd26mkvij" path="res://world/fade_occluder.gd" id="2_y326l"]
+[ext_resource type="PackedScene" uid="uid://cykmgapidtwdp" path="res://assets/props/Barrel.glb" id="3_t5grd"]
+[ext_resource type="PackedScene" uid="uid://cjysy3ae2mnrl" path="res://assets/props/Chest.glb" id="4_10agt"]
 [ext_resource type="Material" path="res://world/materials/contrapiso.tres" id="4_xd5h5"]
-[ext_resource type="Script" path="res://world/world_npc.gd" id="5_2772y"]
-[ext_resource type="MeshLibrary" path="res://world/tiles/tiles.meshlib" id="5_y326l"]
-[ext_resource type="PackedScene" path="res://assets/characters/Suit.glb" id="6_f5q74"]
-[ext_resource type="PackedScene" path="res://assets/characters/Worker.glb" id="7_y8j3o"]
+[ext_resource type="Script" uid="uid://c0oc2dd2qakp7" path="res://world/world_npc.gd" id="5_2772y"]
+[ext_resource type="MeshLibrary" uid="uid://by57umflys8r8" path="res://world/tiles/tiles.meshlib" id="5_y326l"]
+[ext_resource type="PackedScene" uid="uid://dpmlqyss4405t" path="res://assets/characters/Suit.glb" id="6_f5q74"]
+[ext_resource type="PackedScene" uid="uid://dmy2roidhlikd" path="res://assets/characters/Worker.glb" id="7_y8j3o"]
 [ext_resource type="PackedScene" path="res://world/prefabs/poste_de_luz.tscn" id="8_8ynnr"]
-[ext_resource type="PackedScene" path="res://assets/characters/Beach.glb" id="8_t0nbh"]
+[ext_resource type="PackedScene" uid="uid://dt1dftory4r1p" path="res://assets/characters/Beach.glb" id="8_t0nbh"]
 [ext_resource type="PackedScene" path="res://world/prefabs/carro_quebrado.tscn" id="9_1j7j7"]
-[ext_resource type="PackedScene" path="res://assets/characters/King.glb" id="9_ud5yq"]
+[ext_resource type="PackedScene" uid="uid://biycfshaiffwe" path="res://assets/characters/King.glb" id="9_ud5yq"]
 [ext_resource type="PackedScene" path="res://world/prefabs/pilha_de_pneus.tscn" id="10_25cto"]
 [ext_resource type="PackedScene" path="res://world/prefabs/cone.tscn" id="13_cax8w"]
 [ext_resource type="PackedScene" path="res://world/prefabs/arbusto.tscn" id="14_0lrbf"]
@@ -42,7 +42,7 @@
 [ext_resource type="PackedScene" path="res://world/prefabs/zombie/vehicle_truck.tscn" id="34_h5tfs"]
 [ext_resource type="PackedScene" path="res://world/prefabs/zombie/watertower.tscn" id="34_tst6q"]
 [ext_resource type="PackedScene" path="res://world/prefabs/downtown/brick_cornercolumn_center.tscn" id="35_6mv5i"]
-[ext_resource type="Texture2D" path="res://world/textures/contrapiso.png" id="35_tst6q"]
+[ext_resource type="Texture2D" uid="uid://7ia2la3834x8" path="res://world/textures/contrapiso.png" id="35_tst6q"]
 [ext_resource type="PackedScene" path="res://world/prefabs/downtown/brick_inset.tscn" id="36_6mv5i"]
 [ext_resource type="PackedScene" path="res://world/prefabs/zombie/street_straight.tscn" id="36_q861x"]
 [ext_resource type="PackedScene" path="res://world/prefabs/downtown/brick_cornercolumn_top.tscn" id="37_q861x"]
@@ -52,7 +52,6 @@
 [ext_resource type="PackedScene" path="res://world/prefabs/zombie/trafficcone_2.tscn" id="40_mpuvm"]
 [ext_resource type="PackedScene" path="res://world/prefabs/zombie/container_red.tscn" id="40_ph1nh"]
 [ext_resource type="PackedScene" path="res://world/prefabs/pallet.tscn" id="41_6komr"]
-[ext_resource type="PackedScene" path="res://world/lore/historia_vila.tscn" id="lore_historia_vila"]
 
 [sub_resource type="NavigationMesh" id="NavigationMesh_ph1nh"]
 geometry_collision_mask = 1
@@ -914,8 +913,6 @@ transform = Transform3D(-0.67568046, -0.005677991, -0.73717284, 0.008391623, -0.
 
 [node name="god_1793708953_4343" parent="Navigation" unique_id=1240843579 instance=ExtResource("9_1j7j7")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 27.635286, 0, 48.127262)
-
-[node name="HistoriaVila" parent="Navigation" unique_id=1499009231 instance=ExtResource("lore_historia_vila")]
 
 [node name="god_1793738091_9363" parent="Navigation" unique_id=1948072786 instance=ExtResource("19_xd5h5")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 54.65, 0.2282244, 17.25292)

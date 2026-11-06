@@ -19,19 +19,30 @@ replies = PackedStringArray()
 label = "Derrubar bandidos de cano"
 teaches = Array[String](["derrubou_bandidos_patio_conteineres"])
 
+[sub_resource type="Resource" id="Resource_8eioh"]
+script = ExtResource("1_xdfy8")
+kind = "falar"
+npc = "Dona Alda"
+keywords = PackedStringArray("Zé Gato")
+replies = PackedStringArray("Ah! Se o Zé te mandou, posso confiar em você, tenho trabalhado com sucata tem um tempo, só não me venha com essas merdas de D3M.")
+show_buttons = false
+label = "Falar com a Dona Alda Sucateira."
+teaches = Array[String](["completou_quem_sucateia"])
+
 [resource]
 script = ExtResource("2_6xy76")
 id = "quem_sucateia"
 title = "Quem é o sucateiro?"
 category = "principal"
 giver = "Zé Gato"
+return_to_giver = false
 offer_keywords = PackedStringArray("sucata")
 offer_replies = PackedStringArray("Sucata? Quem paga é gente da vila, mas ninguém negocia com forasteiro que nunca sujou a mão.")
 offer_text = "Os bandidos de cano tomaram o Pátio dos Contêineres. Derruba uns cinco lá e volta aqui que eu te apresento."
 progress_text = "Ainda tem cano batendo lá no pátio."
 done_text = "Serviço limpo. Quem compra sucata por aqui é a Dona Alda, perto do bar. Fala que fui eu que mandei."
 summary = "O Zé Gato sabe quem compra sucata, mas quer ver serviço antes."
-objectives = Array[ExtResource("1_xdfy8")]([SubResource("Resource_xdfy8"), SubResource("Resource_6xy76")])
+objectives = Array[ExtResource("1_xdfy8")]([SubResource("Resource_xdfy8"), SubResource("Resource_6xy76"), SubResource("Resource_8eioh")])
 after = Array[String](["quem_sou_eu"])
 teaches = Array[String](["ze_indicou_alda"])
 reward_gold = 150
