@@ -13,7 +13,7 @@ const READ_RANGE := 1.9
 	set(value):
 		document_id = value
 		notify_property_list_changed()
-@export_enum("caderno", "terminal", "foto", "trofeu") var look := "caderno":
+@export_enum("caderno", "livro", "terminal", "foto", "trofeu") var look := "caderno":
 	set(value):
 		look = value
 		if is_inside_tree():
@@ -54,7 +54,7 @@ func is_available() -> bool:
 
 
 func document() -> LoreDocument:
-	return _lore().document(document_id)
+	return _lore().document(document_id) if not document_id.is_empty() else null
 
 
 func _refresh() -> void:
@@ -70,6 +70,9 @@ func _process(_delta: float) -> void:
 			near = true
 			break
 	_label.text = get_node("/root/InputService").pickup_text("[LB / F] ler" if look != "terminal" else "[LB / F] acessar") if near else ""
+	# Documento sem texto escolhido (acabou de ser posto no /editar): aviso para o dono.
+	if near and document() == null:
+		_label.text = "(sem documento: F no /editar escolhe)"
 
 
 ## Documento mais perto do ponto que dá para ler, ou null.
@@ -97,6 +100,12 @@ func _build_visual() -> void:
 		"foto":
 			_box(Vector3(0.5, 0.5, 0.5), Vector3(0, 0.25, 0), Color(0.42, 0.3, 0.2))
 			_box(Vector3(0.22, 0.02, 0.17), Vector3(0, 0.51, 0), Color(0.85, 0.82, 0.72))
+		"livro":
+			# Livro de capa dura fechado em cima de um caixote, com as folhas aparecendo.
+			_box(Vector3(0.5, 0.42, 0.42), Vector3(0, 0.21, 0), Color(0.36, 0.27, 0.18))
+			_box(Vector3(0.28, 0.07, 0.36), Vector3(0, 0.455, 0), Color(0.18, 0.2, 0.3))
+			_box(Vector3(0.26, 0.05, 0.34), Vector3(0.012, 0.455, 0), Color(0.88, 0.84, 0.72))
+			_box(Vector3(0.03, 0.075, 0.365), Vector3(-0.13, 0.455, 0), Color(0.12, 0.13, 0.2))
 		"trofeu":
 			_box(Vector3(0.5, 0.5, 0.5), Vector3(0, 0.25, 0), Color(0.42, 0.3, 0.2))
 			_box(Vector3(0.14, 0.28, 0.14), Vector3(0, 0.64, 0), Color(0.9, 0.72, 0.25), true)

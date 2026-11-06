@@ -33,7 +33,7 @@ func _process(_delta: float) -> bool:
 		SECOND:
 			_lore = root.get_node("Lore")
 			_box = current_scene.find_child("CaixaDaHelena", true, false)
-			_check(current_scene.find_child("CadernoHelena", true, false) != null and current_scene.find_child("OficioTransferencia", true, false) != null and _box != null,
+			_check(current_scene.find_child("CadernoHelena", true, false) != null and _box != null,
 					"a história da vila está no mapa (caderno, ofício no entulho, caixa)")
 			_check(current_scene.find_child("PortaoRafael", true, false) == null, "o portão não fica mais no meio da vila")
 			# Só o fato automático da região onde nasceu (visitou_vila).

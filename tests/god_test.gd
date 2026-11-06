@@ -176,6 +176,15 @@ func _process(_delta: float) -> bool:
 			_check(area.id() == "patio_dos_conteineres" and not _god._name_panel.visible, "o nome vira o id da área (%s)" % area.id())
 			_check(area_entry.get("props", {}).get("area_id") == "patio_dos_conteineres", "e fica gravado com a peça")
 			_god.remove_piece(String(area.name))
+			# Documento da história: colocar abre a escolha do documento e do visual.
+			_select("documento_da_historia.tscn")
+			var note: Node = _god.place_at(_player().global_position + Vector3(2, 0, -4))
+			_check(_god._doc_panel.visible, "colocar documento da história abre a escolha do documento")
+			_god.confirm_document("diario_helena", "livro")
+			var note_entry: Dictionary = root.get_node("NetService").world_edit(String(note.name))
+			_check(note.document_id == "diario_helena" and note.look == "livro" and note.document() != null, "o livro mostra o documento escolhido")
+			_check(note_entry.get("props", {}).get("document_id") == "diario_helena", "e fica gravado com a peça")
+			_god.remove_piece(String(note.name))
 			# Depois de dar nome (caixa de texto), /editar no chat ainda fecha e abre de novo.
 			_command()
 			_check(not _god.active, "/editar fecha depois de dar nome à área")

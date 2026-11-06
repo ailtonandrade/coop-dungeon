@@ -163,3 +163,13 @@ o título e **de onde veio**.
 - Ficam de fora os marcadores internos `visitou_*`, `gatilho_*`, `abriu_*` e `item_*` (a não
   ser que ganhem ficha sem `hidden`).
 - Textos das fichas entram na tradução (`tools/extrair_textos.gd`).
+
+## Escrever e pôr documentos dentro do jogo
+
+- **`/documentos`** (só rodando pelo Godot): lista os documentos da história; **Novo**, preenche
+  id, título, autor, texto (`{nome}` vira o nome de quem lê) e o que ler ensina (fatos);
+  **Salvar** grava em `world/lore/lore.tres` e já vale no jogo.
+- **No mapa**: `/editar`, categoria **Historia**, **documento da historia**. Ao colocar abre a caixa
+  para escolher **qual documento** e o **visual** (livro, caderno, terminal, foto, troféu); **F** em
+  cima muda depois. Fica gravado com a peça.
+- **Missão de ler**: objetivo **ler** com o id do documento (botão "lista" mostra os documentos).

@@ -137,6 +137,11 @@ static func source_text(raw: String) -> String:
 	return Txt.t("Não lembra de onde")
 
 
+## Relê o livro da história (o editor de documentos salvou).
+func reload_book() -> void:
+	_book = load(BOOK_PATH) as LoreBook if ResourceLoader.exists(BOOK_PATH) else LoreBook.new()
+
+
 func document(id: String) -> LoreDocument:
 	return book().document(id)
 

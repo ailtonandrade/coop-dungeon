@@ -127,6 +127,12 @@ func _submit(text: String) -> void:
 		quest_editor.toggle(player.slot)
 		close()
 		return
+	# Editor de documentos da história (/documentos): só existe no projeto.
+	var document_editor := get_tree().get_first_node_in_group("document_editor")
+	if player and document_editor and document_editor.is_command(text) and document_editor.allowed():
+		document_editor.toggle(player.slot)
+		close()
+		return
 	# Dono do jogo: "/chuva" liga ou desliga a chuva.
 	var weather := Weather.of(get_tree())
 	if player and god and god.allowed() and weather and text.strip_edges().to_lower() == "/chuva":

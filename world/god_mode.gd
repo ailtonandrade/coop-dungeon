@@ -58,6 +58,11 @@ var _title: Label
 var _piece: Label
 var _hint: Label
 var _pad_was := {}
+## Caixa do documento (papel/livro da história): qual documento e o visual.
+var _doc_panel: PanelContainer
+var _doc_list: ItemList
+var _doc_look: OptionButton
+var _doc_target: Node
 ## Caixa do nome da área/gatilho de missão (abre ao colocar; F em cima renomeia).
 var _name_panel: PanelContainer
 var _name_title: Label
@@ -136,6 +141,8 @@ func stop() -> void:
 		close_loot_editor()
 	if _name_panel.visible:
 		_close_name_editor()
+	if _doc_panel.visible:
+		_close_document_picker()
 	var player := _player_of(slot)
 	if player:
 		player.building = false
@@ -252,7 +259,113 @@ func place_at(point: Vector3) -> Node3D:
 	# Área ou gatilho de missão: já pede o nome (no teclado; no controle fica o id automático).
 	if _nameable(node) and InputService.device_of(slot) == InputService.KEYBOARD:
 		open_name_editor(node)
+	# Documento da história: já pede qual documento e o visual.
+	if node is LoreNote:
+		open_document_picker(node)
 	return node
+
+
+func _note_near(point: Vector3) -> Node:
+	var best: Node = null
+	var best_distance := 2.5
+	for note: Node3D in get_tree().get_nodes_in_group("lore_notes"):
+		if not String(note.name).begins_with(WorldEdits.ID_PREFIX):
+			continue
+		var distance := Combat.flat(note.global_position - point).length()
+		if distance < best_distance:
+			best = note
+			best_distance = distance
+	return best
+
+
+## Abre a caixa do documento: lista dos documentos da história e o visual.
+func open_document_picker(note: Node) -> void:
+	if note == null:
+		Sound.play("ui_error")
+		return
+	_doc_target = note
+	_doc_list.clear()
+	for id in Lore.book().document_ids():
+		var doc := Lore.document(id)
+		var index := _doc_list.add_item("%s  (%s)" % [doc.title if doc.title else id, id])
+		_doc_list.set_item_metadata(index, id)
+		if id == String(note.get("document_id")):
+			_doc_list.select(index)
+	for i in _doc_look.item_count:
+		if _doc_look.get_item_text(i) == String(note.get("look")):
+			_doc_look.select(i)
+	_doc_panel.visible = true
+	InputService.set_blocked(slot, true)
+	_doc_list.grab_focus()
+
+
+## Grava o documento e o visual escolhidos (na cena do bloco ou no save do mundo) e fecha.
+func confirm_document(document_id := "", look := "") -> void:
+	if document_id.is_empty() and not _doc_list.get_selected_items().is_empty():
+		document_id = String(_doc_list.get_item_metadata(_doc_list.get_selected_items()[0]))
+	if look.is_empty():
+		look = _doc_look.get_item_text(_doc_look.selected)
+	_close_document_picker()
+	if not is_instance_valid(_doc_target):
+		return
+	_doc_target.set("document_id", document_id)
+	_doc_target.set("look", look)
+	var entry := NetService.world_edit(String(_doc_target.name))
+	if not entry.is_empty():
+		var props: Dictionary = entry.get("props", {})
+		props["document_id"] = document_id
+		props["look"] = look
+		entry["props"] = props
+		var streamer := WorldStreamer.of(self)
+		if WorldEdits.saves_in_map_files() and NetService.session_edits.has(entry) and streamer:
+			MapWriter.save_props_to_scene(streamer.scene_path_of(String(entry.key)), entry)
+		else:
+			NetService.world_edit_changed(entry)
+	Sound.play("ui_confirm")
+	Chat.local_note("Documento: %s (%s)" % [document_id if document_id else "nenhum", look])
+
+
+func _close_document_picker() -> void:
+	_doc_panel.visible = false
+	if slot >= 0:
+		InputService.set_blocked(slot, false)
+
+
+func _build_document_panel() -> void:
+	_doc_panel = PanelContainer.new()
+	_doc_panel.add_theme_stylebox_override("panel", UiSkin.panel())
+	_doc_panel.visible = false
+	_doc_panel.set_anchors_preset(Control.PRESET_CENTER)
+	_doc_panel.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	_doc_panel.grow_vertical = Control.GROW_DIRECTION_BOTH
+	_hud.add_child(_doc_panel)
+	var column := VBoxContainer.new()
+	column.add_theme_constant_override("separation", 8)
+	_doc_panel.add_child(column)
+	column.add_child(UiSkin.label("DOCUMENTO DA HISTÓRIA", 20, UiSkin.NEON, "Bold", 3))
+	column.add_child(UiSkin.label("Qual documento aparece ao ler (escreva os textos com /documentos).", 14, UiSkin.DIM, "Regular", 2))
+	_doc_list = ItemList.new()
+	_doc_list.custom_minimum_size = Vector2(460, 260)
+	_doc_list.item_activated.connect(func(_index: int) -> void: confirm_document())
+	column.add_child(_doc_list)
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 8)
+	column.add_child(row)
+	row.add_child(UiSkin.label("Visual", 14, UiSkin.TEXT, "Regular", 2))
+	_doc_look = OptionButton.new()
+	for look_name: String in ["livro", "caderno", "terminal", "foto", "trofeu"]:
+		_doc_look.add_item(look_name)
+	row.add_child(_doc_look)
+	var buttons := HBoxContainer.new()
+	column.add_child(buttons)
+	var ok := Button.new()
+	ok.text = "Pronto (Enter / clique duplo)"
+	ok.pressed.connect(func() -> void: confirm_document())
+	buttons.add_child(ok)
+	var cancel := Button.new()
+	cancel.text = "Fechar (Esc)"
+	cancel.pressed.connect(_close_document_picker)
+	buttons.add_child(cancel)
 
 
 ## Área ou gatilho de missão (tem nome para as missões).
@@ -754,7 +867,7 @@ func _update_target(player: Node3D) -> void:
 
 func _unhandled_input(event: InputEvent) -> void:
 	if not active or InputService.device_of(slot) != InputService.KEYBOARD or InputService.screen_menu_open or _loot_panel.visible \
-			or _name_panel.visible:
+			or _name_panel.visible or _doc_panel.visible:
 		return
 	if event is InputEventMouseButton and event.pressed:
 		match event.button_index:
@@ -804,8 +917,11 @@ func _unhandled_input(event: InputEvent) -> void:
 			KEY_F:
 				# Em cima de área/gatilho de missão: muda o nome; senão, o conteúdo do contêiner.
 				var nameable: Node = _nameable_near(_target) if _target_ok else null
+				var note: Node = _note_near(_target) if _target_ok else null
 				if nameable:
 					open_name_editor(nameable)
+				elif note:
+					open_document_picker(note)
 				else:
 					open_loot_editor(_container_near(_target) if _target_ok else null)
 			_:
@@ -818,6 +934,12 @@ func _read_pad() -> void:
 	if device < 0 or InputService.screen_menu_open:
 		return
 	if _name_panel.visible:
+		return
+	if _doc_panel.visible:
+		if InputService.raw_just_pressed(slot, InputService.Action.DODGE):
+			_close_document_picker()
+		elif InputService.raw_just_pressed(slot, InputService.Action.MELEE):
+			confirm_document()
 		return
 	if _loot_panel.visible:
 		if InputService.raw_just_pressed(slot, InputService.Action.DODGE):
@@ -1000,6 +1122,13 @@ func _input(event: InputEvent) -> void:
 			and event.physical_keycode == KEY_ESCAPE:
 		_close_name_editor()
 		get_viewport().set_input_as_handled()
+	if _doc_panel and _doc_panel.visible and event is InputEventKey and event.pressed:
+		if event.physical_keycode == KEY_ESCAPE:
+			_close_document_picker()
+			get_viewport().set_input_as_handled()
+		elif event.physical_keycode in [KEY_ENTER, KEY_KP_ENTER]:
+			confirm_document()
+			get_viewport().set_input_as_handled()
 
 
 func _player_of(p_slot: int) -> Player:
@@ -1111,6 +1240,7 @@ func _build_hud() -> void:
 	column.add_child(_hint)
 	_build_loot_panel()
 	_build_name_panel()
+	_build_document_panel()
 
 
 func _refresh_hud() -> void:
@@ -1134,7 +1264,7 @@ func _refresh_hud() -> void:
 		_title.text = Txt.t("MODO CONSTRUTOR · mudando de lugar: %s") % String(_carrying.name)
 		_hint.text = ("Clique larga aqui · R gira · G ou Delete desiste" if keyboard else "X larga aqui · Y gira · ▲ ou B desiste")
 		return
-	_hint.text = (Txt.t("Clique coloca · Q/E ou rodinha troca · V categoria · R gira · PgUp/PgDn altura (Shift fino, Home zera) · Z desfaz · Delete apaga · G pega e muda de lugar · F conteúdo do contêiner / nome da área · %s no chat sai") % COMMAND if keyboard
+	_hint.text = (Txt.t("Clique coloca · Q/E ou rodinha troca · V categoria · R gira · PgUp/PgDn altura (Shift fino, Home zera) · Z desfaz · Delete apaga · G pega e muda de lugar · F conteúdo do contêiner / nome da área / documento · %s no chat sai") % COMMAND if keyboard
 			else Txt.t("X coloca · ◀ ▶ troca · ▼ categoria · Y gira · R3/L3 altura · B desfaz · LB apaga · ▲ pega e muda de lugar · RB conteúdo do contêiner · %s no chat sai") % COMMAND)
 	if absf(_lift) > 0.001:
 		_title.text += Txt.t(" · altura %+.2f m") % _lift

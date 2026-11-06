@@ -37,6 +37,7 @@ func _ready() -> void:
 ## exportado (filtro de exportação), por isso é carregado pelo caminho, se existir.
 const GOD_MODE := "res://world/god_mode.gd"
 const QUEST_EDITOR := "res://world/quest_editor.gd"
+const DOCUMENT_EDITOR := "res://world/document_editor.gd"
 
 
 func _add_god_mode() -> void:
@@ -45,6 +46,9 @@ func _add_god_mode() -> void:
 	# Editor de missões dentro do jogo (/missoes): também só no projeto, fora do exportado.
 	if OS.has_feature("editor") and ResourceLoader.exists(QUEST_EDITOR):
 		add_child((load(QUEST_EDITOR) as Script).new())
+	# Editor de documentos da história (/documentos): idem.
+	if OS.has_feature("editor") and ResourceLoader.exists(DOCUMENT_EDITOR):
+		add_child((load(DOCUMENT_EDITOR) as Script).new())
 
 
 ## Quem manda no mundo (host ou sofá offline) volta onde o personagem ativo parou neste mundo.
