@@ -205,6 +205,7 @@ A inteligência da Sinapse escolheu o próprio nome. Foi ela que tomou a malha d
 A internet caiu no meio do download (código %d). Tente de novo.,The connection dropped during the download (code %d). Try again.
 A ordem veio do D3M,The order came from D3M
 A pega/solta · Y equipa/abre · X larga · RB/Q chip pirata · B volta · Back fecha,A pick up/drop · Y equip/open · X discard · RB/Q pirate chip · B back · Back close
+A pega/solta · Y equipa/abre/lê · X larga no chão · RB próxima tela · B volta · Back fecha,A pick/drop · Y equip/open/read · X drop on ground · RB next screen · B back · Back close
 A porta de dentro do laboratório só abre invadindo o terminal (adivinhar a palavra pela semelhança).,The lab's inner door only opens by hacking the terminal (guess the word by likeness).
 A vila,The village
 A voz funciona no online (quem está no sofá já se ouve na sala).,Voice works online (couch players already hear each other in the room).
@@ -429,6 +430,7 @@ Escasso,Scarce
 Escopeta de cano serrado,Sawed-off shotgun
 "Escrito a lápis, nas folhas que sobraram","Written in pencil, on the pages that were left"
 Espaço,Space
+Espaço pega/solta · E equipa/abre/lê · J larga no chão · Q próxima tela · Shift volta · I fecha,Space pick/drop · E equip/open/read · J drop on ground · Q next screen · Shift back · I close
 Espaços,Slots
 Espera aí!,Wait up!
 Espera para repetir (minutos),

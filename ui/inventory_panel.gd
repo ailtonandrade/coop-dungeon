@@ -94,7 +94,13 @@ func _build() -> void:
 	_details.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_details.custom_minimum_size = Vector2(440, 96)
 	column.add_child(_details)
-	column.add_child(_label("A pega/solta · Y equipa/abre · X larga · RB/Q chip pirata · B volta · Back fecha", 13, Color(1, 1, 1, 0.6)))
+	# Legenda das ações no aparelho de quem abriu (teclado ou controle).
+	var keyboard := InputService.device_of(player.slot) == InputService.KEYBOARD
+	var hint := Txt.t("Espaço pega/solta · E equipa/abre/lê · J larga no chão · Q próxima tela · Shift volta · I fecha") if keyboard \
+			else Txt.t("A pega/solta · Y equipa/abre/lê · X larga no chão · RB próxima tela · B volta · Back fecha")
+	var hint_label := _label(hint, 13, Color(1, 1, 1, 0.6))
+	hint_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	column.add_child(hint_label)
 
 
 ## Atualização
@@ -154,7 +160,11 @@ func _describe() -> String:
 		if _section == "eq":
 			lines.append(Txt.t("%s: vazio") % Txt.t(ItemDB.SLOT_NAMES[ItemDB.EQUIP_SLOTS[_cursor]]))
 		return "\n".join(lines)
-	lines.append(Txt.t("%s  ·  %s  ·  poder %d") % [ItemDB.display_name(item), ItemDB.rarity_name(item), int(item.power)])
+	# Item de missão (diário, carta, livro): sem raridade nem poder.
+	if ItemDB.slot_of(item) == "missao":
+		lines.append(ItemDB.display_name(item))
+	else:
+		lines.append(Txt.t("%s  ·  %s  ·  poder %d") % [ItemDB.display_name(item), ItemDB.rarity_name(item), int(item.power)])
 	if ItemDB.is_usable(item):
 		var verb := Txt.t("ler") if not ItemDB.document_of(item).is_empty() else Txt.t("usar")
 		lines.append(Txt.t("%s: %s") % [InputService.button_name(InputService.Action.POTION, player.slot), verb])
