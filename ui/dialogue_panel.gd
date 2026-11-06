@@ -204,7 +204,14 @@ func _turn_in_quest(quest: QuestDef) -> void:
 ## O jogador escolheu um assunto (botão ou palavra digitada).
 func choose(topic: DialogueTopic) -> void:
 	_player_says(Txt.t(topic.button_text()))
-	_npc_says(Txt.t(topic.text))
+	# O assunto também vale para um objetivo "falar" com a mesma palavra (o texto da missão vence,
+	# senão o NPC diria duas vezes a mesma coisa).
+	var quest_reply := ""
+	for word: String in [topic.button_text()] + Array(topic.keywords):
+		quest_reply = Quests.talk(npc.npc_name, word, player)
+		if not quest_reply.is_empty():
+			break
+	_npc_says(Txt.t(quest_reply) if not quest_reply.is_empty() else Txt.t(topic.text))
 	Lore.heard(npc.npc_name, topic, player)
 	Sound.play("ui_confirm")
 

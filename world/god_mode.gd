@@ -67,6 +67,8 @@ var _doc_target: Node
 var _name_panel: PanelContainer
 var _name_title: Label
 var _name_edit: LineEdit
+var _name_radius: SpinBox
+var _name_radius_row: HBoxContainer
 var _name_target: Node
 ## Painel do conteúdo do contêiner (aberto sobre um contêiner do construtor).
 var _loot_panel: PanelContainer
@@ -395,6 +397,10 @@ func open_name_editor(node: Node) -> void:
 	_name_target = node
 	_name_title.text = "NOME DA ÁREA DE MISSÃO" if node is QuestArea else "NOME DO GATILHO DE MISSÃO"
 	_name_edit.text = String(node.get("area_id" if node is QuestArea else "trigger_id"))
+	# Área: também o tamanho do círculo (onde conta "chegou").
+	_name_radius_row.visible = node is QuestArea
+	if node is QuestArea:
+		_name_radius.value = float(node.get("radius"))
 	_name_panel.visible = true
 	InputService.set_blocked(slot, true)
 	_name_edit.grab_focus()
@@ -410,10 +416,14 @@ func confirm_name(text: String = "") -> void:
 		return
 	var key := "area_id" if _name_target is QuestArea else "trigger_id"
 	_name_target.set(key, value)
+	if _name_target is QuestArea:
+		_name_target.set("radius", _name_radius.value)
 	var entry := NetService.world_edit(String(_name_target.name))
 	if not entry.is_empty():
 		var props: Dictionary = entry.get("props", {})
 		props[key] = value
+		if _name_target is QuestArea:
+			props["radius"] = _name_radius.value
 		entry["props"] = props
 		var streamer := WorldStreamer.of(self)
 		if WorldEdits.saves_in_map_files() and NetService.session_edits.has(entry) and streamer:
@@ -452,6 +462,19 @@ func _build_name_panel() -> void:
 	_name_edit.placeholder_text = "patio_conteineres"
 	_name_edit.text_submitted.connect(func(text: String) -> void: confirm_name(text))
 	column.add_child(_name_edit)
+	_name_radius_row = HBoxContainer.new()
+	_name_radius_row.add_theme_constant_override("separation", 8)
+	column.add_child(_name_radius_row)
+	_name_radius_row.add_child(UiSkin.label("Raio (m) — o círculo onde conta \"chegou\"", 14, UiSkin.TEXT, "Regular", 2))
+	_name_radius = SpinBox.new()
+	_name_radius.min_value = 1.0
+	_name_radius.max_value = 30.0
+	_name_radius.step = 0.5
+	_name_radius.value = 3.0
+	_name_radius.value_changed.connect(func(value: float) -> void:
+		if is_instance_valid(_name_target) and _name_target is QuestArea:
+			_name_target.set("radius", value))
+	_name_radius_row.add_child(_name_radius)
 	var row := HBoxContainer.new()
 	column.add_child(row)
 	var ok := Button.new()

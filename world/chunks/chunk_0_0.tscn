@@ -52,6 +52,7 @@
 [ext_resource type="PackedScene" path="res://world/prefabs/zombie/trafficcone_2.tscn" id="40_mpuvm"]
 [ext_resource type="PackedScene" path="res://world/prefabs/zombie/container_red.tscn" id="40_ph1nh"]
 [ext_resource type="PackedScene" path="res://world/prefabs/pallet.tscn" id="41_6komr"]
+[ext_resource type="PackedScene" path="res://world/lore/historia_vila.tscn" id="lore_historia_vila"]
 
 [sub_resource type="NavigationMesh" id="NavigationMesh_ph1nh"]
 geometry_collision_mask = 1
@@ -1577,3 +1578,5 @@ transform = Transform3D(0.42, 0, 0, 0, 0.42, 0, 0, 0, 0.42, 16.2, 0, 18.6)
 [node name="Toldo_Bar" parent="Capricho" unique_id=1130112639 instance=ExtResource("24_cnhu1")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 50, 2.3, 17.67)
 color_a = Color(0.32, 0.14, 0.13, 1)
+
+[node name="HistoriaVila" parent="Navigation" unique_id=1499009231 instance=ExtResource("lore_historia_vila")]

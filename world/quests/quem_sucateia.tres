@@ -25,7 +25,6 @@ kind = "falar"
 npc = "Dona Alda"
 keywords = PackedStringArray("Zé Gato")
 replies = PackedStringArray("Ah! Se o Zé te mandou, posso confiar em você, tenho trabalhado com sucata tem um tempo, só não me venha com essas merdas de D3M.")
-show_buttons = false
 label = "Falar com a Dona Alda Sucateira."
 teaches = Array[String](["completou_quem_sucateia"])
 

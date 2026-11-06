@@ -332,6 +332,25 @@ func set_focus(id: String) -> void:
 	focus_changed.emit()
 
 
+## Tamanho do círculo do próximo passo, se é uma área ("chegar" ou começa por área); 0 se não.
+func target_radius(quest: QuestDef) -> float:
+	var area_id := ""
+	if state_of(quest.id).is_empty():
+		area_id = quest.start_target if quest.start == "area" else ""
+	elif state_of(quest.id) == "ativa":
+		for i in quest.objectives.size():
+			if objective_open(quest, i):
+				area_id = quest.objectives[i].target if quest.objectives[i].kind == "chegar" else ""
+				break
+	if area_id.is_empty():
+		return 0.0
+	for node: Node in get_tree().get_nodes_in_group("quest_areas"):
+		if String(node.call("id")) == area_id:
+			return float(node.get("radius"))
+	var piece: Variant = _places_map().get("quest_pieces", {}).get(area_id)
+	return float(piece[2]) if piece is Array and piece.size() > 2 else 0.0
+
+
 ## Cor da missão RASTREADA (sinal na cabeça do NPC, minimapa, mapa e rastreador); as outras
 ## ficam no amarelo de sempre.
 const FOCUS_COLOR := Color(0.35, 0.95, 1.0)
@@ -670,7 +689,7 @@ func _read_scene(path: String, origin: Vector3) -> void:
 		if is_quest_piece:
 			var area := script_path.ends_with("quest_area.gd") or (instance != null and instance.resource_path.ends_with("area_de_missao.tscn"))
 			var piece_id := String(props.get("area_id" if area else "trigger_id", ""))
-			_places.quest_pieces[piece_id if not piece_id.is_empty() else name] = ["area" if area else "gatilho", global.origin]
+			_places.quest_pieces[piece_id if not piece_id.is_empty() else name] = ["area" if area else "gatilho", global.origin, float(props.get("radius", 3.0))]
 		# Passagens (alçapão/esgoto/escada) ligadas pelo link_id: as duas pontas.
 		var door_script := script_path.ends_with("world/door.gd") or (instance != null and instance.resource_path.begins_with("res://world/prefabs/portas/"))
 		if door_script and String(props.get("link_id", "")) != "":

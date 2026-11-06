@@ -171,10 +171,12 @@ func _process(_delta: float) -> bool:
 			_select("area_de_missao.tscn")
 			var area: Node = _god.place_at(_player().global_position + Vector3(0, 0, -4))
 			_check(_god._name_panel.visible, "colocar área de missão abre a caixa do nome")
+			_god._name_radius.value = 8.0
 			_god.confirm_name("Pátio dos Contêineres")
 			var area_entry: Dictionary = root.get_node("NetService").world_edit(String(area.name))
 			_check(area.id() == "patio_dos_conteineres" and not _god._name_panel.visible, "o nome vira o id da área (%s)" % area.id())
 			_check(area_entry.get("props", {}).get("area_id") == "patio_dos_conteineres", "e fica gravado com a peça")
+			_check(is_equal_approx(area.radius, 8.0) and is_equal_approx(float(area_entry.get("props", {}).get("radius", 0.0)), 8.0), "o raio escolhido vale e fica gravado (%.1f m)" % area.radius)
 			_god.remove_piece(String(area.name))
 			# Documento da história: colocar abre a escolha do documento e do visual.
 			_select("documento_da_historia.tscn")

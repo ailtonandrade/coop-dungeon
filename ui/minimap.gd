@@ -169,6 +169,10 @@ func _draw_quest_targets(inner: Rect2) -> void:
 		if marked.any(func(m: Vector3) -> bool: return m.distance_to(target) < 1.0):
 			continue
 		var point := _to_map(target)
+		# Área: o círculo de verdade (onde conta "chegou"), além do losango no centro.
+		var area_radius := Quests.target_radius(quest) * (SIZE - FRAME * 2) / RANGE
+		if area_radius > 0.0 and inner.grow(area_radius).has_point(point):
+			_markers.draw_arc(point, area_radius, 0.0, TAU, 40, Color(Quests.FOCUS_COLOR, 0.7), 2.0)
 		var inside := inner.grow(-6).has_point(point)
 		if not inside:
 			var dir := (point - Vector2(SIZE, SIZE) / 2.0).normalized()

@@ -177,6 +177,9 @@ func _draw_markers() -> void:
 		# NPC com sinal: o sinal (na cor da rastreada) já marca o lugar.
 		if not Quests.focus_npc().is_empty():
 			continue
+		var area_radius: float = Quests.target_radius(quest) * _map_rect.size.x / ZOOMS[_zoom]
+		if area_radius > 0.0 and inner.grow(area_radius).has_point(_to_screen(target)):
+			_markers.draw_arc(_to_screen(target), area_radius, 0.0, TAU, 48, Color(Quests.FOCUS_COLOR, 0.7), 2.0)
 		var point := _to_screen(target).clamp(inner.position + Vector2(10, 10), inner.end - Vector2(10, 10))
 		var r := 8.0
 		var diamond := PackedVector2Array([point + Vector2(0, -r), point + Vector2(r, 0), point + Vector2(0, r), point + Vector2(-r, 0)])
