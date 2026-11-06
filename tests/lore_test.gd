@@ -29,6 +29,10 @@ func _process(_delta: float) -> bool:
 			root.get_node("NetService").world = {"id": "teste_lore", "name": "Teste"}
 			change_scene_to_file("res://world/world.tscn")
 		10:
+			# A cena de exemplo da história (caderno, caixa) não está mais no mapa (o dono refaz do
+			# jeito dele): o teste põe ela na vila para conferir as mecânicas.
+			var story: Node3D = load("res://world/lore/historia_vila.tscn").instantiate()
+			current_scene.add_child(story)
 			root.get_node("InputService")._try_join(-1)
 		SECOND:
 			_lore = root.get_node("Lore")

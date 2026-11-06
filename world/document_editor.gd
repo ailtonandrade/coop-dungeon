@@ -101,7 +101,7 @@ func _build() -> void:
 	left.add_child(buttons)
 	_button(buttons, "Novo", _new_document)
 	_button(buttons, "Apagar", _delete)
-	var help := UiSkin.label("Pôr no mapa: /editar, categoria\nHistoria, documento da historia\n(ao colocar ou F em cima, escolhe\nqual documento e o visual).\nMissão: objetivo \"ler\" com o id.", 13, UiSkin.DIM, "Regular", 2)
+	var help := UiSkin.label("No mapa, fixo: /editar, categoria\nHistoria, documento da historia\n(F escolhe documento e visual).\nColetável (vai pra mochila, lê\npelo inventário): \"Criar item para\nler\" e depois /editar, Missoes,\nitem de missao (F escolhe o item).\nMissão: objetivo \"ler\" com o id.", 13, UiSkin.DIM, "Regular", 2)
 	left.add_child(help)
 	var right := VBoxContainer.new()
 	right.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -124,6 +124,7 @@ func _build() -> void:
 	bottom.add_theme_constant_override("separation", 10)
 	right.add_child(bottom)
 	_button(bottom, "Salvar", save)
+	_button(bottom, "Criar item para ler", make_item)
 	_button(bottom, "Fechar (%s)" % COMMAND, stop)
 	_status = UiSkin.label("", 14, UiSkin.DIM, "Regular", 2)
 	bottom.add_child(_status)
@@ -223,6 +224,33 @@ func save() -> String:
 	Lore.reload_book()
 	_refresh_list()
 	_status.text = "Salvo: %s" % id
+	Sound.play("ui_confirm")
+	return id
+
+
+## Cria (ou atualiza) o item que abre este documento: casa "missao" (fica na mochila, não se
+## vende), visual de livro, mesmo id do documento. Retorna o id do item ("" se não deu).
+func make_item() -> String:
+	var id := save()
+	if id.is_empty():
+		return ""
+	var path := "res://items/defs/%s.tres" % id
+	var item: ItemDef = load(path) as ItemDef if ResourceLoader.exists(path) else ItemDef.new()
+	item.id = id
+	item.display_name = _title.text.strip_edges()
+	item.slot = "missao"
+	item.look = "book"
+	item.color = Color(0.45, 0.16, 0.12)
+	item.price = 0
+	item.random_loot = false
+	item.document = id
+	if ResourceSaver.save(item, path) != OK:
+		_status.text = "Não deu para criar o item."
+		Sound.play("ui_error")
+		return ""
+	item.take_over_path(path)
+	ItemDB.reload()
+	_status.text = "Item criado: %s (ponha no mapa: /editar, Missoes, item de missao, F escolhe)" % id
 	Sound.play("ui_confirm")
 	return id
 
