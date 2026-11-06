@@ -355,7 +355,7 @@ func _build_document_panel() -> void:
 	column.add_child(row)
 	row.add_child(UiSkin.label("Visual", 14, UiSkin.TEXT, "Regular", 2))
 	_doc_look = OptionButton.new()
-	for look_name: String in ["livro", "caderno", "terminal", "foto", "trofeu"]:
+	for look_name: String in ["livro", "caderno", "placa", "terminal", "foto", "trofeu"]:
 		_doc_look.add_item(look_name)
 	row.add_child(_doc_look)
 	var buttons := HBoxContainer.new()

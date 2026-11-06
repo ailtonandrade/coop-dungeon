@@ -13,7 +13,7 @@ const READ_RANGE := 1.9
 	set(value):
 		document_id = value
 		notify_property_list_changed()
-@export_enum("caderno", "livro", "terminal", "foto", "trofeu") var look := "caderno":
+@export_enum("caderno", "livro", "placa", "terminal", "foto", "trofeu") var look := "caderno":
 	set(value):
 		look = value
 		if is_inside_tree():
@@ -106,6 +106,16 @@ func _build_visual() -> void:
 			_box(Vector3(0.28, 0.07, 0.36), Vector3(0, 0.455, 0), Color(0.18, 0.2, 0.3))
 			_box(Vector3(0.26, 0.05, 0.34), Vector3(0.012, 0.455, 0), Color(0.88, 0.84, 0.72))
 			_box(Vector3(0.03, 0.075, 0.365), Vector3(-0.13, 0.455, 0), Color(0.12, 0.13, 0.2))
+		"placa":
+			# Placa de parede: chapa pintada com moldura, presa por dois parafusos. Fica na altura
+			# dos olhos com a frente para +Z (encoste na parede e gire com R no /editar).
+			_box(Vector3(0.9, 0.6, 0.04), Vector3(0, 1.55, 0), Color(0.12, 0.13, 0.12))
+			_box(Vector3(0.82, 0.52, 0.02), Vector3(0, 1.55, 0.025), Color(0.78, 0.74, 0.62))
+			_box(Vector3(0.6, 0.04, 0.005), Vector3(0, 1.66, 0.037), Color(0.25, 0.2, 0.15))
+			_box(Vector3(0.66, 0.025, 0.005), Vector3(0, 1.56, 0.037), Color(0.35, 0.3, 0.24))
+			_box(Vector3(0.5, 0.025, 0.005), Vector3(0, 1.5, 0.037), Color(0.35, 0.3, 0.24))
+			for x: float in [-0.38, 0.38]:
+				_box(Vector3(0.04, 0.04, 0.02), Vector3(x, 1.78, 0.03), Color(0.55, 0.55, 0.58))
 		"trofeu":
 			_box(Vector3(0.5, 0.5, 0.5), Vector3(0, 0.25, 0), Color(0.42, 0.3, 0.2))
 			_box(Vector3(0.14, 0.28, 0.14), Vector3(0, 0.64, 0), Color(0.9, 0.72, 0.25), true)
