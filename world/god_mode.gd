@@ -78,6 +78,8 @@ var _loot_gold: Label
 var _loot_target: Node
 var _loot_lines: Array = []  # [[item, quantidade]...]
 var _loot_gold_value := 0
+## Minutos para o contêiner/item de missão voltar (0 = uma vez por mundo).
+var _loot_refill: SpinBox
 
 
 ## O modo construtor da cena, ou null (no jogo exportado ele nem existe).
@@ -1025,6 +1027,7 @@ func open_loot_editor(container: Node) -> void:
 		if line:
 			_loot_lines.append([line.item_id, line.count])
 	_loot_gold_value = int(container.gold)
+	_loot_refill.value = float(container.refill_minutes)
 	_loot_items.clear()
 	for id: String in ItemDB.ids():
 		if id != "gold":
@@ -1076,6 +1079,7 @@ func close_loot_editor() -> void:
 		return
 	entry["loot"] = _loot_lines.duplicate(true)
 	entry["gold"] = _loot_gold_value
+	entry["refill"] = _loot_refill.value
 	WorldEdits.apply_loot(_loot_target, entry)
 	var streamer := WorldStreamer.of(self)
 	if WorldEdits.saves_in_map_files() and NetService.session_edits.has(entry) and streamer:
@@ -1130,6 +1134,15 @@ func _build_loot_panel() -> void:
 		button.text = "%+d" % amount
 		button.pressed.connect(loot_gold.bind(amount))
 		gold_row.add_child(button)
+	var refill_row := HBoxContainer.new()
+	refill_row.add_theme_constant_override("separation", 8)
+	right.add_child(refill_row)
+	refill_row.add_child(UiSkin.label("Volta depois de (min, 0 = nunca)", 14, UiSkin.TEXT, "Regular", 2))
+	_loot_refill = SpinBox.new()
+	_loot_refill.min_value = 0
+	_loot_refill.max_value = 10080
+	_loot_refill.step = 1
+	refill_row.add_child(_loot_refill)
 	var done := Button.new()
 	done.text = "Pronto (B / Esc)"
 	done.pressed.connect(close_loot_editor)

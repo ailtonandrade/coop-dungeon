@@ -80,5 +80,7 @@ static func apply_loot(container: Node, entry: Dictionary) -> void:
 		container.contents = lines
 	if entry.has("gold"):
 		container.gold = int(entry.gold)
+	if entry.has("refill"):
+		container.refill_minutes = float(entry.refill)
 	if container.has_method("rebuild_visual"):
 		container.rebuild_visual()

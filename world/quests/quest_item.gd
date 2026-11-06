@@ -12,10 +12,39 @@ extends LootContainer
 const PICK_RANGE := 1.6
 
 
+## Volta para o lugar depois de tanto tempo pego, se ninguém do grupo estiver com ele (perdeu,
+## jogou fora, vendeu). 0 = uma vez por mundo. (Usa o "refill_minutes" do contêiner.)
+const DEFAULT_RESPAWN_MINUTES := 10.0
+
+var _respawn_check := 0.0
+
+
 func _init() -> void:
 	open_range = PICK_RANGE
 	open_sound = "pickup"
 	title = "Item"
+	refill_minutes = DEFAULT_RESPAWN_MINUTES
+
+
+## Pego e ainda não deu o tempo, ou alguém do grupo ainda tem o item: fica escondido.
+func is_open(now: float = Time.get_unix_time_from_system()) -> bool:
+	if super(now):
+		return true
+	var net := _net()
+	if net == null or not net.world.get("containers", {}).has(container_id):
+		return false
+	return _someone_has_it()
+
+
+func _someone_has_it() -> bool:
+	var id := item_id()
+	if id.is_empty():
+		return false
+	for player: Node in get_tree().get_nodes_in_group("players"):
+		var inventory: Variant = player.get("inventory")
+		if inventory and inventory.has_item_id(id):
+			return true
+	return false
 
 
 func _ready() -> void:
@@ -54,9 +83,16 @@ func open_by(player: Node3D) -> bool:
 	return true
 
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
 	if Engine.is_editor_hint() or _label == null:
 		return
+	# Pego: de tempos em tempos confere se já pode voltar (tempo passou e ninguém tem).
+	if _opened and refill_minutes > 0.0:
+		_respawn_check -= delta
+		if _respawn_check <= 0.0:
+			_respawn_check = 2.0
+			if not is_open():
+				refresh()
 	var near := false
 	if not _opened:
 		for player: Node3D in get_tree().get_nodes_in_group("players"):
