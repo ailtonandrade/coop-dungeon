@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="PropDef" format=3]
+
+[ext_resource type="PackedScene" path="res://assets/props/packs/DownTown/Street_Asphalt_6x6.gltf" id="1_cqmum"]
+[ext_resource type="Script" path="res://props/prop_def.gd" id="2_lpagk"]
+
+[resource]
+script = ExtResource("2_lpagk")
+id = "street_asphalt_6x6"
+display_name = "Street Asphalt 6x6"
+model = ExtResource("1_cqmum")
+kind = "estrutura"

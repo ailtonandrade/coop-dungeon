@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="PropDef" format=3]
+
+[ext_resource type="PackedScene" path="res://assets/props/packs/DownTown/Decal_Curve_2Lane_Stripe.gltf" id="1_vwb5m"]
+[ext_resource type="Script" path="res://props/prop_def.gd" id="2_r7r1u"]
+
+[resource]
+script = ExtResource("2_r7r1u")
+id = "decal_curve_2lane_stripe"
+display_name = "Decal Curve 2Lane Stripe"
+model = ExtResource("1_vwb5m")

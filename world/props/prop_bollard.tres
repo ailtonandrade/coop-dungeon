@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="PropDef" format=3]
+
+[ext_resource type="PackedScene" path="res://assets/props/packs/DownTown/Prop_Bollard.gltf" id="1_0pvdb"]
+[ext_resource type="Script" path="res://props/prop_def.gd" id="2_62ltm"]
+
+[resource]
+script = ExtResource("2_62ltm")
+id = "prop_bollard"
+display_name = "Prop Bollard"
+model = ExtResource("1_0pvdb")

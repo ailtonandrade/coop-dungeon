@@ -1,0 +1,16 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://assets/props/packs/DownTown/Sidewalk_Corner_Flat_3m.gltf" id="1_uy8f2"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_wguc2"]
+size = Vector3(3.01, 0.15000004, 3.0100002)
+
+[node name="SidewalkCornerFlat3m" type="StaticBody3D" unique_id=325316326]
+metadata/prop_def = "res://world/props/sidewalk_corner_flat_3m.tres"
+
+[node name="Modelo" type="Node3D" parent="." unique_id=1352238643 instance=ExtResource("1_uy8f2")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.004999995, 0.15, -0.004999995)
+
+[node name="Collision" type="CollisionShape3D" parent="." unique_id=1607767864]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.07500002, 0)
+shape = SubResource("BoxShape3D_wguc2")

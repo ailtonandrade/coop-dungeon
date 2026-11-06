@@ -1,0 +1,16 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://assets/props/packs/DownTown/Sidewalk_Corner_Flat_3m_Stripe.gltf" id="1_oa25i"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_eyjuk"]
+size = Vector3(3.4001555, 0.05, 3.4002233)
+
+[node name="SidewalkCornerFlat3mStripe" type="StaticBody3D" unique_id=1378913963]
+metadata/prop_def = "res://world/props/sidewalk_corner_flat_3m_stripe.tres"
+
+[node name="Modelo" type="Node3D" parent="." unique_id=246557137 instance=ExtResource("1_oa25i")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.20007789, 0.148, -0.20011163)
+
+[node name="Collision" type="CollisionShape3D" parent="." unique_id=1691339072]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.9993396e-06, 0)
+shape = SubResource("BoxShape3D_eyjuk")

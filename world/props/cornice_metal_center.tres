@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="PropDef" format=3]
+
+[ext_resource type="PackedScene" path="res://assets/props/packs/DownTown/Cornice_Metal_Center.gltf" id="1_mtmll"]
+[ext_resource type="Script" path="res://props/prop_def.gd" id="2_k5ptd"]
+
+[resource]
+script = ExtResource("2_k5ptd")
+id = "cornice_metal_center"
+display_name = "Cornice Metal Center"
+model = ExtResource("1_mtmll")
+kind = "estrutura"

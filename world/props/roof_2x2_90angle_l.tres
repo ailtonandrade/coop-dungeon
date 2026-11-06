@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="PropDef" format=3]
+
+[ext_resource type="PackedScene" path="res://assets/props/packs/DownTown/Roof_2x2_90Angle_L.gltf" id="1_ijmfd"]
+[ext_resource type="Script" path="res://props/prop_def.gd" id="2_0dtek"]
+
+[resource]
+script = ExtResource("2_0dtek")
+id = "roof_2x2_90angle_l"
+display_name = "Roof 2x2 90Angle L"
+model = ExtResource("1_ijmfd")
+kind = "estrutura"

@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="PropDef" format=3]
+
+[ext_resource type="PackedScene" path="res://assets/props/packs/DownTown/Roof_Slate_Center.gltf" id="1_x4mfy"]
+[ext_resource type="Script" path="res://props/prop_def.gd" id="2_5ahp6"]
+
+[resource]
+script = ExtResource("2_5ahp6")
+id = "roof_slate_center"
+display_name = "Roof Slate Center"
+model = ExtResource("1_x4mfy")
+kind = "estrutura"

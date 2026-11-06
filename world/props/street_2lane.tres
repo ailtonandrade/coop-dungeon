@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="PropDef" format=3]
+
+[ext_resource type="PackedScene" path="res://assets/props/packs/DownTown/Street_2Lane.gltf" id="1_rrsj7"]
+[ext_resource type="Script" path="res://props/prop_def.gd" id="2_tfgce"]
+
+[resource]
+script = ExtResource("2_tfgce")
+id = "street_2lane"
+display_name = "Street 2Lane"
+model = ExtResource("1_rrsj7")
+kind = "estrutura"

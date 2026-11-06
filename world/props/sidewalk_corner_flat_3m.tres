@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="PropDef" format=3]
+
+[ext_resource type="PackedScene" path="res://assets/props/packs/DownTown/Sidewalk_Corner_Flat_3m.gltf" id="1_lfjxn"]
+[ext_resource type="Script" path="res://props/prop_def.gd" id="2_fndk8"]
+
+[resource]
+script = ExtResource("2_fndk8")
+id = "sidewalk_corner_flat_3m"
+display_name = "Sidewalk Corner Flat 3m"
+model = ExtResource("1_lfjxn")
+kind = "estrutura"

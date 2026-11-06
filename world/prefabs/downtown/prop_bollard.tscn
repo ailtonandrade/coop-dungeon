@@ -1,0 +1,15 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://assets/props/packs/DownTown/Prop_Bollard.gltf" id="1_hdn4p"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_w4m40"]
+size = Vector3(0.21626753, 0.89177614, 0.2273971)
+
+[node name="PropBollard" type="StaticBody3D" unique_id=1369295705]
+metadata/prop_def = "res://world/props/prop_bollard.tres"
+
+[node name="Modelo" type="Node3D" parent="." unique_id=1681901511 instance=ExtResource("1_hdn4p")]
+
+[node name="Collision" type="CollisionShape3D" parent="." unique_id=845867928]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.44588807, 0)
+shape = SubResource("BoxShape3D_w4m40")

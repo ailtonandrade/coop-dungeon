@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="PropDef" format=3]
+
+[ext_resource type="PackedScene" path="res://assets/props/packs/DownTown/Stairs_Rails_Metal_Straight_1.gltf" id="1_xns51"]
+[ext_resource type="Script" path="res://props/prop_def.gd" id="2_s78nh"]
+
+[resource]
+script = ExtResource("2_s78nh")
+id = "stairs_rails_metal_straight_1"
+display_name = "Stairs Rails Metal Straight 1"
+model = ExtResource("1_xns51")
+kind = "estrutura"

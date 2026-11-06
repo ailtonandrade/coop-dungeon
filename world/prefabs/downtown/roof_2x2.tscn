@@ -1,0 +1,16 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://assets/props/packs/DownTown/Roof_2x2.gltf" id="1_s10qe"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_3emai"]
+size = Vector3(2, 0.05, 2)
+
+[node name="Roof2x2" type="StaticBody3D" unique_id=128055867]
+metadata/prop_def = "res://world/props/roof_2x2.tres"
+
+[node name="Modelo" type="Node3D" parent="." unique_id=385695432 instance=ExtResource("1_s10qe")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.20000005, 0)
+
+[node name="Collision" type="CollisionShape3D" parent="." unique_id=1123359765]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.9993396e-06, 0)
+shape = SubResource("BoxShape3D_3emai")

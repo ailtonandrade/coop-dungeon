@@ -1,0 +1,16 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://assets/props/packs/DownTown/Prop_ManholeCover.gltf" id="1_bj2jv"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_un3ep"]
+size = Vector3(0.92511284, 0.05, 0.92511284)
+
+[node name="PropManholeCover" type="StaticBody3D" unique_id=251331183]
+metadata/prop_def = "res://world/props/prop_manholecover.tres"
+
+[node name="Modelo" type="Node3D" parent="." unique_id=1231105701 instance=ExtResource("1_bj2jv")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.013890458, 0)
+
+[node name="Collision" type="CollisionShape3D" parent="." unique_id=621204567]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.016485512, 0)
+shape = SubResource("BoxShape3D_un3ep")

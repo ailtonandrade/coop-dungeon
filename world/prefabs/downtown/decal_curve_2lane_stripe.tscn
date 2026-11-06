@@ -1,0 +1,16 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://assets/props/packs/DownTown/Decal_Curve_2Lane_Stripe.gltf" id="1_jk4hl"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_iroa2"]
+size = Vector3(8.8, 0.05, 8.800001)
+
+[node name="DecalCurve2LaneStripe" type="StaticBody3D" unique_id=1777701624]
+metadata/prop_def = "res://world/props/decal_curve_2lane_stripe.tres"
+
+[node name="Modelo" type="Node3D" parent="." unique_id=950154955 instance=ExtResource("1_jk4hl")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.399998, 0.148, -4.4)
+
+[node name="Collision" type="CollisionShape3D" parent="." unique_id=2117111438]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.9993396e-06, 0)
+shape = SubResource("BoxShape3D_iroa2")

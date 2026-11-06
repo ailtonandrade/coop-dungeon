@@ -1,0 +1,16 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://assets/props/packs/DownTown/DoorFrame_Metal_Single.gltf" id="1_s5dmm"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_767hp"]
+size = Vector3(2, 3, 0.20000023)
+
+[node name="DoorFrameMetalSingle" type="StaticBody3D" unique_id=1692216216]
+metadata/prop_def = "res://world/props/doorframe_metal_single.tres"
+
+[node name="Modelo" type="Node3D" parent="." unique_id=1795687829 instance=ExtResource("1_s5dmm")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.09999998)
+
+[node name="Collision" type="CollisionShape3D" parent="." unique_id=1959327676]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
+shape = SubResource("BoxShape3D_767hp")

@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="PropDef" format=3]
+
+[ext_resource type="PackedScene" path="res://assets/props/packs/DownTown/Prop_ManholeCover.gltf" id="1_chq5i"]
+[ext_resource type="Script" path="res://props/prop_def.gd" id="2_ruokg"]
+
+[resource]
+script = ExtResource("2_ruokg")
+id = "prop_manholecover"
+display_name = "Prop ManholeCover"
+model = ExtResource("1_chq5i")

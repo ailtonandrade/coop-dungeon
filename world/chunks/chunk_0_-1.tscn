@@ -7,8 +7,9 @@
 [ext_resource type="PackedScene" path="res://assets/props/Chest.glb" id="5_s4o8u"]
 [ext_resource type="MeshLibrary" path="res://world/tiles/tiles.meshlib" id="6_1dv8k"]
 [ext_resource type="Script" path="res://world/creature_spawner.gd" id="6_a1fk2"]
+[ext_resource type="PackedScene" path="res://world/prefabs/downtown/alambrado_10m.tscn" id="7_clovp"]
 
-[sub_resource type="NavigationMesh" id="NavigationMesh_8a3ap"]
+[sub_resource type="NavigationMesh" id="NavigationMesh_clovp"]
 geometry_collision_mask = 1
 agent_height = 2.0
 filter_baking_aabb = AABB(0, -5, 0, 64, 30, 64)
@@ -530,7 +531,7 @@ size = Vector3(0.6396171, 0.4061696, 0.48294973)
 [node name="Chunk" type="Node3D" unique_id=474162887]
 
 [node name="Navigation" type="NavigationRegion3D" parent="." unique_id=1781699422]
-navigation_mesh = SubResource("NavigationMesh_8a3ap")
+navigation_mesh = SubResource("NavigationMesh_clovp")
 
 [node name="Ground" type="StaticBody3D" parent="Navigation" unique_id=1599533783]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 32, -0.5, 32)
@@ -1343,6 +1344,21 @@ mesh_library = ExtResource("6_1dv8k")
 cell_size = Vector3(1, 1, 1)
 cell_center_y = false
 collision_mask = 0
+
+[node name="god_1793973271_7952" parent="Navigation" unique_id=1200485333 instance=ExtResource("7_clovp")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 48.95, 0, 0.099998474)
+
+[node name="god_1793973275_4683" parent="Navigation" unique_id=2127158381 instance=ExtResource("7_clovp")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 38.95, 0, 0.099998474)
+
+[node name="god_1793973275_8150" parent="Navigation" unique_id=979345537 instance=ExtResource("7_clovp")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 38.95, 0, 0)
+
+[node name="god_1793973277_3286" parent="Navigation" unique_id=39901393 instance=ExtResource("7_clovp")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 28.95, 0, 0)
+
+[node name="god_1793973279_3361" parent="Navigation" unique_id=580836118 instance=ExtResource("7_clovp")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18.95, 0, 0)
 
 [node name="Spawner_0" type="Marker3D" parent="." unique_id=1634437495]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.530213, 0, 37.70278)

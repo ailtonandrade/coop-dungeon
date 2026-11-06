@@ -1,0 +1,16 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://assets/props/packs/DownTown/Trim_90Angle_TopCover.gltf" id="1_i51gq"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_3pajl"]
+size = Vector3(2.0000002, 0.05, 0.7000002)
+
+[node name="Trim90AngleTopCover" type="StaticBody3D" unique_id=1120726435]
+metadata/prop_def = "res://world/props/trim_90angle_topcover.tres"
+
+[node name="Modelo" type="Node3D" parent="." unique_id=882127063 instance=ExtResource("1_i51gq")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.1920929e-07, 0.02000022, 0.35)
+
+[node name="Collision" type="CollisionShape3D" parent="." unique_id=1025815471]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.01000511, 0)
+shape = SubResource("BoxShape3D_3pajl")

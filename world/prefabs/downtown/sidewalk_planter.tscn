@@ -1,0 +1,16 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://assets/props/packs/DownTown/Sidewalk_Planter.gltf" id="1_q8yix"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_asbim"]
+size = Vector3(1.9730868, 0.5057359, 1.7653995)
+
+[node name="SidewalkPlanter" type="StaticBody3D" unique_id=1156419804]
+metadata/prop_def = "res://world/props/sidewalk_planter.tres"
+
+[node name="Modelo" type="Node3D" parent="." unique_id=657033641 instance=ExtResource("1_q8yix")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.2915344e-06, 0, 0)
+
+[node name="Collision" type="CollisionShape3D" parent="." unique_id=509988660]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.25286794, 0)
+shape = SubResource("BoxShape3D_asbim")

@@ -1,0 +1,16 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://assets/props/packs/DownTown/Decal_ArrowTurnRight.gltf" id="1_ijh6s"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_oxb3r"]
+size = Vector3(1.9877815, 0.05, 2.50253)
+
+[node name="DecalArrowTurnRight" type="StaticBody3D" unique_id=796829179]
+metadata/prop_def = "res://world/props/decal_arrowturnright.tres"
+
+[node name="Modelo" type="Node3D" parent="." unique_id=559174531 instance=ExtResource("1_ijh6s")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.15174508, 0.13000001, -0.016738653)
+
+[node name="Collision" type="CollisionShape3D" parent="." unique_id=1913233917]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.9993396e-06, 0)
+shape = SubResource("BoxShape3D_oxb3r")

@@ -1,0 +1,16 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://assets/props/packs/DownTown/Street_Asphalt_Curve_2Lane.gltf" id="1_ek2jp"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_1h3af"]
+size = Vector3(10.000003, 0.05, 10)
+
+[node name="StreetAsphaltCurve2Lane" type="StaticBody3D" unique_id=844114153]
+metadata/prop_def = "res://world/props/street_asphalt_curve_2lane.tres"
+
+[node name="Modelo" type="Node3D" parent="." unique_id=43663230 instance=ExtResource("1_ek2jp")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.999998, 0.15, -5)
+
+[node name="Collision" type="CollisionShape3D" parent="." unique_id=713761589]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.9993396e-06, 0)
+shape = SubResource("BoxShape3D_1h3af")

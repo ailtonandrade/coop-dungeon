@@ -1,0 +1,16 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://assets/props/packs/DownTown/Stairs_Rails_Metal_Straight_1.gltf" id="1_ja3ey"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_nkqln"]
+size = Vector3(1.9389497, 0.99807155, 1)
+
+[node name="StairsRailsMetalStraight1" type="StaticBody3D" unique_id=1192221397]
+metadata/prop_def = "res://world/props/stairs_rails_metal_straight_1.tres"
+
+[node name="Modelo" type="Node3D" parent="." unique_id=591103035 instance=ExtResource("1_ja3ey")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.9713396, -0.5)
+
+[node name="Collision" type="CollisionShape3D" parent="." unique_id=728761247]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.49903578, 0)
+shape = SubResource("BoxShape3D_nkqln")

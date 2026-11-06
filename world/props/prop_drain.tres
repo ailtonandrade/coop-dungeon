@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="PropDef" format=3]
+
+[ext_resource type="PackedScene" path="res://assets/props/packs/DownTown/Prop_Drain.gltf" id="1_q4r5g"]
+[ext_resource type="Script" path="res://props/prop_def.gd" id="2_sj1x1"]
+
+[resource]
+script = ExtResource("2_sj1x1")
+id = "prop_drain"
+display_name = "Prop Drain"
+model = ExtResource("1_q4r5g")
