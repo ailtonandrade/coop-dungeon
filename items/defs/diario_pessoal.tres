@@ -1,7 +1,7 @@
-[gd_resource type="Resource" script_class="ItemDef" format=3]
+[gd_resource type="Resource" script_class="ItemDef" format=3 uid="uid://dac5654wk6e1y"]
 
-[ext_resource type="Script" path="res://items/item_drop.gd" id="1_drop"]
-[ext_resource type="Script" path="res://items/item_def.gd" id="2_def"]
+[ext_resource type="Script" uid="uid://bv0w0jhfsaesx" path="res://items/item_drop.gd" id="1_drop"]
+[ext_resource type="Script" uid="uid://clkdhnjmog72" path="res://items/item_def.gd" id="2_def"]
 
 [resource]
 script = ExtResource("2_def")
@@ -13,4 +13,3 @@ color = Color(0.22, 0.3, 0.42, 1)
 price = 0
 random_loot = false
 document = "diario_jogador"
-drops = Array[ExtResource("1_drop")]([])

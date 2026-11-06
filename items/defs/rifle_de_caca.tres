@@ -1,7 +1,7 @@
-[gd_resource type="Resource" script_class="ItemDef" format=3]
+[gd_resource type="Resource" script_class="ItemDef" format=3 uid="uid://tc3a1ulkjd57"]
 
-[ext_resource type="Script" path="res://items/item_drop.gd" id="1_drop"]
-[ext_resource type="Script" path="res://items/item_def.gd" id="2_def"]
+[ext_resource type="Script" uid="uid://bv0w0jhfsaesx" path="res://items/item_drop.gd" id="1_drop"]
+[ext_resource type="Script" uid="uid://clkdhnjmog72" path="res://items/item_def.gd" id="2_def"]
 
 [resource]
 script = ExtResource("2_def")
@@ -13,10 +13,8 @@ color = Color(0.45, 0.3, 0.18, 1)
 price = 140
 damage = 26.0
 sold_by = Array[String](["Dona Alda"])
-random_loot = true
 ammo = "rifle"
 fire_interval = 0.95
 projectile_speed = 85.0
 projectile = "bala"
 shot_sound = "shot_rifle"
-drops = Array[ExtResource("1_drop")]([])
