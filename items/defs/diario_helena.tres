@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ItemDef" format=3]
+
+[ext_resource type="Script" path="res://items/item_drop.gd" id="1_07wyg"]
+[ext_resource type="Script" path="res://items/item_def.gd" id="2_xnp4j"]
+
+[resource]
+script = ExtResource("2_xnp4j")
+id = "diario_helena"
+display_name = "Caderno de capa vermelha"
+slot = "missao"
+look = "book"
+color = Color(0.45, 0.16, 0.12, 1)
+price = 0
+random_loot = false
+document = "diario_helena"

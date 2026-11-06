@@ -1,19 +1,19 @@
-[gd_scene format=3 uid="uid://dilos8j2lccl3"]
+[gd_scene format=3]
 
 [ext_resource type="Texture2D" path="res://world/textures/ground_4d453d_615447.res" id="1_y326l"]
-[ext_resource type="Material" uid="uid://rfmxn2etcynf" path="res://world/materials/parede.tres" id="2_s6l2a"]
-[ext_resource type="Script" uid="uid://bbyjjd26mkvij" path="res://world/fade_occluder.gd" id="2_y326l"]
-[ext_resource type="PackedScene" uid="uid://cykmgapidtwdp" path="res://assets/props/Barrel.glb" id="3_t5grd"]
-[ext_resource type="PackedScene" uid="uid://cjysy3ae2mnrl" path="res://assets/props/Chest.glb" id="4_10agt"]
+[ext_resource type="Material" path="res://world/materials/parede.tres" id="2_s6l2a"]
+[ext_resource type="Script" path="res://world/fade_occluder.gd" id="2_y326l"]
+[ext_resource type="PackedScene" path="res://assets/props/Barrel.glb" id="3_t5grd"]
+[ext_resource type="PackedScene" path="res://assets/props/Chest.glb" id="4_10agt"]
 [ext_resource type="Material" path="res://world/materials/contrapiso.tres" id="4_xd5h5"]
-[ext_resource type="Script" uid="uid://c0oc2dd2qakp7" path="res://world/world_npc.gd" id="5_2772y"]
-[ext_resource type="MeshLibrary" uid="uid://by57umflys8r8" path="res://world/tiles/tiles.meshlib" id="5_y326l"]
-[ext_resource type="PackedScene" uid="uid://dpmlqyss4405t" path="res://assets/characters/Suit.glb" id="6_f5q74"]
-[ext_resource type="PackedScene" uid="uid://dmy2roidhlikd" path="res://assets/characters/Worker.glb" id="7_y8j3o"]
+[ext_resource type="Script" path="res://world/world_npc.gd" id="5_2772y"]
+[ext_resource type="MeshLibrary" path="res://world/tiles/tiles.meshlib" id="5_y326l"]
+[ext_resource type="PackedScene" path="res://assets/characters/Suit.glb" id="6_f5q74"]
+[ext_resource type="PackedScene" path="res://assets/characters/Worker.glb" id="7_y8j3o"]
 [ext_resource type="PackedScene" path="res://world/prefabs/poste_de_luz.tscn" id="8_8ynnr"]
-[ext_resource type="PackedScene" uid="uid://dt1dftory4r1p" path="res://assets/characters/Beach.glb" id="8_t0nbh"]
+[ext_resource type="PackedScene" path="res://assets/characters/Beach.glb" id="8_t0nbh"]
 [ext_resource type="PackedScene" path="res://world/prefabs/carro_quebrado.tscn" id="9_1j7j7"]
-[ext_resource type="PackedScene" uid="uid://biycfshaiffwe" path="res://assets/characters/King.glb" id="9_ud5yq"]
+[ext_resource type="PackedScene" path="res://assets/characters/King.glb" id="9_ud5yq"]
 [ext_resource type="PackedScene" path="res://world/prefabs/pilha_de_pneus.tscn" id="10_25cto"]
 [ext_resource type="PackedScene" path="res://world/prefabs/cone.tscn" id="13_cax8w"]
 [ext_resource type="PackedScene" path="res://world/prefabs/arbusto.tscn" id="14_0lrbf"]
@@ -42,18 +42,21 @@
 [ext_resource type="PackedScene" path="res://world/prefabs/zombie/vehicle_truck.tscn" id="34_h5tfs"]
 [ext_resource type="PackedScene" path="res://world/prefabs/zombie/watertower.tscn" id="34_tst6q"]
 [ext_resource type="PackedScene" path="res://world/prefabs/downtown/brick_cornercolumn_center.tscn" id="35_6mv5i"]
-[ext_resource type="Texture2D" uid="uid://7ia2la3834x8" path="res://world/textures/contrapiso.png" id="35_tst6q"]
+[ext_resource type="Texture2D" path="res://world/textures/contrapiso.png" id="35_tst6q"]
 [ext_resource type="PackedScene" path="res://world/prefabs/downtown/brick_inset.tscn" id="36_6mv5i"]
 [ext_resource type="PackedScene" path="res://world/prefabs/zombie/street_straight.tscn" id="36_q861x"]
 [ext_resource type="PackedScene" path="res://world/prefabs/downtown/brick_cornercolumn_top.tscn" id="37_q861x"]
 [ext_resource type="PackedScene" path="res://world/prefabs/zombie/townsign.tscn" id="38_rheya"]
 [ext_resource type="PackedScene" path="res://world/prefabs/zombie/trafficcone_1.tscn" id="39_ph1nh"]
+[ext_resource type="PackedScene" path="res://world/prefabs/missoes/item_de_missao.tscn" id="40_0kiek"]
 [ext_resource type="PackedScene" path="res://world/prefabs/downtown/floor_4x4.tscn" id="40_6komr"]
 [ext_resource type="PackedScene" path="res://world/prefabs/zombie/trafficcone_2.tscn" id="40_mpuvm"]
 [ext_resource type="PackedScene" path="res://world/prefabs/zombie/container_red.tscn" id="40_ph1nh"]
 [ext_resource type="PackedScene" path="res://world/prefabs/pallet.tscn" id="41_6komr"]
+[ext_resource type="Script" path="res://world/container_item.gd" id="41_mpuvm"]
+[ext_resource type="PackedScene" path="res://world/prefabs/historia/documento_da_historia.tscn" id="42_6komr"]
 
-[sub_resource type="NavigationMesh" id="NavigationMesh_ph1nh"]
+[sub_resource type="NavigationMesh" id="NavigationMesh_6komr"]
 geometry_collision_mask = 1
 agent_height = 2.0
 filter_baking_aabb = AABB(0, -5, 0, 64, 30, 64)
@@ -451,10 +454,18 @@ size = Vector3(0.24, 0.1, 0.12)
 [sub_resource type="BoxMesh" id="BoxMesh_awvpa"]
 size = Vector3(0.24, 0.1, 0.12)
 
+[sub_resource type="Resource" id="Resource_0kiek"]
+script = ExtResource("41_mpuvm")
+item_id = "ordem_transferencia"
+
+[sub_resource type="Resource" id="Resource_u05kh"]
+script = ExtResource("41_mpuvm")
+item_id = "diario_helena"
+
 [node name="Chunk" type="Node3D" unique_id=1626088061]
 
 [node name="Navigation" type="NavigationRegion3D" parent="." unique_id=1661683158]
-navigation_mesh = SubResource("NavigationMesh_ph1nh")
+navigation_mesh = SubResource("NavigationMesh_6komr")
 
 [node name="Ground" type="StaticBody3D" parent="Navigation" unique_id=1389150052]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 32, -0.5, 32)
@@ -1464,6 +1475,25 @@ transform = Transform3D(1, 0, 5.563627e-08, 0, 1, 0, -5.563627e-08, 0, 1, 13.5, 
 
 [node name="god_1793804439_5834" parent="Navigation" unique_id=284877739 instance=ExtResource("40_6komr")]
 transform = Transform3D(1, 0, 5.563627e-08, 0, 1, 0, -5.563627e-08, 0, 1, 9.5, 0.12, 34.5)
+
+[node name="god_1793971399_6010" parent="Navigation" unique_id=1847227473 instance=ExtResource("40_0kiek")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.841806, 0, 55.13)
+container_id = "god_1793971399_6010"
+title = "Item"
+open_range = 1.6
+contents = Array[ExtResource("41_mpuvm")]([SubResource("Resource_0kiek")])
+open_sound = "pickup"
+
+[node name="god_1793971506_1304" parent="Navigation" unique_id=1833379010 instance=ExtResource("42_6komr")]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 9.370001, 0.2552588, 57.658775)
+
+[node name="god_1793971730_2809" parent="Navigation" unique_id=410219803 instance=ExtResource("40_0kiek")]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 10.263639, 0, 47.15664)
+container_id = "god_1793971730_2809"
+title = "Item"
+open_range = 1.6
+contents = Array[ExtResource("41_mpuvm")]([SubResource("Resource_u05kh")])
+open_sound = "pickup"
 
 [node name="Npc_Sr_Gouveia" type="Node3D" parent="." unique_id=1417754578]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, 0, 12.5)

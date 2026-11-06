@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ItemDef" format=3]
+
+[ext_resource type="Script" path="res://items/item_drop.gd" id="1_ks6xj"]
+[ext_resource type="Script" path="res://items/item_def.gd" id="2_awiaf"]
+
+[resource]
+script = ExtResource("2_awiaf")
+id = "ordem_transferencia"
+display_name = "Ofício nº 0731/7 · Ministério da Segurança Sanitária"
+slot = "missao"
+look = "book"
+color = Color(0.45, 0.16, 0.12, 1)
+price = 0
+random_loot = false
+document = "ordem_transferencia"
